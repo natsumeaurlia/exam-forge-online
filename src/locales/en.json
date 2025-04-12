@@ -6,7 +6,23 @@
     "demo": "View Demo",
     "features": "Features",
     "pricing": "Pricing",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "proLabel": "PRO",
+    "footer": {
+      "products": "Products",
+      "company": "Company",
+      "resources": "Resources",
+      "support": "Support",
+      "blog": "Blog",
+      "developers": "Developers",
+      "about": "About",
+      "contact": "Contact",
+      "careers": "Careers",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "commercialTransactions": "Legal Information",
+      "copyright": "© 2025 ExamForge Inc. All rights reserved."
+    }
   },
   "hero": {
     "tagline": "Online Quiz Creation & Certification",
@@ -20,6 +36,117 @@
       "noCard": "No credit card required",
       "freeQuizzes": "Create up to 5 quizzes for free",
       "scoring": "Automatic and manual grading"
+    }
+  },
+  "quiz": {
+    "selector": {
+      "title": "Select Quiz Type",
+      "description": "Choose the type of quiz you want to create. You can select the format that best suits your purpose.",
+      "selectButton": "Select this type",
+      "proOnlyButton": "Available in Pro plan"
+    },
+    "types": {
+      "simple-quiz": {
+        "title": "Simple Quiz",
+        "description": "Basic quiz format that includes true/false and multiple choice questions.",
+        "features": {
+          "truefalse": "True/False Questions",
+          "single": "Single Choice Questions",
+          "multiple": "Multiple Choice Questions",
+          "freetext": "Free Text Questions"
+        },
+        "featureInfo": {
+          "truefalse": "Basic question format that asks for true or false answers.",
+          "single": "Questions with multiple options where only one answer is correct.",
+          "multiple": "Questions that allow selecting multiple correct answers.",
+          "freetext": "Questions that require free text responses."
+        }
+      },
+      "exam": {
+        "title": "Exam",
+        "description": "Full-fledged exam mode with passing score settings and time limits.",
+        "features": {
+          "passingScore": "Passing Score Setting",
+          "analytics": "Detailed Analytics",
+          "certificate": "Certificate Issuance",
+          "timeLimit": "Time Limit"
+        },
+        "featureInfo": {
+          "passingScore": "Set a pass/fail threshold for the exam.",
+          "analytics": "Analyze test-taker performance in detail.",
+          "certificate": "Automatically issue certificates for passing candidates.",
+          "timeLimit": "Set time constraints for the exam."
+        }
+      },
+      "survey": {
+        "title": "Survey",
+        "description": "Forms for opinion and information gathering without right or wrong answers.",
+        "features": {
+          "freeAnswer": "Free Answer Format",
+          "choice": "Choice Format",
+          "matrix": "Matrix Questions",
+          "analytics": "Collection and Analysis"
+        },
+        "featureInfo": {
+          "freeAnswer": "Format where responses can be entered freely.",
+          "choice": "Format where answers are selected from choices.",
+          "matrix": "Format where multiple questions are answered with the same set of choices.",
+          "analytics": "Collect and analyze response results."
+        }
+      },
+      "assessment": {
+        "title": "Assessment",
+        "description": "Complex question sets for more advanced evaluation.",
+        "features": {
+          "sections": "Section Organization",
+          "branching": "Conditional Branching",
+          "scoring": "Composite Scoring",
+          "reports": "Detailed Reports"
+        },
+        "featureInfo": {
+          "sections": "Organize questions by sections.",
+          "branching": "Set conditional branching where the next question changes based on responses.",
+          "scoring": "Combine multiple scoring methods.",
+          "reports": "Create detailed evaluation reports."
+        }
+      },
+      "course": {
+        "title": "Course",
+        "description": "Learning experience that combines educational content and quizzes.",
+        "features": {
+          "lessons": "Lesson Structure",
+          "progress": "Learning Progress Management",
+          "quizzes": "Confirmation Quizzes",
+          "certificates": "Completion Certificate"
+        },
+        "featureInfo": {
+          "lessons": "Progress through a step-by-step lesson structure.",
+          "progress": "Manage learner progress.",
+          "quizzes": "Set up quizzes to confirm understanding of lessons.",
+          "certificates": "Issue certificates to course completers."
+        }
+      },
+      "ai-quiz": {
+        "title": "AI-Generated Quiz",
+        "description": "AI automatically generates quizzes based on topics.",
+        "features": {
+          "autoGenerate": "Auto Generation",
+          "customPrompt": "Custom Prompts",
+          "instant": "Instant Creation",
+          "edit": "Editable"
+        },
+        "featureInfo": {
+          "autoGenerate": "Simply input a topic and AI automatically creates questions.",
+          "customPrompt": "Customize detailed instructions to the AI.",
+          "instant": "Completed quizzes are generated in just seconds.",
+          "edit": "Generated questions can be freely edited and adjusted."
+        }
+      }
+    },
+    "demo": {
+      "try": "Try Quiz Creation Demo",
+      "backToHome": "Back to Home",
+      "backToQuiz": "Back to Quiz Type Selection"
     }
   },
   "features": {
@@ -57,6 +184,10 @@
       "feedback": {
         "title": "Feedback System",
         "description": "Support learners' comprehension with explanations for each question and comment functions during grading."
+      },
+      "ai": {
+        "title": "AI Question Generation",
+        "description": "Simply specify a topic, and AI automatically creates high-quality questions. Save time while preparing diverse questions. (Pro plan)"
       }
     }
   },
@@ -122,7 +253,8 @@
         "customdev": "Custom Development",
         "onpremise": "On-premise Support",
         "support": "Dedicated Support Manager",
-        "allpro": "All Pro Plan Features"
+        "allpro": "All Pro Plan Features",
+        "aiquiz": "AI Question Generation"
       },
       "free": {
         "name": "Free Plan",
@@ -148,5 +280,137 @@
       }
     },
     "guarantee": "All plans come with a 30-day money-back guarantee. Contact us if you have any questions."
+  },
+  "pages": {
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you have any questions or inquiries, please feel free to contact us.",
+      "form": {
+        "name": "Name",
+        "email": "Email Address",
+        "company": "Company/Organization",
+        "subject": "Subject",
+        "message": "Message",
+        "submit": "Submit",
+        "success": "Your inquiry has been received. We will contact you once our staff reviews it.",
+        "error": "An error occurred. Please try again or contact us directly by email."
+      },
+      "contact": {
+        "title": "Other Ways to Contact Us",
+        "email": "Email: info@examforge.com",
+        "phone": "Phone: +1-XXX-XXX-XXXX",
+        "address": "Address: 123 Main St, Suite 456, New York, NY 10001"
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "questions": [
+          {
+            "question": "What can I do with the free plan?",
+            "answer": "With the free plan, you can create up to 5 quizzes with 20 questions each and accept up to 100 responses per month per quiz. Basic question types and auto-grading features are also available."
+          },
+          {
+            "question": "How do I upgrade to the Pro plan?",
+            "answer": "You can upgrade to the Pro plan from your account settings under billing information. Enter your credit card details to start using it immediately."
+          },
+          {
+            "question": "Can I cancel at any time?",
+            "answer": "Yes, you can cancel at any time. You'll continue to have access to the service until the end of your billing period. We also offer a 30-day money-back guarantee."
+          }
+        ]
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "updated": "Last Updated: April 1, 2025",
+      "sections": [
+        {
+          "title": "1. Application of Terms of Service",
+          "content": "These Terms of Service set forth the conditions for the use of the ExamForge service (hereinafter referred to as the 'Service') provided by ExamForge Inc. (hereinafter referred to as the 'Company'). By using the Service, users are deemed to have agreed to these Terms of Service."
+        },
+        {
+          "title": "2. Service Content",
+          "content": "The Service provides an online quiz and exam creation platform. Users can create, distribute, and manage quizzes and exams. Service content may be changed without notice."
+        },
+        {
+          "title": "3. Account",
+          "content": "Users are responsible for creating and maintaining their accounts with accurate and up-to-date information. Users have the obligation to notify the Company immediately in the event of any unauthorized use or breach of account information."
+        },
+        {
+          "title": "4. Service Fees",
+          "content": "The Service includes free and paid plans. The fees for paid plans shall be as posted on the Company website. Fees may be changed without notice."
+        },
+        {
+          "title": "5. Prohibited Actions",
+          "content": "Users must not engage in illegal activities or infringe upon the rights of third parties while using the Service. Actions that interfere with the normal operation of the Service are also prohibited."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "updated": "Last Updated: April 1, 2025",
+      "sections": [
+        {
+          "title": "1. Collection of Personal Information",
+          "content": "The Company collects users' personal information to the extent necessary for providing the Service. The collected information includes names, email addresses, payment information, etc."
+        },
+        {
+          "title": "2. Purpose of Using Personal Information",
+          "content": "Collected personal information is used for service provision, customer support, service improvement, marketing activities, etc. We will not use it for purposes other than those specified, except as required by law."
+        },
+        {
+          "title": "3. Sharing of Personal Information",
+          "content": "The Company will not provide personal information to third parties except as required by law or based on contracts with service providers. Service providers are obligated to implement appropriate management measures."
+        },
+        {
+          "title": "4. Security",
+          "content": "The Company implements appropriate security measures to prevent the leakage, loss, or damage of personal information."
+        },
+        {
+          "title": "5. Use of Cookies and Similar Technologies",
+          "content": "Our services use cookies and similar technologies to improve user experience and service. Users can restrict the use of these through browser settings."
+        }
+      ]
+    },
+    "legal": {
+      "title": "Legal Information",
+      "sections": [
+        {
+          "title": "Business Name",
+          "content": "ExamForge Inc."
+        },
+        {
+          "title": "Representative",
+          "content": "John Smith"
+        },
+        {
+          "title": "Location",
+          "content": "123 Main St, Suite 456, New York, NY 10001"
+        },
+        {
+          "title": "Contact",
+          "content": "Phone: +1-XXX-XXX-XXXX (Hours: Weekdays 10:00-18:00)\nEmail: info@examforge.com"
+        },
+        {
+          "title": "Sales Price",
+          "content": "Each pricing plan is based on the price shown on the service website. All displayed prices include tax."
+        },
+        {
+          "title": "Payment Methods",
+          "content": "Credit Card Payment (VISA, Mastercard, American Express, JCB)\nBank Transfer (Enterprise plan only)"
+        },
+        {
+          "title": "Payment Timing",
+          "content": "Credit Card Payment: Automatic payment on contract renewal date each month\nBank Transfer: Payment within 14 days of invoice issuance"
+        },
+        {
+          "title": "Contract Period/Renewal",
+          "content": "The contract period is 1 month for monthly plans and 12 months for annual plans. If cancellation procedures are not completed 7 days before the expiration date, the contract will be automatically renewed under the same conditions."
+        },
+        {
+          "title": "Cancellation/Returns",
+          "content": "Due to the nature of digital services, returns are not accepted. However, a full refund guarantee is applicable within 30 days of the initial contract."
+        }
+      ]
+    }
   }
 }

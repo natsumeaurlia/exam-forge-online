@@ -1,10 +1,24 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-export function Hero() {
-  const { t } = useTranslation();
-  
+// Presentational component
+export function HeroView({ 
+  tagline, 
+  title, 
+  description, 
+  ctaStart, 
+  ctaDemo, 
+  benefits 
+}: {
+  tagline: string;
+  title: string;
+  description: string;
+  ctaStart: string;
+  ctaDemo: string;
+  benefits: string[];
+}) {
   return (
     <div className="relative overflow-hidden bg-white pt-16 pb-24">
       <div className="container mx-auto px-4">
@@ -13,38 +27,32 @@ export function Hero() {
           <div className="flex flex-col justify-center">
             <div className="mb-8">
               <div className="inline-flex items-center rounded-full bg-examforge-blue/10 px-3 py-1 text-sm font-medium text-examforge-blue-dark mb-6">
-                <span className="mr-1">✨</span> {t('hero.tagline')}
+                <span className="mr-1">✨</span> {tagline}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
-                <span className="heading-gradient">{t('hero.title')}</span>
+                <span className="heading-gradient">{title}</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 max-w-md">
-                {t('hero.description')}
+                {description}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" className="gap-2">
-                  {t('hero.cta.start')}
+                  {ctaStart}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button size="lg" variant="outline">
-                  {t('hero.cta.demo')}
+                  {ctaDemo}
                 </Button>
               </div>
               
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">{t('hero.benefits.noCard')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">{t('hero.benefits.freeQuizzes')}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">{t('hero.benefits.scoring')}</span>
-                </div>
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-examforge-blue" />
+                    <span className="text-sm">{benefit}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -104,5 +112,27 @@ export function Hero() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Container component
+export function Hero() {
+  const { t } = useTranslation();
+  
+  const benefits = [
+    t('hero.benefits.noCard'),
+    t('hero.benefits.freeQuizzes'),
+    t('hero.benefits.scoring')
+  ];
+  
+  return (
+    <HeroView
+      tagline={t('hero.tagline')}
+      title={t('hero.title')}
+      description={t('hero.description')}
+      ctaStart={t('hero.cta.start')}
+      ctaDemo={t('hero.cta.demo')}
+      benefits={benefits}
+    />
   );
 }

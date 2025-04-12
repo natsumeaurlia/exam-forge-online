@@ -9,6 +9,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AVAILABLE_LANGUAGES } from "@/constants/languages";
+
+interface LanguageSwitcherViewProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  changeLanguage: (lng: string) => void;
+  languages: typeof AVAILABLE_LANGUAGES;
+}
+
+export function LanguageSwitcherView({ isOpen, setIsOpen, changeLanguage, languages }: LanguageSwitcherViewProps) {
+  return (
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Globe className="h-5 w-5" />
+          <span className="sr-only">Switch language</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {languages.map(lang => (
+          <DropdownMenuItem key={lang.code} onClick={() => changeLanguage(lang.code)}>
+            {lang.flag} {lang.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
@@ -24,21 +52,11 @@ export function LanguageSwitcher() {
   };
   
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Globe className="h-5 w-5" />
-          <span className="sr-only">Switch language</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => changeLanguage("ja")}>
-          🇯🇵 日本語
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => changeLanguage("en")}>
-          🇺🇸 English
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <LanguageSwitcherView
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      changeLanguage={changeLanguage}
+      languages={AVAILABLE_LANGUAGES}
+    />
   );
 }

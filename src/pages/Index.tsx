@@ -10,10 +10,13 @@ import { QuestionForm, Question } from "@/components/quiz/QuestionForm";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { Footer } from "@/components/layout/Footer";
+import { useTranslation } from "react-i18next";
 
 type AppView = "landing" | "create-quiz" | "create-question";
 
 const Index = () => {
+  const { t } = useTranslation();
   const [view, setView] = useState<AppView>("landing");
   const [selectedQuizType, setSelectedQuizType] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -22,11 +25,8 @@ const Index = () => {
   const handleQuizTypeSelect = (type: string) => {
     setSelectedQuizType(type);
     toast({
-      title: "クイズタイプを選択しました",
-      description: `「${type === 'simple-quiz' ? 'シンプルクイズ' : 
-                      type === 'exam' ? '試験' : 
-                      type === 'survey' ? 'アンケート' : 
-                      ''}」を作成します。`,
+      title: t("quiz.selector.title"),
+      description: t(`quiz.types.${type}.title`),
     });
     setView("create-question");
   };
@@ -63,7 +63,7 @@ const Index = () => {
               onClick={() => setView("landing")}
             >
               <ArrowLeft className="h-4 w-4" />
-              ホームに戻る
+              {t("quiz.demo.backToHome")}
             </Button>
             
             <QuizTypeSelector onSelect={handleQuizTypeSelect} />
@@ -79,7 +79,7 @@ const Index = () => {
               onClick={() => setView("create-quiz")}
             >
               <ArrowLeft className="h-4 w-4" />
-              クイズタイプ選択に戻る
+              {t("quiz.demo.backToQuiz")}
             </Button>
             
             <div className="max-w-3xl mx-auto">
@@ -111,7 +111,7 @@ const Index = () => {
                 onClick={() => setView("create-quiz")}
                 className="bg-examforge-blue hover:bg-examforge-blue-dark"
               >
-                クイズ作成デモを試す
+                {t("quiz.demo.try")}
               </Button>
             </div>
           </>
@@ -125,66 +125,7 @@ const Index = () => {
       <main className="flex-1">
         {renderView()}
       </main>
-      
-      <footer className="bg-gray-50 py-12 border-t">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-8 md:mb-0">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-examforge-blue to-examforge-blue-dark flex items-center justify-center text-white font-bold">
-                  E
-                </div>
-                <span className="text-lg font-bold">ExamForge</span>
-              </div>
-              <p className="text-gray-600 max-w-md">
-                教育機関や企業向けのシンプルで使いやすいオンラインクイズ・試験作成プラットフォーム。
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-              <div>
-                <h3 className="font-medium mb-4">製品</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">機能</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">料金プラン</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">よくある質問</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-4">会社情報</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">会社概要</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">お問い合わせ</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">採用情報</a></li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="font-medium mb-4">リソース</h3>
-                <ul className="space-y-2">
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">サポート</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">ブログ</a></li>
-                  <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">開発者向け</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-500 text-sm mb-4 md:mb-0">
-                © 2025 ExamForge Inc. All rights reserved.
-              </p>
-              <div className="flex gap-4">
-                <a href="#" className="text-gray-500 hover:text-examforge-blue">利用規約</a>
-                <a href="#" className="text-gray-500 hover:text-examforge-blue">プライバシーポリシー</a>
-                <a href="#" className="text-gray-500 hover:text-examforge-blue">特定商取引法に基づく表記</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
