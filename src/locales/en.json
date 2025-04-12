@@ -72,6 +72,58 @@
     "title": "Simple Pricing Plans",
     "description": "Choose from three plans to suit your needs. Upgrade as you grow.",
     "plans": {
+      "features": {
+        "included": "Features Included",
+        "quizzes": {
+          "free": "Quizzes: up to 5",
+          "pro": "Quizzes: unlimited",
+          "enterprise": "Quizzes: unlimited"
+        },
+        "members": {
+          "free": "Members: up to 3",
+          "pro": "Members: up to 20",
+          "enterprise": "Members: unlimited"
+        },
+        "questions": {
+          "free": "Questions: 20 per quiz",
+          "pro": "Questions: 200 per quiz",
+          "enterprise": "Questions: unlimited"
+        },
+        "responses": {
+          "free": "Responses: 100 per month/quiz",
+          "pro": "Responses: 3,000 per month/quiz",
+          "enterprise": "Responses: unlimited"
+        },
+        "storage": {
+          "free": "Storage: 100MB",
+          "pro": "Storage: 10GB",
+          "enterprise": "Storage: unlimited"
+        },
+        "truefalse": "True/False Questions",
+        "singlechoice": "Single Choice Questions",
+        "multiplechoice": "Multiple Choice Questions",
+        "freetext": "Free Text Questions",
+        "autograding": "Auto Grading",
+        "manualgrading": "Manual Grading",
+        "password": "Password Protection",
+        "subdomain": "Custom Subdomain",
+        "media": "Media Embedding",
+        "questionbank": "Question Bank",
+        "advancedtypes": "Advanced Question Types",
+        "analytics": "Detailed Analytics",
+        "sections": "Section Organization",
+        "certificates": "Certificate Issuance",
+        "excel": "Excel/CSV Integration",
+        "teams": "Team Creation",
+        "customdesign": "Design Customization",
+        "permissions": "Advanced Permission Control",
+        "audit": "Audit Logging",
+        "sla": "SLA Guarantee",
+        "customdev": "Custom Development",
+        "onpremise": "On-premise Support",
+        "support": "Dedicated Support Manager",
+        "allpro": "All Pro Plan Features"
+      },
       "free": {
         "name": "Free Plan",
         "price": "$0",

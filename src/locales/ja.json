@@ -72,6 +72,58 @@
     "title": "シンプルな料金プラン",
     "description": "ニーズに合わせて選べる3つのプラン。成長に合わせてアップグレード可能です。",
     "plans": {
+      "features": {
+        "included": "含まれる機能",
+        "quizzes": {
+          "free": "クイズ作成数: 5件まで",
+          "pro": "クイズ作成数: 無制限",
+          "enterprise": "クイズ作成数: 無制限"
+        },
+        "members": {
+          "free": "メンバー数: 最大3人",
+          "pro": "メンバー数: 最大20人",
+          "enterprise": "メンバー数: 無制限"
+        },
+        "questions": {
+          "free": "問題数: クイズあたり20問まで",
+          "pro": "問題数: クイズあたり200問まで",
+          "enterprise": "問題数: 無制限"
+        },
+        "responses": {
+          "free": "回答上限: クイズあたり月100回まで",
+          "pro": "回答上限: クイズあたり月3,000回まで",
+          "enterprise": "回答上限: 無制限"
+        },
+        "storage": {
+          "free": "ストレージ: 100MB",
+          "pro": "ストレージ: 10GB",
+          "enterprise": "ストレージ: 無制限"
+        },
+        "truefalse": "マルバツ問題",
+        "singlechoice": "指定択一問題",
+        "multiplechoice": "複数選択問題",
+        "freetext": "自由記述問題",
+        "autograding": "自動採点",
+        "manualgrading": "手動採点",
+        "password": "パスワード保護",
+        "subdomain": "カスタムサブドメイン",
+        "media": "メディア埋め込み",
+        "questionbank": "問題バンク",
+        "advancedtypes": "高度な問題タイプ",
+        "analytics": "詳細な分析",
+        "sections": "セクション分け",
+        "certificates": "合格証発行",
+        "excel": "Excel/CSV連携",
+        "teams": "チーム作成",
+        "customdesign": "デザインカスタマイズ",
+        "permissions": "高度な権限管理",
+        "audit": "監査ログ",
+        "sla": "SLA保証",
+        "customdev": "カスタム開発",
+        "onpremise": "オンプレミス対応",
+        "support": "専任サポート担当者",
+        "allpro": "プロプランのすべての機能"
+      },
       "free": {
         "name": "フリープラン",
         "price": "¥0",
