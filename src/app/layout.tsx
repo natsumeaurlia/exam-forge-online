@@ -1,6 +1,9 @@
 
+import React from 'react';
 import '../index.css';
-import AppWrapper from '../app-wrapper';
+import { Navbar } from '../components/layout/Navbar';
+import { Footer } from '../components/layout/Footer';
+import { I18nProvider } from '../components/providers/I18nProvider';
 
 export interface LayoutProps {
   children: React.ReactNode;
@@ -23,9 +26,13 @@ export default function RootLayout({
         <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
       </head>
       <body>
-        <AppWrapper>
-          {children}
-        </AppWrapper>
+        <I18nProvider>
+          <Navbar />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </I18nProvider>
       </body>
     </html>
   );
