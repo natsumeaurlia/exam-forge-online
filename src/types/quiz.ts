@@ -1,11 +1,12 @@
 
 import { LucideIcon } from "lucide-react";
+import React from "react";
 
 export interface QuizTypeProps {
   id: string;
   title: string;
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactElement;
   features: string[];
   featureInfo?: Record<string, boolean>;
   proOnly?: boolean;
