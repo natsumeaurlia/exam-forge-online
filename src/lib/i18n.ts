@@ -17,6 +17,7 @@ const resources = {
   }
 };
 
+// i18nインスタンスの初期化
 i18n
   // 言語検出プラグインを使う
   .use(LanguageDetector)
@@ -26,6 +27,7 @@ i18n
   .init({
     resources,
     fallbackLng: 'ja',
+    lng: localStorage.getItem('i18nextLng') || 'ja', // デフォルト言語を明示的に設定
     interpolation: {
       escapeValue: false, // Reactでは必要ない
     },
@@ -33,6 +35,11 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
     },
+    react: {
+      useSuspense: false // Suspenseを使用しない設定
+    }
   });
+
+console.log('i18n initialized with language:', i18n.language);
 
 export default i18n;

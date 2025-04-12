@@ -4,4 +4,8 @@ import App from './App.tsx'
 import './index.css'
 import './lib/i18n' // i18nの初期化をインポート
 
-createRoot(document.getElementById("root")!).render(<App />);
+// i18nの初期化が完了した後にアプリをレンダリングする
+// Reactのレンダリングを遅延させ、i18nが確実に初期化されるようにする
+document.addEventListener('DOMContentLoaded', () => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});
