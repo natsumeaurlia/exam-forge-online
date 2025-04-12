@@ -1,8 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function Hero() {
+  const { t } = useTranslation();
+  
   return (
     <div className="relative overflow-hidden bg-white pt-16 pb-24">
       <div className="container mx-auto px-4">
@@ -11,39 +13,37 @@ export function Hero() {
           <div className="flex flex-col justify-center">
             <div className="mb-8">
               <div className="inline-flex items-center rounded-full bg-examforge-blue/10 px-3 py-1 text-sm font-medium text-examforge-blue-dark mb-6">
-                <span className="mr-1">✨</span> オンラインクイズ作成 &amp; 資格試験
+                <span className="mr-1">✨</span> {t('hero.tagline')}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
-                <span className="heading-gradient">簡単操作</span>で<br />
-                プロ品質のクイズを<br />
-                <span className="heading-gradient">即座に作成</span>
+                <span className="heading-gradient">{t('hero.title')}</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 max-w-md">
-                ExamForgeは、教育機関や企業の研修担当者が簡単に高品質なクイズや試験を作成・配布・管理できるオールインワンプラットフォームです。
+                {t('hero.description')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" className="gap-2">
-                  無料で始める
+                  {t('hero.cta.start')}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button size="lg" variant="outline">
-                  デモを見る
+                  {t('hero.cta.demo')}
                 </Button>
               </div>
               
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">クレジットカード登録不要</span>
+                  <span className="text-sm">{t('hero.benefits.noCard')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">5つのクイズまで無料で作成可能</span>
+                  <span className="text-sm">{t('hero.benefits.freeQuizzes')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-examforge-blue" />
-                  <span className="text-sm">手動・自動採点対応</span>
+                  <span className="text-sm">{t('hero.benefits.scoring')}</span>
                 </div>
               </div>
             </div>

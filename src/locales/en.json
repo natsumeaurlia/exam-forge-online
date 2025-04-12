@@ -1,0 +1,100 @@
+
+{
+  "common": {
+    "login": "Login",
+    "signup": "Get Started Free",
+    "demo": "View Demo",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ"
+  },
+  "hero": {
+    "tagline": "Online Quiz Creation & Certification",
+    "title": "Create Professional Quizzes with Simple Operations",
+    "description": "ExamForge is an all-in-one platform that allows educational institutions and corporate trainers to easily create, distribute, and manage high-quality quizzes and exams.",
+    "cta": {
+      "start": "Start for Free",
+      "demo": "View Demo"
+    },
+    "benefits": {
+      "noCard": "No credit card required",
+      "freeQuizzes": "Create up to 5 quizzes for free",
+      "scoring": "Automatic and manual grading"
+    }
+  },
+  "features": {
+    "title": "Create Professional Exams with Simple Operations",
+    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
+    "list": {
+      "builder": {
+        "title": "Intuitive Quiz Builder",
+        "description": "Easily create and rearrange questions with drag & drop. Anyone can use it without programming knowledge."
+      },
+      "questionTypes": {
+        "title": "Diverse Question Types",
+        "description": "Supports various question formats such as true/false, single choice, multiple choice, and free text. Pro plan offers even more advanced question types."
+      },
+      "analytics": {
+        "title": "Detailed Analysis Reports",
+        "description": "Visually confirm test-takers' scores and correct answer rates for each question. Provides insights to maximize learning effectiveness."
+      },
+      "scoring": {
+        "title": "Automatic Scoring System",
+        "description": "Immediately check results with automatic scoring for selection and specified answers. Manual grading mode also allows for more flexible evaluation."
+      },
+      "import": {
+        "title": "Excel/CSV Integration",
+        "description": "Bulk import existing questions from Excel or CSV. Efficiently register large volumes of questions. (Pro plan)"
+      },
+      "certificates": {
+        "title": "Certificate Issuance",
+        "description": "Automatically generate customizable certificates for download as PDF or auto-send to test-takers. (Pro plan)"
+      },
+      "security": {
+        "title": "Security Measures",
+        "description": "Securely manage important exam content with password protection and access restriction features."
+      },
+      "feedback": {
+        "title": "Feedback System",
+        "description": "Support learners' comprehension with explanations for each question and comment functions during grading."
+      }
+    }
+  },
+  "cta": {
+    "title": "Create Professional Quizzes Now",
+    "description": "With ExamForge's user-friendly interface, you can create and distribute quizzes and exams in minutes. Try it with our free plan.",
+    "buttons": {
+      "demo": "View Demo",
+      "signup": "Create Free Account"
+    }
+  },
+  "pricing": {
+    "title": "Simple Pricing Plans",
+    "description": "Choose from three plans to suit your needs. Upgrade as you grow.",
+    "plans": {
+      "free": {
+        "name": "Free Plan",
+        "price": "$0",
+        "period": "Forever free",
+        "description": "Perfect for individuals and small teams",
+        "cta": "Start for Free"
+      },
+      "pro": {
+        "name": "Pro Plan",
+        "price": "$29",
+        "period": "per month/tenant",
+        "description": "Perfect for educational institutions and businesses",
+        "cta": "Upgrade",
+        "popular": "Popular"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Contact us",
+        "period": "Custom plan",
+        "description": "For large organizations and educational institutions",
+        "cta": "Contact Us"
+      }
+    },
+    "guarantee": "All plans come with a 30-day money-back guarantee. Contact us if you have any questions."
+  }
+}

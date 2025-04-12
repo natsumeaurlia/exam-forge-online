@@ -1,0 +1,38 @@
+
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+// 翻訳ファイルをインポート
+import translationEN from '../locales/en.json';
+import translationJA from '../locales/ja.json';
+
+// 利用可能な言語
+const resources = {
+  en: {
+    translation: translationEN
+  },
+  ja: {
+    translation: translationJA
+  }
+};
+
+i18n
+  // 言語検出プラグインを使う
+  .use(LanguageDetector)
+  // i18nextとReactを連携
+  .use(initReactI18next)
+  // 初期化
+  .init({
+    resources,
+    fallbackLng: 'ja',
+    interpolation: {
+      escapeValue: false, // Reactでは必要ない
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+    },
+  });
+
+export default i18n;

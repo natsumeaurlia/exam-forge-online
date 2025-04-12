@@ -1,10 +1,13 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export function Navbar() {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
@@ -19,23 +22,33 @@ export function Navbar() {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          <a href="#features" className="text-sm font-medium hover:text-examforge-blue transition-colors">機能</a>
-          <a href="#pricing" className="text-sm font-medium hover:text-examforge-blue transition-colors">料金プラン</a>
-          <a href="#faq" className="text-sm font-medium hover:text-examforge-blue transition-colors">よくある質問</a>
+          <a href="#features" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+            {t('common.features')}
+          </a>
+          <a href="#pricing" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+            {t('common.pricing')}
+          </a>
+          <a href="#faq" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+            {t('common.faq')}
+          </a>
         </nav>
         
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost">ログイン</Button>
-          <Button>無料で始める</Button>
+          <LanguageSwitcher />
+          <Button variant="ghost">{t('common.login')}</Button>
+          <Button>{t('common.signup')}</Button>
         </div>
         
         {/* Mobile menu button */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-          className="md:hidden p-2"
-        >
-          {mobileMenuOpen ? <X /> : <Menu />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <LanguageSwitcher />
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+            className="p-2"
+          >
+            {mobileMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
       
       {/* Mobile Navigation */}
@@ -47,25 +60,25 @@ export function Navbar() {
               className="text-sm font-medium hover:text-examforge-blue transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
-              機能
+              {t('common.features')}
             </a>
             <a 
               href="#pricing" 
               className="text-sm font-medium hover:text-examforge-blue transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
-              料金プラン
+              {t('common.pricing')}
             </a>
             <a 
               href="#faq" 
               className="text-sm font-medium hover:text-examforge-blue transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
-              よくある質問
+              {t('common.faq')}
             </a>
             <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" className="w-full justify-center">ログイン</Button>
-              <Button className="w-full justify-center">無料で始める</Button>
+              <Button variant="outline" className="w-full justify-center">{t('common.login')}</Button>
+              <Button className="w-full justify-center">{t('common.signup')}</Button>
             </div>
           </nav>
         </div>
