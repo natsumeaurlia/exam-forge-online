@@ -1,6 +1,6 @@
 
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 export function Footer() {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export function Footer() {
               <h3 className="font-medium mb-4">{t('common.footer.company')}</h3>
               <ul className="space-y-2">
                 <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.about')}</a></li>
-                <li><Link to="/contact" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.contact')}</Link></li>
+                <li><Link href="/contact" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.contact')}</Link></li>
                 <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.careers')}</a></li>
               </ul>
             </div>
@@ -57,9 +57,9 @@ export function Footer() {
               {t('common.footer.copyright')}
             </p>
             <div className="flex gap-4">
-              <Link to="/terms" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.termsOfService')}</Link>
-              <Link to="/privacy" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.privacyPolicy')}</Link>
-              <Link to="/legal" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.commercialTransactions')}</Link>
+              <Link href="/terms" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.termsOfService')}</Link>
+              <Link href="/privacy" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.privacyPolicy')}</Link>
+              <Link href="/legal" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.commercialTransactions')}</Link>
             </div>
           </div>
         </div>

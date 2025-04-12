@@ -44,10 +44,10 @@ export function LanguageSwitcher() {
   
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
-    localStorage.setItem('i18nextLng', lng); // 明示的にlocalStorageに保存
+    localStorage.setItem('i18nextLng', lng);
     setIsOpen(false);
     console.log('Language changed to:', lng);
-    // 言語変更後にページをリロードして全てのコンポーネントに反映させる
+    // Reload the page to reflect language changes
     window.location.reload();
   };
   
