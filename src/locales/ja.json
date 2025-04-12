@@ -8,7 +8,12 @@
     "pricing": "料金プラン",
     "faq": "よくある質問",
     "proLabel": "PRO",
+    "languages": {
+      "japanese": "日本語",
+      "english": "English"
+    },
     "footer": {
+      "description": "教育機関や企業向けのシンプルで使いやすいオンラインクイズ・試験作成プラットフォーム。",
       "products": "製品",
       "company": "会社情報",
       "resources": "リソース",
@@ -36,6 +41,18 @@
       "noCard": "クレジットカード登録不要",
       "freeQuizzes": "5つのクイズまで無料で作成可能",
       "scoring": "手動・自動採点対応"
+    },
+    "quiz": {
+      "title": "マーケティングの基礎",
+      "question": "マーケティングミックスの4Pに含まれないものはどれ？",
+      "options": {
+        "0": "Product（製品）",
+        "1": "Performance（業績）",
+        "2": "Price（価格）",
+        "3": "Promotion（プロモーション）"
+      },
+      "progress": "問題 2/10",
+      "nextButton": "次へ"
     }
   },
   "quiz": {

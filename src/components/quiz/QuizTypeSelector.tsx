@@ -1,14 +1,6 @@
 
 import { useState } from "react";
-import { 
-  CheckSquare, 
-  FileText, 
-  AlignJustify, 
-  BookOpen, 
-  Check, 
-  Clock,
-  Sparkles 
-} from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -19,7 +11,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import { QUIZ_TYPES } from "@/constants/quizTypes";
+import { getQuizTypes } from "@/constants/quizTypes";
 import { QuizTypeProps } from "@/types/quiz";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
@@ -37,6 +29,9 @@ export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
     onSelect(typeId);
   };
   
+  // Get freshly translated quiz types
+  const quizTypes = getQuizTypes();
+  
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -47,7 +42,7 @@ export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {QUIZ_TYPES.map((type) => (
+        {quizTypes.map((type) => (
           <Card 
             key={type.id}
             className={`cursor-pointer transition-all hover:border-examforge-blue ${

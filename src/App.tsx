@@ -12,6 +12,9 @@ import NotFound from "./pages/NotFound";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import React from "react";
 
+// Import i18n initialization
+import "./lib/i18n";
+
 // Create query client outside of the component to avoid recreation on each render
 const queryClient = new QueryClient();
 

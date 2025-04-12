@@ -17,7 +17,7 @@ export function Footer() {
               <span className="text-lg font-bold">ExamForge</span>
             </div>
             <p className="text-gray-600 max-w-md">
-              教育機関や企業向けのシンプルで使いやすいオンラインクイズ・試験作成プラットフォーム。
+              {t('common.footer.description')}
             </p>
           </div>
           

@@ -1,13 +1,18 @@
 
-export const AVAILABLE_LANGUAGES = [
+import i18n from '../lib/i18n';
+
+export const getAvailableLanguages = () => [
   {
     code: "ja",
-    name: "日本語",
+    name: i18n.t('common.languages.japanese'),
     flag: "🇯🇵"
   },
   {
     code: "en",
-    name: "English",
+    name: i18n.t('common.languages.english'),
     flag: "🇺🇸"
   }
 ];
+
+// Export a function to get the current languages to ensure they're translated
+export const AVAILABLE_LANGUAGES = getAvailableLanguages();

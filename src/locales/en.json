@@ -8,7 +8,12 @@
     "pricing": "Pricing",
     "faq": "FAQ",
     "proLabel": "PRO",
+    "languages": {
+      "japanese": "Japanese",
+      "english": "English"
+    },
     "footer": {
+      "description": "A simple and easy-to-use online quiz and exam creation platform for educational institutions and businesses.",
       "products": "Products",
       "company": "Company",
       "resources": "Resources",
@@ -36,6 +41,18 @@
       "noCard": "No credit card required",
       "freeQuizzes": "Create up to 5 quizzes for free",
       "scoring": "Automatic and manual grading"
+    },
+    "quiz": {
+      "title": "Marketing Basics",
+      "question": "Which of the following is NOT one of the 4Ps of Marketing Mix?",
+      "options": {
+        "0": "Product",
+        "1": "Performance",
+        "2": "Price",
+        "3": "Promotion"
+      },
+      "progress": "Question 2/10",
+      "nextButton": "Next"
     }
   },
   "quiz": {

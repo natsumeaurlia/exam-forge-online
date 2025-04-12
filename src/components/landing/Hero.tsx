@@ -10,7 +10,8 @@ export function HeroView({
   description, 
   ctaStart, 
   ctaDemo, 
-  benefits 
+  benefits,
+  quizExample
 }: {
   tagline: string;
   title: string;
@@ -18,6 +19,12 @@ export function HeroView({
   ctaStart: string;
   ctaDemo: string;
   benefits: string[];
+  quizExample: {
+    title: string;
+    question: string;
+    options: {text: string, selected: boolean}[];
+    progress: string;
+  }
 }) {
   return (
     <div className="relative overflow-hidden bg-white pt-16 pb-24">
@@ -65,45 +72,29 @@ export function HeroView({
               <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-10 h-10 rounded-lg bg-examforge-blue flex items-center justify-center text-white">
-                    Q
+                    {quizExample.title.charAt(0)}
                   </div>
-                  <h3 className="font-bold">マーケティングの基礎</h3>
+                  <h3 className="font-bold">{quizExample.title}</h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="border rounded-lg p-3">
-                    <p className="text-sm font-medium mb-2">マーケティングミックスの4Pに含まれないものはどれ？</p>
+                    <p className="text-sm font-medium mb-2">{quizExample.question}</p>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+                      {quizExample.options.map((option, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full border flex items-center justify-center">
+                            <div className={`w-2.5 h-2.5 rounded-full ${option.selected ? 'bg-examforge-blue' : 'bg-white'}`}></div>
+                          </div>
+                          <span className="text-sm">{option.text}</span>
                         </div>
-                        <span className="text-sm">Product（製品）</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-examforge-blue"></div>
-                        </div>
-                        <span className="text-sm">Performance（業績）</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                        </div>
-                        <span className="text-sm">Price（価格）</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full border flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-                        </div>
-                        <span className="text-sm">Promotion（プロモーション）</span>
-                      </div>
+                      ))}
                     </div>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-xs text-gray-500">問題 2/10</span>
-                    <Button size="sm" variant="default">次へ</Button>
+                    <span className="text-xs text-gray-500">{quizExample.progress}</span>
+                    <Button size="sm" variant="default">{t('hero.quiz.nextButton')}</Button>
                   </div>
                 </div>
               </div>
@@ -125,6 +116,18 @@ export function Hero() {
     t('hero.benefits.scoring')
   ];
   
+  const quizExample = {
+    title: t('hero.quiz.title'),
+    question: t('hero.quiz.question'),
+    options: [
+      { text: t('hero.quiz.options.0'), selected: false },
+      { text: t('hero.quiz.options.1'), selected: true },
+      { text: t('hero.quiz.options.2'), selected: false },
+      { text: t('hero.quiz.options.3'), selected: false }
+    ],
+    progress: t('hero.quiz.progress')
+  };
+
   return (
     <HeroView
       tagline={t('hero.tagline')}
@@ -133,6 +136,7 @@ export function Hero() {
       ctaStart={t('hero.cta.start')}
       ctaDemo={t('hero.cta.demo')}
       benefits={benefits}
+      quizExample={quizExample}
     />
   );
 }

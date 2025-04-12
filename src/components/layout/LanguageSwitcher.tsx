@@ -9,13 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AVAILABLE_LANGUAGES } from "@/constants/languages";
+import { getAvailableLanguages } from "@/constants/languages";
 
 interface LanguageSwitcherViewProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   changeLanguage: (lng: string) => void;
-  languages: typeof AVAILABLE_LANGUAGES;
+  languages: ReturnType<typeof getAvailableLanguages>;
 }
 
 export function LanguageSwitcherView({ isOpen, setIsOpen, changeLanguage, languages }: LanguageSwitcherViewProps) {
@@ -24,7 +24,7 @@ export function LanguageSwitcherView({ isOpen, setIsOpen, changeLanguage, langua
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Globe className="h-5 w-5" />
-          <span className="sr-only">Switch language</span>
+          <span className="sr-only">{languages.length > 0 && languages[0].code === 'ja' ? '言語を切り替える' : 'Switch language'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -39,7 +39,7 @@ export function LanguageSwitcherView({ isOpen, setIsOpen, changeLanguage, langua
 }
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   
   const changeLanguage = (lng: string) => {
@@ -56,7 +56,7 @@ export function LanguageSwitcher() {
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       changeLanguage={changeLanguage}
-      languages={AVAILABLE_LANGUAGES}
+      languages={getAvailableLanguages()}
     />
   );
 }

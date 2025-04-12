@@ -1,4 +1,5 @@
 
+import React from 'react';
 import {
   CheckSquare,
   FileText,
@@ -8,12 +9,13 @@ import {
   Sparkles
 } from "lucide-react";
 import { QuizTypeProps } from "@/types/quiz";
+import i18n from '../lib/i18n';
 
-export const QUIZ_TYPES: QuizTypeProps[] = [
+export const getQuizTypes = (): QuizTypeProps[] => [
   {
     id: "simple-quiz",
-    title: "シンプルクイズ",
-    description: "基本的なクイズ形式で、マルバツ問題や選択問題などを含みます。",
+    title: i18n.t('quiz.types.simple-quiz.title'),
+    description: i18n.t('quiz.types.simple-quiz.description'),
     icon: <CheckSquare className="h-6 w-6" />,
     features: ["truefalse", "single", "multiple", "freetext"],
     featureInfo: {
@@ -25,8 +27,8 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
   },
   {
     id: "exam",
-    title: "試験",
-    description: "合格点設定や時間制限のある本格的な試験モード。",
+    title: i18n.t('quiz.types.exam.title'),
+    description: i18n.t('quiz.types.exam.description'),
     icon: <Clock className="h-6 w-6" />,
     features: ["passingScore", "analytics", "certificate", "timeLimit"],
     featureInfo: {
@@ -38,8 +40,8 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
   },
   {
     id: "survey",
-    title: "アンケート",
-    description: "正誤のない、意見や情報収集のためのフォーム。",
+    title: i18n.t('quiz.types.survey.title'),
+    description: i18n.t('quiz.types.survey.description'),
     icon: <AlignJustify className="h-6 w-6" />,
     features: ["freeAnswer", "choice", "matrix", "analytics"],
     featureInfo: {
@@ -51,8 +53,8 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
   },
   {
     id: "assessment",
-    title: "アセスメント",
-    description: "より高度な評価のための複合的な問題セット。",
+    title: i18n.t('quiz.types.assessment.title'),
+    description: i18n.t('quiz.types.assessment.description'),
     icon: <FileText className="h-6 w-6" />,
     features: ["sections", "branching", "scoring", "reports"],
     featureInfo: {
@@ -65,8 +67,8 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
   },
   {
     id: "course",
-    title: "コース",
-    description: "学習コンテンツとクイズを組み合わせた学習体験。",
+    title: i18n.t('quiz.types.course.title'),
+    description: i18n.t('quiz.types.course.description'),
     icon: <BookOpen className="h-6 w-6" />,
     features: ["lessons", "progress", "quizzes", "certificates"],
     featureInfo: {
@@ -79,8 +81,8 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
   },
   {
     id: "ai-quiz",
-    title: "AI自動生成クイズ",
-    description: "AIがトピックに基づいてクイズを自動生成します。",
+    title: i18n.t('quiz.types.ai-quiz.title'),
+    description: i18n.t('quiz.types.ai-quiz.description'),
     icon: <Sparkles className="h-6 w-6" />,
     features: ["autoGenerate", "customPrompt", "instant", "edit"],
     featureInfo: {
@@ -92,3 +94,6 @@ export const QUIZ_TYPES: QuizTypeProps[] = [
     proOnly: true,
   }
 ];
+
+// Export a function to get the current quiz types to ensure they're translated
+export const QUIZ_TYPES = getQuizTypes();
