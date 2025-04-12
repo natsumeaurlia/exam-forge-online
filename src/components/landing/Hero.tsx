@@ -24,6 +24,7 @@ export function HeroView({
     question: string;
     options: {text: string, selected: boolean}[];
     progress: string;
+    nextButton: string; // Add nextButton property to the type definition
   }
 }) {
   return (
@@ -94,7 +95,7 @@ export function HeroView({
                   
                   <div className="flex justify-between">
                     <span className="text-xs text-gray-500">{quizExample.progress}</span>
-                    <Button size="sm" variant="default">{t('hero.quiz.nextButton')}</Button>
+                    <Button size="sm" variant="default">{quizExample.nextButton}</Button>
                   </div>
                 </div>
               </div>
@@ -125,7 +126,8 @@ export function Hero() {
       { text: t('hero.quiz.options.2'), selected: false },
       { text: t('hero.quiz.options.3'), selected: false }
     ],
-    progress: t('hero.quiz.progress')
+    progress: t('hero.quiz.progress'),
+    nextButton: t('hero.quiz.nextButton')
   };
 
   return (
