@@ -42,10 +42,14 @@ function PrivacyView({
 export default function Privacy() {
   const { t } = useTranslation();
   
+  // Add proper type checking and default empty array
   const privacyData = {
     title: t('pages.privacy.title'),
     updated: t('pages.privacy.updated'),
-    sections: t('pages.privacy.sections', { returnObjects: true })
+    sections: (t('pages.privacy.sections', { returnObjects: true }) || []) as Array<{
+      title: string;
+      content: string;
+    }>
   };
   
   return (

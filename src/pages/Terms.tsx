@@ -42,10 +42,14 @@ function TermsView({
 export default function Terms() {
   const { t } = useTranslation();
   
+  // Add proper type checking and default empty array
   const termsData = {
     title: t('pages.terms.title'),
     updated: t('pages.terms.updated'),
-    sections: t('pages.terms.sections', { returnObjects: true })
+    sections: (t('pages.terms.sections', { returnObjects: true }) || []) as Array<{
+      title: string;
+      content: string;
+    }>
   };
   
   return (

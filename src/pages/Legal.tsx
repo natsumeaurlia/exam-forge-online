@@ -36,9 +36,13 @@ function LegalView({
 export default function Legal() {
   const { t } = useTranslation();
   
+  // Add proper type checking and default empty array
   const legalData = {
     title: t('pages.legal.title'),
-    sections: t('pages.legal.sections', { returnObjects: true })
+    sections: (t('pages.legal.sections', { returnObjects: true }) || []) as Array<{
+      title: string;
+      content: string;
+    }>
   };
   
   return (

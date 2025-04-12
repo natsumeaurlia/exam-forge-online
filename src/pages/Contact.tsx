@@ -20,6 +20,7 @@ interface ContactFormData {
   company: string;
   subject: string;
   message: string;
+  submit: string; // Add submit property to interface
 }
 
 function ContactView({
@@ -42,10 +43,10 @@ function ContactView({
   };
   faqs: {
     title: string;
-    questions: {
+    questions: Array<{
       question: string;
       answer: string;
-    }[];
+    }>;
   }
 }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -196,13 +197,15 @@ export default function Contact() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Add type checking and default empty arrays for questions
   const [formData, setFormData] = useState<ContactFormData>({
     name: t('pages.contact.form.name'),
     email: t('pages.contact.form.email'),
     company: t('pages.contact.form.company'),
     subject: t('pages.contact.form.subject'),
     message: t('pages.contact.form.message'),
-    submit: t('pages.contact.form.submit')
+    submit: t('pages.contact.form.submit')  // Add the submit translation
   });
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -225,9 +228,13 @@ export default function Contact() {
     address: t('pages.contact.contact.address')
   };
   
+  // Ensure questions is properly typed as an array
   const faqs = {
     title: t('pages.contact.faq.title'),
-    questions: t('pages.contact.faq.questions', { returnObjects: true })
+    questions: (t('pages.contact.faq.questions', { returnObjects: true }) || []) as Array<{
+      question: string;
+      answer: string;
+    }>
   };
   
   return (
