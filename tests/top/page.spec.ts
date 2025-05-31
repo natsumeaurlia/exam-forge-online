@@ -24,6 +24,10 @@ test.describe('ランディングページ', () => {
     const pricing = page.locator('[data-testid="pricing-section"]');
     await expect(pricing).toBeVisible();
 
+    // FAQセクションが表示されているか確認
+    const faq = page.locator('[data-testid="faq-section"]');
+    await expect(faq).toBeVisible();
+
     // CTAセクションが表示されているか確認
     const cta = page.locator('[data-testid="cta-section"]');
     await expect(cta).toBeVisible();
@@ -132,6 +136,60 @@ test.describe('ランディングページ', () => {
     // 人気バッジが表示されているか確認
     const popularBadge = page.locator('[data-testid="popular-badge"]');
     await expect(popularBadge).toBeVisible();
+  });
+
+  test('FAQセクションの詳細テスト', async ({ page }) => {
+    await page.goto('/ja');
+
+    // FAQセクションの要素を確認
+    const faqSection = page.locator('[data-testid="faq-section"]');
+    await expect(faqSection).toBeVisible();
+
+    const faqHeader = page.locator('[data-testid="faq-header"]');
+    await expect(faqHeader).toBeVisible();
+
+    const faqTitle = page.locator('[data-testid="faq-title"]');
+    await expect(faqTitle).toBeVisible();
+
+    const faqAccordion = page.locator('[data-testid="faq-accordion"]');
+    await expect(faqAccordion).toBeVisible();
+
+    // 各FAQアイテムが表示されているか確認（7つの質問）
+    for (let i = 0; i < 7; i++) {
+      const faqItem = page.locator(`[data-testid="faq-item-${i}"]`);
+      await expect(faqItem).toBeVisible();
+
+      const faqQuestion = page.locator(`[data-testid="faq-question-${i}"]`);
+      await expect(faqQuestion).toBeVisible();
+    }
+
+    // アコーディオンの開閉機能をテスト
+    const firstQuestion = page.locator('[data-testid="faq-question-0"]');
+    const firstAnswer = page.locator('[data-testid="faq-answer-0"]');
+    
+    // 初期状態では回答は非表示
+    await expect(firstAnswer).not.toBeVisible();
+    
+    // 質問をクリックして回答を表示
+    await firstQuestion.click();
+    await expect(firstAnswer).toBeVisible();
+    
+    // 再度クリックして回答を非表示
+    await firstQuestion.click();
+    await expect(firstAnswer).not.toBeVisible();
+
+    // 複数のアコーディオンを同時に開くテスト
+    await firstQuestion.click();
+    await expect(firstAnswer).toBeVisible();
+    
+    const secondQuestion = page.locator('[data-testid="faq-question-1"]');
+    const secondAnswer = page.locator('[data-testid="faq-answer-1"]');
+    await secondQuestion.click();
+    await expect(secondAnswer).toBeVisible();
+    
+    // 両方とも表示されているか確認
+    await expect(firstAnswer).toBeVisible();
+    await expect(secondAnswer).toBeVisible();
   });
 
   test('CTAセクションの詳細テスト', async ({ page }) => {
@@ -309,6 +367,11 @@ test.describe('ランディングページ', () => {
       .locator('[data-testid="pricing-section"]')
       .scrollIntoViewIfNeeded();
     await expect(page.locator('[data-testid="pricing-section"]')).toBeVisible();
+
+    await page
+      .locator('[data-testid="faq-section"]')
+      .scrollIntoViewIfNeeded();
+    await expect(page.locator('[data-testid="faq-section"]')).toBeVisible();
 
     await page.locator('[data-testid="cta-section"]').scrollIntoViewIfNeeded();
     await expect(page.locator('[data-testid="cta-section"]')).toBeVisible();

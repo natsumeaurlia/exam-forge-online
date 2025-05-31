@@ -329,6 +329,22 @@
             "answer": "You can upgrade to the Pro plan from your account settings under billing information. Enter your credit card details to start using it immediately."
           },
           {
+            "question": "How do you ensure data security?",
+            "answer": "ExamForge prioritizes your data security with SSL encryption, regular security audits, and secure data storage on AWS. We implement industry-standard security measures to protect your information."
+          },
+          {
+            "question": "Which browsers are supported?",
+            "answer": "We support the latest versions of Chrome, Firefox, Safari, and Edge. The platform works seamlessly on mobile browsers as well. Internet Explorer 11 and below are not supported."
+          },
+          {
+            "question": "What customer support do you offer?",
+            "answer": "We provide email support during business hours (9:00-18:00 weekdays). Pro plan users receive priority support with guaranteed 24-hour response times. Our online help center is available 24/7."
+          },
+          {
+            "question": "Can I export my data?",
+            "answer": "Yes, you can export quiz data and response results in CSV, Excel, and PDF formats. Pro plan users can also export detailed analytics reports."
+          },
+          {
             "question": "Can I cancel at any time?",
             "answer": "Yes, you can cancel at any time. You'll continue to have access to the service until the end of your billing period. We also offer a 30-day money-back guarantee."
           }
