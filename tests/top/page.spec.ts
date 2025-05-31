@@ -24,6 +24,10 @@ test.describe('ランディングページ', () => {
     const pricing = page.locator('[data-testid="pricing-section"]');
     await expect(pricing).toBeVisible();
 
+    // テスティモニアルセクションが表示されているか確認
+    const testimonials = page.locator('[data-testid="testimonials-section"]');
+    await expect(testimonials).toBeVisible();
+
     // CTAセクションが表示されているか確認
     const cta = page.locator('[data-testid="cta-section"]');
     await expect(cta).toBeVisible();
@@ -309,6 +313,13 @@ test.describe('ランディングページ', () => {
       .locator('[data-testid="pricing-section"]')
       .scrollIntoViewIfNeeded();
     await expect(page.locator('[data-testid="pricing-section"]')).toBeVisible();
+
+    await page
+      .locator('[data-testid="testimonials-section"]')
+      .scrollIntoViewIfNeeded();
+    await expect(
+      page.locator('[data-testid="testimonials-section"]')
+    ).toBeVisible();
 
     await page.locator('[data-testid="cta-section"]').scrollIntoViewIfNeeded();
     await expect(page.locator('[data-testid="cta-section"]')).toBeVisible();

@@ -38,14 +38,21 @@ export function TestimonialCarousel({ lng }: TestimonialCarouselProps) {
 
     // Auto-play every 5 seconds
     const interval = setInterval(() => {
-      if (!isHovered && api.canScrollNext()) {
-        api.scrollNext();
-      } else if (!isHovered && !api.canScrollNext()) {
-        api.scrollTo(0); // Loop back to start
+      if (!isHovered) {
+        if (api.canScrollNext()) {
+          api.scrollNext();
+        } else {
+          api.scrollTo(0); // Loop back to start
+        }
       }
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      api?.off('select', () => {
+        setCurrent(api.selectedScrollSnap() + 1);
+      });
+    };
   }, [api, isHovered]);
 
   const renderStars = (rating: number) => {
