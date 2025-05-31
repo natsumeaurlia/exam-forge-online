@@ -10,8 +10,8 @@ export function PlanToggle() {
   const { isAnnual, toggleBilling } = usePlanComparisonStore();
 
   return (
-    <div className="flex items-center justify-center gap-4 mb-8">
-      <span 
+    <div className="mb-8 flex items-center justify-center gap-4">
+      <span
         className={`text-sm font-medium transition-colors ${
           !isAnnual ? 'text-foreground' : 'text-muted-foreground'
         }`}
@@ -19,16 +19,16 @@ export function PlanToggle() {
       >
         {t('monthly')}
       </span>
-      
+
       <Switch
         checked={isAnnual}
         onCheckedChange={toggleBilling}
         data-testid="plan-toggle-switch"
         aria-label={isAnnual ? t('annually') : t('monthly')}
       />
-      
+
       <div className="flex items-center gap-2">
-        <span 
+        <span
           className={`text-sm font-medium transition-colors ${
             isAnnual ? 'text-foreground' : 'text-muted-foreground'
           }`}
@@ -36,11 +36,11 @@ export function PlanToggle() {
         >
           {t('annually')}
         </span>
-        
+
         {isAnnual && (
-          <Badge 
-            variant="secondary" 
-            className="text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+          <Badge
+            variant="secondary"
+            className="bg-green-100 text-xs font-semibold text-green-800 dark:bg-green-900 dark:text-green-200"
             data-testid="plan-toggle-discount-badge"
           >
             {t('discount')}

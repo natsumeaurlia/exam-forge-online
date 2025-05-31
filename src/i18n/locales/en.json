@@ -548,6 +548,46 @@
       "title": "Signing out...",
       "message": "Thank you for using our service",
       "homeLink": "Return to Home"
+    },
+    "testimonials": {
+      "title": "Customer Reviews",
+      "description": "Hear from real customers who have transformed their quiz and exam creation process with ExamForge.",
+      "sample1": {
+        "name": "Emily Johnson",
+        "position": "Training Manager",
+        "company": "Acme Corporation",
+        "content": "ExamForge has dramatically improved our training effectiveness measurement. The intuitive interface makes quiz creation effortless, and we can now visualize learner comprehension like never before."
+      },
+      "sample2": {
+        "name": "Dr. Michael Chen",
+        "position": "Education Professor",
+        "company": "Metropolitan University",
+        "content": "I can efficiently measure student learning outcomes now. The auto-grading feature and detailed analytics provide valuable data that helps me improve my teaching methods."
+      },
+      "sample3": {
+        "name": "Sarah Williams",
+        "position": "HR Manager",
+        "company": "TechCorp Solutions",
+        "content": "We use ExamForge for recruitment tests and certification exams. The robust security features ensure we can provide a fair and secure testing environment for all candidates."
+      },
+      "sample4": {
+        "name": "Robert Davis",
+        "position": "Seminar Instructor",
+        "company": "Business School Tokyo",
+        "content": "Student engagement has increased significantly. Real-time result sharing creates more dynamic discussions and interactive learning experiences in my sessions."
+      },
+      "sample5": {
+        "name": "Lisa Martinez",
+        "position": "Quality Assurance Manager",
+        "company": "Manufacturing Group Inc.",
+        "content": "We implemented ExamForge for our staff skill certification program. The flexible question settings and branching functionality allow us to create practical, job-relevant assessments."
+      },
+      "sample6": {
+        "name": "David Thompson",
+        "position": "Online Education Director",
+        "company": "EdTech Innovations",
+        "content": "ExamForge powers our customer certification programs. Multi-language support and extensive customization options have enabled our global expansion efforts."
+      }
     }
   }
 }

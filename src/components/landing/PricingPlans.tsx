@@ -168,14 +168,14 @@ export function PricingPlans({ lng }: PricingPlansProps) {
                     {isAnnual ? plan.priceAnnual : plan.priceMonthly}
                   </span>
                   <span className="text-gray-500">
-                    /{plan.name === t('pricing.plans.free.name') 
-                      ? plan.period 
+                    /
+                    {plan.name === t('pricing.plans.free.name')
+                      ? plan.period
                       : plan.name === t('pricing.plans.enterprise.name')
                         ? plan.period
-                        : isAnnual 
+                        : isAnnual
                           ? t('pricing.toggle.annually')
-                          : t('pricing.toggle.monthly')
-                    }
+                          : t('pricing.toggle.monthly')}
                   </span>
                 </div>
                 <p

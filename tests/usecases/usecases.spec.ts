@@ -27,7 +27,9 @@ test.describe('UseCaseTabs Component', () => {
     // 3つのタブが表示されることを確認
     const educationTab = page.locator('[data-testid="usecase-tab-education"]');
     const corporateTab = page.locator('[data-testid="usecase-tab-corporate"]');
-    const certificationTab = page.locator('[data-testid="usecase-tab-certification"]');
+    const certificationTab = page.locator(
+      '[data-testid="usecase-tab-certification"]'
+    );
 
     await expect(educationTab).toBeVisible();
     await expect(corporateTab).toBeVisible();
@@ -45,7 +47,9 @@ test.describe('UseCaseTabs Component', () => {
     await expect(educationTab).toHaveAttribute('data-state', 'active');
 
     // 教育機関向けコンテンツが表示されることを確認
-    const educationContent = page.locator('[data-testid="usecase-content-education"]');
+    const educationContent = page.locator(
+      '[data-testid="usecase-content-education"]'
+    );
     await expect(educationContent).toBeVisible();
   });
 
@@ -58,22 +62,30 @@ test.describe('UseCaseTabs Component', () => {
     await expect(corporateTab).toHaveAttribute('data-state', 'active');
 
     // 企業研修向けコンテンツが表示されることを確認
-    const corporateContent = page.locator('[data-testid="usecase-content-corporate"]');
+    const corporateContent = page.locator(
+      '[data-testid="usecase-content-corporate"]'
+    );
     await expect(corporateContent).toBeVisible();
 
     // 教育機関向けコンテンツが隠れることを確認
-    const educationContent = page.locator('[data-testid="usecase-content-education"]');
+    const educationContent = page.locator(
+      '[data-testid="usecase-content-education"]'
+    );
     await expect(educationContent).not.toBeVisible();
 
     // 資格試験向けタブをクリック
-    const certificationTab = page.locator('[data-testid="usecase-tab-certification"]');
+    const certificationTab = page.locator(
+      '[data-testid="usecase-tab-certification"]'
+    );
     await certificationTab.click();
 
     // 資格試験向けタブがアクティブになることを確認
     await expect(certificationTab).toHaveAttribute('data-state', 'active');
 
     // 資格試験向けコンテンツが表示されることを確認
-    const certificationContent = page.locator('[data-testid="usecase-content-certification"]');
+    const certificationContent = page.locator(
+      '[data-testid="usecase-content-certification"]'
+    );
     await expect(certificationContent).toBeVisible();
   });
 
@@ -81,7 +93,7 @@ test.describe('UseCaseTabs Component', () => {
     const testCases = [
       { tab: 'education', title: '教育機関向け' },
       { tab: 'corporate', title: '企業研修向け' },
-      { tab: 'certification', title: '資格試験向け' }
+      { tab: 'certification', title: '資格試験向け' },
     ];
 
     for (const testCase of testCases) {
@@ -94,26 +106,36 @@ test.describe('UseCaseTabs Component', () => {
       await expect(icon).toBeVisible();
 
       // タイトルが表示されることを確認
-      const title = page.locator(`[data-testid="usecase-title-${testCase.tab}"]`);
+      const title = page.locator(
+        `[data-testid="usecase-title-${testCase.tab}"]`
+      );
       await expect(title).toBeVisible();
       await expect(title).toContainText(testCase.title);
 
       // 説明文が表示されることを確認
-      const description = page.locator(`[data-testid="usecase-description-${testCase.tab}"]`);
+      const description = page.locator(
+        `[data-testid="usecase-description-${testCase.tab}"]`
+      );
       await expect(description).toBeVisible();
 
       // 利点リストが表示されることを確認
-      const benefits = page.locator(`[data-testid="usecase-benefits-${testCase.tab}"]`);
+      const benefits = page.locator(
+        `[data-testid="usecase-benefits-${testCase.tab}"]`
+      );
       await expect(benefits).toBeVisible();
 
       // 4つの利点項目が表示されることを確認
       for (let i = 0; i < 4; i++) {
-        const benefit = page.locator(`[data-testid="usecase-benefit-${testCase.tab}-${i}"]`);
+        const benefit = page.locator(
+          `[data-testid="usecase-benefit-${testCase.tab}-${i}"]`
+        );
         await expect(benefit).toBeVisible();
       }
 
       // 視覚的要素が表示されることを確認
-      const visual = page.locator(`[data-testid="usecase-visual-${testCase.tab}"]`);
+      const visual = page.locator(
+        `[data-testid="usecase-visual-${testCase.tab}"]`
+      );
       await expect(visual).toBeVisible();
     }
   });
@@ -134,7 +156,9 @@ test.describe('UseCaseTabs Component', () => {
 
     // もう一度右矢印キーで次のタブに移動
     await page.keyboard.press('ArrowRight');
-    const certificationTab = page.locator('[data-testid="usecase-tab-certification"]');
+    const certificationTab = page.locator(
+      '[data-testid="usecase-tab-certification"]'
+    );
     await expect(certificationTab).toBeFocused();
   });
 
@@ -176,7 +200,9 @@ test.describe('UseCaseTabs Component', () => {
     // 英語のタイトルが表示されることを確認
     const title = page.locator('[data-testid="usecases-title"]');
     await expect(title).toBeVisible();
-    await expect(title).toContainText('ExamForge Works Across Various Scenarios');
+    await expect(title).toContainText(
+      'ExamForge Works Across Various Scenarios'
+    );
 
     // 英語のタブが表示されることを確認
     const educationTab = page.locator('[data-testid="usecase-tab-education"]');
@@ -185,7 +211,9 @@ test.describe('UseCaseTabs Component', () => {
     const corporateTab = page.locator('[data-testid="usecase-tab-corporate"]');
     await expect(corporateTab).toContainText('For Corporate Training');
 
-    const certificationTab = page.locator('[data-testid="usecase-tab-certification"]');
+    const certificationTab = page.locator(
+      '[data-testid="usecase-tab-certification"]'
+    );
     await expect(certificationTab).toContainText('For Certification Exams');
   });
 });

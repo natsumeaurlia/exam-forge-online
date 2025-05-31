@@ -2,6 +2,7 @@ import { Hero } from '../../components/landing/Hero';
 import { Features } from '../../components/landing/Features';
 import { UseCaseTabs } from '../../components/landing/UseCaseTabs';
 import { PricingPlans } from '../../components/landing/PricingPlans';
+import { TestimonialCarousel } from '../../components/landing/TestimonialCarousel';
 import { CallToAction } from '../../components/landing/CallToAction';
 import { getTranslations } from 'next-intl/server';
 
@@ -24,6 +25,7 @@ export default async function Home({ params }: PageProps) {
       <Features lng={lng} />
       <UseCaseTabs lng={lng} />
       <PricingPlans lng={lng} />
+      <TestimonialCarousel lng={lng} />
       <CallToAction lng={lng} />
     </>
   );
