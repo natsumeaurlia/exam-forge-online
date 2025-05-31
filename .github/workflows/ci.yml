@@ -5,6 +5,11 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'tsconfig.json'
 
 jobs:
   # 依存関係のインストールとキャッシュを共有する基盤ジョブ
