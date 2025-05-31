@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { useTranslation } from '../../i18n';
+import { getTranslations } from 'next-intl/server';
 
 export interface CallToActionProps {
   lng: string;
 }
 
 export async function CallToAction({ lng }: CallToActionProps) {
-  const { t } = await useTranslation(lng);
+  const t = await getTranslations();
 
   return (
     <div className="from-examforge-blue to-examforge-blue-dark bg-gradient-to-br py-16 text-white">

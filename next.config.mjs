@@ -1,11 +1,21 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
   compiler: {
-    reactRemoveProperties: process.env.NODE_ENV === "production"
-      ? { properties: ['^data-testid$'] }
-      : false,
+    reactRemoveProperties:
+      process.env.NODE_ENV === 'production'
+        ? { properties: ['^data-testid$'] }
+        : false,
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

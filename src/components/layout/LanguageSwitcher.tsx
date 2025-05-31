@@ -10,8 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getAvailableLanguages } from '@/constants/languages';
-import { useTranslation } from '../../i18n/client';
-import { languages } from '../../i18n/settings';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 
 interface LanguageSwitcherViewProps {
@@ -28,9 +27,17 @@ export function LanguageSwitcherView({
   languages,
 }: LanguageSwitcherViewProps) {
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen} data-testid="language-switcher">
+    <DropdownMenu
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      data-testid="language-switcher"
+    >
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" data-testid="language-switcher-button">
+        <Button
+          variant="ghost"
+          size="icon"
+          data-testid="language-switcher-button"
+        >
           <Globe className="h-5 w-5" />
           <span className="sr-only">
             {currentLng === 'ja' ? '言語を切り替える' : 'Switch language'}
@@ -59,7 +66,8 @@ export interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ lng }: LanguageSwitcherProps) {
-  const { t } = useTranslation(lng);
+  const t = useTranslations('common');
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
 
   return (

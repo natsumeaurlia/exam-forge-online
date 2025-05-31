@@ -2,7 +2,7 @@ import { Hero } from '../../components/landing/Hero';
 import { Features } from '../../components/landing/Features';
 import { PricingPlans } from '../../components/landing/PricingPlans';
 import { CallToAction } from '../../components/landing/CallToAction';
-import { useTranslation } from '../../i18n';
+import { getTranslations } from 'next-intl/server';
 
 export interface PageProps {
   params: {
@@ -15,7 +15,7 @@ export default async function Home({ params }: PageProps) {
   const resolvedParams = await Promise.resolve(params);
   const lng = resolvedParams.lng;
 
-  const { t } = await useTranslation(lng);
+  const t = await getTranslations();
 
   return (
     <>

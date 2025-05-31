@@ -1,9 +1,12 @@
-export const fallbackLng = 'ja';
-export const languages = ['ja', 'en'];
-export const defaultNS = 'translation';
+export const fallbackLng = 'ja' as const;
+export const languages = ['en', 'ja'] as const;
+export const defaultNS = 'common' as const;
+
+export type Language = typeof languages[number];
 
 export function getOptions(lng = fallbackLng, ns = defaultNS) {
   return {
+    // debug: true,
     supportedLngs: languages,
     fallbackLng,
     lng,

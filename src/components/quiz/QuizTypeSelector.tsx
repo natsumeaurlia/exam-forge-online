@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { getQuizTypes } from '@/constants/quizTypes';
 import { QuizTypeProps } from '@/types/quiz';
 import {
@@ -25,7 +25,7 @@ interface QuizTypeSelectorProps {
 }
 
 export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
-  const { t } = useTranslation();
+  const t = useTranslations();
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   const handleTypeSelect = (typeId: string) => {

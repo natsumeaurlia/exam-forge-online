@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn, getProviders } from 'next-auth/react';
+import { signIn, getProviders, type ClientSafeProvider } from 'next-auth/react';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +12,7 @@ interface SignInPageProps {
 
 export default function SignInPage({ params }: SignInPageProps) {
   const resolvedParams = use(params);
-  const [providers, setProviders] = useState<any>(null);
+  const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,9 +86,9 @@ export default function SignInPage({ params }: SignInPageProps) {
         <div className="space-y-6">
           {/* OAuth Providers */}
           <div className="space-y-3">
-            {Object.values(providers)
-              .filter((provider: any) => provider.id !== 'credentials')
-              .map((provider: any) => (
+            {Object.values(providers || {})
+              .filter((provider: ClientSafeProvider) => provider.id !== 'credentials')
+              .map((provider: ClientSafeProvider) => (
                 <button
                   key={provider.name}
                   onClick={() => handleProviderSignIn(provider.id)}

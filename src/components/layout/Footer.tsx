@@ -1,11 +1,11 @@
-import { useTranslation } from '../../i18n';
+import { getTranslations } from 'next-intl/server';
 
 export interface FooterProps {
   lng: string;
 }
 
 export async function Footer({ lng }: FooterProps) {
-  const { t } = await useTranslation(lng);
+  const t = await getTranslations();
 
   return (
     <footer className="border-t bg-gray-50 py-12">

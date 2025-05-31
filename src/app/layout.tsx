@@ -1,4 +1,8 @@
 import '../index.css';
+import { Inter } from 'next/font/google';
+import { fallbackLng } from '../i18n/settings';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
@@ -6,10 +10,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
-      <body>
-        {children}
-      </body>
+    <html lang={fallbackLng} dir="ltr">
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
