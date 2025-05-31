@@ -1,13 +1,11 @@
-'use client';
-
-import { useTranslation } from '../../i18n/client';
+import { useTranslation } from '../../i18n';
 
 export interface FooterProps {
   lng: string;
 }
 
-export function Footer({ lng }: FooterProps) {
-  const { t } = useTranslation(lng);
+export async function Footer({ lng }: FooterProps) {
+  const { t } = await useTranslation(lng);
   
   return (
     <footer className="bg-gray-50 py-12 border-t">

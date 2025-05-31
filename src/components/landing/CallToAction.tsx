@@ -1,14 +1,12 @@
-'use client';
-
 import { Button } from "@/components/ui/button";
-import { useTranslation } from '../../i18n/client';
+import { useTranslation } from '../../i18n';
 
 export interface CallToActionProps {
   lng: string;
 }
 
-export function CallToAction({ lng }: CallToActionProps) {
-  const { t } = useTranslation(lng);
+export async function CallToAction({ lng }: CallToActionProps) {
+  const { t } = await useTranslation(lng);
   
   return (
     <div className="bg-gradient-to-br from-examforge-blue to-examforge-blue-dark py-16 text-white">

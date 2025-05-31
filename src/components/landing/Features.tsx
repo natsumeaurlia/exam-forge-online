@@ -1,6 +1,4 @@
-'use client';
-
-import { useTranslation } from '../../i18n/client';
+import { useTranslation } from '../../i18n';
 import {
   Award,
   BarChartBig,
@@ -16,8 +14,8 @@ export interface FeaturesProps {
   lng: string;
 }
 
-export function Features({ lng }: FeaturesProps) {
-  const { t } = useTranslation(lng);
+export async function Features({ lng }: FeaturesProps) {
+  const { t } = await useTranslation(lng);
   
   const features = [
     {

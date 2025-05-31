@@ -1,8 +1,13 @@
+import React from 'react';
+import '../../index.css';
+import { Inter } from "next/font/google";
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
 import { languages } from '../../i18n/settings';
 import { dir } from 'i18next';
 import { Metadata } from 'next';
+
+const inter = Inter({ subsets: ["latin"] });
 
 export async function generateStaticParams() {
   return languages.map((lng) => ({ lng }));
@@ -10,15 +15,13 @@ export async function generateStaticParams() {
 
 export interface LayoutProps {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     lng: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
-  // In Next.js 15, params is a promise that needs to be awaited
-  const resolvedParams = await Promise.resolve(params);
-  const lng = resolvedParams.lng;
+  const { lng } = await params;
 
   return {
     title: 'exam-forge-online',
@@ -37,17 +40,16 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
   };
 }
 
-export default async function LngLayout({
+export default async function RootLayout({
   children,
   params
 }: LayoutProps) {
-  // In Next.js 15, params is a promise that needs to be awaited
-  const resolvedParams = await Promise.resolve(params);
-  const lng = resolvedParams.lng;
+  const { lng } = await params;
   
   return (
     <html lang={lng} dir={dir(lng)}>
-      <body suppressHydrationWarning={true}>
+      <head />
+      <body className={inter.className}>
         <Navbar lng={lng} />
         <main>
           {children}

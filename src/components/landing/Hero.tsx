@@ -1,8 +1,6 @@
-'use client';
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { useTranslation } from '../../i18n/client';
+import { useTranslation } from '../../i18n';
 
 // Presentational component
 export function HeroView({ 
@@ -113,8 +111,8 @@ export interface HeroProps {
   lng: string;
 }
 
-export function Hero({ lng }: HeroProps) {
-  const { t } = useTranslation(lng);
+export async function Hero({ lng }: HeroProps) {
+  const { t } = await useTranslation(lng);
   
   const benefits = [
     t('hero.benefits.noCard'),
