@@ -10,7 +10,7 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'next-i18next'
 import { getQuizTypes } from "@/constants/quizTypes";
 import { QuizTypeProps } from "@/types/quiz";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -47,7 +47,7 @@ export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
             key={type.id}
             className={`cursor-pointer transition-all hover:border-examforge-blue ${
               selectedType === type.id ? "border-2 border-examforge-blue shadow-md" : ""
-            } ${type.proOnly ? "opacity-70" : ""}`}
+            } ${type.proOnly ? "opacity-[0.7]" : ""}`}
             onClick={() => !type.proOnly && handleTypeSelect(type.id)}
           >
             <CardHeader className="pb-2">

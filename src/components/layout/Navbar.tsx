@@ -1,12 +1,17 @@
+'use client';
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "../../i18n/client";
 
-export function Navbar() {
-  const { t } = useTranslation();
+export interface NavbarProps {
+  lng: string;
+}
+
+export function Navbar({ lng }: NavbarProps) {
+  const { t } = useTranslation(lng);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
@@ -33,14 +38,14 @@ export function Navbar() {
         </nav>
         
         <div className="hidden md:flex items-center gap-4">
-          <LanguageSwitcher />
+          <LanguageSwitcher lng={lng} />
           <Button variant="ghost">{t('common.login')}</Button>
           <Button>{t('common.signup')}</Button>
         </div>
         
         {/* Mobile menu button */}
         <div className="md:hidden flex items-center gap-2">
-          <LanguageSwitcher />
+          <LanguageSwitcher lng={lng} />
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
             className="p-2"
@@ -61,15 +66,15 @@ export function Navbar() {
             >
               {t('common.features')}
             </a>
-            <a 
-              href="#pricing" 
+            <a
+              href="#pricing"
               className="text-sm font-medium hover:text-examforge-blue transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t('common.pricing')}
             </a>
-            <a 
-              href="#faq" 
+            <a
+              href="#faq"
               className="text-sm font-medium hover:text-examforge-blue transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >

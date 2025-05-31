@@ -1,6 +1,6 @@
+'use client';
 
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import {
@@ -10,53 +10,57 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getAvailableLanguages } from "@/constants/languages";
+import { useTranslation } from "../../i18n/client";
+import { languages } from "../../i18n/settings";
+import Link from "next/link";
 
 interface LanguageSwitcherViewProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  changeLanguage: (lng: string) => void;
+  currentLng: string;
   languages: ReturnType<typeof getAvailableLanguages>;
 }
 
-export function LanguageSwitcherView({ isOpen, setIsOpen, changeLanguage, languages }: LanguageSwitcherViewProps) {
+export function LanguageSwitcherView({ isOpen, setIsOpen, currentLng, languages }: LanguageSwitcherViewProps) {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Globe className="h-5 w-5" />
-          <span className="sr-only">{languages.length > 0 && languages[0].code === 'ja' ? '言語を切り替える' : 'Switch language'}</span>
+          <span className="sr-only">{currentLng === 'ja' ? '言語を切り替える' : 'Switch language'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {languages.map(lang => (
-          <DropdownMenuItem key={lang.code} onClick={() => changeLanguage(lang.code)}>
-            {lang.flag} {lang.name}
-          </DropdownMenuItem>
+          <Link
+            key={lang.code}
+            href={`/${lang.code}`}
+            onClick={() => setIsOpen(false)}
+          >
+            <DropdownMenuItem>
+              {lang.flag} {lang.name}
+            </DropdownMenuItem>
+          </Link>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export function LanguageSwitcher() {
-  const { i18n, t } = useTranslation();
+export interface LanguageSwitcherProps {
+  lng: string;
+}
+
+export function LanguageSwitcher({ lng }: LanguageSwitcherProps) {
+  const { t } = useTranslation(lng);
   const [isOpen, setIsOpen] = useState(false);
-  
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem('i18nextLng', lng);
-    setIsOpen(false);
-    console.log('Language changed to:', lng);
-    // Reload the page to reflect language changes
-    window.location.reload();
-  };
   
   return (
     <LanguageSwitcherView
       isOpen={isOpen}
       setIsOpen={setIsOpen}
-      changeLanguage={changeLanguage}
-      languages={getAvailableLanguages()}
+      currentLng={lng}
+      languages={getAvailableLanguages(lng)}
     />
   );
 }

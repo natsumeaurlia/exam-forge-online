@@ -1,7 +1,8 @@
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from '../../i18n/client';
 
 // Presentational component
 export function HeroView({ 
@@ -24,7 +25,7 @@ export function HeroView({
     question: string;
     options: {text: string, selected: boolean}[];
     progress: string;
-    nextButton: string; // Add nextButton property to the type definition
+    nextButton: string;
   }
 }) {
   return (
@@ -108,8 +109,12 @@ export function HeroView({
 }
 
 // Container component
-export function Hero() {
-  const { t } = useTranslation();
+export interface HeroProps {
+  lng: string;
+}
+
+export function Hero({ lng }: HeroProps) {
+  const { t } = useTranslation(lng);
   
   const benefits = [
     t('hero.benefits.noCard'),

@@ -1,0 +1,3143 @@
+# コードの書き方の気をつけること
+
+## 1.
+
+```
+type PrismaModel = {
+  findMany: (args: any) => Promise<any[]>
+  deleteMany: (args: any) => Promise<any>
+  createMany: (args: any) => Promise<any>
+}
+```
+
+型補完と予期せぬエラーになるのでany使いたくないです 
+
+## 2.
+
+```
+   */
+  async findMediaById(id: number): Promise<AdminMediaResponse> {
+    // 媒体IDの存在チェック
+    await this.validateIds([id], this.prismaService.media, '媒体')
+```
+
+無理やり共通化しなくても良いかと！
+型チェックとか効かないのでその辺のメリット消すほどではないので！
+
+
+```
+// 媒体IDの存在チェック
+      await this.prismaService.media.findFirstOrThrow({
+        where: { id: { in: data.ids } },
+      }).catch((_) => {
+        throw new NotFoundException('存在しない媒体IDが指定されました')
+      })
+```
+
+## 3.
+
+```
+  private async updateMediaRelations(
+    id: number,
+    newItems: (string | number)[],
+    model: PrismaModel,
+    keyName: string = 'type'
+  ): Promise<void> {
+    // 既存の関連データを取得
+    const existingItems = await model.findMany({
+      where: { mediaId: id },
+      select: { id: true, [keyName]: true },
+    })
+
+    // 新しいアイテムを抽出
+    const newItemsList = newItems.filter(
+      (item) => !existingItems.some((existing) => existing[keyName] === item)
+    )
+
+    // 削除すべきアイテムを抽出
+    const deleteItems = existingItems.filter(
+      (existing) => !newItems.includes(existing[keyName])
+    )
+
+    // 既存のアイテムを削除
+    await model.deleteMany({
+      where: { id: { in: deleteItems.map((item) => item.id) } },
+    })
+
+    // 新しいアイテムを追加
+    await model.createMany({
+      data: newItemsList.map((item) => ({
+        mediaId: id,
+        [keyName]: item,
+      })),
+    })
+  }
+```
+
+any使わないようにできます?
+
+
+```
+ media     Media?   @relation(fields: [mediaId], references: [id])
+ mediaId   Int?     @map("media_id")
+```
+
+nullになるパターンって何かありますか？
+
+## 4.
+
+```
+        if (data.stores || data.groups || data.masterGroups) {
+          const roleMappings = [
+            { key: 'stores', idField: 'storeId' },
+            { key: 'groups', idField: 'groupId' },
+            { key: 'masterGroups', idField: 'masterGroupId' },
+          ]
+
+          for (const { key, idField } of roleMappings) {
+            if (data[key]) {
+              const createData = data[key].map(({ id, role }) => ({
+                userId: createdDbUser.id,
+                [idField]: id,
+                role,
+              }))
+              await prisma.userRole.createMany({
+                data: createData,
+              })
+            }
+          }
+        }
+```
+
+型つかないのとroleMappingだと何やってるかわかりずらいので以下のように一気にデータ作ったほうがよさそうです！
+あとRoleTypeがunfinedableなので今エラーになるかもです
+
+```
+
+          const userRoleData: Prisma.UserRoleCreateManyInput[] = [
+            ...(data.stores?.map(store => ({ userId: createdDbUser.id, storeId: store.id, role: store.role })) || []),
+            ...(data.groups?.map(group => ({ userId: createdDbUser.id, groupId: group.id, role: group.role })) || []),
+            ...(data.masterGroups?.map(masterGroup => ({ userId: createdDbUser.id, masterGroupId: masterGroup.id, role: masterGroup.role })) || [])
+          ];
+
+          if (userRoleData.length > 0) {
+            await prisma.userRole.createMany({
+              data: userRoleData
+            });
+          }
+```
+
+## 5. 
+
+```
+  @Get('list')
+  @ApiOperation({ summary: 'ユーザー一覧取得' })
+  @ApiOkResponse({ description: 'ユーザー一覧取得', type: [AdminUserResponse] })
+  async list(
+    @Query() data: ListAdminUserPaginationDto
+  ): Promise<AdminUserResponse[]> {
+    return await this.service.list(data)
+  }
+
+  @Get('list-from-db')
+  @ApiOperation({ summary: 'DBからユーザー一覧取得' })
+  @ApiOkResponse({
+    description: 'DBからユーザー一覧取得',
+    type: [AdminUserFromDbResponse],
+  })
+  async listFromDb(
+    @Query() data: ListAdminUserPaginationDto
+  ): Promise<AdminUserFromDbResponse[]> {
+    return await this.service.listFromDb(data)
+  }
+```
+
+istFromDbの命名だと他のメソッドがdbからひいてないように見えるので
+auth0側から取得するものの方をlistAuth0Userとかにしたいです 🙏
+
+## 6.
+
+```
+import { ApiExtraModels, OmitType } from '@nestjs/swagger'
+
+@ApiExtraModels(User)
+export class AdminUserFromDbResponse extends OmitType(User, []) {}
+```
+
+OmitType()関数は、入力型からすべてのプロパティを選択し、特定のキーのセットを削除することで型を構築するものなので今回は普通にUserを使えば良いかと！
+
+## 7.
+
+```
+@Post('get-user')
+```
+
+@GET(':id')で良いかと
+
+## 8.
+
+```
+@Delete('delete/:id')
+```
+
+HTTP標準のメソッドでdeleteであることを示されているので@Delete(':id')で良いです！
+
+## 9.
+
+```
+return Object.assign({}, media, pageData)
+```
+
+以下のようにシンプルにしても良いかと！
+最近はこのようなモダンな書き方が流行っています！
+
+```
+return { ...media, ...pageData }
+```
+
+
+## 10.
+
+```
+    // 省略する件数
+    const skip = (page - 1) * take
+
+    const logs = await (this.prismaService as any)[modelName].findMany({
+```
+
+as any使うと型補完聞かなくなるので使いたくないのでそれぞれ分けるで良いかと！
+
+
+## 11.
+
+```
+      if (medias) {
+        for (const media of medias) {
+```
+
+
+for (const media of medias) {でmediasが0ならループ回らないのでifなくてokです！
+
+
+## 12.
+
+```
+
+  const [allSelected, setAllSelected] = useState<boolean>(false)
+
+```
+
+bool値の時は変数名をisとかつけるのがベターです！
+
+
+## 13.
+
+
+```
+
+  useEffect(() => {
+    const nonDeletedItems = requiredItems.filter(item => !item.isDeleted)
+
+    setAllSelected(nonDeletedItems.length > 0 && nonDeletedItems.every(item => selected.includes(item.id)))
+  }, [selected, requiredItems])
+
+```
+
+今回の場合はuseEffectではなくてuseMemoで良いです！
+
+  const isAllSelected = useMemo(() => {
+    const nonDeletedItems = requiredItems.filter(item => !item.isDeleted)
+    return nonDeletedItems.length > 0 && nonDeletedItems.every(item => selected.includes(item.id))
+  }, [requiredItems, selected])
+実際にレンダリング回数数えるとわかりやすいかもです
+
+
+## 14.
+
+```
+  newImageKeys: z.array(z.string()),
+  existImages: z.array(z.string()),
+  himedecoLoginInfo: z.record(z.string(), z.never()),
+  photoDiaryMediaAddresses: z.array(z.any()),
+```
+
+any控えてもらえると！
+
+型これですかね?
+
+
+
+PhotoDiaryMediaAddress: {
+      /** @description 媒体ID */
+      siteId: string
+      /** @description 写メ日記アドレス */
+      photoDiaryMediaAddress: string
+    }
+
+# レビュー指針
+コードレビューをするときに確認すること。
+
+- コードがうまく設計されていること
+- 機能性がコードのユーザーにとって適切であること
+- UI の変更がある場合、よく考えられていて見た目も適切であること
+- 並行処理がある場合、安全に行われていること
+- コードが必要以上に複雑でないこと
+- 開発者は将来必要になるかもしれないものではなく、現在必要だとわかっているものを実装していること
+- コードには適切なユニットテストがあること
+- テストがうまく設計されていること
+- 開発者はあらゆるものに明確な名前を使っていること
+- コメントは明確で有意義なもので、「何」ではなく「なぜ」を説明していること
+- コードは適切にドキュメント化されていること
+- コードはスタイルガイドに準拠していること
+
+
+
+第１章「理解しやすいコード」
+この本では「優れた」コードを明確に定義しています。
+
+それは
+
+コードは他の人が最短時間で理解できるように書かなければならない
+です。
+
+初心者の方は特に（私よりも初心者の方は極少数だと思います）これを念頭に置いておきましょう。
+また、「他の人」とは未来の自分かもしれません。
+
+第２章「名前に情報を詰め込む」
+明確な単語を選ぶ
+tmpやretvalのような汎用的な名前は避ける
+抽象的な名前よりも具体的な名前を使う
+接尾辞や接頭辞を使って情報を追加する
+名前の長さを決める
+名前のフォーマットで情報を伝える
+それぞれ詳しく見ていきましょう。
+
+明確な単語を選ぶ
+例えばGetPage(url)の場合、以下のような問題が発生します。
+
+ページをローカルキャッシュからとってくるのか？
+ページをインターネットからとってくるのか？
+ページをデータベースからとってくるのか？
+例えばインターネットからとってくる場合にはFetchPage(url)やDownloadPage(url)の方が明確でしょう。
+
+他にもGetやSetは使いがちなので明確にするようにしましょう。
+
+tmpやretvalのような汎用的な名前は避ける
+retvalは戻り値だという情報以外なにも表していないのでオススメできない
+ループイテレーターはi,j,kでもイテレーターであることがひと目でわかるので良いが、例えばclubs[i]よりもclubs[club_i]やclubs[ci]のような名前の方が良い（インデックスの最初の文字と配列の名前の最初の文字が一致していればバグ確認しやすい。）
+tmpは用いてもよいが、一時的なデータ保存という意味合いがない場合は使用をやめよう。
+例えば以下のようなコードではtmpが怠慢に使われている。
+
+let tmp = user.name 
+tmp += user.phone_number
+tmp += user.email
+tmp += user.address
+template.set("user_info", tmp)
+
+この場合tmpをuser_infoのような変数にするべきだろう。
+
+値の単位
+例えば、以下のようなコードがあったとする。
+
+var start = (new.Date()).getTime()
+console.log(`開始時間は${start}秒`)
+
+一見正しく見えるかもしれない。しかし、getTime()は「秒」ではなく「ミリ秒」をかえすためうまく動作しない。
+このような場合はstartではなくstart_msのほうが良いだろう。
+
+名前の長さを決めよう
+スコープが小さければ多くの情報を詰め込む必要はない
+接頭辞や接尾語は初めて来たメンバーでもわかるかどうかで考える。（ex）strなら分かる
+テキストエディタの「単語補完」という機能があるので使ってみると良い
+名前のフォーマットを決めてメンバ変数とローカル変数の区別できるようにする
+第２章のまとめ
+明確な単語を選ぶ。GetではなくFetchやDownloadなど用途に合わせて名前を決める。
+tmpやretvalのような汎用的な名前は避ける。明確な理由がある場合を除く。
+具体的な名前を使って詳細に説明する。
+変数名に大切な情報を追加する。ミリ秒を表すときには_msなど単位をつける
+スコープの大きな変数は長い名前でもよいが、小さいものには短く命名する
+大文字やアンダースコアに意味を持たせて、変数を見ただけでメンバ変数なのかローカル変数なのかを分かるようにする。
+第３章「誤解されない名前」
+限界値を含めるときはlimitではなくminとminとmaxを使う
+範囲を指定するときはstartやstopではなくfirstとlastを使う
+包含／排他的範囲にはbeginとendを使う
+ブール値の名前は肯定文で「Is．has・can・should」を接頭辞につける
+それぞれ詳しく見ていきましょう。
+
+限界値を含めるときはlimitではなくminとminとmaxを使う
+例えば、以下のような変数があったとする。
+
+CART_TOO_BIG_LIMIT = 10
+
+この場合、「未満（境界値を含まない）」なのか「以下（境界値を含む）」なのかわからない。
+そこで
+
+MAX_CART_TOO_BIG = 10
+
+とすれば明確になる。
+
+範囲を指定するときはfirstとlastを使う
+startは明確な名前だがstopの場合、stopが包含の意味合いがあるかどうか曖昧である。
+そこで、包含関係がある場合には[start,stop]ではなく[first,last]とすべきである。
+排他的な意味合いがある場合には[begin,end]とすべきである。
+
+第３章まとめ
+限界値を含めるときはlimitではなくminとminとmaxを使う
+範囲を指定するときはstartやstopではなくfirstとlastを使う
+包含／排他的範囲にはbeginとendを使う
+ブール値の名前は肯定文で「Is．has・can・should」を接頭辞につける
+第４章「美しさ」
+この章では美しさについて語られている。
+どうやらインターネットで検索してみると自動でしてくれるツールが多いようなので割愛する。
+
+第４章まとめ
+複数のコードブロックで同じようなことをしているものはシルエットも同じにする
+メソッドを使うことで整形する
+縦のラインをまっすぐに入れるようにする
+ある場所でABCという風に並んでいるなら他の場所でBCAのように並べてはならない
+空行を使って大きなブロックを論理的な「段落」に分ける
+第５章「コメントすべきことを知る」
+コメントするべきでは「ない」こと
+コメントすべきこと
+読み手の気持ちを考える
+それぞれ詳しく見ていきましょう。
+
+コメントするべきでは「ない」こと
+ひどいコードはコメントを付けるのではなくコードを変える
+コードを読めばすぐにわかるものはコメントにしない
+例えば、以下のようなコードがあったとする。
+
+// Accountクラスの定義
+class Account{
+  public:
+    // コンストラクタ
+    Account();
+}
+
+このような場合、全くコメントの意味がない。
+
+通常は「補助的なコメント」が必要になることはなく、
+「優れたコード＞ひどいコード＋優れたコメント」
+という考えを肝に銘じたい。
+
+コメントすべきこと
+一言でいうと自分の考えを記録する内容である。
+
+計算速度やエラー発生についても記述しておくことで再度試すことやテストの時間を短縮できる
+コードの欠陥にコメントを付ける（ex） //○○を使って整理した方が良い
+定数にコメントを付けると良い場合が多い
+//TODO:　と書かれていれば後で手を付けるという意味を持つ
+ここで、TODO関連の記法を示す。
+
+記法	典型的な意味
+TODO:	あとで手をつける
+FIXME:	既知の不具合があるコード
+HACK:	あまり綺麗じゃない解決策
+XXX:	危険!大きな問題がある
+読み手の気持ちを考える
+要約コメントを書く
+初めて読む人が詰まりそうな部分にだけコメントを書く
+第５章まとめ
+コメントすべきでないこと
+コードから推測が容易なもの
+コードの改善余地があるもの
+コメントすべきこと
+自分の考えをまとめたもの
+これからコードをどうしたいのかを書いたもの（ex）TODOコメント
+要約コメント
+第６章「コメントは正確で簡潔に」
+代名詞は使わない
+入出力のコーナーケースに実例を使う
+コードの意図を書く
+名前付き引数コメントを書く
+それぞれ確認していきましょう。
+
+入出力のコーナーケースに実例を使う
+例えば、以下のようなコードがあったとする。
+
+// 'src'の先頭や末尾にある'chars'を除去する。
+String Strip(String src, String chars){}
+
+この場合、以下のような疑問が生じる。
+
+charsは除去する文字列なのか、順序のない文字集合なのか？
+srcの末尾に複数のcharsがあったらどうなるのか？
+そこで以下のように実例を交えてコメントを記述する。
+
+// 'src'の先頭や末尾にある'chars'を除去する。
+// Strip("aaba/a/ba", "ab")は"/a"を返す
+String Strip(String src, String chars){}
+
+コードの意図を書く
+コードの処理内容を書くのではなく、なぜそれを実行したのかを書く。
+
+// listを逆順にイテレートする
+// 処理
+
+上記のコメントは処理内容を書いただけのものである。
+この場合は以下のように記述すると良い。
+
+// 値段の高い順に表示する
+// 処理
+
+名前付き引数コメント
+よくわからない引数については名前付き引数で呼び出す。
+例えば、以下のようなコードがあったとする。
+
+Connect(10, false)
+
+上記のコードだと、10もbool値も何かわからない。
+この場合は以下のように記述すると良い。
+
+Connect(/*timuout_ms = */ 10, /*use_encryption = */ false)
+
+第６章まとめ
+コメントは簡潔に書く
+代名詞は使わない
+入出力のコーナーケースに実例を使う
+コードの意図を書く
+名前付き引数コメントを書く
+第７章「制御フローを読みやすくする」
+条件式の引数の並び順
+if/elseの並び順
+do-whileループを避ける
+関数から早く返す
+ネストを浅くする
+それぞれ詳しく見ていきましょう。
+
+条件式の引数の並び順
+調査対象の式は左側に
+例えば、以下のようなコードがあったとする。
+
+if (length > 10)
+
+if (10 < length)
+
+この２つであれば上の方が読みやすいはずだ。
+
+左側	右側
+「調査対象」の式。変化する。	「比較対象」の式。あまり変化しない。
+if/elseの並び順
+条件は否定形よりも肯定形を使う。例えばif (!debug)ではなくif (debug)を使う
+単純な条件を先に書く
+do-whileループを避ける
+do-whileループは最低１回実行されてしまう。whileループであれば実行される条件が一目でわかるのでdo-whileループはwhileループに置き換える。
+
+関数から早く返す
+関数から早く返すようなコードは以下の通りだ。
+
+public boolean Contains = (String str, String substr) => {
+  if (str == null || substr == null) return false; 
+  if (substr.equals("")) return true;
+  //処理
+};
+
+ネストを浅くする
+関数から早く返すと同様に、失敗ケースを早めに返すようにすることでネストを浅くしよう。
+
+第７章まとめ
+条件式において調査対象の式は左側に
+if/elseを使用する際は否定形ではなく肯定形を使う
+do-whileループを避ける
+goto文は使わない
+関数から早く返す
+ネストを浅くする
+第８章「巨大な式を分割する」
+説明変数を利用する
+要約変数を利用する
+ド・モルガンの法則を使う
+複雑なロジックと格闘する
+それぞれ確認していきましょう。
+
+説明変数を利用する
+例えば、以下のようなコードがあったとする。
+
+if line.split(':')[0].split() == "root":
+//処理
+};
+
+説明変数を使えば以下のようになる。
+
+username = line.split(':')[0].split()
+if username == "root":
+//処理
+};
+
+要約変数を利用する
+例えば以下のようなコードがあったとする。
+
+if (request.user.id == document.owner_id){
+  // ユーザーはこの文書を編集できる
+}
+
+if (request.user.id != document.owner_id){
+  // 文書は読み取り専用
+}
+
+このコードが言いたいのは「ユーザーは文書を所持しているか？」ということである。そこで、要約変数を追加してコードを書く。
+
+final boolean user_owns_document = (request.user.id == document.owner_id);
+if (user_owns_document);
+  // ユーザーはこの文書を編集できる
+}
+
+if (!user_owns_document){
+  // 文書は読み取り専用
+}
+
+ド・モルガンの法則を使う
+ド・モルガンの法則を使用して分かりやすくする。
+ド・モルガンの法則は以下の通りだ。
+
+not (a or b or c) ⇔ (not a) and (not b) and (not c)
+not (a and b and c) ⇔ (not a) or (not b) or (not c)
+覚えにくい場合は
+notを分配してand/orを反転する
+と覚えておこう。
+複雑なロジックと格闘する
+if文のロジックが複雑になりすぎた場合にはより優雅なロジックにするよう考えてみよう。
+例えば、以下のようなコードがあったとする。
+
+if (// 複雑なロジック);
+  return true;
+}
+else {
+  return false;
+}
+
+この場合、複雑なロジックを読まなければならない。そこで複雑なロジックではない条件を考えてみよう。すると以下のように変更できる場合もあるだろう。
+
+if (// 簡単なロジック);
+  return false;
+}
+if (// 簡単なロジック);
+  return false;
+}
+else {
+  return true;
+}
+
+第８章まとめ
+説明変数を利用する
+要約変数を利用する
+ド・モルガンの法則を使う。覚え方はnotを分配してand/orを反転する
+複雑なロジックと格闘する際には複雑なロジックではない側のロジックを検討しよう。
+第９章「変数と読みやすさ」
+不要な変数を削除する
+変数のスコープを小さくする
+変数の書き換えはあまり行わないようにする
+それぞれ確認していきましょう。
+
+不要な変数を削除する
+例えば、Pythonで以下のようなコードがあったとする。
+
+now = datetime.datetime.now()
+root_message.last_view_time = now
+
+この場合のnowは必要ないだろう。なぜならば、datetime.datetime.now()でも十分明確だったからだ。
+よってこのコードは以下のように書き換えると良い。
+
+root_message.last_view_time = datetime.datetime.now()
+
+この例以外にも中間結果を削除すると良い。例えばfor文の中でtrue,falseに切り替えてからfor文終了後にif文を入れる必要はないということだ。
+
+変数のスコープを小さくする
+例えば、以下のようなコードがあったとする。
+
+string str_;
+
+void Method1() {
+  str_ = "fjfj"
+  method2();
+
+void Method2(){
+  // str_を使用している
+  }
+
+void Method3(){
+  // str_を使用していない
+};
+
+この場合、str_を以下のようにローカル変数に変換すると良い。
+
+void Method1() {
+  string str = "fjfj"
+  method2();
+
+void Method2(){
+  // strを使用している
+  }
+
+void Method3(){
+  // このメソッドはstrが見えない
+}
+
+第９章まとめ
+不要な変数を削除する
+十分意味が明確で複雑な式を分割しているわけではない変数は消そう
+中間結果は消せるなら消そう
+変数のスコープを小さくする
+変数の書き換えはあまり行わないようにする
+
+# Next.jsのbest practice
+
+Pages RouterからApp Routerへ移行する場合、React Server Componentsをはじめ多くのパラダイムシフトを必要とします。データフェッチにおいては、Server Componentsによって従来よりセキュアでシンプルな実装が可能になった一方、使いこなすには従来とは全く異なる設計思想が求められます。
+
+第1部では、App Routerのデータフェッチにまつわる基本的な考え方を解説します。
+
+## データフェッチ on Server Components
+
+データフェッチはClient Componentsではなく、Server Componentsで行いましょう。
+
+Reactにおけるコンポーネントは従来クライアントサイドでの処理を主体としていたため、クライアントサイドにおけるデータフェッチのためのライブラリや実装パターンが多く存在します。
+
+SWR
+React Query
+GraphQL
+Apollo Client
+Relay
+tRPC
+etc...
+しかしクライアントサイドでデータフェッチを行うことは、多くの点でデメリットを伴います。
+
+パフォーマンスと設計のトレードオフ
+クライアント・サーバー間の通信は、物理的距離や不安定なネットワーク環境の影響で多くの場合低速です。そのため、パフォーマンス観点では通信回数が少ないことが望ましいですが、通信回数とシンプルな設計はトレードオフになりがちです。
+
+REST APIにおいて通信回数を優先するとGod APIと呼ばれる責務が大きなAPIになりがちで、変更容易性やAPI自体のパフォーマンス問題が起きやすい傾向にあります。一方責務が小さい細粒度なAPIはChatty API(おしゃべりなAPI)と呼ばれ、データフェッチをコロケーション[1]してカプセル化などのメリットを得られる一方、通信回数が増えたりデータフェッチのウォーターフォールが発生しやすく、Webアプリのパフォーマンス劣化要因になりえます。
+
+様々な実装コスト
+クライアントサイドのデータフェッチでは、Reactが推奨してるように多くの場合キャッシュ機能を搭載した3rd partyライブラリを利用します。一方リクエスト先に当たるAPIは、パブリックなネットワークに公開するためより堅牢なセキュリティが求められます。
+
+これらの理由からクライアントサイドでデータフェッチする場合には、3rd partyライブラリの学習・責務設計・API側のセキュリティ対策など様々な開発コストが発生します。
+
+バンドルサイズの増加
+クライアントサイドでデータフェッチを行うには、3rd partyライブラリ・データフェッチの実装・バリデーションなど、多岐にわたるコードがバンドルされクライアントへ送信されます。また、通信結果次第では利用されないエラー時のUIなどのコードもバンドルに含まれがちです。
+
+設計・プラクティス
+Reactチームは前述の問題を個別の問題と捉えず、根本的にはReactがサーバーをうまく活用できてないことが問題であると捉えて解決を目指しました。その結果生まれたのがReact Server Components(以下RSC)アーキテクチャです。
+
+
+
+App RouterはRSCをサポートしており、データフェッチはServer Componentsで行うことがベストプラクティスとされています。
+
+これにより、以下のようなメリットを得られます。
+
+高速なバックエンドアクセス
+Next.jsサーバーとAPIサーバー間の通信は、多くの場合高速で安定しています。特に、APIが同一ネットワーク内や同一データセンターに存在する場合は非常に高速です。APIサーバーが外部にある場合も、多くの場合は首都圏内で高速なネットワーク回線を通じての通信になるため、比較的高速で安定してることが多いと考えられます。
+
+シンプルでセキュアな実装
+Server Componentsは非同期関数をサポートしており、3rd partyライブラリなしでデータフェッチをシンプルに実装できます。
+
+```
+export async function ProductTitle({ id }) {
+  const res = await fetch(`https://dummyjson.com/products/${id}`);
+  const product = await res.json();
+
+  return <div>{product.title}</div>;
+}
+```
+
+これはServer Componentsがサーバー側で1度だけレンダリングされ、従来のようにクライアントサイドで何度もレンダリングされることを想定しなくて良いからこそできる設計です。
+
+また、データフェッチはサーバー側でのみ実行されるため、APIをパブリックなネットワークで公開することは必須ではありません。プライベートなネットワーク内でのみバックエンドAPIへアクセスするようにすれば、セキュリティリスクや対策コストを軽減できます。
+
+バンドルサイズの軽減
+Server Componentsの実行結果はHTMLやRSC Payloadとしてクライアントへ送信されます。そのため、前述のような
+
+3rd partyライブラリ・データフェッチの実装・バリデーションなど、多岐にわたるコード
+...
+エラー時のUIなどのコード
+
+は一切バンドルには含まれません。
+
+トレードオフ
+ユーザー操作とデータフェッチ
+ユーザー操作に基づくデータフェッチはServer Componentsで行うことが困難な場合があります。詳細は後述のユーザー操作とデータフェッチを参照してください。
+
+GraphQLとの相性の悪さ
+RSCにGraphQLを組み合わせることはメリットよりデメリットの方が多くなる可能性があります。
+
+GraphQLはその特性上、前述のようなパフォーマンスと設計のトレードオフが発生しませんが、RSCも同様にこの問題を解消するため、これをメリットとして享受できません。それどころか、RSCとGraphQLを協調させるための知見やライブラリが一般に不足してるため、実装コストが高くバンドルサイズも増加するなど、デメリットが多々含まれます。
+
+!
+RSCの最初のRFCは、Relayの初期開発者の1人でGraphQLを通じてReactにおけるデータフェッチのベストプラクティスを追求してきたJoe Savona氏によって提案されました。そのため、RSCはGraphQLの持っているメリットや課題を踏まえて設計されているというGraphQLの精神的後継の側面を持ち合わせていると考えることができます。
+
+脚注
+コードをできるだけ関連性のある場所に配置することを指します。 ↩︎
+
+
+### データフェッチ コロケーション
+
+データフェッチはデータを参照するコンポーネントにコロケーション[1]し、コンポーネントの独立性を高めましょう。
+
+背景
+Pages Routerにおけるサーバーサイドでのデータフェッチは、getServerSidePropsやgetStaticPropsなどページの外側で非同期関数を宣言し、Next.jsがこれを実行した結果をpropsとしてページコンポーネントに渡すという設計がなされてました。
+
+これはいわゆるバケツリレー(Props Drilling)と呼ばれるpropsを親から子・孫へと渡していくような実装を必要とし、冗長で依存関係が広がりやすいというデメリットがありました。
+
+実装例
+以下に商品ページを想定した実装例を示します。APIから取得したproductというpropsが親から孫までそのまま渡されるような実装が見受けれれます。
+
+type ProductProps = {
+  product: Product;
+};
+
+export const getServerSideProps = (async () => {
+  const res = await fetch("https://dummyjson.com/products/1");
+  const product = await res.json();
+  return { props: { product } };
+}) satisfies GetServerSideProps<ProductProps>;
+
+export default function ProductPage({
+  product,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  return (
+    <ProductLayout>
+      <ProductContents product={product} />
+    </ProductLayout>
+  );
+}
+
+function ProductContents({ product }: ProductProps) {
+  return (
+    <>
+      <ProductHeader product={product} />
+      <ProductDetail product={product} />
+      <ProductFooter product={product} />
+    </>
+  );
+}
+
+// ...
+
+わかりやすいよう少々大袈裟に実装していますが、こういったバケツリレー実装はPages Routerだと発生しがちな問題です。常に最上位で必要なデータを意識し末端まで流すので、コンポーネントのネストが深くなるほどバケツリレーは増えていきます。
+
+この設計は我々開発者に常にページという単位を意識させてしまうため、コンポーネント指向な開発と親和性が低く、高い認知負荷を伴います。
+
+設計・プラクティス
+App RouterではServer Componentsでのデータフェッチが利用可能なので、できるだけ末端のコンポーネントへデータフェッチをコロケーションすることを推奨[2]しています。
+
+もちろんページの実装規模にもよるので、小規模な実装であればページコンポーネントでデータフェッチしても問題はないでしょう。しかし、ページコンポーネントが肥大化していくと中間層でのバケツリレーが発生しやすくなるので、できるだけ末端のコンポーネントでデータフェッチを行うことを推奨します。
+
+「それでは全く同じデータフェッチが何度も実行されてしまうのではないか」と懸念される方もいるかもしれませんが、App RouterではRequest Memoizationによってデータフェッチがメモ化されるため、全く同じデータフェッチが複数回実行されることないように設計されています。
+
+実装例
+前述の商品ページの実装例をApp Routerに移行する場合、以下のような実装になるでしょう。
+
+type ProductProps = {
+  product: Product;
+};
+
+// <ProductLayout>は`layout.tsx`へ移動
+export default function ProductPage() {
+  return (
+    <>
+      <ProductHeader />
+      <ProductDetail />
+      <ProductFooter />
+    </>
+  );
+}
+
+async function ProductHeader() {
+  const res = await fetchProduct();
+
+  return <>...</>;
+}
+
+async function ProductDetail() {
+  const res = await fetchProduct();
+
+  return <>...</>;
+}
+
+// ...
+
+async function fetchProduct() {
+  // Request Memoizationにより、実際のデータフェッチは1回しか実行されない
+  const res = await fetch("https://dummyjson.com/products/1");
+  return res.json();
+}
+
+データフェッチが各コンポーネントにコロケーションされたことで、バケツリレーがなくなりました。また、<ProductHeader>や<ProductDetail>などの子コンポーネントはそれぞれ必要な情報を自身で取得しているため、ページ全体でどんなデータフェッチを行っているか気にする必要がなくなりました。
+
+トレードオフ
+Request Memoizationへの理解
+データフェッチのコロケーションを実現する要はRequest Memoizationなので、Request Memoizationに対する理解と最適な設計が重要になってきます。
+
+この点については次のRequest Memoizationの章でより詳細に解説します。
+
+脚注
+コードをできるだけ関連性のある場所に配置することを指します。
+
+公式ドキュメントにおけるベストプラクティスを参照ください
+
+### Request Memoization
+
+
+
+要約
+データフェッチ層を分離して、Request Memoizationを生かせる設計を心がけましょう。
+
+背景
+データフェッチ コロケーションの章で述べた通り、App Routerではデータフェッチをコロケーションすることが推奨されています。しかし末端のコンポーネントでデータフェッチを行うと、ページ全体を通して重複するリクエストが発生する可能性が高まります。App Routerはこれに対処するため、レンダリング中の同一リクエストをメモ化し排除するRequest Memoizationを実装しています。
+
+しかし、このRequest Memoizationがリクエストを重複と判定するには、同一URL・同一オプションの指定が必要で、オプションが1つでも異なれば別リクエストが発生してしまいます。
+
+設計・プラクティス
+オプションの指定ミスによりRequest Memoizationが効かないことなどがないよう、複数のコンポーネントで利用しうるデータフェッチ処理はデータフェッチ層として分離しましょう。
+
+// プロダクト情報取得のデータフェッチ層
+export async function getProduct(id: string) {
+  const res = await fetch(`https://dummyjson.com/products/${id}`, {
+    // 独自ヘッダーなど
+  });
+  return res.json();
+}
+
+ファイル構成
+App Routerではコロケーションを強く意識した設計がなされているので、データフェッチ層をファイル分離する場合にもファイルコロケーションすることが推奨されます。
+
+前述のgetProduct()を分離する場合、筆者なら以下のいずれかのような形でファイルを分離します。データフェッチ層が多い場合にはより細かく分離すると良いでしょう。
+
+app/products/fetcher.ts
+app/products/_lib/fetcher.ts
+app/products/_lib/fetcher/product.ts
+ファイルの命名やディレクトリについては開発規模や流儀によって異なるので、自分たちのチームでルールを決めておきましょう。
+
+server-only package
+データフェッチ on Server Componentsで述べたとおり、データフェッチは基本的にServer Componentsで行うことが推奨されます。データフェッチ層を誤ってクライアントサイドで利用することを防ぐためにも、server-onlyパッケージを利用することを検討しましょう。
+
+// Client Compomnentsでimportするとerror
+import "server-only";
+
+export async function getProduct(id: string) {
+  const res = await fetch(`https://dummyjson.com/products/${id}`, {
+    // 独自ヘッダーなど
+  });
+  return res.json();
+}
+
+### 並行データフェッチ
+
+要約
+以下のパターンを駆使して、データフェッチが可能な限り並行になるよう設計しましょう。
+
+データフェッチ単位のコンポーネント分割
+並行fetch()
+preloadパターン
+背景
+「商品情報を取得してからじゃないと出品会社情報が取得できない」などのようにデータフェッチ間に依存関係がある場合、データフェッチ処理自体は直列(ウォーターフォール)に実行せざるを得ません。
+
+一方データ間に依存関係がない場合、当然ながらデータフェッチを並行化した方が優れたパフォーマンスを得られます。以下は公式ドキュメントにあるデータフェッチの並行化による速度改善のイメージ図です。
+
+water fall data fetch
+
+設計・プラクティス
+App Routerにおけるデータフェッチの並行化にはいくつかの実装パターンがあります。コードの凝集度を考えると、まずは可能な限りデータフェッチ単位のコンポーネント分割を行うことがベストです。ただし、必ずしもコンポーネントが分割可能とは限らないので他のパターンについてもしっかり理解しておきましょう。
+
+データフェッチ単位のコンポーネント分割
+データ間に依存関係がなく参照単位も異なる場合には、データフェッチを行うコンポーネント自体分割することを検討しましょう。
+
+非同期コンポーネントがネストしている場合はコンポーネントの実行が直列になりますが、それ以外では並行にレンダリングされます。言い換えると、非同期コンポーネントは兄弟もしくは兄弟の子孫コンポーネントとして配置されてる場合、並行にレンダリングされます。
+
+function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  return (
+    <>
+      <PostBody postId={id} />
+      <CommentsWrapper>
+        <Comments postId={id} />
+      </CommentsWrapper>
+    </>
+  );
+}
+
+async function PostBody({ postId }: { postId: string }) {
+  const res = await fetch(`https://dummyjson.com/posts/${postId}`);
+  const post = (await res.json()) as Post;
+  // ...
+}
+
+async function Comments({ postId }: { postId: string }) {
+  const res = await fetch(`https://dummyjson.com/posts/${postId}/comments`);
+  const comments = (await res.json()) as Comment[];
+  // ...
+}
+
+上記の実装例では<PostBody />と<Comments />(およびその子孫)は並行レンダリングされるので、データフェッチも並行となります。
+
+並行fetch()
+データフェッチ順には依存関係がなくとも参照の単位が不可分な場合には、Promise.all()(もしくはPromise.allSettled())とfetch()を組み合わせることで、複数のデータフェッチを並行に実行できます。
+
+async function Page() {
+  const [user, posts] = await Promise.all([
+    fetch(`https://dummyjson.com/users/${id}`).then((res) => res.json()),
+    fetch(`https://dummyjson.com/posts/users/${id}`).then((res) => res.json()),
+  ]);
+
+  // ...
+}
+
+preloadパターン
+コンポーネント構造上兄弟関係ではなく親子関係にせざるを得ない場合も、データフェッチにウォーターフォールが発生します。このようなウォーターフォールは、Request Memoizationを活用したpreloadパターンを利用することで、コンポーネントの親子関係を超えて並行データフェッチが実現できます。
+
+サーバー間通信は物理的距離・潤沢なネットワーク環境などの理由から安定して高速な傾向にあり、ウォーターフォールがパフォーマンスに及ぼす影響はクライアントサイドと比較すると小さくなる傾向にあります。それでもパフォーマンス計測した時に無視できない遅延を含む場合などには、このpreloadパターンが有用です。
+
+app/fetcher.ts
+import "server-only";
+
+export const preloadCurrentUser = () => {
+  // preloadなので`await`しない
+  void getCurrentUser();
+};
+
+export async function getCurrentUser() {
+  const res = await fetch("https://dummyjson.com/user/me");
+  return res.json() as User;
+}
+
+app/products/[id]/page.tsx
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  // `<Product>`や`<Comments>`のさらに子孫で`user`を利用するため、親コンポーネントでpreloadする
+  preloadCurrentUser();
+
+  return (
+    <>
+      <Product productId={id} />
+      <Comments productId={id} />
+    </>
+  );
+}
+
+上記実装例では可読性のためにpreloadCurrentUser()をpreload専用の関数として定義しています。<Product>や<Comments>の子孫でUser情報を利用するため、ページレベルでpreloadCurrentUser()することで、<Product>と<Comments>のレンダリングと並行してUser情報のデータフェッチが実行されます。
+
+ただし、preloadパターンを利用した後で<Product>や<Comments>からUser情報が参照されなくなった場合、preloadCurrentUser()が残っていると不要なデータフェッチが発生します。このパターンを利用する際には、無駄なpreloadが残ってしまうことのないよう注意しましょう。
+
+トレードオフ
+N+1データフェッチ
+データフェッチ単位を小さくコンポーネントに分割していくとN+1データフェッチが発生する可能性があります。この点については次の章のN+1とDataLoaderで詳しく解説します。
+
+### N+1とDataLoader
+
+要約
+コンポーネント単位の独立性を高めるとN+1データフェッチが発生しやすくなるので、DataLoaderのバッチ処理を利用して解消しましょう。
+
+!
+本章の内容は、バックエンドAPI側でもN+1データフェッチに対処するためのエンドポイントが実装されていることを前提としています。
+
+背景
+前述のデータフェッチ コロケーションや並行データフェッチを実践し、データフェッチやコンポーネントを細かく分割していくと、ページ全体で発生するデータフェッチの管理が難しくなり2つの問題を引き起こします。
+
+1つは重複したデータフェッチです。これについてはNext.jsの機能であるRequest Memoizationによって解消されるため、前述のようにデータフェッチ層を分離・共通化してれば我々開発者が気にすることはほとんどありません。
+
+もう1つは、いわゆるN+1なデータフェッチです。データフェッチを細粒度に分解していくと、N+1データフェッチになる可能性が高まります。
+
+以下の例では投稿の一覧を取得後、子コンポーネントで著者情報を取得しています。
+
+page.tsx
+import { type Post, getPosts, getUser } from "./fetcher";
+
+export const dynamic = "force-dynamic";
+
+export default async function Page() {
+  const { posts } = await getPosts();
+
+  return (
+    <>
+      <h1>Posts</h1>
+      <ul>
+        {posts.map((post) => (
+          <li key={post.id}>
+            <PostItem post={post} />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+async function PostItem({ post }: { post: Post }) {
+  const user = await getUser(post.userId);
+
+  return (
+    <>
+      <h3>{post.title}</h3>
+      <dl>
+        <dt>author</dt>
+        <dd>{user?.username ?? "[unknown author]"}</dd>
+      </dl>
+      <p>{post.body}</p>
+    </>
+  );
+}
+
+fetcher.ts
+export async function getPosts() {
+  const res = await fetch("https://dummyjson.com/posts");
+  return (await res.json()) as {
+    posts: Post[];
+  };
+}
+
+type Post = {
+  id: number;
+  title: string;
+  body: string;
+  userId: number;
+};
+
+export async function getUser(id: number) {
+  const res = await fetch(`https://dummyjson.com/users/${id}`);
+  return (await res.json()) as User;
+}
+
+type User = {
+  id: number;
+  username: string;
+};
+
+ページレンダリング時にgetPosts()を1回とgetUser()をN回呼び出すことになり、ページ全体では以下のようなN+1回のデータフェッチが発生します。
+
+https://dummyjson.com/posts
+https://dummyjson.com/users/1
+https://dummyjson.com/users/2
+https://dummyjson.com/users/3
+...
+設計・プラクティス
+上記のようなN+1データフェッチを避けるため、API側ではhttps://dummyjson.com/users/?id=1&id=2&id=3...のように、idを複数指定してUser情報を一括で取得できるよう設計するパターンがよく知られています。
+
+このようなバックエンドAPIと、Next.js側でDataLoaderを利用することで前述のようなN+1データフェッチを解消することができます。
+
+DataLoader
+DataLoaderはGraphQLサーバーなどでよく利用されるライブラリで、データアクセスをバッチ処理・キャッシュする機能を提供します。具体的には以下のような流れで利用します。
+
+バッチ処理する関数を定義
+DataLoaderのインスタンスを生成
+短期間[1]にdataLoader.load(id)を複数回呼び出すと、idの配列がバッチ処理に渡される
+バッチ処理が完了するとdataLoader.load(id)のPromiseが解決される
+以下は非常に簡単な実装例です。
+
+async function myBatchFn(keys: readonly number[]) {
+  // keysを元にデータフェッチ
+  // 実際にはdummyjsonはid複数指定に未対応なのでイメージです
+  const res = await fetch(
+    `https://dummyjson.com/posts/?${keys.map((key) => `id=${key}`).join("&")}`,
+  );
+  const { posts } = (await res.json()) as { posts: Post[] };
+  return keys.map((key) => posts.find((post) => post.id === key) ?? null);
+}
+
+const myLoader = new DataLoader(myBatchFn);
+
+// 呼び出しはDataLoaderによってまとめられ、`myBatchFn([1, 2])`が呼び出される
+myLoader.load(1);
+myLoader.load(2);
+
+Next.jsにおけるDataLoaderの利用
+Server Componentsの兄弟もしくは兄弟の子孫コンポーネントは並行レンダリングされるので、それぞれでawait myLoader.load(1);のようにしてもDataLoaderによってバッチングされます。
+
+DataLoaderを用いて、前述の実装例のgetUser()を書き直してみます。
+
+fetcher.ts
+import DataLoader from "dataloader";
+import * as React from "react";
+
+// ...
+
+const getUserLoader = React.cache(
+  () => new DataLoader((keys: readonly number[]) => batchGetUser(keys)),
+);
+
+export async function getUser(id: number) {
+  const userLoader = getUserLoader();
+  return userLoader.load(id);
+}
+
+async function batchGetUser(keys: readonly number[]) {
+  // keysを元にデータフェッチ
+  // 実際にはdummyjsonはid複数指定に未対応なのでイメージです
+  const res = await fetch(
+    `https://dummyjson.com/users/?${keys.map((key) => `id=${key}`).join("&")}`,
+  );
+  const { users } = (await res.json()) as { users: User[] };
+  return keys.map((key) => users.find((user: User) => user.id === key) ?? null);
+}
+
+// ...
+
+ポイントはgetUserLoaderがReact.cache()を利用していることです。DataLoaderはキャッシュ機能があるため、ユーザーからのリクエストを跨いでインスタンスを共有してしまうと予期せぬデータ共有につながります。そのため、ユーザーからのリクエスト単位でDataLoaderのインスタンスを生成する必要があり、これを実現するためにReact Cacheを利用しています。
+
+!
+Next.jsやReactのコアメンテナであるSebastian Markbåge氏の過去ツイート（アカウントごと削除済み）によると、React Cacheがリクエスト単位で保持される仕様は将来的に保障されたものではないようです。執筆時点では他に情報がないため、上記実装を参考にする場合には必ず動作確認を行ってください。
+
+上記のように実装することで、getUser()のインターフェースは変えずにN+1データフェッチを解消することができます。
+
+トレードオフ
+Eager Loadingパターン
+ここで紹介した設計パターンはいわゆるLazy Loadingパターンの一種です。バックエンドAPI側の実装・パフォーマンス観点からLazy Loadingが適さない場合はEager Loadingパターン、つまりN+1の最初の1回のリクエストで関連する必要な情報を全て取得することを検討しましょう。
+
+Eager Loadingパターンはやりすぎると、密結合で責務が大きすぎるいわゆるGod APIになってしまう傾向にあります。これらの詳細については次章の細粒度のREST API設計で解説します。
+
+脚注
+バッチングスケジュールの詳細は公式の説明を参照ください。
+
+### 細粒度のREST API設計
+
+要約
+バックエンドのREST API設計は、Next.js側の設計にも大きく影響をもたらします。App Router(React Server Components)におけるバックエンドAPIは、細粒度な単位に分割されていることが望ましく、可能な限りこれを意識した設計を行いましょう。
+
+!
+このchapterの主題は「App Routerが呼び出すバックエンドAPIの設計」です。「App RouterのRoute Handlerとして実装するAPIの設計」ではないのでご注意ください。
+
+背景
+昨今のバックエンドAPI開発において、最もよく用いられる設計はREST APIです。REST APIのリソース単位は、識別子を持つデータやオブジェクト単位でできるだけ細かく細粒度に分割することが基本です。しかし、細粒度のAPIは利用者システムとの通信回数が多くなってしまうため、これを避けるためにより大きな粗粒度単位でAPI設計することがよくあります。
+
+リソース単位の粒度とトレードオフ
+細粒度なAPIで通信回数が多くなることはChatty API（おしゃべりなAPI）と呼ばれ、逆に粗粒度なAPIで汎用性に乏しい状態はGod API（神API）と呼ばれます。これらはそれぞれアンチパターンとされることがありますが、実際には観点次第で最適解が異なるので、一概にアンチパターンなのではなくそれぞれトレードオフが伴うと捉えるべきです。
+
+リソース単位の粒度	設計観点	パフォーマンス(低速な通信)	パフォーマンス(高速な通信)
+細粒度	✅	❌	✅
+粗粒度	❌	✅	✅
+ページと密結合になりがちな粗粒度単位
+App Router登場以前のNext.jsやReactアプリケーションに対するバックエンドAPIでは、API設計がページと密結合になり、汎用性や保守性に乏しくなるケースが多々見られました。
+
+クライアントサイドでデータフェッチを行う場合、クライアント・サーバー間の通信は物理的距離や不安定なネットワーク環境の影響で低速になりがちなため、通信回数はパフォーマンスに大きく影響します。そのため、ページごとに1度の通信で完結するべく粗粒度なAPI設計が採用されることがありました。
+
+一方、Pages RouterのgetServerSideProps()を利用したBFFとAPIのサーバー間においては、高速なネットワークを介した通信となるため、通信回数がパフォーマンスボトルネックになる可能性は低くなります。しかし、getServerSideProps()はページ単位で定義するため、APIにページ単位の要求が反映され、粗粒度なAPI設計になるようなケースがよくありました。
+
+設計・プラクティス
+App Routerにおいては、Server Componentsによってデータフェッチのコロケーションや分割が容易になったためコードやロジックの重複が発生しづらくなりました。このため、App Routerは細粒度で設計されたREST APIと非常に相性が良いと言えます。
+
+バックエンドAPIの設計観点から言っても、細粒度で設計されたREST APIの実装はシンプルに実装できることが多く、メリットとなるはずです。
+
+React Server ComponentsとGraphQLのアナロジー
+細粒度なAPI設計はReact Server Componentsで初めて注目されたものではなく、従来からGraphQL BFFに対するバックエンドAPIで好まれる傾向にありました。
+
+
+
+このように、React Server ComponentsとGraphQLには共通の思想が見えます。
+
+データフェッチ on Server Componentsでも述べたように、React Server Componentsの最初のRFCはRelayの初期開発者の1人でGraphQLを通じてReactにおけるデータフェッチのベストプラクティスを追求してきたJoe Savona氏が提案しており、React Server ComponentsにはGraphQLの精神的後継という側面があります。
+
+このようなReact Server ComponentsとGraphQLにおける類似点については、以下のQuramyさんの記事で詳しく解説されているので、興味がある方は参照してみてください。
+
+
+
+トレードオフ
+バックエンドとの通信回数
+前述の通り、サーバー間通信は多くの場合高速で安定しています。そのため、通信回数が多いことはデメリットになりづらいと言えますが、アプリケーション特性にもよるので実際には注意が必要です。
+
+並行データフェッチやN+1とDataLoaderで述べたプラクティスや、データフェッチ単位のキャッシュであるData Cacheを活用して、通信頻度やパフォーマンスを最適化しましょう。
+
+バックエンドAPI開発チームの理解
+バックエンドAPIには複数の利用者がいる場合もあるため、Next.jsが細粒度のAPIの方が都合がいいからといって一存で決めれるとは限りません。バックエンド開発チームの経験則や価値観もあります。
+
+しかし、細粒度のAPIにすることはフロントエンド開発チームにとってもバックエンド開発チームにとってもメリットが大きく、無碍にできない要素なはずです。最終的な判断がバックエンド開発チームにあるとしても、しっかりメリットやNext.js側の背景を伝え理解を得るべく努力しましょう。
+
+### ユーザー操作とデータフェッチ
+
+
+要約
+ユーザー操作に基づくデータフェッチと再レンダリングには、Server ActionsとuseActionState()を利用しましょう。
+
+背景
+データフェッチ on Server Componentsで述べた通り、App RouterにおいてデータフェッチはServer Componentsで行うことが基本形です。しかし、ユーザー操作に基づいてデータフェッチ・再レンダリングを行うのにServer Componentsは適していません。App Routerにおいてはrouter.refresh()などでページ全体を再レンダリングすることはできますが、ユーザー操作に基づいて部分的に再レンダリングしたい場合には不適切です。
+
+設計・プラクティス
+App RouterがサポートしてるReact Server Componentsにおいては、Server ActionsとuseActionState()(旧: useFormState())を利用することで、ユーザー操作に基づいたデータフェッチを実現できます。
+
+useActionState()
+useActionState()は関数と初期値を渡すことで、Server Actionsによってのみ更新できるState管理が実現できます。
+
+
+
+以下はユーザーの入力に基づいて商品を検索する実装例です。Server Actionsとして定義されたsearchProducts()をuseActionState()の第一引数に渡しており、formがサブミットされるごとに実行されます。
+
+app/actions.ts
+"use server";
+
+export async function searchProducts(
+  _prevState: Product[],
+  formData: FormData,
+) {
+  const query = formData.get("query") as string;
+  const res = await fetch(`https://dummyjson.com/products/search?q=${query}`);
+  const { products } = (await res.json()) as { products: Product[] };
+
+  return products;
+}
+
+// ...
+
+app/form.tsx
+"use client";
+
+import { useActionState } from "react-dom";
+import { searchProducts } from "./actions";
+
+export default function Form() {
+  const [products, action] = useActionState(searchProducts, []);
+
+  return (
+    <>
+      <form action={action}>
+        <label htmlFor="query">
+          Search Product:&nbsp;
+          <input type="text" id="query" name="query" />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      <ul>
+        {products.map((product) => (
+          <li key={product.id}>{product.title}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+これにより、 検索したい文字列を入力・サブミットすると、検索ヒットした商品の名前が表出するようになっています。
+
+トレードオフ
+URLシェア・リロード対応
+form以外ほとんど要素がないような単純なページであれば、公式チュートリアルの実装例のようにrouter.replace()によってURLを更新・ページ全体を再レンダリングするという手段があります。
+
+
+
+チュートリアルの実装例(簡易版)
+この場合、Server ActionsとuseActionState()のみでは実現できないリロード復元やURLシェアが実現できます。上記例のように検索が主であるページにおいては、状態をURLに保存することを検討すべきでしょう。useActionState()を使いつつ、状態をURLに保存することもできます。
+
+一方サイドナビゲーションやcmd+kで開く検索モーダルのように、リロード復元やURLシェアをする必要がないケースでは、Server ActionsとuseActionState()の実装が非常に役立つことでしょう。
+
+データ操作に伴う再レンダリング
+ここで紹介したのはユーザー操作に伴うデータフェッチ、つまりデータ操作を伴わない場合の設計パターンです。ユーザー操作にともなってデータを操作し、その後の結果を再取得したいこともあります。これはServer ActionsとrevalidatePath()/revalidateTag()を組み合わせ実行することで実現できます。
+
+これについては、後述のデータ操作とServer Actionsにて詳細を解説します
+
+## 第2部 コンポーネント設計
+
+React Server ComponentsのRFCには以下のような記述があります。
+
+The fundamental challenge was that React apps were client-centric and weren’t taking sufficient advantage of the server.
+<以下Deepl訳>
+根本的な課題は、Reactアプリがクライアント中心で、サーバーを十分に活用していないことだった。
+
+Reactコアチームは、Reactが抱えていたいくつかの課題を個別の課題としてではなく、根本的には「サーバーを活用できていない」ということが課題であると考えました。そして、サーバー活用と従来のクライアント主体なReactの統合を目指し、設計されたアーキテクチャがReact Server Componentsです。
+
+第1部 データフェッチで解説してきた通り、特にデータフェッチに関しては従来よりシンプルでセキュアに実装できるようになったことで、ほとんどトレードオフなくコンポーネントにカプセル化することが可能となりました。一方コンポーネント設計においては、従来のクライアント主体のReactコンポーネント相当であるClient Componentsと、Server Componentsをうまく統合していく必要があります。
+
+第2部ではReact Server Componentsにおけるコンポーネント設計パターンを解説します。
+
+### Client Componentsのユースケース
+
+要約
+Client Componentsを使うべき代表的なユースケースを覚えておきましょう。
+
+クライアントサイド処理
+サードパーティコンポーネント
+RSC Payload転送量の削減
+背景
+第1部 データフェッチではデータフェッチ観点を中心にServer Componentsの設計パターンについて解説してきました。Client Componentsはオプトインのため、App Routerにおけるコンポーネント全体の設計は、Server Componentsを中心とした設計にClient Componentsを適切に組み合わせていく形で行います。
+
+そのためにはそもそも、いつClient Componentsにオプトインすべきなのか適切に判断できることが重要です。
+
+設計・プラクティス
+筆者がClient Componentsを利用すべきだと考える代表的な場合は大きく以下の3つです。
+
+クライアントサイド処理
+最もわかりやすくClient Componentsが必要な場合は、クライアントサイド処理を必要とする場合です。以下のような場合が考えられます。
+
+onClick()やonChange()といったイベントハンドラの利用
+状態hooks(useState()やuseReducer()など)やライフサイクルhooks(useEffect()など)の利用
+ブラウザAPIの利用
+"use client";
+
+import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+    </div>
+  );
+}
+
+サードパーティコンポーネント
+Client Componentsを提供するサードパーティライブラリがReact Server Componentsに未対応な場合は、利用者側でClient Boundaryを明示しなければならないことがあります。この場合には"use client";指定してre-exportするか、利用者側で"use client";指定する必要があります。
+
+app/_components/accordion.tsx
+"use client";
+
+import { Accordion } from "third-party-library";
+
+export default Accordion;
+
+app/_components/side-bar.tsx
+"use client";
+
+import { Accordion } from "third-party-library";
+
+export function SideBar() {
+  return (
+    <div>
+      <Accordion>{/* ... */}</Accordion>
+    </div>
+  );
+}
+
+RSC Payload転送量の削減
+3つ目はRSC Payloadの転送量を減らしたい場合です。Client Componentsは当然ながらクライアントサイドでも実行されるので、Client Componentsが多いほどJavaScriptバンドルサイズは増加します。一方Server ComponentsはRSC Payloadとして転送されるため、Server ComponentsがレンダリングするReactElementや属性が多いほど転送量が多くなります。
+
+つまりClient ComponentsのJavaScript転送量とServer ComponentsのRSC Payload転送量はトレードオフの関係にあります。
+
+Client Componentsを含むJavaScriptバンドルは1回しかロードされませんが、Server ComponentsはレンダリングされるたびにRSC Payloadが転送されます。そのため、繰り返しレンダリングされるコンポーネントはRSC Payloadの転送量を削減する目的でClient Componentsにすることが望ましい場合があります。
+
+例えば以下の<Product>について考えてみます。
+
+export async function Product() {
+  const product = await fetchProduct();
+
+  return (
+    <div class="... /* 大量のtailwindクラス */">
+      <div class="... /* 大量のtailwindクラス */">
+        <div class="... /* 大量のtailwindクラス */">
+          <div class="... /* 大量のtailwindクラス */">
+            {/* `product`参照 */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+hooksなども特になく、ただproductを取得・参照しているのみです。しかしこのデータを参照してるReactElementの出力結果サイズが大きいと、RSC Payloadの転送コストが大きくなりパフォーマンス劣化を引き起こす可能性があります。特に低速なネットワーク環境においてページ遷移を繰り返す際などには影響が顕著になりがちです。
+
+このような場合においてはServer Componentsではデータフェッチのみを行い、ReactElement部分はClient Componentsに分離することでRSC Payloadの転送量を削減することができます。
+
+export async function Product() {
+  const product = await fetchProduct();
+
+  return <ProductPresentaional product={product} />;
+}
+
+"use client";
+
+export function ProductPresentaional({ product }: { product: Product }) {
+  return (
+    <div class="... /* 大量のtailwindクラス */">
+      <div class="... /* 大量のtailwindクラス */">
+        <div class="... /* 大量のtailwindクラス */">
+          <div class="... /* 大量のtailwindクラス */">
+            {/* `product`参照 */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+トレードオフ
+Client Boundaryと暗黙的なClient Components
+"use client";が記述されたモジュールからimportされるモジュール以降は全て暗黙的にクライアントモジュールとして扱われ、それらで定義されたコンポーネントは全てClient Componentsとして扱われます。
+
+このように、"use client";は依存関係において境界(Boundary)を定義するもので、この境界はよくClient Boundaryと表現されます。
+
+そのため、上位層のコンポーネントでClient Boundaryを形成してしまうと下層でServer Componentsを含むことができなくなってしまい、React Server Componentsのメリットをうまく享受できなくなってしまうケースが散見されます。このようなケースへの対応は次章のCompositionパターンで解説します。
+
+### Compositionパターン
+
+要約
+Compositionパターンを駆使して、Server Componentsを中心に組み立てたコンポーネントツリーからClient Componentsを適切に切り分けましょう。
+
+背景
+第1部 データフェッチで述べたように、React Server Componentsのメリットを活かすにはServer Components中心の設計が重要となります。そのため、Client Componentsは適切に分離・独立していることが好ましいですが、これを実現するにはClient Componentsの依存関係における2つの制約を考慮しつつ設計する必要があります。
+
+Client Componentsはサーバーモジュールをimportできない
+1つはClient ComponentsはServer Componentsはじめサーバーモジュールをimportできないという制約です。クライアントサイドでも実行される以上、サーバーモジュールに依存できないのは考えてみると当然のことです。
+
+そのため、以下のような実装はできません。
+
+"use client";
+
+import { useState } from "react";
+import { UserInfo } from "./user-info"; // Server Components
+
+export function SideMenu() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <UserInfo />
+      <div>
+        <button type="button" onClick={() => setOpen((prev) => !prev)}>
+          toggle
+        </button>
+        <div>...</div>
+      </div>
+    </>
+  );
+}
+
+この制約に対し唯一例外となるのが"use server";が付与されたファイルや関数、つまり Server Actionsです。
+
+actions.ts
+"use server";
+
+export async function create() {
+  // サーバーサイド処理
+}
+
+create-button.tsx
+"use client";
+
+import { create } from "./actions"; // 💡Server Actionsならimportできる
+
+export function CreateButton({ children }: { children: React.ReactNode }) {
+  return <button onClick={create}>{children}</button>;
+}
+
+Client Boundary
+もう1つ注意すべきなのは、"use client";が記述されたモジュールからimportされるモジュール以降は、全て暗黙的にクライアントモジュールとして扱われるということです。そのため、定義されたコンポーネントは全てClient Componentsとして実行可能でなければなりません。Client Componentsはサーバーモジュールをimportできない以上、これも当然の帰結です。
+
+"use client";はこのように依存関係において境界(Boundary)を定義するもので、この境界はよくClient Boundaryと表現されます。
+
+!
+よくある誤解のようですが、以下は誤りなので注意しましょう。
+
+"use client";宣言付モジュールのコンポーネントだけがClient Components
+全てのClient Componentsに"use client";が必要
+設計・プラクティス
+前述の通り、App RouterでServer Componentsの設計を活かすにはClient Componentsを独立した形に切り分けることが重要となります。
+
+これには大きく以下2つの方法があります。
+
+コンポーネントツリーの末端をClient Componentsにする
+1つはコンポーネントツリーの末端をClient Componentsにするというシンプルな方法です。Client Boundaryを下層に限定するとも言い換えられます。
+
+例えば検索バーを持つヘッダーを実装する際に、ヘッダーごとClient Componentsにするのではなく検索バーの部分だけClient Componentsとして切り出し、ヘッダー自体はServer Componentsに保つといった方法です。
+
+header.tsx
+import { SearchBar } from "./search-bar"; // Client Components
+
+// page.tsxなどのServer Componentsから利用される
+export function Header() {
+  return (
+    <header>
+      <h1>My App</h1>
+      <SearchBar />
+    </header>
+  );
+}
+
+Compositionパターンを活用する
+上記の方法はシンプルな解決策ですが、どうしても上位層のコンポーネントをClient Componentsにする必要がある場合もあります。その際にはCompositionパターンを活用して、Client Componentsを分離することが有効です。
+
+前述の通り、Client ComponentsはServer Componentsをimportすることができません。しかしこれは依存関係上の制約であって、コンポーネントツリーとしてはClient ComponentsのchildrenなどのpropsにServer Componentsを渡すことで、レンダリングが可能です。
+
+前述の<SideMenu>の例を書き換えてみます。
+
+side-menu.tsx
+"use client";
+
+import { useState } from "react";
+
+// `children`に`<UserInfo>`などのServer Componentsを渡すことが可能！
+export function SideMenu({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      {children}
+      <div>
+        <button type="button" onClick={() => setOpen((prev) => !prev)}>
+          toggle
+        </button>
+        <div>...</div>
+      </div>
+    </>
+  );
+}
+
+page.tsx
+import { UserInfo } from "./user-info"; // Server Components
+import { SideMenu } from "./side-menu"; // Client Components
+
+/**
+ * Client Components(`<SideMenu>`)の子要素として
+ * Server Components(`<UserInfo>`)を渡せる
+ */
+export function Page() {
+  return (
+    <div>
+      <SideMenu>
+        <UserInfo />
+      </SideMenu>
+      <main>{/* ... */}</main>
+    </div>
+  );
+}
+
+<SideMenu>のchildrenがServer Componentsである<UserInfo />となっています。これがいわゆるCompositionパターンと呼ばれる実装パターンです。
+
+トレードオフ
+「後からComposition」の手戻り
+Compositionパターンを駆使すればServer Componentsを中心にしつつ、部分的にClient Componentsを組み込むことが可能です。しかし、早期にClient Boundaryを形成し後からCompositionパターンを導入しようとすると、Client Componentsの設計を大幅に変更せざるを得なくなったり、Server Components中心な設計から逸脱してしまう可能性があります。
+
+そのため、React Server Componentsにおいては設計する順番も非常に重要です。画面を実装する段階ではまずデータフェッチを行うServer Componentsを中心に設計し、そこに必要に応じてClient Componentsを末端に配置したりCompositionパターンで組み込んで実装を進めていくことを筆者はお勧めします。
+
+データフェッチを行うServer Componentsを中心に設計することは、次章のContainer/PresentationalパターンにおけるContainer Componentsを組み立てることに等しい工程です
+
+### Container/Presentationalパターン
+
+要約
+データ取得はContainer Components・データの参照はPresentational Componentsに分離し、テスト容易性を向上させましょう。
+
+!
+本章の解説内容は、Quramyさんの記事を参考にしています。ほとんど要約した内容となりますので、より詳細に知りたい方は元記事をご参照ください。
+
+背景
+ReactコンポーネントのテストといえばReact Testing Library(以下RTL)やStorybookなどを利用することが主流ですが、本書執筆時点でこれらのServer Components対応の状況は芳しくありません。
+
+React Testing Library
+RTLは現状Server Componentsに未対応で、将来的にサポートするようなコメントも見られますが時期については不明です。
+
+具体的には非同期なコンポーネントをrender()することができないため、以下のようにServer Componentsのデータフェッチに依存した検証はできません。
+
+test("random Todo APIより取得した`dummyTodo`がタイトルとして表示される", async () => {
+  // mswの設定
+  server.use(
+    http.get("https://dummyjson.com/todos/random", () => {
+      return HttpResponse.json(dummyTodo);
+    }),
+  );
+
+  await render(<TodoPage />); // `<TodoPage>`はServer Components
+
+  expect(
+    screen.getByRole("heading", { name: dummyTodo.title }),
+  ).toBeInTheDocument();
+});
+
+Storybook
+一方StorybookはexperimentalながらServer Components対応を実装したとしているものの、実際にはasyncなClient Componentsをレンダリングしているにすぎず、大量のmockを必要とするため筆者はあまり実用的とは考えていません。
+
+export default { component: DbCard };
+
+export const Success = {
+  args: { id: 1 },
+  parameters: {
+    moduleMock: {
+      // サーバーサイド処理の分`mock`が冗長になる
+      mock: () => {
+        const mock = createMock(db, "findById");
+        mock.mockReturnValue(
+          Promise.resolve({
+            name: "Beyonce",
+            img: "https://blackhistorywall.files.wordpress.com/2010/02/picture-device-independent-bitmap-119.jpg",
+            tel: "+123 456 789",
+            email: "b@beyonce.com",
+          }),
+        );
+        return [mock];
+      },
+    },
+  },
+};
+
+設計・プラクティス
+前述の状況を踏まえると、テスト対象となるServer Componentsは「テストしにくいデータフェッチ部分」と「テストしやすいHTMLを表現する部分」で分離しておくことが望ましいと考えられます。
+
+このように、データを提供する層とそれを表現する層に分離するパターンはContainer/Presentationalパターンの再来とも言えます。
+
+従来のContainer/Presentationalパターン
+Container/Presentationalパターンは元々、Flux全盛だったReact初期に提唱された設計手法です。データの読み取り・振る舞い(主にFluxのaction呼び出しなど)の定義をContainer Componentsが、データを参照し表示するのはPresentational Componentsが担うという責務分割がなされていました。
+
+少々古い記事ですが、興味のある方はDan Abramov氏の以下の記事をご参照ください。
+
+
+
+React Server ComponentsにおけるContainer/Presentationalパターン
+React Server ComponentsにおけるContainer/Presentationalパターンは従来のものとは異なり、Container Componentsはデータフェッチなどのサーバーサイド処理のみを担います。一方Presentational Componentsは、データフェッチを含まないShared ComponentsもしくはClient Componentsを指します。
+
+Components	React初期	RSC時代
+Container	状態参照、状態変更関数の定義	Server Components上でのデータフェッチなどのサーバーサイド処理
+Presentational	propsを参照してReactElementを定義する純粋関数など	Shared Components/Client Components
+Shared Componentsはサーバーモジュールに依存せず、"use client";もないモジュールで定義されるコンポーネントを指します。このようなコンポーネントは、Client Boundary内においてはClient Componentsとして扱われ、そうでなければServer Componentsとして扱われます。
+
+// `"use client";`がないモジュール
+export function CompanyLinks() {
+  return (
+    <ul>
+      <li>
+        <a href="/about">About</a>
+      </li>
+      <li>
+        <a href="/contact">Contact</a>
+      </li>
+    </ul>
+  );
+}
+
+!
+上記のような"use client";を含まない場合において、自身でClient Boundaryを形成するのではなく、Client Boundary内で利用することを強制したいような場合にはclient-onlyパッケージが役立ちます。
+
+Client ComponentsやShared Componentsは従来通りRTLやStorybookで扱うことができるので、テスト容易性が向上します。一方Container Componentsはこれらのツールでレンダリング・テストすることが現状難しいので、await ArticleContainer({ id })のように単なる関数として実行することでテストが可能です。
+
+実装例
+例としてランダムなTodoを取得・表示するページをContainer/Presentationalパターンで実装してみます。
+
+export function TodoPagePresentation({ todo }: { todo: Todo }) {
+  return (
+    <>
+      <h1>{todo.title}</h1>
+      <pre>
+        <code>{JSON.stringify(todo, null, 2)}</code>
+      </pre>
+    </>
+  );
+}
+
+上記のように、Presentational Componentsはデータを受け取って表示するだけのシンプルなコンポーネントです。場合によって[1]はClient Componentsにすることもあるでしょう。このようなコンポーネントのテストは従来同様RTLを使ってテストできます。
+
+test("`todo`として渡された値がタイトルとして表示される", () => {
+  render(<TodoPagePresentation todo={dummyTodo} />);
+
+  expect(
+    screen.getByRole("heading", { name: dummyTodo.todo }),
+  ).toBeInTheDocument();
+});
+
+一方Container Componentsについては以下のように、データの取得が主な処理となります。
+
+export default async function Page() {
+  const res = await fetch("https://dummyjson.com/todos/random", {
+    next: {
+      revalidate: 0,
+    },
+  });
+  const todo = ((res) => res.json()) as Todo;
+
+  return <TodoPagePresentation todo={todo} />;
+}
+
+非同期なServer ComponentsはRTLでrender()することができないので、単なる関数として実行して戻り値を検証します。以下は簡易的なテストケースの実装例です。
+
+describe("todos/random APIよりデータ取得成功時", () => {
+  test("TodoPresentationalにAPIより取得した値が渡される", async () => {
+    // mswの設定
+    server.use(
+      http.get("https://dummyjson.com/todos/random", () => {
+        return HttpResponse.json(dummyTodo);
+      }),
+    );
+
+    const page = await Page();
+
+    expect(page.type).toBe(TodoPagePresentation);
+    expect(page.props.todo).toEqual(dummyTodo);
+  });
+});
+
+このように、コンポーネントを通常の関数のように実行するとtypeやpropsを得ることができるので、これらを元に期待値通りかテストすることができます。
+
+ただし、上記のようにexpect(page.type).toBe(TodoPagePresentation);とすると、ReactElementの構造に強く依存してしまうFragile(壊れやすい)なテストになってしまいます。そのため、実際にはこちらの記事にあるように、ReactElementを扱うユーティリティの作成やスナップショットテストなどを検討すると良いでしょう。
+
+describe("todos/random APIよりデータ取得成功時", () => {
+  test("TodoPresentationalにAPIより取得した値が渡される", async () => {
+    // mswの設定
+    server.use(
+      http.get("https://dummyjson.com/todos/random", () => {
+        return HttpResponse.json(dummyTodo);
+      }),
+    );
+
+    const page = await Page();
+
+    expect(
+      getProps<typeof TodoPagePresentation>(page, TodoPagePresentation),
+    ).toEqual({
+      todo: dummyTodo,
+    });
+  });
+});
+
+トレードオフ
+エコシステム側が将来対応する可能性
+本章では現状RTLやStorybookなどがServer Componentsに対して未成熟であることを前提にしつつ、テスト容易性を向上するための手段としてContainer/Presentationalパターンが役に立つとしています。しかし今後、RTLやStorybook側の対応状況が変わってくるとContainer/Presentationalパターンを徹底せずとも容易にテストできるようになることがあるかもしれません。
+
+ではContainer/Presentationalパターンは将来的に不要になる可能性が高く、他にメリットがないのでしょうか？次章Container 1stな設計ではCompositionパターンとContainer/Presentationalパターンを組み合わせた、RSCのメリットを生かしつつ手戻りの少ない設計順序を提案します。
+
+脚注
+Client Componentsのユースケースを参照ください
+
+### Container 1stな設計とディレクトリ構成
+
+要約
+画面の設計はまずContainer Componentsのみで行い、Presentational Componentsは後から追加することを心がけましょう。そうすることでCompositionパターンを早期に適用した設計が可能になり、大きな手戻りを防ぐことができます。
+
+背景
+第1部 データフェッチではServer Componentsの設計パターンを、第2部 コンポーネント設計ではここまでClient Componentsも含めたコンポーネント全体の設計パターンを解説してきました。ここまで順に読んでいただいた方は、すでに多くの設計パターンを理解されてることと思います。
+
+しかし、これらを「理解してること」と「使いこなせること」は別問題です。
+
+テストを書けること
+TDDで開発できること
+これらに大きな違いがあることと同じく、
+
+設計パターンを理解してること
+設計パターンを駆使して設計できること
+これらにも大きな違いがあります。
+
+React Server Componentsでは特に、Compositionパターンを後から適用しようとすると大幅なClient Componentsの設計見直しや書き換えが発生しがちです。こういった手戻りを防ぐためにも、設計の手順はとても重要です。
+
+設計・プラクティス
+筆者が提案する設計手順は、画面の設計はまずContainer Componentsのみで行い、Presentational Componentsやそこで使うClient Componentsは後から実装する、といういわばContainer 1stな設計手法です。これは、最初からCompositionパターンありきで設計することと同義です。
+
+具体的には以下のような手順になります。
+
+Container Componentsのツリー構造を書き出す
+Container Componentsを実装
+Presentational Components(Shared/Client Components)を実装
+2,3を繰り返す
+この手順ではServer Componentsツリーをベースに設計することで、最初からCompositionパターンを適用した状態・あるいは適用しやすい状態を目指します。これにより、途中でContainer Componentsが増えたとしても修正範囲が少なく済むというメリットもあります。
+
+!
+「まずはContainerのツリー構造から設計する」ことが重要なのであって、「最初に決めた設計を守り切る」ことは重要ではありません。実装を進める中でContainerツリーの設計を見直すことも重要です。
+
+実装例
+よくあるブログ記事の画面実装を例に、Container 1stな設計を実際にやってみましょう。ここでは特に重要なステップ1を詳しく見ていきます。
+
+画面に必要な情報はPost、User、Commentsの3つを仮定し、それぞれに対してContainer Componentsを考えます。
+
+<PostContainer postId={postId}>
+<UserProfileContainer id={post.userId}>
+<CommentsContainer postId={postId}>
+postIdはURLから取得できますがuserIdはPost情報に含まれているので、<UserProfileContainer>は<PostContainer>で呼び出される形になります。一方<CommentsContainer>はpostIdを元にレンダリングされるので、<PostContainer>と並行に呼び出すことが可能です。
+
+これらを加味して、まずはContainer Componentsのツリー構造をpage.tsxに実際に書き出してみます。各ContainerやPresentational Componentsの実装は後から行うので、ここでは仮実装で構造を設計することに集中しましょう。
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ postId: string }>;
+}) {
+  const { postId } = await params;
+
+  return (
+    <>
+      <PostContainer postId={postId} />
+      <CommentsContainer postId={postId} />
+    </>
+  );
+}
+
+async function PostContainer({ postId }: { postId: string }) {
+  const post = await getPost(postId);
+
+  return (
+    <PostPresentation post={post}>
+      <UserProfileContainer id={post.userId} />
+    </PostPresentation>
+  );
+}
+
+// ...
+
+ポイントは、<PostPresentation>がchildrenとして<UserProfileContainer>を受け取っている点です。この時点でCompositionパターンが適用されているため、<PostPresentation>は必要に応じてClient ComponentsにもShared Componentsにもすることができます。
+
+これでステップ1は終了です。以降はステップ2,3を繰り返すので、仮実装にしていた部分を1つづつ実装していきましょう。
+
+<PostContainer>やgetPost()の実装
+<PostPresentation>の実装
+<CommentsContainer>の実装
+...
+本章の主題は設計であり、上記は実装の詳細話になるので、ここでは省略とさせていただきます。
+
+ディレクトリ構成案
+App Routerの規約ファイルはコロケーションを強く意識した設計がなされており、Route Segmentで利用するコンポーネントや関数もできるだけコロケーションすることが推奨されます。
+
+Container/Presentationalパターンにおいて、ページやレイアウトから見える単位はContainer単位です。Presentational Componentsやその他のコンポーネントは、Container Componentsのプライベートな実装詳細に過ぎません。
+
+これらを体現するContainer 1stなディレクトリ設計として、Containerの単位を_containers以下でディレクトリ分割することを提案します。このディレクトリ設計では、外部から利用されうるContainer Componentsの公開をindex.tsxで行うことを想定しています。
+
+_containers
+├── <Container Name> // e.g. `post-list`, `user-profile`
+│  ├── index.tsx // Container Componentsをexport
+│  ├── container.tsx
+│  ├── presentational.tsx
+│  └── ...
+└── ...
+
+_containersのようにディレクトリ名に_をつけているのはApp Routerにおけるルーティングディレクトリと明確に区別するPrivate Folderの機能を利用するためです。筆者は_components、_libのように他のSegment内共通なコンポーネントや関数も_をつけたディレクトリにまとめることを好みます。
+
+app直下からみた時には以下のような構成になります。
+
+app
+├── <Segment>
+│  ├── page.tsx
+│  ├── layout.tsx
+│  ├── _containers
+│  │  ├── <Container Name>
+│  │  │  ├── index.tsx
+│  │  │  ├── container.tsx
+│  │  │  ├── presentational.tsx
+│  │  │  └── ...
+│  │  └── ...
+│  ├── _components // 汎用的なClient Components
+│  ├── _lib // 汎用的な関数など
+│  └── ...
+└── ...
+
+命名やさらに細かい分割の詳細は、プロジェクトごとに適宜修正してもいいと思います。筆者が重要だと思うのはディレクトリをContainer単位で、ファイルをContainer/Presentationalで分割することです。
+
+トレードオフ
+広すぎるexport
+前述のように、Presentational ComponentsはContainer Componentsの実装詳細と捉えることもできるので、本来Presentational Componentsはプライベート定義として扱うことが好ましいと考えられます。
+
+ディレクトリ構成例に基づいた設計の場合、Presentational Componentsはpresentational.tsxで定義されます。
+
+_containers
+├── <Container Name> // e.g. `post-list`, `user-profile`
+│  ├── index.tsx // Container Componentsをexport
+│  ├── container.tsx
+│  ├── presentational.tsx
+│  └── ...
+└── ...
+
+上記の構成では<Container Name>の外から参照されるモジュールはindex.tsxのみの想定です。ただ実際には、presentational.tsxで定義したコンポーネントもプロジェクトのどこからでも参照することができます。
+
+このような同一ディレクトリにおいてのみ利用することを想定したモジュール分割においては、eslint-plugin-import-accessを利用すると予期せぬ外部からのimportを制限することができます。
+
+上記のようなディレクトリ設計に沿わない場合でも、Presentational ComponentsはContainer Componentsのみが利用しうる実質的なプライベート定義として扱うようにしましょう
+
+## キャッシュ
+
+App Routerには4層のキャッシュが存在し、デフォルトで積極的に利用されます。以下は公式の表を翻訳したものです。
+
+Mechanism	What	Where	Purpose	Duration
+Request Memoization	APIレスポンスなど	Server	React Component treeにおけるデータの再利用	リクエストごと
+Data Cache	APIレスポンスなど	Server	ユーザーやデプロイをまたぐデータの再利用	永続的 (revalidate可)
+Full Route Cache	HTMLやRSC payload	Server	レンダリングコストの最適化	永続的 (revalidate可)
+Router Cache	RSC Payload	Client	ナビゲーションごとのリクエスト削減	ユーザーセッション・時間 (revalidate可)
+!
+Next.js v15でキャッシュのデフォルト設定の見直しが行われ、従来ほど積極的なキャッシュは行われなくなりました。
+現在実験的機能であるDynamic IOではさらに、サーバーサイドキャッシュはデフォルトで無効化され、オプトインでキャッシュ可能な設計に変更することが検討されています。
+
+すでにRequest Memoizationについては第1部 データフェッチで解説しましたが、これはNext.jsサーバーに対するリクエスト単位の非常に短い期間でのみ利用されるキャッシュであり、これが問題になることはほとんどないと考えられます。一方他の3つについてはもっと長い期間および広いスコープで利用されるため、開発者が意図してコントロールしなければ予期せぬキャッシュによるバグに繋がりかねません。そのため、App Routerを利用する開発者にとってこれらの理解は非常に重要です。
+
+第3部ではApp Routerにおけるキャッシュの考え方や仕様、コントロールの方法などを解説します。
+
+### Static RenderingとFull Route Cache
+
+要約
+Static Renderingでは、HTMLやRSC PayloadのキャッシュであるFull Route Cacheを生成します。Full Route Cacheは短い期間でrevalidateも可能なので、ユーザー固有の情報を含まないようなページは積極的にFull Route Cacheを活用しましょう。
+
+背景
+従来Pages Routerではサーバー側のレンダリングについて、SSR・SSG・ISRという3つのレンダリングモデル[1]をサポートしてきました。App Routerでは上記相当のレンダリングをサポートしつつ、revalidateがより整理され、SSGとISRを大きく区別せずまとめてStatic Rendering、従来のSSR相当をDynamic Renderingと呼称する形で再定義されました。
+
+レンダリング	タイミング	Pages Routerとの比較
+Static Rendering	build時やrevalidate後	SSG・ISR相当
+Dynamic Rendering	ユーザーリクエスト時	SSR相当
+!
+Server ComponentsはSoft Navigation時も実行されるのでSSR・SSG・ISRと単純に比較できるものではないですが、ここでは簡略化して比較しています。
+
+App RouterはデフォルトでStatic Renderingとなっており、Dynamic Renderingはオプトインになっています。Dynamic Renderingにオプトインする方法は以下の通りです。
+
+Dynamic APIs
+cookies()/headers()などのDynamic APIsと呼ばれるAPIを利用すると、Dynamic Renderingとなります。
+
+// page.tsx
+import { cookies } from "next/headers";
+
+export default async function Page() {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("session-id");
+
+  return "...";
+}
+
+!
+Dynamic RoutesにおけるsearchParams propsはDynamic APIsの1つとして数えられており、参照するとDynamic Renderingになります。一方params propsは、参照するとデフォルトでDynamic Renderingになりますが、generateStaticParams()を利用するなどするとStatic Renderingになるため、必ずしもDynamic Renderingになるとは限りません。
+
+cache: "no-store"もしくはnext.revalidate: 0なfetch()
+fetch()のオプションでcache: "no-store"を指定した場合や、next: { revalidate: 0 }を指定した場合、Dynamic Renderingとなります。
+
+!
+v14以前において、cacheオプションのデフォルトは"force-cache"でした。v15ではデフォルトでキャッシュが無効になるよう変更されていますが、デフォルトではStatic Renderingとなっています。Dynamic Renderingに切り替えるには明示的に"no-store"を指定する必要があるので、注意しましょう。
+
+// page.tsx
+export default async function Page() {
+  const res = await fetch("https://dummyjson.com/todos/random", {
+    // 🚨Dynamic Renderingにするために`"no-store"`を明示
+    cache: "no-store",
+  });
+  const todoItem: TodoItem = await res.json();
+
+  return "...";
+}
+
+Route Segment Config
+Route Segment Configを利用してDynamic Renderingに切り替えることもできます。具体的には、page.tsxやlayout.tsxに以下どちらかを設定することでDynamic Renderingを強制できます。
+
+// layout.tsx | page.tsx
+export const dynamic = "force-dynamic";
+
+// layout.tsx | page.tsx
+export const revalidate = 0; // 1以上でStatic Rendering
+
+!
+layout.tsxに設定したRoute Segment ConfigはLayoutが利用される下層ページにも適用されるため、注意しましょう。
+
+connection()
+末端のコンポーネントから利用者側にDynamic Renderingを強制したいが、headers()やno-storeなfetch()を使っていない場合には、connection()でDynamic Renderingに切り替えることができます。具体的には、Prismaを使ったDBアクセス時などに有用でしょう。
+
+import { connection } from "next/server";
+
+export async function LeafComponent() {
+  await connection();
+
+  // DBアクセスなど
+
+  return "...";
+}
+
+設計・プラクティス
+Static Renderingは耐障害性・パフォーマンスに優れています。ユーザーリクエスト毎にレンダリングが必要なら前述の方法でDynamic Renderingにオプトインする必要がありますが、それ以外のケースについて、App Routerでは可能な限りStatic Renderingにすることが推奨されています。
+
+Static Renderingのレンダリング結果であるHTMLやRSC Payloadのキャッシュは、Full Route Cacheと呼ばれています。App RouterではStatic Renderingを活用するために、Full Route Cacheのオンデマンドrevalidateや時間ベースでのrevalidateといったよくあるユースケースをフォローし、従来のSSGのように変更があるたびにデプロイが必要といったことがないように設計されています。
+
+オンデマンドrevalidate
+revalidatePath()やrevalidateTag()をServer ActionsやRoute Handlersで呼び出すことで、関連するData CacheやFull Route Cacheをrevalidateすることができます。
+
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+export async function action() {
+  // ...
+
+  revalidatePath("/products");
+}
+
+時間ベースrevalidate
+Route Segment Configのrevalidateを指定することでFull Route Cacheや関連するData Cacheを時間ベースでrevalidateすることができます。
+
+// layout.tsx | page.tsx
+export const revalidate = 10; // 10s
+
+!
+重複になりますが、layout.tsxにrevalidateを設定するとLayoutが利用される下層ページにも適用されるため、注意しましょう。
+
+例えば1秒などの非常に短い時間でも設定すれば、瞬間的に非常に多くのリクエストが発生したとしてもレンダリングは1回で済むため、バックエンドAPIへの負荷軽減や安定したパフォーマンスに繋がります。更新頻度が非常に高いページでもユーザー間で共有できる(=ユーザー固有の情報などを含まない)のであれば、設定を検討しましょう。
+
+トレードオフ
+予期せぬDynamic Renderingとパフォーマンス劣化
+Route Segment Configやunstable_noStore()によってDynamic Renderingを利用する場合、開発者は明らかにDynamic Renderingを意識して使うのでこれらが及ぼす影響を見誤ることは少ないと考えられます。一方、Dynamic APIsは「cookieを利用したい」、cache: "no-store"なfetchは「Data Cacheを使いたくない」などの主目的が別にあり、これに伴って副次的にDynamic Renderingに切り替わるため、開発者は影響範囲に注意する必要があります。
+
+特に、Data Cacheなどを適切に設定できていないとDynamic Renderingに切り替わった際にページ全体のパフォーマンス劣化につながる可能性があります。こちらについての詳細は後述のDynamic RenderingとData Cacheをご参照ください。
+
+レンダリング境界とPPR
+従来Dynamic RenderingはRoute単位(page.tsxやlayout.tsx)でしか切り替えることができませんでしたが、v14以降experimentalフラグでPPR(Partial Pre-Rendering)を有効にするにより、文字通りPartial(部分的)にDynamic Renderingへの切り替えが可能になります。PPRではStatic/Dynamic Renderingの境界を<Suspense>によって定義します。
+
+import { Suspense } from "react";
+import { PostFeed, Weather } from "./Components";
+
+export default function Posts() {
+  return (
+    <section>
+      {/* `<PostFeed />`はStatic Rendering */}
+      <PostFeed />
+      <Suspense fallback={<p>Loading weather...</p>}>
+        {/* `<Weather />`はDynamic Rendering */}
+        <Weather />
+      </Suspense>
+    </section>
+  );
+}
+
+PPRについては後述のPartial Pre Rendering(PPR)や筆者の過去記事である以下をご参照ください。
+
+
+
+脚注
+こちらの記事より引用。レンダリング戦略とも呼ばれます。
+
+### Dynamic RenderingとData Cache
+
+要約
+Dynamic Renderingなページでは、データフェッチ単位のキャッシュであるData Cacheを活用してパフォーマンスを最適化しましょう。
+
+背景
+Static RenderingとFull Route Cacheで述べた通り、App Routerでは可能な限りStatic Renderingにすることが推奨されています。しかし、アプリケーションによってはユーザー情報を含むページなど、Dynamic Renderingが必要な場合も当然考えられます。
+
+Dynamic Renderingはリクエストごとにレンダリングされるので、できるだけ早く完了する必要があります。この際最もボトルネックになりやすいのがデータフェッチ処理です。
+
+!
+RouteをDynamic Renderingに切り替える方法は前の章のStatic RenderingとFull Route Cacheで解説していますので、そちらをご参照ください。
+
+設計・プラクティス
+Data Cacheはデータフェッチ処理の結果をキャッシュするもので、サーバー側に永続化されリクエストやユーザーを超えて共有されます。
+
+Dynamic RenderingはNext.jsサーバーへのリクエストごとにレンダリングを行いますが、その際必ずしも全てのデータフェッチを実行しなければならないとは限りません。ユーザー情報に紐づくようなデータフェッチとそうでないものを切り分けて、後者に対しData Cacheを活用することで、Dynamic Renderingの高速化やAPIサーバーの負荷軽減などが見込めます。
+
+Data Cacheができるだけキャッシュヒットするよう、データフェッチごとに適切な設定を心がけましょう。
+
+Next.jsサーバー上のfetch()
+サーバー上で実行されるfetch()はNext.jsによって拡張されており、Data Cacheに関するオプションが組み込まれています。デフォルトではキャッシュは無効ですが、第2引数のオプション指定によってキャッシュ挙動を変更することが可能です。
+
+fetch(`https://...`, {
+  cache: "force-cache", // or "no-store",
+});
+
+!
+v14以前において、cacheオプションのデフォルトは"force-cache"でした。v15ではデフォルトでキャッシュが無効になるよう変更されていますが、デフォルトではStatic Renderingとなっています。Dynamic Renderingに切り替えるには明示的に"no-store"を指定する必要があるので、注意しましょう。
+
+fetch(`https://...`, {
+  next: {
+    revalidate: false, // or number,
+  },
+});
+
+next.revalidateは文字通りrevalidateされるまでの時間を設定できます。
+
+fetch(`https://...`, {
+  next: {
+    tags: [tagName], // string[]
+  },
+});
+
+next.tagsには配列でtagを複数指定することができます。これは後述のrevalidateTag()によって指定したtagに関連するData Cacheをrevalidateする際に利用されます。
+
+unstable_cache()
+unstable_cache()を使うことで、DBアクセスなどでもData Cacheを利用することが可能です。
+
+import { getUser } from "./fetcher";
+import { unstable_cache } from "next/cache";
+
+const getCachedUser = unstable_cache(
+  getUser, // DBアクセス
+  ["my-app-user"], // key array
+  {
+    tags: ["users"], // cache revalidate tags
+    revalidate: 60, // revalidate time(s)
+  },
+);
+
+export default async function Component({ userID }) {
+  const user = await getCachedUser(userID);
+  // ...
+}
+
+!
+unstable_cache()はv15で非推奨となりました。ただし、移行先である"use cache"はDynamic IOでのみ有効で、Dynamic IO自体がまだ実験的機能の段階です。
+今後Dynamic IOが安定化したら移行を考えましょう。
+
+オンデマンドrevalidate
+Static RenderingとFull Route Cacheでも述べた通り、revalidatePath()やrevalidateTag()をServer ActionsやRoute Handlersで呼び出すことで、関連するData CacheやFull Route Cacheをrevalidateすることができます。
+
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+export async function action() {
+  // ...
+
+  revalidatePath("/products");
+}
+
+これらは特に何かしらのデータ操作が発生した際に利用されることを想定したrevalidateです。サイト内からのデータ操作にはServer Actionsを、外部で発生したデータ操作に対してはRoute Handlersからrevalidateすることが推奨されます。
+
+App Routerでのデータ操作に関する詳細は、後述のデータ操作とServer Actionsにて解説します。
+
+Data CacheとrevalidatePath()
+余談ですが、Data Cacheにはデフォルトのtagとして、Route情報を元にしたタグが内部的に設定されており、revalidatePath()はこの特殊なタグを元に関連するData Cacheのrevalidateを実現しています。
+
+より詳細にrevalidateの仕組みを知りたい方は、過去に筆者が調査した際の以下の記事をぜひご参照ください。
+
+
+
+トレードオフ
+Data CacheのオプトアウトとDynamic Rendering
+fetch()のオプションでcahce: "no-store"かnext.revalidate: 0を設定することでData Cacheをオプトアウトすることができますが、これは同時にRouteがDynamic Renderingに切り替わることにもなります。
+
+これらを設定する時は本当にDynamic Renderingにしなければいけないのか、よく考えて設定しましょう。
+
+また、Next.jsではv14以降、Static RenderingとDynamic Renderingを1つのRouteで混在させることができるPartial Pre Rendering(PPR)をexperimentalで提供しています。PPRでは、Suspense境界単位でDynamic Renderingにオプトインすることができます。PPRのより詳細な内容については、後述のPartial Pre Rendering(PPR)で解説します。
+
+### Router Cache
+
+要約
+Router Cacheはクライアントサイドのキャッシュで、prefetch時やSoft Navigation時に更新されます。アプリケーション特性に応じてRouter Cacheの有効期間であるstaleTimesを適切に設定しつつ、適宜必要なタイミングでrevalidateしましょう。
+
+背景
+Router Cacheは、App Routerにおけるクライアントサイドキャッシュで、Server Componentsのレンダリング結果であるRSC Payloadを保持しています。Router Cacheはprefetchやsoft navigation時に更新され、有効期間内であれば再利用されます。
+
+v14.1以前のApp RouterではRouter Cacheの有効期間を開発者から設定することはできず、<Link>のprefetch指定などに基づいてキャッシュの有効期限は30秒か5分とされていました。これに対しNext.jsリポジトリのDiscussion上では、Router Cacheをアプリケーション毎に適切に設定できるようにして欲しいという要望が相次いでいました。
+
+設計・プラクティス
+Next.jsのv14.2にて、Router Cacheの有効期間を設定するstaleTimesがexperimentalで導入されました。これにより、開発者はアプリケーション特性に応じてRouter Cacheの有効期間を適切に設定することができるようになりました。
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    staleTimes: {
+      dynamic: 10,
+      static: 180,
+    },
+  },
+};
+
+export default nextConfig;
+
+staleTimesの設定
+staleTimesの設定はドキュメントによると以下のように対応していることになります。
+
+項目	<Link prefetch=?>	デフォルト(v14)	デフォルト(v15)
+dynamic	undefined	30s	0s
+static	true	5m	5m
+!
+トレードオフにて後述しますが、実際にはRouter Cacheの動作は非常に複雑なためこの対応の限りではありません。
+
+多くの場合、変更を考えるべくはdynamicの方になります。v14では特に、デフォルトだと30sとなっているために多くの混乱が見られました。利用するNext.jsのバージョンごとの挙動に注意して、キャッシュの有効期限としてどこまで許容できるか考えて適切に設定しましょう。
+
+任意のタイミングでrevalidate
+staleTimes以外でRouter Cacheを任意に破棄するには、以下3つの方法があります。
+
+router.refresh()
+Server ActionsでrevalidatePath()/revalidateTag()
+Server Actionsでcookies.set()/cookies.delete()
+Router Cacheを任意のタイミングで破棄したい多くのユースケースは、ユーザーによるデータ操作時です。データ操作を行うServer Actions内でrevalidatePath()やcookies.set()を呼び出しているなら特に追加実装する必要はありません。一方これらを呼び出していない場合には、データ操作のsubmit完了後にClient Components側でrouter.refresh()を呼び出すなどの対応を行いましょう。
+
+特にrevalidatePath()/revalidateTag()はサーバー側キャッシュだけでなくRouter Cacheにも影響を及ぼすことは直感的ではないので、よく覚えておきましょう。
+
+!
+Router Cacheはクライアントサイドのキャッシュのため、上記によるキャッシュ破棄はあくまでユーザー端末内で起こります。全ユーザーのRouter Cacheを同時に破棄する方法はありません。
+
+例えばあるユーザーがServer Actions経由でrevalidatePath()を呼び出しても、他のユーザーはそれぞれstaleTimes.static(デフォルト: 5分)またはstaleTimes.dynamic(デフォルト: 30秒)が経過するまでRouter Cacheを参照し続けます。
+
+トレードオフ
+ドキュメントにはないRouter Cacheの挙動
+Router Cacheの挙動はドキュメントにない挙動をすることも多く、非常に複雑です。特に筆者が注意しておくべき点として認識してるものを以下にあげます。
+
+ブラウザバック時はstaleTimesの値にかかわらず、必ずRouter Cacheが利用される(キャッシュ破棄後であれば再取得する)
+staleTimes.dynamicに指定する値は、「キャッシュが保存された時刻」か「キャッシュが最後に利用された時刻」からの経過時間
+staleTimes.staticに指定する値は、「キャッシュが保存された時刻」からの経過時間のみ
+
+### データ操作とServer Actions
+
+要約
+データ操作はServer Actionsで実装することを基本としましょう。
+
+背景
+Pages Routerではデータ取得のためにgetServerSidePropsやgetStaticPropsが提供されてましたが、データ操作アプローチは公式には提供されていませんでした。そのため、クライアントサイドを主体、またはAPI Routesを統合した3rd partyライブラリによるデータ操作の実装パターンが多く存在します。
+
+SWR
+React Query
+GraphQL
+Apollo Client
+Relay
+tRPC
+etc...
+しかし、API RouteはApp RouterにおいてRoute Handlerとなり、定義の方法や参照できる情報などが変更されました。また、App Routerは多層のキャッシュを活用しているため、データ操作時にはキャッシュのrevalidate機能との統合が必要となるため、上記にあげたライブラリや実装パターンをApp Routerで利用するには多くの工夫や実装が必要となります。
+
+設計・プラクティス
+App Routerでのデータ操作は、従来からある実装パターンではなくServer Actionsを利用することが推奨されています。これにより、tRPCなどの3rd partyライブラリなどなしにクライアント・サーバーの境界を超えて関数を呼び出すことができ、データ変更処理を容易に実装できます。
+
+!
+Server Actionsはクライアント・サーバーの境界を超えて関数を呼び出しているように見えますが、実際には当然通信処理が伴うため、Reactがserialize可能なもののみが引数や戻り値に利用できます。
+
+app/actions.ts
+"use server";
+
+export async function createTodo(formData: FormData) {
+  // ...
+}
+
+app/page.tsx
+"use client";
+
+import { createTodo } from "./actions";
+
+export default function CreateTodo() {
+  return (
+    <form action={createTodo}>
+      {/* ... */}
+      <button>Create Todo</button>
+    </form>
+  );
+}
+
+上記の実装例では、サーバーサイドで実行される関数createTodoをClient Componentsで<form>のactionpropsに直接渡しているのがわかります。このformを実際にsubmitすると、サーバーサイドでcreateTodoが実行されます。
+
+このように非常にシンプルな実装でクライアントサイドからサーバーサイド関数を呼び出せることで、開発者はデータ操作の実装に集中できます。Server ActionsはReactの仕様ですが、実装はフレームワークに統合されているので、他にも以下のようなApp Routerならではのメリットが得られます。
+
+キャッシュのrevalidate
+App Routerは多層のキャッシュを活用しているため、データ操作時には関連するキャッシュのrevalidateが必要になります。Server Actions内でrevalidatePath()やrevalidateTag()を呼び出すと、サーバーサイドの関連するキャッシュ(Data CacheやFull Route Cache)とクライアントサイドのキャッシュ(Router Cache)がrevalidateされます。
+
+app/actions.ts
+"use server";
+
+export async function updateTodo() {
+  // ...
+  revalidateTag("todos");
+}
+
+!
+Server ActionsでrevalidatePath()/revalidateTag()もしくはcookies.set()/cookies.delete()を呼び出すと、Router Cacheが全て破棄され、呼び出したページのServer Componentsが再レンダリングされます。
+必要以上に多用するとパフォーマンス劣化の原因になるので注意しましょう。
+
+redirect時の通信効率
+App Routerではサーバーサイドで呼び出せるredirect()という関数があります。データ操作後にページをリダレイクトしたいことはよくあるユースケースですが、redirect()をServer Actions内で呼び出すとレスポンスにリダイレクト先ページのRSC Payloadが含まれるため、HTTPリダイレクトをせずに画面遷移できます。これにより、従来データ操作リクエストとリダイレクト後ページ情報のリクエストで2往復は必要だったhttp通信が、1度で済みます。
+
+app/actions.ts
+"use server";
+
+import { redirect } from "next/navigation";
+
+export async function createTodo(formData: FormData) {
+  console.log("create todo: ", formData.get("title"));
+
+  redirect("/thanks");
+}
+
+上記のServer Actionsを実際に呼び出すと、遷移先の/thanksのRSC Payloadが含まれたレスポンスが返却されます。
+
+2:I[3099,[],""]
+3:I[2506,[],""]
+0:["lxbJ3SDwnGEl3RnM3bOJ4",[[["",{"children":["thanks",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",{"children":["thanks",{"children":["__PAGE__",{},[["$L1",[["$","h1",null,{"children":"Thanks page."}],["$","p",null,{"children":"Thank you for submitting!"}]]],null],null]},["$","$L2",null,{"parallelRouterKey":"children","segmentPath":["children","thanks","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined","styles":null}],null]},[["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L2",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[],"styles":null}]}]}],null],null],[null,"$L4"]]]]
+4:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}]]
+1:null
+
+JavaScript非動作時・未ロード時サポート
+App RouterのServer Actionsでは<form>のactionpropsにServer Actionsを渡すと、ユーザーがJavaScriptをOFFにしてたり、JavaScriptファイルが未ロードであっても動作します。
+
+!
+公式ドキュメントでは「Progressive Enhancementのサポート」と記載されていますが、厳密にはJavaScript非動作環境のサポートとProgressive Enhancementは異なると筆者は理解しています。詳しくは以下をご参照ください。
+
+https://developer.mozilla.org/ja/docs/Glossary/Progressive_Enhancement
+
+これにより、FID(First Input Delay)の向上も見込めます。実際のアプリケーション開発においては、Formライブラリを利用しつつServer Actionsを利用するケースが多いと思われるので、筆者はJavaScript非動作時もサポートしてるFormライブラリのConformをおすすめします。
+
+
+
+トレードオフ
+サイト外で発生するデータ操作
+Server Actionsは基本的にサイト内でのみ利用することが可能ですが、データ操作がサイト内でのみ発生するとは限りません。具体的にはヘッドレスCMSでのデータ更新など、サイト外でデータ操作が発生した場合にも、App Routerで保持しているキャッシュをrevalidateする必要があります。
+
+Route HandlerがrevalidatePath()などを扱えるのはまさに上記のようなユースケースをフォローするためです。サイト外でデータ操作が行われた時には、Route Handlerで定義したAPIをWeb hookで呼び出すなどしてキャッシュをrevalidateしましょう。
+
+!
+Router Cacheはユーザー端末のインメモリに保存されており、全ユーザーのRouter Cacheを一括で破棄する方法はありません。上記の方法で破棄できるのは、サーバー側キャッシュのData CacheとFull Route Cacheのみです。
+
+ブラウザバックにおけるスクロール位置の喪失
+App RouterにおけるブラウザバックではRouter Cacheが利用されます。この際には画面は即時に描画され、スクロール位置も正しく復元されます。
+
+しかし、Server ActionsでrevalidatePath()などを呼び出すなどすると、Router Cacheが破棄されます。Router Cacheがない状態でブラウザバックを行うと即座に画面を更新できないため、スクロール位置がうまく復元されないことがあります。
+
+Server Actionsの呼び出しは直列化される
+Server Actionsは直列に実行されるよう設計されているため、同時に実行できるのは一つだけとなります。
+
+
+
+本書や公式ドキュメントで扱ってるような利用想定の限りではこれが問題になることは少ないと考えられますが、Server Actionsを高頻度で呼び出すような実装では問題になることがあるかもしれません。
+
+そういった場合は、そもそも高頻度にServer Actionsを呼び出すような設計・実装を見直しましょう。
+
+## 第4部 レンダリング
+
+従来Pages RouterはSSR・SSG・ISRという3つのレンダリングモデルをサポートしてきました。App Routerは引き続きこれらをサポートしていますが、これらに加えStreamingに対応している点が大きく異なります。
+
+具体的にはStreaming SSRやPartial Pre-Rendering(PPR)など、Pages Routerにはない新たなレンダリングモデルがサポートされています。特にPPRは、従来より高いパフォーマンスを実現しつつもシンプルなメンタルモデルでNext.jsを扱うことができるようになります。
+
+第4部ではReactやApp Routerにおけるレンダリングの考え方について解説します。
+
+### Server Componentsの純粋性
+
+要約
+Reactコンポーネントのレンダリングは純粋であるべきです。Server Componentsにおいてもこれは同様で、データフェッチをメモ化することで純粋性を保つことができます。
+
+背景
+Reactは従来より、コンポーネントが純粋であることを重視してきました。Reactの最大の特徴の1つである宣言的UIも、コンポーネントが純粋であることを前提としています。
+
+とはいえ、WebのUI実装には様々な副作用[1]がつきものです。Client Componentsでは、副作用をuseState()やuseEffect()などのhooksに分離することで、コンポーネントの純粋性を保てるように設計されています。
+
+
+
+並行レンダリング
+React18で並行レンダリングの機能が導入されましたが、これはコンポーネントが純粋であることを前提としています。
+
+
+
+もし副作用が含まれるレンダリングを並行にしてしまうと、処理結果が不安定になりますが、副作用を含まなければレンダリングを並行にしても結果は安定します。このように、従来よりReactの多くの機能は、コンポーネントが副作用を持たないことを前提としていました。
+
+設計・プラクティス
+React Server Componentsにおいても従来同様、コンポーネントが純粋であることは非常に重要です。App Routerもこの原則に沿って、各種APIが設計されています。
+
+データフェッチの一貫性
+データフェッチ on Server Componentsで述べたように、App RouterにおけるデータフェッチはServer Componentsで行うことが推奨されます。本来、データフェッチは純粋性を損なう操作の典型です。
+
+async function getRandomTodo() {
+  // リクエストごとにランダムなTodoを返すAPI
+  const res = await fetch("https://dummyjson.com/todos/random");
+  return (await res.json()) as Todo;
+}
+
+上記のgetRandomTodo()は呼び出しごとに異なるTodoを返す可能性が高く、そもそもリクエストに失敗する可能性もあるため戻り値は不安定です。このようなデータフェッチを内部的に呼び出す関数は、同じ入力（引数）でも出力（戻り値）が異なる可能性があり、純粋ではありません。
+
+Server Componentsでは、Request Memoizationによって入力に対する出力を一定に保つことで、データフェッチをサポートしながらもレンダリングの範囲ではコンポーネントの純粋性を保てるよう設計されています。
+
+export async function ComponentA() {
+  const todo = await getRandomTodo();
+  return <>...</>;
+}
+
+export async function ComponentB() {
+  const todo = await getRandomTodo();
+  return <>...</>;
+}
+
+// ...
+
+export default function Page() {
+  // ランダムなTodoは1度だけ取得され、
+  // 結果<ComponentA>と<ComponentB>は同じTodoを表示する
+  return (
+    <>
+      <ComponentA />
+      <ComponentB />
+    </>
+  );
+}
+
+cache()によるメモ化
+Request Memoizationはfetch()を拡張することで実現されていますが、DBアクセスなどfetch()を利用しないデータフェッチについても同様に純粋性は重要です。これはReact.cache()を利用することで簡単に実装することができます。
+
+export const getPost = cache(async (id: number) => {
+  const post = await db.query.posts.findFirst({
+    where: eq(posts.id, id),
+  });
+
+  if (!post) throw new NotFoundError("Post not found");
+  return post;
+});
+
+ページを通して1回だけ発生するデータフェッチに対してなら、上記のようにcache()でメモ化する必要はないように感じられるかもしれませんが、筆者は基本的にメモ化しておくことを推奨します。あえてメモ化したくない場合には、後々の改修で複数回呼び出すことになった際に一貫性が破綻するリスクが伴います。
+
+Cookie操作
+App RouterにおけるCookie操作も典型的な副作用の1つであり、Server Componentsからは変更操作であるcookies().set()やcookies().delete()は呼び出すことができません。
+
+
+
+データ操作とServer Actionsでも述べたように、Cookie操作や、APIに対するデータ変更リクエストなど変更操作はServer Actionsで行いましょう。
+
+トレードオフ
+Request Memoizationのオプトアウト
+Request Memoizationはfetch()を拡張することで実現しています。fetch()の拡張をやめるようなオプトアウト手段は現状ありません。ただし、fetch()に渡す引数次第でRequest Memoizationをオプトアプトして都度データフェッチすることは可能です。
+
+// クエリー文字列にランダムな値を付与する
+fetch(`https://dummyjson.com/todos/random?_hash=${Math.random()}`);
+// `signal`を指定する
+const controller = new AbortController();
+const signal = controller.signal;
+fetch(`https://dummyjson.com/todos/random`, { signal });
+
+脚注
+ここでは、他コンポーネントのレンダリングに影響しうる論理的状態の変更を指します ↩︎
+
+
+### SuspenseとStreaming
+
+要約
+Dynamic Renderingで特に重いコンポーネントのレンダリングは<Suspense>で遅延させて、Streaming SSRにしましょう。
+
+背景
+Dynamic RenderingではRoute全体をレンダリングするため、Dynamic RenderingとData CacheではData Cacheを活用することを検討すべきであるということを述べました。しかし、キャッシュできないようなデータフェッチに限って無視できないほど遅いということはよくあります。
+
+設計・プラクティス
+App RouterではStreaming SSRをサポートしているので、重いデータフェッチを伴うServer Componentsのレンダリングを遅延させ、ユーザーにいち早くレスポンスを返し始めることができます。具体的には、App Routerは<Suspense>のfallbackを元に即座にレスポンスを送信し始め、その後、<Suspense>内のレンダリングが完了次第結果がクライアントへと続いて送信されます。
+
+並行データフェッチで述べたようなデータフェッチ単位で分割されたコンポーネント設計ならば、<Suspense>境界を追加するのみで容易に実装できるはずです。
+
+実装例
+少々極端な例ですが、以下のような3秒の重い処理を伴う<LazyComponent>は<Suspense>によってレンダリングが遅延されるので、ユーザーは3秒を待たずにすぐにページのタイトルや<Clock>を見ることができます。
+
+import { setTimeout } from "node:timers/promises";
+import { Suspense } from "react";
+import { Clock } from "./clock";
+
+export const dynamic = "force-dynamic";
+
+export default function Page() {
+  return (
+    <div>
+      <h1>Streaming SSR</h1>
+      <Clock />
+      <Suspense fallback={<>loading...</>}>
+        <LazyComponent />
+      </Suspense>
+    </div>
+  );
+}
+
+async function LazyComponent() {
+  await setTimeout(3000);
+
+  return <p>Lazy Component</p>;
+}
+
+即座にレスポンスが表示される
+Streaming SSR loading
+
+3秒後、遅延されたレンダリングが表示される
+Streaming SSR rendered
+
+トレードオフ
+fallbackのLayout Shift
+Streaming SSRを活用するとユーザーに即座に画面を表示し始めることができますが、画面の一部にfallbackを表示しそれが後に置き換えられるため、いわゆるLayout Shiftが発生する可能性があります。
+
+置き換え後の高さが固定ならば、fallbackも同様の高さで固定することでLayout Shiftを防ぐことができます。一方、置き換え後の高さが固定でない場合にはLayout Shiftが発生することになり、Time to First Byte(TTFB)とCumulativeLayout Shift(CLS)のトレードオフが発生します。
+
+そのため実際のユースケースにおいては、コンポーネントがどの程度遅いのかによってレンダリングを遅延させるべきかどうか判断が変わってきます。筆者の感覚論ですが、たとえば200ms程度のデータフェッチを伴うServer ComponentsならTTFBを短縮するよりLayout Shiftのデメリットの方が大きいと判断することが多いでしょう。1sを超えてくるようなServer Componentsなら迷わず遅延することを選びます。
+
+TTFBとCLSどちらを優先すべきかはケースバイケースなので、状況に応じて最適な設計を検討しましょう。
+
+StreamingとSEO
+SEOにおける古い見解では、「Googleに評価されたいコンテンツはHTMLに含むべき」「見えてないコンテンツは評価されない」といったものがありました。これらが事実なら、Streaming SSRはSEO的に不利ということになります。
+
+しかし、Vercelが独自に行った大規模な調査によると、Streaming SSRした内容がGoogleに評価されないということはなかったとのことです。
+
+
+
+この調査によると、JS依存なコンテンツがindexingされる時間については以下のようになっています。
+
+50%~: 10s
+75%~: 26s
+90%~: ~3h
+95%~: ~6h
+99%~: ~18h
+Googleのindexingにある程度遅延がみられるものの、上記のindexing速度は十分に早いと言えるため、コンテンツの表示がJS依存なStreaming SSRがSEOに与える影響は少ない(もしくはほとんどない)と筆者は考えます。
+
+### [Experimental] Partial Pre Rendering(PPR)
+
+要約
+PPRは従来のレンダリングモデルのメリットを組み合わせて、シンプルに整理した新しいアプローチです。<Suspense>境界の外側をStatic Rendering、内側をDynamic Renderingとすることが可能で、既存のモデルを簡素化しつつも高いパフォーマンスを実現します。PPRの使い方・考え方・実装状況を理解しておきましょう。
+
+!
+本稿はNext.js v15.1.x時点の情報を元に執筆しており、PPRはさらにexperimentalな機能です。PPRがstableな機能として提供される際には機能の一部が変更されてる可能性がありますので、ご注意下さい。
+
+!
+本章は筆者の過去の記事の内容とまとめになります。より詳細にPPRについて知りたい方は以下をご参照ください。
+https://zenn.dev/akfm/articles/nextjs-partial-pre-rendering
+
+背景
+従来Next.jsはSSR・SSG・ISRをサポートしてきました。App Routerではこれらに加え、Streaming SSRもサポートしています。複数のレンダリングモデルをサポートしているため付随するオプションが多数あり、複雑化している・考えることが多すぎるといったフィードバックがNext.js開発チームに多数寄せられていました。
+
+App Routerはこれらをできるだけシンプルに整理するために、サーバー側でのレンダリングをStatic RenderingとDynamic Renderingという2つのモデルに再整理しました。
+
+レンダリング	タイミング	Pages Routerとの比較
+Static Rendering	build時やrevalidate後	SSG・ISR相当
+Dynamic Rendering	ユーザーリクエスト時	SSR相当
+しかし、v14までこれらのレンダリングはRoute単位(page.tsxやlayout.tsx)でしか選択できませんでした。そのため、大部分が静的化できるようなページでも一部動的なコンテンツがある場合には、ページ全体をDynamic Renderingにするか、Static Rendering+Client Componentsによるクライアントサイドデータフェッチで処理する必要がありました。
+
+設計・プラクティス
+Partial Pre Rendering(PPR)はこれらをさらに整理し、基本はStatic Rendering、<Suspense>境界内をDynamic Renderingとすることを可能としました。これにより、必ずしもレンダリングをRoute単位で考える必要はなくなり、1つのページ・1つのHTTPレスポンスにStaticとDynamicを混在させることができるようになりました。
+
+以下は公式チュートリアルからの引用画像です。
+
+ppr shell
+
+レイアウトや商品情報についてはStatic Renderingで構成されていますが、カートやレコメンドといったユーザーごとに異なるであろう部分はDynamic Renderingとすることが表現されています。
+
+ユーザーから見たPPR
+PPRでは、Static Renderingで生成されるHTMLやRSC Payloadに<Suspense>のfallbackが埋め込まれます。fallbackはDynamic Renderingが完了するたびに置き換わっていくことになります。
+
+そのため、ユーザーから見るとStreaming SSR同様、Next.jsサーバーは即座にページの一部分を返し始め、表示されたfallbackが徐々に置き換わっていくように見えます。
+
+以下はレンダリングに3秒ほどかかるRandomなTodoを表示するページの例です。
+
+初期表示
+stream start
+
+約 3 秒後
+stream end
+
+!
+より詳細な挙動の説明は筆者の過去の記事で解説しているので、興味がある方は以下をご参照ください。
+https://zenn.dev/akfm/articles/nextjs-partial-pre-rendering#pprの挙動観察
+
+PPR実装
+開発者がPPRを利用するには、Dynamic Renderingの境界を<Suspense>で囲むのみです。非常にシンプルかつReactのAPIを用いた実装であることも、PPRの優れている点です。
+
+import { Suspense } from "react";
+import { StaticComponent, DynamicComponent, Fallback } from "@/app/ui";
+
+export const experimental_ppr = true;
+
+export default function Page() {
+  return (
+    <>
+      <StaticComponent />
+      <Suspense fallback={<Fallback />}>
+        <DynamicComponent />
+      </Suspense>
+    </>
+  );
+}
+
+トレードオフ
+Experimental
+PPRは、本書執筆時点でまだexperimentalな機能という位置付けです。そのため、PPRを利用するにはNext.jsのcanaryバージョンと、next.config.tsに以下の設定を追加する必要があります。
+
+next.config.ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  experimental: {
+    ppr: "incremental", // v14.xではboolean
+  },
+};
+
+export default nextConfig;
+
+上記を設定した上で、ページやレイアウトなどPPRを有効化したいモジュールでexperimental_pprをexportします。
+
+export const experimental_ppr = true;
+
+PPRの今後
+前述の通り、PPRはまだexperimentalな機能です。PPRに伴うNext.js内部の変更は大規模なもので、バグや変更される挙動もあるかもしれません。現時点では、実験的利用以上のことは避けておくのが無難でしょう。
+
+ただし、PPRはNext.jsコアチームが最も意欲的に取り組んでいる機能の1つです。将来的には主要な機能となる可能性が高いので、先行して学んでおく価値はあると筆者は考えます。
+
+CDNキャッシュとの相性の悪さ
+PPRではStaticとDynamicを混在させつつも、1つのHTTPレスポンスで完結するという特徴を持っています。これはレスポンス単位でキャッシュすることを想定したCDNとは非常に相性が悪く、CDNキャッシュできないというトレードオフが発生します。
+
+いずれは、Cloudflare WorkersなどのエッジコンピューティングからStatic Renderingな部分を返しつつ、オリジンからDynamic Renderingな部分を返すような構成が容易にできるような未来が来るかもしれません。今後のCDNベンダーやNext.jsチームの動向に期待したいところです。
+
+
+## 第5部 その他のプラクティス
+
+Pages RouterやWeb MVCフレームワークの経験者なら、App Routerで他と同等の実装をしようとして戸惑う部分が多々あるでしょう。
+
+App Routerはリクエストオブジェクト(req)やレスポンスオブジェクト(res)を参照できなかったり、リクエストに対して認可チェックを挟むレイヤーが直接なかったり、いくつかの実装パターンにおいて他のフレームワークとは全く異なる実装が必要になります。
+
+第5部では、App Routerでよく利用されるいくつかのプラクティスについて解説します。
+
+### リクエストの参照とレスポンスの操作
+
+要約
+App Routerでは他フレームワークにあるようなリクエストオブジェクト(req)やレスポンスオブジェクト(res)を参照することはできません。代わりに必要な情報を参照するためのAPIが提供されています。
+
+背景
+Pages Routerなど従来のWebフレームーワークでは、リクエストオブジェクト(req)やレスポンスオブジェクト(res)を参照することで様々な情報にアクセスしたり、レスポンスをカスタマイズするような設計が広く使われてきました。
+
+export const getServerSideProps = (async ({ req, res }) => {
+  // リクエスト情報から`sessionId`というcookie情報を取得
+  const sessionId = req.cookies.sessionId;
+
+  // レスポンスヘッダーに`Cache-Control`を設定
+  res.setHeader(
+    "Cache-Control",
+    "public, s-maxage=10, stale-while-revalidate=59",
+  );
+
+  // ...
+
+  return { props };
+}) satisfies GetServerSideProps<Props>;
+
+しかし、App Routerではこれらのオブジェクトを参照することはできません。
+
+設計・プラクティス
+App Routerではリクエストやレスポンスオブジェクトを提供する代わりに、必要な情報を参照するためのAPIが提供されています。
+
+!
+Server Componentsでリクエスト時の情報を参照する関数の一部はDynamic APIsと呼ばれ、これらを利用するとRoute全体がDynamic Renderingとなります。
+
+!
+Next.jsは内部処理の都合で特殊なエラーをthrowすることがあります。そのため、下記のAPIに対しtry {} catch {}するとNext.jsの動作に影響する可能性があります。
+詳しくはunstable_rethrow()を参照ください。
+
+URL情報の参照
+params props
+Dynamic RoutesのURLパスの情報はparams propsで提供されます。以下は/posts/[slug]と/posts/[slug]/comments/[commentId]というルーティングがあった場合のparamsの例です。
+
+URL	params props
+/posts/hoge	{ slug: "hoge" }
+/posts/hoge/comments/111	{ slug: "hoge", commentId: "111" }
+export default async function Page({
+  params,
+}: {
+  params: Promise<{
+    slug: string;
+    commentId: string;
+  }>;
+}) {
+  const { slug, commentId } = await params;
+  // ...
+}
+
+useParams()
+useParams()は、Client ComponentsでURLパスに含まれるDynamic Params（e.g. /posts/[slug]の[slug]部分）を参照するためのhooksです。
+
+"use client";
+
+import { useParams } from "next/navigation";
+
+export default function ExampleClientComponent() {
+  const params = useParams<{ tag: string; item: string }>();
+
+  // Route: /shop/[tag]/[item]
+  // URL  : /shop/shoes/nike-air-max-97
+  console.log(params); // { tag: 'shoes', item: 'nike-air-max-97' }
+
+  // ...
+}
+
+searchParams props
+searchParams propsは、URLのクエリー文字列を参照するためのpropsです。searchParams propsでは、クエリー文字列のkey-value相当なオブジェクトが提供されます。
+
+URL	searchParams props
+/products?id=1	{ id: "1" }
+/products?id=1&sort=recommend	{ id: "1", sort: "recommend" }
+/products?id=1&id=2	{ id: ["1", "2"] }
+type SearchParamsValue = string | string[] | undefined;
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    sort?: SearchParamsValue;
+    id?: SearchParamsValue;
+  }>;
+}) {
+  const { sort, id } = await searchParams;
+  // ...
+}
+
+useSearchParams()
+useSearchParams()は、Client ComponentsでURLのクエリー文字列を参照するためのhooksです。
+
+"use client";
+
+import { useSearchParams } from "next/navigation";
+
+export default function SearchBar() {
+  const searchParams = useSearchParams();
+  const search = searchParams.get("search");
+
+  // URL -> `/dashboard?search=my-project`
+  console.log(search); // 'my-project'
+
+  // ...
+}
+
+ヘッダー情報の参照
+headers()
+headers()は、リクエストヘッダーを参照するための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+import { headers } from "next/headers";
+
+export default async function Page() {
+  const headersList = await headers();
+  const referrer = headersList.get("referrer");
+
+  return <div>Referrer: {referrer}</div>;
+}
+
+クッキー情報の参照と変更
+cookies()
+cookies()は、Cookie情報の参照や変更を担うオブジェクトを取得するための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+!
+cookies().set()やcookies().delete()といったCookieの操作は、Server ActionsやRoute Handlerでのみ利用でき、Server Componentsでは利用できません。詳しくはServer Componentsの純粋性を参照ください。
+
+app/page.tsx
+import { cookies } from "next/headers";
+
+export default async function Page() {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme");
+  return "...";
+}
+
+app/actions.ts
+"use server";
+
+import { cookies } from "next/headers";
+
+async function create(data) {
+  const cookieStore = await cookies();
+  cookieStore.set("name", "lee");
+
+  // ...
+}
+
+レスポンスのステータスコード
+App RouterはStreamingをサポートしているため、確実にHTTPステータスコードを設定する手段がありません。その代わりに、notFound()やredirect()といった関数でブラウザに対してエラーやリダイレクトを示すことができます。
+
+これらを呼び出した際には、まだHTTPレスポンスの送信がまだ開始されていなければステータスコードが設定され、すでにクライアントにステータスコードが送信されていた場合には<meta>タグが挿入されてブラウザにこれらの情報が伝えられます。
+
+notFound()
+notFound()は、ページが存在しないことをブラウザに示すための関数です。Server Componentsで利用することができます。この関数が呼ばれた際には、該当Routeのnot-found.tsxが表示されます。
+
+import { notFound } from "next/navigation";
+
+// ...
+
+export default async function Profile({ params }: { params: { id: string } }) {
+  const user = await fetchUser(params.id);
+
+  if (!user) {
+    notFound();
+  }
+
+  // ...
+}
+
+redirect()
+redirect()は、リダイレクトを行うための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+import { redirect } from "next/navigation";
+
+// ...
+
+export default async function Profile({ params }: { params: { id: string } }) {
+  const team = await fetchTeam(params.id);
+  if (!team) {
+    redirect("/login");
+  }
+
+  // ...
+}
+
+permanentRedirect()
+permanentRedirect()は、永続的なリダイレクトを行うための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+import { permanentRedirect } from "next/navigation";
+
+// ...
+
+export default async function Profile({ params }: { params: { id: string } }) {
+  const team = await fetchTeam(params.id);
+  if (!team) {
+    permanentRedirect("/login");
+  }
+
+  // ...
+}
+
+unauthorized()
+unauthorized()は認証エラーを示すための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+!
+このAPIは執筆時現在、実験的機能です。
+
+import { verifySession } from "@/app/lib/dal";
+import { unauthorized } from "next/navigation";
+
+export default async function DashboardPage() {
+  const session = await verifySession();
+  if (!session) {
+    unauthorized();
+  }
+
+  // ...
+}
+
+forbidden()
+forbidden()は認可エラーを示すための関数です。この関数はServer Componentsなどのサーバー側処理でのみ利用することができます。
+
+!
+このAPIは執筆時現在、実験的機能です。
+
+import { verifySession } from "@/app/lib/dal";
+import { forbidden } from "next/navigation";
+
+export default async function AdminPage() {
+  const session = await verifySession();
+  if (session.role !== "admin") {
+    forbidden();
+  }
+
+  // ...
+}
+
+その他
+筆者が主要なAPIとして認識してるものは上記に列挙しましたが、App Routerでは他にも必要に応じて様々なAPIが提供されています。上記にないユースケースで困った場合には、公式ドキュメントより検索してみましょう。
+
+
+
+トレードオフ
+req拡張によるセッション情報の持ち運び
+従来reqオブジェクトは、3rd partyライブラリが拡張してreq.sessionにセッション情報を格納するような実装がよく見られました。App Routerではこのような実装はできず、これに代わるセッション管理の仕組みなどを実装する必要があります。
+
+以下は、GitHub OAuthアプリとして実装したサンプル実装の一部です。sessionStore.get()でRedisに格納したセッション情報を取得できます。
+
+```
+AkifumiSato/nextjs-book-oauth-app-example/app/api/github/callback/route.ts
+Lines 12 to 12 in main
+
+  const sessionValues = await sessionStore.get();
+```
+
+セッション管理の実装が必要な方は、必要に応じて上記のリポジトリを参考にしてみてください。
+
+### 認証と認可
+
+要約
+アプリケーションで認証状態を保持する代表的な方法としては以下2つが挙げられ、App Routerにおいてもこれらを実装することが可能です。
+
+保持したい情報をCookieに保持（JWTは必須）
+セッションとしてRedisなどに保持（JWTは任意）
+また、代表的な認可チェックには以下2つが考えられます。
+
+URL認可
+データアクセス認可
+これらの認可チェックは両立が可能ですが、URL認可の実装にはApp Routerならではの制約が伴います。
+
+背景
+Webアプリケーションにおいて、認証と認可は非常にありふれた一般的な要件です。
+
+!
+認証と認可は混在されがちですが、別物です。これらの違いについて自信がない方は、筆者の過去記事を参照ください。
+
+しかし、App Routerにおける認証認可の実装には、従来のWebフレームワークとは異なる独自の制約が伴います。
+
+これはApp Routerが、React Server Componentsという自律分散性と並行実行性を重視したアーキテクチャに基づいて構築されていることや、edgeランタイムとNode.jsランタイムなど多層の実行環境を持つといった、従来のWebフレームワークとは異なる特徴を持つことに起因します。
+
+並行レンダリングされるページとレイアウト
+App Routerでは、Route間で共通となるレイアウトをlayout.tsxなどで定義することができます。特定のRoute配下（e.g. /dashboard配下など）に対する認可チェックをレイアウト層で一律実装できるのでは、と考える方もいらっしゃると思います。しかし、このような実装は一見期待通りに動いてるように見えても、RSC Payloadなどを通じて情報漏洩などにつながるリスクがあり、避けるべき実装です。
+
+これは、App Routerの並行実行性に起因する制約です。App Routerにおいてページとレイアウトは並行にレンダリングされるため、必ずしもレイアウト層に実装した認可チェックがページより先に実行されるとは限りません。意図した仕様なのかは不明ですが、現状だとページの方が先にレンダリングされ始めるようです。そのため、ページ側で認可チェックをしていないと予期せぬデータ漏洩が起きる可能性があります。
+
+これらの詳細な解説については以下の記事が参考になります。
+
+
+
+!
+v15でレンダリング順が変更され、レイアウトが先にレンダリングされるようになりました。
+
+Server ComponentsでCookie操作は行えない
+React Server Componentsではデータ取得をServer Components、データ変更をServer Actionsという責務分けがされています。Server Componentsの純粋性でも述べたように、Server Componentsにおける並行レンダリングやRequest Memoizationは、レンダリングに副作用が含まれないという前提の元設計されています。
+
+Cookie操作は他のコンポーネントのレンダリングに影響する可能性がある副作用です。そのため、App RouterにおけるCookie操作であるcookies().set()やcookies().delete()は、Server ActionsかRoute Handler内でのみ行うことができます。
+
+制限を伴うmiddleware
+Next.jsのmiddlewareは、ユーザーからのリクエストに対して一律処理を差し込むことができますが、middlewareは本書執筆時の最新である14系においては、ランタイムがedgeに限定されておりNode.js APIが利用できなかったりDB操作系が非推奨など、様々な制限が伴います。
+
+将来的にはNode.jsがランタイムとして選択できるようになる可能性もありますが、現状議論中の段階です。
+
+
+
+設計・プラクティス
+App Routerにおける認証認可は、上述の制約を踏まえて実装する必要があります。考えるべきポイントは大きく以下の3つです。
+
+認証状態の保持
+URL認可
+データアクセス認可
+認証状態の保持
+サーバー側で認証状態を参照したい場合、Cookieを利用することが一般的です。認証状態をJWTにして直接Cookieに格納するか、もしくはRedisなどにセッション状態を保持してCookieにはセッションIDを格納するなどの方法が考えられます。
+
+公式ドキュメントに詳細な解説があるので、本書でこれらの詳細は割愛します。
+
+
+
+筆者は、拡張されたOAuthやOIDCを用いることが多く、セッションIDをJWTにしてCookieに格納し、セッション自体はRedisに保持する方法をよく利用します。こうすることで、アクセストークンやIDトークンをブラウザ側に送信せずに済み、セキュリティ性の向上やCookieのサイズを節約などのメリットが得られます。また、Cookieに格納するセッションIDはJWTにすることで、改竄を防止することができます。
+
+GitHub OAuthアプリのサンプル実装
+URL認可
+URL認可の実装は多くの場合、認証状態や認証情報に基づいて行われます。前述の通り、App RouterのmiddlewareではNode.js APIが利用できないため、RedisやDBのデータ参照が必要な場合は各ページで認可チェックを行う必要があります。認可処理をverifySession()として共通化した場合、各ページで以下のような実装を行うことになるでしょう。
+
+page.tsx
+export default async function Page() {
+  await verifySession(); // 認可に失敗したら`/login`にリダイレクト
+
+  // ...
+}
+
+CookieにJWTを格納している場合は、middlewareでJWTの検証を行うことができます。認証状態をJWTに含めている場合は、さらに細かいチェックも可能です。一方、セッションIDのみをJWTに含めるようにしている場合には、IDの有効性やセッション情報の取得にRedisやDB接続が必要になるため、middlewareで行えるのは楽観的チェックに留まるということに注意しましょう。
+
+データアクセス認可
+Request Memoizationで述べたように、App Routerではデータフェッチ層を分離して実装するケースが多々あります。データアクセス認可が必要な場合は、分離したデータフェッチ層で実装しましょう。
+
+例えばVercelのようなSaaSにおいて、有償プランユーザーのみが利用可能なデータアクセスがあった場合、データフェッチ層に以下のような認可チェックを実装すべきでしょう。
+
+// 🚨`unauthorized()`はv15時点でExperimental
+import { unauthorized } from "next/navigation";
+
+export async function fetchPaidOnlyData() {
+  if (!(await isPaidUser())) {
+    unauthorized();
+  }
+
+  // ...
+}
+
+X（旧Twitter）のようにブロックやミュートなど、きめ細かいアクセス制御（Fine-Grained Access Control）が必要な場合は、バックエンドAPIにアクセス制御を隠蔽する場合もあります。
+
+// 🚨`forbidden()`はv15時点でExperimental
+import { forbidden } from "next/navigation";
+
+export async function fetchPost(postId: string) {
+  const res = await fetch(`https://dummyjson.com/posts/${postId}`);
+  if (res.status === 401) {
+    forbidden();
+  }
+
+  return (await res.json()) as Post;
+}
+
+!
+公式ドキュメントやVercelのSaaS参考実装では、認可エラーでredirect("/login")のようにリダイレクトするのみのものが多いですが、認可エラー=必ずしもリダイレクトではありません。
+
+!
+App RouterはStreamingをサポートしているため、確実にHTTPステータスコードを設定する手段がありません。そのため、上記参考実装のunauthorized()やforbidden()利用時もHTTPステータスコードが200になる可能性があります。
+詳しくはリクエストの参照とレスポンスの操作を参照ください。
+
+トレードオフ
+URL認可の冗長な実装
+認証状態に基づくURL認可はありふれた要件ですが、認証状態を確認するのにRedisやDBのデータ参照が必要な場合、前述のように各page.tsxで認可チェックを行う必要があり、実装が少々冗長になります。
+
+page.tsx
+export default async function Page() {
+  await verifySession(); // 認可に失敗したら`/login`にリダイレクト
+
+  // ...
+}
+
+これに対する回避策として検討されているのがRequest Interceptorsで、特定のRoute配下に対して一律interceptor.tsで定義した処理を差し込むことができるようにするというものです。
+
+
+
+執筆時点ではDraftのため、実際に取り込まれるのかどうかや時期などについては不明です。今後の動向に期待しましょう。
+
+## エラーハンドリング
+
+要約
+App Routerにおけるエラーは主に、Server ComponentsとServer Actionsの2つで発生します。
+
+Server Componentsのエラーは、エラー時のUIをerror.tsxやnot-found.tsxで定義します。一方Server Actionsにおけるエラーは、基本的に戻り値で表現することが推奨されます。
+
+背景
+App Routerにおけるエラーは、クライアントかサーバーか、データ参照か変更かで分けて考える必要があり、具体的には以下の3つを分けて考えることになります。
+
+Client Components
+Server Components
+Server Actions
+特に、Server ComponentsとServer Actionsは外部データに対する操作を伴うことが多いため、エラーが発生する可能性が高くハンドリングが重要になります。
+
+クライアントサイドにおけるレンダリングエラー
+後述のApp Routerが提供するエラーハンドリングは、サーバーサイドで発生したエラーにのみ対応しています。クライアントサイドにおけるレンダリングエラーのハンドリングが必要な場合は、開発者が自身で<ErrorBoundary>を定義する必要があります。
+
+
+
+また、クライアントサイドにおいてレンダリングエラーが発生する場合、ブラウザの種類やバージョンなどに依存するエラーの可能性が高く、サーバーサイドとは異なりリトライしても回復しない可能性があります。クライアントサイドのエラーは当然ながらサーバーに記録されないので、開発者はエラーが起きた事実さえ把握が難しくなります。
+
+クライアントサイドのエラー実態を把握したい場合、DatadogなどのRUM（Real User Monitoring）導入も同時に検討しましょう。
+
+設計・プラクティス
+App Routerにおけるエラーは主に、Server ComponentsとServer Actionsの2つで考える必要があります。
+
+Server Componentsのエラー
+App Routerでは、Server Componentsの実行中にエラーが発生した時のUIを、Route Segment単位のerror.tsxで定義することができます。Route Segment単位なのでレイアウトはそのまま、page.tsx部分にerror.tsxで定義したUIが表示されます。以下は公式ドキュメントにある図です。
+
+エラー時のUIイメージ
+
+error.tsxは主にServer Componentsでエラーが発生した場合に利用されます。
+
+!
+厳密にはSSR時のClient Componentsでエラーが起きた場合にもerror.tsxが利用されます。
+
+error.tsxはClient Componentsである必要があり、propsでreset()を受け取ります。reset()は、再度ページのレンダリングを試みるリロード的な振る舞いをします。
+
+"use client";
+
+import { useEffect } from "react";
+
+export default function ErrorPage({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button type="button" onClick={() => reset()}>
+        Try again
+      </button>
+    </div>
+  );
+}
+
+Not Foundエラー
+HTTPにおける404 Not FoundエラーはSEO影響もあるため、その他のエラーとは特に区別されることが多いエラーです。App Routerでは404相当のエラーをthrowするためのAPIとしてnotFound()を提供しており、notFound()が呼び出された際のUIはnot-found.tsxで定義できます。
+
+
+
+!
+多くの場合、notFound()を呼び出すとHTTPステータスコードとして404 Not Foundが返されますが、<Suspens>内などでnotFound()を利用すると200 OKが返されることがあります。この際Next.jsは、<meta name="robots" content="noindex" />タグを挿入してGoogleクローラなどに対してIndexingの必要がないことを示します。
+
+!
+Next.jsにはunauthorized()やforbidden()も提供されていますが、執筆時現在これらは実験的機能となっています。今後変更される可能性もあるので注意しましょう。
+
+Server Actionsのエラー
+Server Actionsのエラーは、予測可能なエラーと予測不能なエラーで分けて考える必要があります。
+
+Server Actionsは多くの場合、データ更新の際に呼び出されます。何かしらの理由でデータ更新に失敗したとしても、ユーザーは再度更新をリクエストできることが望ましいUXと考えられます。しかし、Server Actionsではエラーがthrowされると、前述の通りerror.tsxで定義したエラー時のUIが表示されます。error.tsxが表示されることで、直前までページで入力していた<form>の入力内容などが失われると、ユーザーは操作を最初からやり直すことになりかねません。
+
+そのため、Server Actionsにおける予測可能なエラーはthrowではなく、戻り値でエラーを表現することが推奨されます。予測不能なエラーに対しては当然ながら対策できないので、予測不能なエラーが発生した場合はerror.tsxが表示されることは念頭に置いておきましょう。
+
+以下はconformを使ったServer Actionsにおけるzodバリデーションの実装例です。バリデーションエラー時はthrowせず、submission.reply()を返している点がポイントです。
+
+"use server";
+
+import { redirect } from "next/navigation";
+import { parseWithZod } from "@conform-to/zod";
+import { loginSchema } from "@/app/schema";
+
+export async function login(prevState: unknown, formData: FormData) {
+  const submission = parseWithZod(formData, {
+    schema: loginSchema,
+  });
+
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  // ...
+
+  redirect("/dashboard");
+}
+
+formライブラリを利用してない場合は、以下のように自身で戻り値を定義しましょう。
+
+"use server";
+
+import { redirect } from "next/navigation";
+
+export async function login(prevState: unknown, formData: FormData) {
+  const submission = parseWithZod(formData, {
+    schema: loginSchema,
+  });
+
+  if (formData.get("email") !== "") {
+    return { message: "メールアドレスは必須です。" };
+  }
+
+  // ...
+
+  redirect("/dashboard");
+}

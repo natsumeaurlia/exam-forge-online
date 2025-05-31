@@ -1,16 +1,23 @@
+'use client';
 
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from '../../i18n/client';
 
-export function CallToAction() {
-  const { t } = useTranslation();
+export interface CallToActionProps {
+  lng: string;
+}
+
+export function CallToAction({ lng }: CallToActionProps) {
+  const { t } = useTranslation(lng);
   
   return (
     <div className="bg-gradient-to-br from-examforge-blue to-examforge-blue-dark py-16 text-white">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">{t('cta.title')}</h2>
-          <p className="text-lg opacity-90 mb-8">
+          <h2 className="text-3xl font-bold mb-4">
+            {t('cta.title')}
+          </h2>
+          <p className="text-lg opacity-[0.9] mb-8">
             {t('cta.description')}
           </p>
           

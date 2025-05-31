@@ -1,18 +1,17 @@
+'use client';
 
-import i18n from '../lib/i18n';
-
-export const getAvailableLanguages = () => [
+export const getAvailableLanguages = (currentLng: string = 'ja') => [
   {
     code: "ja",
-    name: i18n.t('common.languages.japanese'),
+    name: currentLng === 'ja' ? '日本語' : 'Japanese',
     flag: "🇯🇵"
   },
   {
     code: "en",
-    name: i18n.t('common.languages.english'),
+    name: currentLng === 'ja' ? '英語' : 'English',
     flag: "🇺🇸"
   }
 ];
 
-// Export a function to get the current languages to ensure they're translated
+// Export the languages with default translations
 export const AVAILABLE_LANGUAGES = getAvailableLanguages();

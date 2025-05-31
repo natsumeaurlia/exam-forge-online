@@ -1,0 +1,876 @@
+# Next.js コンポーネント設計ベストプラクティス仕様書
+
+## 1. プロジェクト構造とアーキテクチャ
+
+### 1.1 推奨ディレクトリ構造
+
+```
+src/
+├── app/                    # App Router (Next.js 13+)
+│   ├── (auth)/            # ルートグループ
+│   ├── api/               # API Routes
+│   ├── globals.css        # グローバルスタイル
+│   ├── layout.tsx         # ルートレイアウト
+│   └── page.tsx           # ホームページ
+├── components/            # 再利用可能コンポーネント
+│   ├── ui/               # 基本UIコンポーネント
+│   ├── forms/            # フォーム関連コンポーネント
+│   └── layout/           # レイアウトコンポーネント
+├── lib/                  # ユーティリティ関数
+├── hooks/                # カスタムフック
+├── types/                # TypeScript型定義
+├── utils/                # ヘルパー関数
+├── constants/            # 定数
+└── styles/               # スタイル関連ファイル
+```
+
+### 1.2 ファイル命名規則
+
+- **コンポーネント**: PascalCase (`UserProfile.tsx`)
+- **フック**: camelCase with "use" prefix (`useAuth.ts`)
+- **ユーティリティ**: camelCase (`formatDate.ts`)
+- **型定義**: PascalCase with "Type" suffix (`UserType.ts`)
+- **定数**: UPPER_SNAKE_CASE (`API_ENDPOINTS.ts`)
+
+## 2. TypeScript ベストプラクティス
+
+### 2.1 型安全性の確保
+
+```typescript
+// ❌ 避けるべき - any型の使用
+const handleData = (data: any) => {
+  return data.someProperty;
+};
+
+// ✅ 推奨 - 適切な型定義
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const handleUserData = (data: UserData) => {
+  return data.name;
+};
+```
+
+### 2.2 型定義の組織化
+
+```typescript
+// types/user.ts
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+}
+
+// OmitTypeの適切な使用
+export interface UpdateUserRequest extends Omit<User, 'id' | 'createdAt'> {
+  id: string;
+}
+```
+
+### 2.3 プロップス型定義
+
+```typescript
+// ❌ 避けるべき - インライン型定義
+const Button = ({ onClick, children }: { onClick: () => void; children: React.ReactNode }) => {
+  // ...
+};
+
+// ✅ 推奨 - 明示的なインターフェース定義
+interface ButtonProps {
+  onClick: () => void;
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary';
+  disabled?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({ onClick, children, variant = 'primary', disabled = false }) => {
+  // ...
+};
+```
+
+## 3. コンポーネント設計パターン
+
+### 3.1 関数型コンポーネントの使用
+
+```typescript
+// ✅ 推奨 - 関数型コンポーネント
+const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  return (
+    <div className="user-card">
+      {/* コンポーネント内容 */}
+    </div>
+  );
+};
+```
+
+### 3.2 コンポーネントの責任分離
+
+```typescript
+// ✅ 単一責任の原則に従ったコンポーネント設計
+
+// データフェッチング専用コンポーネント
+const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { data: users, loading, error } = useUsers();
+  
+  return (
+    <UserContext.Provider value={{ users, loading, error }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+// 表示専用コンポーネント
+const UserList: React.FC = () => {
+  const { users, loading } = useContext(UserContext);
+  
+  if (loading) return <LoadingSpinner />;
+  
+  return (
+    <div>
+      {users.map(user => (
+        <UserCard key={user.id} user={user} />
+      ))}
+    </div>
+  );
+};
+```
+
+### 3.3 カスタムフックの活用
+
+```typescript
+// hooks/useAuth.ts
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const login = async (credentials: LoginCredentials) => {
+    try {
+      setLoading(true);
+      const userData = await authService.login(credentials);
+      setUser(userData);
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    authService.logout();
+  };
+
+  return { user, loading, login, logout };
+};
+```
+
+## 4. 状態管理
+
+### 4.1 ローカル状態 vs グローバル状態
+
+```typescript
+// ローカル状態 - コンポーネント固有の状態
+const Modal: React.FC<ModalProps> = ({ children, onClose }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  // ...
+};
+
+// グローバル状態 - アプリケーション全体で共有する状態
+// Context API または Zustand/Redux を使用
+const useAppStore = create<AppState>((set) => ({
+  user: null,
+  theme: 'light',
+  setUser: (user) => set({ user }),
+  setTheme: (theme) => set({ theme }),
+}));
+```
+
+### 4.2 Context APIの適切な使用
+
+```typescript
+// contexts/ThemeContext.tsx
+interface ThemeContextType {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+};
+```
+
+## 5. データフェッチングとAPI統合
+
+### 5.1 RESTful API設計
+
+```typescript
+// lib/api/users.ts
+export const userApi = {
+  // GET /api/users
+  getUsers: async (): Promise<User[]> => {
+    const response = await fetch('/api/users');
+    if (!response.ok) throw new Error('Failed to fetch users');
+    return response.json();
+  },
+
+  // GET /api/users/:id
+  getUser: async (id: string): Promise<User> => {
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch user');
+    return response.json();
+  },
+
+  // POST /api/users
+  createUser: async (userData: CreateUserRequest): Promise<User> => {
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) throw new Error('Failed to create user');
+    return response.json();
+  },
+
+  // PUT /api/users/:id
+  updateUser: async (id: string, userData: UpdateUserRequest): Promise<User> => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) throw new Error('Failed to update user');
+    return response.json();
+  },
+
+  // DELETE /api/users/:id
+  deleteUser: async (id: string): Promise<void> => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete user');
+  },
+};
+```
+
+### 5.2 Server ComponentsとClient Componentsの使い分け
+
+```typescript
+// app/users/page.tsx - Server Component
+import { userApi } from '@/lib/api/users';
+import { UserList } from '@/components/UserList';
+
+export default async function UsersPage() {
+  const users = await userApi.getUsers();
+
+  return (
+    <div>
+      <h1>ユーザー一覧</h1>
+      <UserList initialUsers={users} />
+    </div>
+  );
+}
+
+// components/UserList.tsx - Client Component
+'use client';
+
+import { useState } from 'react';
+import { User } from '@/types/user';
+
+interface UserListProps {
+  initialUsers: User[];
+}
+
+export const UserList: React.FC<UserListProps> = ({ initialUsers }) => {
+  const [users, setUsers] = useState(initialUsers);
+  
+  // クライアントサイドでの状態管理とインタラクション
+  const handleUserUpdate = (updatedUser: User) => {
+    setUsers(prev => prev.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ));
+  };
+
+  return (
+    <div>
+      {users.map(user => (
+        <UserCard key={user.id} user={user} onUpdate={handleUserUpdate} />
+      ))}
+    </div>
+  );
+};
+```
+
+## 6. スタイリング
+
+### 6.1 CSS Modules
+
+```typescript
+// components/Button/Button.module.css
+.button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+// components/Button/Button.tsx
+import styles from './Button.module.css';
+
+interface ButtonProps {
+  variant: 'primary' | 'secondary';
+  children: React.ReactNode;
+  onClick: () => void;
+}
+
+export const Button: React.FC<ButtonProps> = ({ variant, children, onClick }) => {
+  return (
+    <button 
+      className={`${styles.button} ${styles[variant]}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+### 6.2 Tailwind CSS（推奨）
+
+```typescript
+// components/Button.tsx
+import { cn } from '@/lib/utils';
+
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  onClick: () => void;
+  className?: string;
+}
+
+export const Button: React.FC<ButtonProps> = ({ 
+  variant = 'primary', 
+  size = 'md', 
+  children, 
+  onClick, 
+  className 
+}) => {
+  const baseClasses = 'font-medium rounded-md transition-colors focus:outline-none focus:ring-2';
+  
+  const variantClasses = {
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+  };
+  
+  const sizeClasses = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg',
+  };
+
+  return (
+    <button 
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        sizeClasses[size],
+        className
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
+```
+
+## 7. パフォーマンス最適化
+
+### 7.1 メモ化の適切な使用
+
+```typescript
+// React.memo for component memoization
+export const UserCard = React.memo<UserCardProps>(({ user, onEdit }) => {
+  return (
+    <div className="user-card">
+      <h3>{user.name}</h3>
+      <p>{user.email}</p>
+      <button onClick={() => onEdit(user.id)}>編集</button>
+    </div>
+  );
+});
+
+// useMemo for expensive calculations
+const ExpensiveComponent: React.FC<{ data: number[] }> = ({ data }) => {
+  const expensiveValue = useMemo(() => {
+    return data.reduce((sum, item) => sum + item * item, 0);
+  }, [data]);
+
+  return <div>計算結果: {expensiveValue}</div>;
+};
+
+// useCallback for function memoization
+const ParentComponent: React.FC = () => {
+  const [count, setCount] = useState(0);
+  
+  const handleIncrement = useCallback(() => {
+    setCount(prev => prev + 1);
+  }, []);
+
+  return <ChildComponent onIncrement={handleIncrement} />;
+};
+```
+
+### 7.2 動的インポート
+
+```typescript
+// 動的インポートによるコード分割
+import dynamic from 'next/dynamic';
+
+const HeavyComponent = dynamic(() => import('@/components/HeavyComponent'), {
+  loading: () => <div>読み込み中...</div>,
+  ssr: false, // クライアントサイドでのみ読み込み
+});
+
+export const HomePage: React.FC = () => {
+  const [showHeavy, setShowHeavy] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setShowHeavy(true)}>
+        重いコンポーネントを表示
+      </button>
+      {showHeavy && <HeavyComponent />}
+    </div>
+  );
+};
+```
+
+## 8. エラーハンドリング
+
+### 8.1 Error Boundary
+
+```typescript
+// components/ErrorBoundary.tsx
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{}>,
+  ErrorBoundaryState
+> {
+  constructor(props: React.PropsWithChildren<{}>) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error-boundary">
+          <h2>エラーが発生しました</h2>
+          <p>申し訳ございませんが、予期しないエラーが発生しました。</p>
+          <button onClick={() => this.setState({ hasError: false })}>
+            再試行
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+### 8.2 非同期エラーハンドリング
+
+```typescript
+// hooks/useAsyncError.ts
+export const useAsyncError = () => {
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const executeAsync = async <T>(asyncFunction: () => Promise<T>): Promise<T | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await asyncFunction();
+      return result;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { error, loading, executeAsync };
+};
+```
+
+## 9. テスト戦略
+
+### 9.1 コンポーネントテスト
+
+```typescript
+// __tests__/Button.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from '@/components/Button';
+
+describe('Button', () => {
+  it('正しくレンダリングされる', () => {
+    render(<Button onClick={() => {}}>クリック</Button>);
+    expect(screen.getByRole('button', { name: 'クリック' })).toBeInTheDocument();
+  });
+
+  it('クリック時にonClickが呼ばれる', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>クリック</Button>);
+    
+    fireEvent.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('variantプロップに応じて適切なクラスが適用される', () => {
+    render(<Button variant="secondary" onClick={() => {}}>ボタン</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('bg-gray-600');
+  });
+});
+```
+
+### 9.2 カスタムフックテスト
+
+```typescript
+// __tests__/useAuth.test.ts
+import { renderHook, act } from '@testing-library/react';
+import { useAuth } from '@/hooks/useAuth';
+
+describe('useAuth', () => {
+  it('初期状態が正しい', () => {
+    const { result } = renderHook(() => useAuth());
+    
+    expect(result.current.user).toBeNull();
+    expect(result.current.loading).toBe(true);
+  });
+
+  it('ログインが正常に動作する', async () => {
+    const { result } = renderHook(() => useAuth());
+    
+    await act(async () => {
+      await result.current.login({ email: 'test@example.com', password: 'password' });
+    });
+
+    expect(result.current.user).toBeDefined();
+    expect(result.current.loading).toBe(false);
+  });
+});
+```
+
+## 10. アクセシビリティ
+
+### 10.1 セマンティックHTML
+
+```typescript
+// ✅ 適切なセマンティック要素の使用
+const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
+  return (
+    <article className="article-card">
+      <header>
+        <h2>{article.title}</h2>
+        <time dateTime={article.publishedAt.toISOString()}>
+          {formatDate(article.publishedAt)}
+        </time>
+      </header>
+      <main>
+        <p>{article.excerpt}</p>
+      </main>
+      <footer>
+        <a href={`/articles/${article.id}`} aria-label={`${article.title}の詳細を読む`}>
+          続きを読む
+        </a>
+      </footer>
+    </article>
+  );
+};
+```
+
+### 10.2 ARIA属性の適切な使用
+
+```typescript
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      ref={modalRef}
+      tabIndex={-1}
+    >
+      <div className="modal-content">
+        <header className="modal-header">
+          <h2 id="modal-title">{title}</h2>
+          <button 
+            onClick={onClose}
+            aria-label="モーダルを閉じる"
+            className="modal-close"
+          >
+            ×
+          </button>
+        </header>
+        <main className="modal-body">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
+```
+
+## 11. 国際化（i18n）
+
+### 11.1 next-intlの使用
+
+```typescript
+// lib/i18n.ts
+import { getRequestConfig } from 'next-intl/server';
+
+export default getRequestConfig(async ({ locale }) => ({
+  messages: (await import(`../messages/${locale}.json`)).default
+}));
+
+// components/LocalizedComponent.tsx
+import { useTranslations } from 'next-intl';
+
+export const WelcomeMessage: React.FC = () => {
+  const t = useTranslations('welcome');
+
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <p>{t('description')}</p>
+    </div>
+  );
+};
+```
+
+## 12. セキュリティ
+
+### 12.1 XSS対策
+
+```typescript
+// ✅ 安全なHTMLレンダリング
+import DOMPurify from 'dompurify';
+
+const SafeHtmlContent: React.FC<{ content: string }> = ({ content }) => {
+  const sanitizedContent = DOMPurify.sanitize(content);
+  
+  return (
+    <div 
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+    />
+  );
+};
+
+// ✅ 入力値のサニタイゼーション
+const ContactForm: React.FC = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // バリデーションとサニタイゼーション
+    const sanitizedData = {
+      name: DOMPurify.sanitize(formData.name),
+      email: DOMPurify.sanitize(formData.email),
+      message: DOMPurify.sanitize(formData.message)
+    };
+
+    // API送信
+    submitForm(sanitizedData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* フォーム要素 */}
+    </form>
+  );
+};
+```
+
+## 13. デプロイメントとCI/CD
+
+### 13.1 環境変数管理
+
+```typescript
+// lib/env.ts
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']),
+  DATABASE_URL: z.string().url(),
+  NEXTAUTH_SECRET: z.string().min(1),
+  NEXTAUTH_URL: z.string().url(),
+});
+
+export const env = envSchema.parse(process.env);
+```
+
+### 13.2 ビルド最適化
+
+```javascript
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    appDir: true,
+  },
+  images: {
+    domains: ['example.com'],
+    formats: ['image/webp', 'image/avif'],
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
+};
+
+module.exports = nextConfig;
+```
+
+## 14. モニタリングとログ
+
+### 14.1 エラー追跡
+
+```typescript
+// lib/logger.ts
+interface LogEvent {
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  metadata?: Record<string, any>;
+  timestamp: Date;
+}
+
+export const logger = {
+  info: (message: string, metadata?: Record<string, any>) => {
+    const event: LogEvent = {
+      level: 'info',
+      message,
+      metadata,
+      timestamp: new Date(),
+    };
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(event);
+    } else {
+      // 本番環境では外部ログサービスに送信
+      sendToLogService(event);
+    }
+  },
+
+  error: (message: string, error?: Error, metadata?: Record<string, any>) => {
+    const event: LogEvent = {
+      level: 'error',
+      message,
+      metadata: {
+        ...metadata,
+        error: error?.message,
+        stack: error?.stack,
+      },
+      timestamp: new Date(),
+    };
+    
+    console.error(event);
+    sendToLogService(event);
+  },
+};
+```
+
+## 15. まとめ
+
+このベストプラクティス仕様書は、スケーラブルで保守性の高いNext.jsアプリケーションを構築するための包括的なガイドラインです。以下の重要なポイントを常に意識してください：
+
+1. **型安全性**: TypeScriptを活用し、any型の使用を避ける
+2. **コンポーネント設計**: 単一責任の原則に従い、再利用可能なコンポーネントを作成
+3. **パフォーマンス**: 適切なメモ化と動的インポートを使用
+4. **アクセシビリティ**: セマンティックHTMLとARIA属性を適切に使用
+5. **セキュリティ**: XSS対策とデータサニタイゼーションを実装
+6. **テスト**: 包括的なテスト戦略を策定
+7. **保守性**: 明確な命名規則とプロジェクト構造を維持
+
+これらのガイドラインに従うことで、高品質なNext.jsアプリケーションを効率的に開発・保守できます。 

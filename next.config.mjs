@@ -1,10 +1,7 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  transpilePackages: ["lucide-react"],
-  // Remove any i18n configuration
+  // i18n設定を削除
 }
 
 export default nextConfig;

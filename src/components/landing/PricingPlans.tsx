@@ -1,11 +1,16 @@
+'use client';
 
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from '../../i18n/client';
 
-export function PricingPlans() {
-  const { t, i18n } = useTranslation();
-  const currentLanguage = i18n.language;
+export interface PricingPlansProps {
+  lng: string;
+}
+
+export function PricingPlans({ lng }: PricingPlansProps) {
+  const { t, i18n } = useTranslation(lng);
+  const currentLanguage = lng;
   
   const plans = [
     {

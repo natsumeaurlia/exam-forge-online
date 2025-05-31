@@ -1,18 +1,23 @@
+'use client';
 
-import { useTranslation } from "react-i18next";
-import { 
+import { useTranslation } from '../../i18n/client';
+import {
   Award,
   BarChartBig,
   FileStack,
-  LayoutDashboard, 
-  LockKeyhole, 
+  LayoutDashboard,
+  LockKeyhole,
   MessageSquare,
   Timer,
   Upload
 } from "lucide-react";
 
-export function Features() {
-  const { t } = useTranslation();
+export interface FeaturesProps {
+  lng: string;
+}
+
+export function Features({ lng }: FeaturesProps) {
+  const { t } = useTranslation(lng);
   
   const features = [
     {

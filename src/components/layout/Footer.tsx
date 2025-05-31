@@ -1,9 +1,14 @@
+'use client';
 
-import { useTranslation } from "react-i18next";
+import { useTranslation } from '../../i18n/client';
 
-export function Footer() {
-  const { t } = useTranslation();
+export interface FooterProps {
+  lng: string;
+}
 
+export function Footer({ lng }: FooterProps) {
+  const { t } = useTranslation(lng);
+  
   return (
     <footer className="bg-gray-50 py-12 border-t">
       <div className="container mx-auto px-4">
@@ -34,7 +39,7 @@ export function Footer() {
               <h3 className="font-medium mb-4">{t('common.footer.company')}</h3>
               <ul className="space-y-2">
                 <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.about')}</a></li>
-                <li><a href="/contact" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.contact')}</a></li>
+                <li><a href={`/${lng}/contact`} className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.contact')}</a></li>
                 <li><a href="#" className="text-gray-600 hover:text-examforge-blue text-sm">{t('common.footer.careers')}</a></li>
               </ul>
             </div>
@@ -56,9 +61,9 @@ export function Footer() {
               {t('common.footer.copyright')}
             </p>
             <div className="flex gap-4">
-              <a href="/terms" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.termsOfService')}</a>
-              <a href="/privacy" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.privacyPolicy')}</a>
-              <a href="/legal" className="text-gray-500 hover:text-examforge-blue">{t('common.footer.commercialTransactions')}</a>
+              <a href={`/${lng}/terms`} className="text-gray-500 hover:text-examforge-blue">{t('common.footer.termsOfService')}</a>
+              <a href={`/${lng}/privacy`} className="text-gray-500 hover:text-examforge-blue">{t('common.footer.privacyPolicy')}</a>
+              <a href={`/${lng}/legal`} className="text-gray-500 hover:text-examforge-blue">{t('common.footer.commercialTransactions')}</a>
             </div>
           </div>
         </div>
