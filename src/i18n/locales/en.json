@@ -550,6 +550,40 @@
       "homeLink": "Return to Home"
     }
   },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Common questions and answers about ExamForge to help you get started.",
+    "questions": {
+      "freePlanLimits": {
+        "question": "What can I do with the free plan?",
+        "answer": "With the free plan, you can create up to 5 quizzes with 20 questions each and accept up to 100 responses per month per quiz. Basic question types including true/false, single choice, multiple choice, and free text questions are available, along with automatic grading features."
+      },
+      "proUpgrade": {
+        "question": "How do I upgrade to the Pro plan?",
+        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 30-day money-back guarantee."
+      },
+      "dataSecurity": {
+        "question": "How secure is my data?",
+        "answer": "ExamForge implements SSL encryption, regular backups, and strict access controls. Your data is stored in security-certified data centers and we comply with GDPR and privacy protection regulations. We take data security very seriously."
+      },
+      "browserSupport": {
+        "question": "Which browsers are supported?",
+        "answer": "We support the latest versions of Chrome, Firefox, Safari, and Microsoft Edge. Mobile devices (iOS Safari, Android Chrome) are also fully supported. Internet Explorer 11 and earlier versions are not supported."
+      },
+      "customerSupport": {
+        "question": "What customer support do you provide?",
+        "answer": "We provide email support (weekdays 10:00-18:00). Pro plan users receive priority support, and Enterprise plan users get a dedicated support manager. We also maintain comprehensive FAQ and help documentation."
+      },
+      "dataExport": {
+        "question": "Can I export my data?",
+        "answer": "Yes, you can export your quiz data and results in CSV and Excel formats. Pro plan users can also generate advanced analytics reports in PDF format. Data migration and integration with other systems is straightforward."
+      },
+      "teamFeatures": {
+        "question": "How do team features work?",
+        "answer": "Pro plan supports up to 20 team members, while Enterprise plan offers unlimited members. Role-based permission management allows you to set detailed permissions for editors, viewers, administrators, and more."
+      }
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back, {name}",
