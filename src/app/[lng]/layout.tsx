@@ -1,6 +1,5 @@
 import React from 'react';
 import '@/index.css';
-import { Inter } from 'next/font/google';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { SessionProvider } from '@/components/providers/SessionProvider';
@@ -8,8 +7,6 @@ import { languages, type Language } from '@/i18n/settings';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Metadata } from 'next';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export async function generateStaticParams() {
   return languages.map((lng: Language) => ({ lng }));
@@ -51,7 +48,7 @@ export default async function RootLayout({ children, params }: LayoutProps) {
   return (
     <html lang={lng} dir="ltr">
       <head />
-      <body className={inter.className}>
+      <body className="font-sans">
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>
             <Navbar lng={lng} />

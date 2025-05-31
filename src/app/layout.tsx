@@ -1,8 +1,5 @@
 import '../index.css';
-import { Inter } from 'next/font/google';
 import { fallbackLng } from '../i18n/settings';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
@@ -11,7 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang={fallbackLng} dir="ltr">
-      <body className={inter.className}>{children}</body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }
