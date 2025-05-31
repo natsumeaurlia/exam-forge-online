@@ -155,7 +155,7 @@ jobs:
   # ビルドテスト
   build:
     runs-on: ubuntu-latest
-    needs: [setup, lint-and-typecheck]
+    needs: [setup]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -202,7 +202,7 @@ jobs:
   # E2Eテスト（Playwright）
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: [setup, build]
+    needs: [setup]
     services:
       postgres:
         image: postgres:15
@@ -246,12 +246,6 @@ jobs:
           path: node_modules/.prisma
           key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
-      - name: Restore build cache
-        uses: actions/cache@v4
-        with:
-          path: .next
-          key: ${{ runner.os }}-build-${{ github.sha }}
-
       - name: Setup environment variables
         run: |
           echo "DATABASE_URL=postgresql://postgres:password@localhost:5432/test_db" >> $GITHUB_ENV
@@ -260,6 +254,9 @@ jobs:
 
       - name: Run Prisma migrations
         run: pnpm exec prisma migrate deploy
+
+      - name: Build application
+        run: pnpm run build
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -270,7 +267,7 @@ jobs:
           CI: true
 
       - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
