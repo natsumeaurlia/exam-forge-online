@@ -93,3 +93,17 @@
     @apply bg-[var(--background)] text-[var(--foreground)];
   }
 }
+
+/* ExamForge custom styles */
+@layer utilities {
+  .heading-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .feature-icon-container {
+    @apply mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-examforge-blue text-white;
+  }
+}
