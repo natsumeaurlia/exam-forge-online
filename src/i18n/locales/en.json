@@ -254,6 +254,11 @@
   "pricing": {
     "title": "Simple Pricing Plans",
     "description": "Choose from three plans to suit your needs. Upgrade as you grow.",
+    "toggle": {
+      "monthly": "Monthly",
+      "annually": "Annually",
+      "discount": "Save ~17%"
+    },
     "plans": {
       "features": {
         "included": "Features Included",

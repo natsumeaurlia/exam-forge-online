@@ -1,19 +1,25 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { useTranslations } from 'next-intl';
+import { PlanToggle } from '@/components/plan';
+import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
 
 export interface PricingPlansProps {
   lng: string;
 }
 
-export async function PricingPlans({ lng }: PricingPlansProps) {
-  const t = await getTranslations();
+export function PricingPlans({ lng }: PricingPlansProps) {
+  const t = useTranslations();
+  const { isAnnual } = usePlanComparisonStore();
   const currentLanguage = lng;
 
   const plans = [
     {
       name: t('pricing.plans.free.name'),
-      price: currentLanguage === 'en' ? '$0' : '¥0',
+      priceMonthly: currentLanguage === 'en' ? '$0' : '¥0',
+      priceAnnual: currentLanguage === 'en' ? '$0' : '¥0',
       period: t('pricing.plans.free.period'),
       description: t('pricing.plans.free.description'),
       features: [
@@ -44,7 +50,8 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
     },
     {
       name: t('pricing.plans.pro.name'),
-      price: currentLanguage === 'en' ? '$29' : '¥2,980',
+      priceMonthly: currentLanguage === 'en' ? '$29' : '¥2,980',
+      priceAnnual: currentLanguage === 'en' ? '$24' : '¥2,480',
       period: t('pricing.plans.pro.period'),
       description: t('pricing.plans.pro.description'),
       features: [
@@ -82,7 +89,8 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
     },
     {
       name: t('pricing.plans.enterprise.name'),
-      price: t('pricing.plans.enterprise.price'),
+      priceMonthly: t('pricing.plans.enterprise.price'),
+      priceAnnual: t('pricing.plans.enterprise.price'),
       period: t('pricing.plans.enterprise.period'),
       description: t('pricing.plans.enterprise.description'),
       features: [
@@ -124,6 +132,8 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
           </p>
         </div>
 
+        <PlanToggle />
+
         <div
           className="grid grid-cols-1 gap-8 md:grid-cols-3"
           data-testid="pricing-plans"
@@ -154,8 +164,19 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
                   {plan.name}
                 </h3>
                 <div className="mt-2" data-testid={`plan-price-${index}`}>
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-gray-500">/{plan.period}</span>
+                  <span className="text-4xl font-bold">
+                    {isAnnual ? plan.priceAnnual : plan.priceMonthly}
+                  </span>
+                  <span className="text-gray-500">
+                    /{plan.name === t('pricing.plans.free.name') 
+                      ? plan.period 
+                      : plan.name === t('pricing.plans.enterprise.name')
+                        ? plan.period
+                        : isAnnual 
+                          ? t('pricing.toggle.annually')
+                          : t('pricing.toggle.monthly')
+                    }
+                  </span>
                 </div>
                 <p
                   className="mt-2 text-gray-600"
