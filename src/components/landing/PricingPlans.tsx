@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PlanToggle } from '@/components/plan';
+import { PlanToggle } from '@/components/plan/PlanToggle';
 import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
 
 export interface PricingPlansProps {
@@ -168,14 +168,14 @@ export function PricingPlans({ lng }: PricingPlansProps) {
                     {isAnnual ? plan.priceAnnual : plan.priceMonthly}
                   </span>
                   <span className="text-gray-500">
-                    /{plan.name === t('pricing.plans.free.name') 
-                      ? plan.period 
+                    /
+                    {plan.name === t('pricing.plans.free.name')
+                      ? plan.period
                       : plan.name === t('pricing.plans.enterprise.name')
                         ? plan.period
-                        : isAnnual 
+                        : isAnnual
                           ? t('pricing.toggle.annually')
-                          : t('pricing.toggle.monthly')
-                    }
+                          : t('pricing.toggle.monthly')}
                   </span>
                 </div>
                 <p
