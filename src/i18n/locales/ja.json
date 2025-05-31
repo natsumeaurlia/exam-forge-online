@@ -254,6 +254,11 @@
   "pricing": {
     "title": "シンプルな料金プラン",
     "description": "ニーズに合わせて選べる3つのプラン。成長に合わせてアップグレード可能です。",
+    "toggle": {
+      "monthly": "月額",
+      "annually": "年額",
+      "discount": "約17%割引"
+    },
     "plans": {
       "features": {
         "included": "含まれる機能",
