@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { ArrowRight, CheckCircle } from 'lucide-react';
 import { useTranslation } from '../../i18n';
 
 // Presentational component
-export function HeroView({ 
-  tagline, 
-  title, 
-  description, 
-  ctaStart, 
-  ctaDemo, 
+export function HeroView({
+  tagline,
+  title,
+  description,
+  ctaStart,
+  ctaDemo,
   benefits,
-  quizExample
+  quizExample,
 }: {
   tagline: string;
   title: string;
@@ -21,80 +21,88 @@ export function HeroView({
   quizExample: {
     title: string;
     question: string;
-    options: {text: string, selected: boolean}[];
+    options: { text: string; selected: boolean }[];
     progress: string;
     nextButton: string;
-  }
+  };
 }) {
   return (
-    <div className="relative overflow-hidden bg-white pt-16 pb-24">
+    <div className="relative overflow-hidden bg-white pt-16 pb-24" data-testid="hero-section">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left column */}
           <div className="flex flex-col justify-center">
             <div className="mb-8">
-              <div className="inline-flex items-center rounded-full bg-examforge-blue/10 px-3 py-1 text-sm font-medium text-examforge-blue-dark mb-6">
+              <div className="bg-examforge-blue/10 text-examforge-blue-dark mb-6 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" data-testid="hero-tagline">
                 <span className="mr-1">✨</span> {tagline}
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
+              <h1 className="mb-6 text-4xl leading-tight font-bold md:text-5xl" data-testid="hero-title">
                 <span className="heading-gradient">{title}</span>
               </h1>
-              <p className="text-lg text-gray-600 mb-8 max-w-md">
+              <p className="mb-8 max-w-md text-lg text-gray-600" data-testid="hero-description">
                 {description}
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Button size="lg" className="gap-2">
+
+              <div className="mb-8 flex flex-col gap-4 sm:flex-row" data-testid="hero-cta-buttons">
+                <Button size="lg" className="gap-2" data-testid="hero-start-button">
                   {ctaStart}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" data-testid="hero-demo-button">
                   {ctaDemo}
                 </Button>
               </div>
-              
-              <div className="space-y-3">
+
+              <div className="space-y-3" data-testid="hero-benefits">
                 {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-examforge-blue" />
+                  <div key={index} className="flex items-center gap-2" data-testid={`hero-benefit-${index}`}>
+                    <CheckCircle className="text-examforge-blue h-5 w-5" />
                     <span className="text-sm">{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-          
+
           {/* Right column - Illustration */}
-          <div className="flex items-center justify-center relative">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-gradient-to-br from-examforge-blue/20 to-examforge-orange/20 rounded-full blur-3xl"></div>
-            
-            <div className="relative animate-float">
-              <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-examforge-blue flex items-center justify-center text-white">
+          <div className="relative flex items-center justify-center" data-testid="hero-illustration">
+            <div className="from-examforge-blue/20 to-examforge-orange/20 absolute top-1/2 left-1/2 h-3/4 w-3/4 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-gradient-to-br blur-3xl"></div>
+
+            <div className="animate-float relative">
+              <div className="max-w-sm rounded-xl bg-white p-6 shadow-2xl" data-testid="hero-quiz-example">
+                <div className="mb-4 flex items-center gap-4" data-testid="quiz-header">
+                  <div className="bg-examforge-blue flex h-10 w-10 items-center justify-center rounded-lg text-white">
                     {quizExample.title.charAt(0)}
                   </div>
                   <h3 className="font-bold">{quizExample.title}</h3>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <div className="border rounded-lg p-3">
-                    <p className="text-sm font-medium mb-2">{quizExample.question}</p>
-                    <div className="space-y-2">
+                  <div className="rounded-lg border p-3" data-testid="quiz-question-container">
+                    <p className="mb-2 text-sm font-medium" data-testid="quiz-question">
+                      {quizExample.question}
+                    </p>
+                    <div className="space-y-2" data-testid="quiz-options">
                       {quizExample.options.map((option, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-full border flex items-center justify-center">
-                            <div className={`w-2.5 h-2.5 rounded-full ${option.selected ? 'bg-examforge-blue' : 'bg-white'}`}></div>
+                        <div key={index} className="flex items-center gap-2" data-testid={`quiz-option-${index}`}>
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full border">
+                            <div
+                              className={`h-2.5 w-2.5 rounded-full ${option.selected ? 'bg-examforge-blue' : 'bg-white'}`}
+                            ></div>
                           </div>
                           <span className="text-sm">{option.text}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-xs text-gray-500">{quizExample.progress}</span>
-                    <Button size="sm" variant="default">{quizExample.nextButton}</Button>
+
+                  <div className="flex justify-between" data-testid="quiz-controls">
+                    <span className="text-xs text-gray-500" data-testid="quiz-progress">
+                      {quizExample.progress}
+                    </span>
+                    <Button size="sm" variant="default" data-testid="quiz-next-button">
+                      {quizExample.nextButton}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -113,13 +121,13 @@ export interface HeroProps {
 
 export async function Hero({ lng }: HeroProps) {
   const { t } = await useTranslation(lng);
-  
+
   const benefits = [
     t('hero.benefits.noCard'),
     t('hero.benefits.freeQuizzes'),
-    t('hero.benefits.scoring')
+    t('hero.benefits.scoring'),
   ];
-  
+
   const quizExample = {
     title: t('hero.quiz.title'),
     question: t('hero.quiz.question'),
@@ -127,10 +135,10 @@ export async function Hero({ lng }: HeroProps) {
       { text: t('hero.quiz.options.0'), selected: false },
       { text: t('hero.quiz.options.1'), selected: true },
       { text: t('hero.quiz.options.2'), selected: false },
-      { text: t('hero.quiz.options.3'), selected: false }
+      { text: t('hero.quiz.options.3'), selected: false },
     ],
     progress: t('hero.quiz.progress'),
-    nextButton: t('hero.quiz.nextButton')
+    nextButton: t('hero.quiz.nextButton'),
   };
 
   return (

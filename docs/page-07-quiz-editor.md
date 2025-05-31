@@ -1,10 +1,13 @@
 # 7. クイズ作成/編集ページ
 
 ## 概要
+
 クイズの作成と編集を行うメインページ。動的フォームビルダー、問題タイプの選択、ドラッグ&ドロップによる順序変更、メディア埋め込み（プロプラン）などの機能を提供する。作成したクイズを独自サブドメインで公開できる。
 
 ## ページ構成
+
 1. **ページヘッダー**
+
    - クイズタイトル（編集可能）
    - 保存状態インジケーター
    - 「プレビュー」ボタン
@@ -12,6 +15,7 @@
    - 「保存」ボタン
 
 2. **クイズメタデータセクション**
+
    - 説明入力（リッチテキストエディタ）
    - タグ入力
    - 表紙画像アップロード（プロプラン）
@@ -20,6 +24,7 @@
    - 共有設定表示（URL/パスワード - 作成時に選択済み）
 
 3. **問題タイプツールバー**
+
    - 問題タイプボタン
      - マルバツ問題
      - 指定択一問題
@@ -34,6 +39,7 @@
    - 問題バンクから追加（プロプラン）
 
 4. **問題リスト**
+
    - ドラッグ&ドロップで並べ替え可能な問題カード
    - 各問題カードに表示する情報：
      - 問題番号
@@ -44,6 +50,7 @@
      - 複製/削除ボタン
 
 5. **問題編集フォーム**
+
    - 問題タイプに応じた動的フォーム
    - 問題文入力（リッチテキストエディタ）
    - メディア追加ボタン（画像、音声、動画）（プロプラン）
@@ -59,11 +66,13 @@
      - 解説テキスト入力フィールド（リッチテキスト）
 
 6. **セクション管理**（プロプラン）
+
    - セクション追加/削除
    - セクション間の問題移動
    - セクションタイトル・説明編集
 
 7. **設定サイドパネル**
+
    - 時間制限設定（プロプラン）
    - 問題シャッフル設定（プロプラン）
    - 選択肢シャッフル設定（プロプラン）
@@ -81,7 +90,9 @@
    - 「公開」ボタン
 
 ## 技術仕様
+
 - **コンポーネント構成**
+
   - `QuizEditorHeader.tsx`
   - `QuizMetadataForm.tsx`
   - `QuestionTypeToolbar.tsx`
@@ -104,13 +115,14 @@
   - `PublishSettingsModal.tsx`
 
 - **状態管理**
+
   - `useQuizEditorStore.ts` - Zustandストア
     - クイズメタデータ
     - 問題リスト
     - 現在編集中の問題
     - 保存状態
     - 編集履歴（Undo/Redo）
-  
+
   ```typescript
   interface QuizEditorState {
     quiz: {
@@ -132,15 +144,20 @@
     isSaving: boolean;
     isDirty: boolean;
     history: {
-      past: Array<{quiz: Quiz, questions: Question[]}>;
-      future: Array<{quiz: Quiz, questions: Question[]}>;
+      past: Array<{ quiz: Quiz; questions: Question[] }>;
+      future: Array<{ quiz: Quiz; questions: Question[] }>;
     };
     // ... アクション
   }
-  
+
   interface Question {
     id: string;
-    type: 'true-false' | 'multiple-choice' | 'checkbox' | 'short-answer' | 'advanced-type';
+    type:
+      | 'true-false'
+      | 'multiple-choice'
+      | 'checkbox'
+      | 'short-answer'
+      | 'advanced-type';
     text: string;
     options?: QuestionOption[];
     correctAnswer: any; // 問題タイプによって異なる形式
@@ -152,7 +169,8 @@
   ```
 
 - **採点モードによる表示分岐**
-  - 自動採点モード: 
+
+  - 自動採点モード:
     - 問題入力フォームの下に「正解」設定セクションが表示される
     - 問題タイプに応じた正解設定UI（ラジオボタン、チェックボックスなど）
   - 手動採点モード:
@@ -160,32 +178,39 @@
     - 配点の詳細設定が可能
 
 - **動的フォームビルダー**
+
   - 問題タイプに応じたフォーム要素の動的生成
   - ドラッグ&ドロップでの問題順序変更
   - 選択肢の追加/削除/並べ替え
 
 - **ドラッグ&ドロップ実装**
+
   - React DnD または react-beautiful-dndを使用
 
 - **リッチテキストエディタ**
+
   - TipTap または Slate.jsを使用
   - 問題文、解説文での書式設定
 
 - **自動保存機能**
+
   - 変更検出による定期的な自動保存
   - 保存状態インジケーター
 
 - **サブドメイン設定検証**
+
   ```typescript
   const subdomainSchema = z.object({
-    subdomain: z.string()
+    subdomain: z
+      .string()
       .min(3, 'サブドメインは3文字以上必要です')
       .max(30, 'サブドメインは30文字以下にしてください')
-      .regex(/^[a-z0-9-]+$/, '小文字、数字、ハイフンのみ使用可能です')
+      .regex(/^[a-z0-9-]+$/, '小文字、数字、ハイフンのみ使用可能です'),
   });
   ```
 
 - **API連携**
+
   - クイズデータ取得: `/api/quizzes/:id`
   - クイズ保存: `/api/quizzes/:id` (PUT/PATCH)
   - 問題操作: `/api/quizzes/:id/questions`
@@ -199,11 +224,13 @@
   - デスクトップ: 3カラムレイアウト（問題リスト + 編集フォーム + 設定パネル）
 
 ## Next.js移行考慮事項
+
 - フォームコンポーネントはすべてクライアントコンポーネント化
 - クイズデータの初期読み込みはServer Componentで実装
 - 保存処理はServer Actionとして実装
 - メディアアップロードはAPI Routeとして維持
 - サブドメイン設定・公開処理はServer Actionとして実装取得: `/api/quizzes/:id`
+
   - クイズ保存: `/api/quizzes/:id` (PUT/PATCH)
   - 問題操作: `/api/quizzes/:id/questions`
   - メディアアップロード: `/api/upload`
@@ -214,6 +241,7 @@
   - デスクトップ: 3カラムレイアウト（問題リスト + 編集フォーム + 設定パネル）
 
 ## Next.js移行考慮事項
+
 - フォームコンポーネントはすべてクライアントコンポーネント化
 - クイズデータの初期読み込みはServer Componentで実装
 - 保存処理はServer Actionとして実装

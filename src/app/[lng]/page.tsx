@@ -14,7 +14,7 @@ export default async function Home({ params }: PageProps) {
   // In Next.js 15, params is a promise that needs to be awaited
   const resolvedParams = await Promise.resolve(params);
   const lng = resolvedParams.lng;
-  
+
   const { t } = await useTranslation(lng);
 
   return (

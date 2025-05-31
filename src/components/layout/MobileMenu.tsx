@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { AuthButtons } from "./AuthButtons";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
+import { AuthButtons } from './AuthButtons';
 
 export interface MobileMenuProps {
   translations: {
@@ -18,38 +18,38 @@ export interface MobileMenuProps {
 
 export function MobileMenu({ translations, lng }: MobileMenuProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   return (
     <>
       {/* Mobile menu button */}
-      <button 
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         className="p-2 md:hidden"
       >
         {mobileMenuOpen ? <X /> : <Menu />}
       </button>
-      
+
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 md:hidden py-4 px-4 border-t bg-white/80 backdrop-blur-md">
+        <div className="absolute top-full right-0 left-0 border-t bg-white/80 px-4 py-4 backdrop-blur-md md:hidden">
           <nav className="flex flex-col gap-4">
-            <a 
-              href="#features" 
-              className="text-sm font-medium hover:text-examforge-blue transition-colors"
+            <a
+              href="#features"
+              className="hover:text-examforge-blue text-sm font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {translations.features}
             </a>
             <a
               href="#pricing"
-              className="text-sm font-medium hover:text-examforge-blue transition-colors"
+              className="hover:text-examforge-blue text-sm font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {translations.pricing}
             </a>
             <a
               href="#faq"
-              className="text-sm font-medium hover:text-examforge-blue transition-colors"
+              className="hover:text-examforge-blue text-sm font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {translations.faq}

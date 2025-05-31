@@ -12,9 +12,11 @@ import { getOptions } from '../../i18n/settings';
 const i18n = i18next
   .use(initReactI18next)
   .use(LanguageDetector)
-  .use(resourcesToBackend((language: string, namespace: string) => 
-    import(`../../i18n/locales/${language}.json`).then(m => m.default)
-  ))
+  .use(
+    resourcesToBackend((language: string, namespace: string) =>
+      import(`../../i18n/locales/${language}.json`).then(m => m.default)
+    )
+  )
   .init({
     ...getOptions(),
     lng: undefined, // Let the language detector decide
@@ -24,11 +26,7 @@ const i18n = i18next
     },
   });
 
-export function I18nProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function I18nProvider({ children }: { children: React.ReactNode }) {
   // Handle client-side i18n initialization
   useEffect(() => {
     // Any client-side i18n initialization if needed

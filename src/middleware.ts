@@ -9,18 +9,17 @@ function getLocale(request: NextRequest): string {
   request.headers.forEach((value, key) => (negotiatorHeaders[key] = value));
 
   // Use negotiator and intl-localematcher to get best locale
-  let languages = new Negotiator({ headers: negotiatorHeaders }).languages();
-  
-  // @ts-ignore locales are readonly
-  return matchLocale(languages, ['ja', 'en'], fallbackLng);
+  const requestLanguages = new Negotiator({ headers: negotiatorHeaders }).languages();
+
+  return matchLocale(requestLanguages, ['ja', 'en'], fallbackLng);
 }
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  
+
   // Check if there is any supported locale in the pathname
   const pathnameIsMissingLocale = languages.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+    locale => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
 
   // Redirect if there is no locale
@@ -40,5 +39,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Matcher ignoring `/_next/` and `/api/`
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

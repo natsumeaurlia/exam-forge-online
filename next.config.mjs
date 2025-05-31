@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // i18n設定を削除
-}
+  compiler: {
+    reactRemoveProperties: process.env.NODE_ENV === "production"
+      ? { properties: ['^data-testid$'] }
+      : false,
+  },
+};
 
 export default nextConfig;

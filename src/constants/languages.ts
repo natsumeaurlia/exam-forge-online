@@ -2,15 +2,15 @@
 
 export const getAvailableLanguages = (currentLng: string = 'ja') => [
   {
-    code: "ja",
+    code: 'ja',
     name: currentLng === 'ja' ? '日本語' : 'Japanese',
-    flag: "🇯🇵"
+    flag: '🇯🇵',
   },
   {
-    code: "en",
+    code: 'en',
     name: currentLng === 'ja' ? '英語' : 'English',
-    flag: "🇺🇸"
-  }
+    flag: '🇺🇸',
+  },
 ];
 
 // Export the languages with default translations

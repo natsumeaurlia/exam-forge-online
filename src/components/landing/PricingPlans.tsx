@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Check, X } from 'lucide-react';
 import { useTranslation } from '../../i18n';
 
 export interface PricingPlansProps {
@@ -9,11 +9,11 @@ export interface PricingPlansProps {
 export async function PricingPlans({ lng }: PricingPlansProps) {
   const { t } = await useTranslation(lng);
   const currentLanguage = lng;
-  
+
   const plans = [
     {
       name: t('pricing.plans.free.name'),
-      price: currentLanguage === 'en' ? "$0" : "¥0",
+      price: currentLanguage === 'en' ? '$0' : '¥0',
       period: t('pricing.plans.free.period'),
       description: t('pricing.plans.free.description'),
       features: [
@@ -36,15 +36,15 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
         t('pricing.plans.features.questionbank'),
         t('pricing.plans.features.advancedtypes'),
         t('pricing.plans.features.analytics'),
-        t('pricing.plans.features.sections')
+        t('pricing.plans.features.sections'),
       ],
-      color: "examforge-blue",
+      color: 'examforge-blue',
       popular: false,
-      cta: t('pricing.plans.free.cta')
+      cta: t('pricing.plans.free.cta'),
     },
     {
       name: t('pricing.plans.pro.name'),
-      price: currentLanguage === 'en' ? "$29" : "¥2,980",
+      price: currentLanguage === 'en' ? '$29' : '¥2,980',
       period: t('pricing.plans.pro.period'),
       description: t('pricing.plans.pro.description'),
       features: [
@@ -74,11 +74,11 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
       notIncluded: [
         t('pricing.plans.features.permissions'),
         t('pricing.plans.features.audit'),
-        t('pricing.plans.features.sla')
+        t('pricing.plans.features.sla'),
       ],
-      color: "examforge-orange",
+      color: 'examforge-orange',
       popular: true,
-      cta: t('pricing.plans.pro.cta')
+      cta: t('pricing.plans.pro.cta'),
     },
     {
       name: t('pricing.plans.enterprise.name'),
@@ -100,86 +100,96 @@ export async function PricingPlans({ lng }: PricingPlansProps) {
         t('pricing.plans.features.support'),
       ],
       notIncluded: [],
-      color: "examforge-blue-dark",
+      color: 'examforge-blue-dark',
       popular: false,
-      cta: t('pricing.plans.enterprise.cta')
-    }
+      cta: t('pricing.plans.enterprise.cta'),
+    },
   ];
 
   return (
-    <div id="pricing" className="py-24 bg-white">
+    <div id="pricing" className="bg-white py-24" data-testid="pricing-section">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold mb-4">
+        <div className="mx-auto mb-16 max-w-3xl text-center" data-testid="pricing-header">
+          <h2 className="mb-4 text-3xl font-bold" data-testid="pricing-title">
             <span className="heading-gradient">{t('pricing.title')}</span>
           </h2>
-          <p className="text-lg text-gray-600">
-            {t('pricing.description')}
-          </p>
+          <p className="text-lg text-gray-600" data-testid="pricing-description">{t('pricing.description')}</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3" data-testid="pricing-plans">
           {plans.map((plan, index) => (
-            <div 
+            <div
               key={index}
-              className={`bg-white rounded-xl border-2 ${
-                plan.popular 
-                  ? `border-examforge-${plan.color} shadow-lg` 
+              className={`rounded-xl border-2 bg-white ${
+                plan.popular
+                  ? `border-examforge-${plan.color} shadow-lg`
                   : 'border-gray-200'
-              } p-6 flex flex-col relative`}
+              } relative flex flex-col p-6`}
+              data-testid={`pricing-plan-${index}`}
             >
               {plan.popular && (
-                <div className="absolute top-0 right-0 bg-examforge-orange text-white text-xs font-bold py-1 px-3 rounded-bl-lg rounded-tr-lg">
+                <div className="bg-examforge-orange absolute top-0 right-0 rounded-tr-lg rounded-bl-lg px-3 py-1 text-xs font-bold text-white" data-testid="popular-badge">
                   {t('pricing.plans.pro.popular')}
                 </div>
               )}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                <div className="flex items-end mb-2">
+              <div className="mb-6" data-testid={`plan-header-${index}`}>
+                <h3 className="mb-2 text-xl font-bold" data-testid={`plan-name-${index}`}>{plan.name}</h3>
+                <div className="mb-2 flex items-end" data-testid={`plan-price-${index}`}>
                   <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-gray-500 ml-2">{plan.period}</span>
+                  <span className="ml-2 text-gray-500">{plan.period}</span>
                 </div>
-                <p className="text-gray-600 text-sm">{plan.description}</p>
+                <p className="text-sm text-gray-600" data-testid={`plan-description-${index}`}>{plan.description}</p>
               </div>
-              
-              <div className="mb-8 flex-1">
-                <div className="border-t pt-4 mb-4">
-                  <span className="font-semibold">{t('pricing.plans.features.included')}:</span>
+
+              <div className="mb-8 flex-1" data-testid={`plan-features-${index}`}>
+                <div className="mb-4 border-t pt-4">
+                  <span className="font-semibold">
+                    {t('pricing.plans.features.included')}:
+                  </span>
                 </div>
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start">
-                      <Check className={`h-5 w-5 text-examforge-${plan.color} mr-2 shrink-0 mt-0.5`} />
+                    <li key={featureIndex} className="flex items-start" data-testid={`plan-${index}-feature-${featureIndex}`}>
+                      <Check
+                        className={`h-5 w-5 text-examforge-${plan.color} mt-0.5 mr-2 shrink-0`}
+                      />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                   {plan.notIncluded.map((feature, featureIndex) => (
-                    <li key={`not-${featureIndex}`} className="flex items-start text-gray-400">
-                      <X className="h-5 w-5 mr-2 shrink-0 mt-0.5" />
+                    <li
+                      key={`not-${featureIndex}`}
+                      className="flex items-start text-gray-400"
+                      data-testid={`plan-${index}-not-included-${featureIndex}`}
+                    >
+                      <X className="mt-0.5 mr-2 h-5 w-5 shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              
-              <Button 
+
+              <Button
                 className={`w-full ${
-                  plan.popular 
-                    ? `bg-examforge-${plan.color} hover:bg-examforge-${plan.color}/90` 
+                  plan.popular
+                    ? `bg-examforge-${plan.color} hover:bg-examforge-${plan.color}/90`
                     : ''
                 }`}
-                variant={plan.name === t('pricing.plans.enterprise.name') ? "outline" : "default"}
+                variant={
+                  plan.name === t('pricing.plans.enterprise.name')
+                    ? 'outline'
+                    : 'default'
+                }
+                data-testid={`plan-cta-${index}`}
               >
                 {plan.cta}
               </Button>
             </div>
           ))}
         </div>
-        
-        <div className="mt-12 text-center">
-          <p className="text-gray-500">
-            {t('pricing.guarantee')}
-          </p>
+
+        <div className="mt-12 text-center" data-testid="pricing-guarantee">
+          <p className="text-gray-500">{t('pricing.guarantee')}</p>
         </div>
       </div>
     </div>

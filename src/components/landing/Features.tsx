@@ -7,8 +7,8 @@ import {
   LockKeyhole,
   MessageSquare,
   Timer,
-  Upload
-} from "lucide-react";
+  Upload,
+} from 'lucide-react';
 
 export interface FeaturesProps {
   lng: string;
@@ -16,70 +16,70 @@ export interface FeaturesProps {
 
 export async function Features({ lng }: FeaturesProps) {
   const { t } = await useTranslation(lng);
-  
+
   const features = [
     {
       icon: <LayoutDashboard className="h-6 w-6" />,
       title: t('features.list.builder.title'),
-      description: t('features.list.builder.description')
+      description: t('features.list.builder.description'),
     },
     {
       icon: <FileStack className="h-6 w-6" />,
       title: t('features.list.questionTypes.title'),
-      description: t('features.list.questionTypes.description')
+      description: t('features.list.questionTypes.description'),
     },
     {
       icon: <BarChartBig className="h-6 w-6" />,
       title: t('features.list.analytics.title'),
-      description: t('features.list.analytics.description')
+      description: t('features.list.analytics.description'),
     },
     {
       icon: <Timer className="h-6 w-6" />,
       title: t('features.list.scoring.title'),
-      description: t('features.list.scoring.description')
+      description: t('features.list.scoring.description'),
     },
     {
       icon: <Upload className="h-6 w-6" />,
       title: t('features.list.import.title'),
-      description: t('features.list.import.description')
+      description: t('features.list.import.description'),
     },
     {
       icon: <Award className="h-6 w-6" />,
       title: t('features.list.certificates.title'),
-      description: t('features.list.certificates.description')
+      description: t('features.list.certificates.description'),
     },
     {
       icon: <LockKeyhole className="h-6 w-6" />,
       title: t('features.list.security.title'),
-      description: t('features.list.security.description')
+      description: t('features.list.security.description'),
     },
     {
       icon: <MessageSquare className="h-6 w-6" />,
       title: t('features.list.feedback.title'),
-      description: t('features.list.feedback.description')
-    }
+      description: t('features.list.feedback.description'),
+    },
   ];
 
   return (
-    <div id="features" className="py-24 bg-examforge-gray-light">
+    <div id="features" className="bg-examforge-gray-light py-24" data-testid="features-section">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold mb-4">
+        <div className="mx-auto mb-16 max-w-3xl text-center" data-testid="features-header">
+          <h2 className="mb-4 text-3xl font-bold" data-testid="features-title">
             <span className="heading-gradient">{t('features.title')}</span>
           </h2>
-          <p className="text-lg text-gray-600">
-            {t('features.description')}
-          </p>
+          <p className="text-lg text-gray-600" data-testid="features-description">{t('features.description')}</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4" data-testid="features-grid">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="feature-icon-container">
-                {feature.icon}
-              </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600 text-sm">{feature.description}</p>
+            <div
+              key={index}
+              className="rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              data-testid={`feature-item-${index}`}
+            >
+              <div className="feature-icon-container" data-testid={`feature-icon-${index}`}>{feature.icon}</div>
+              <h3 className="mb-2 text-lg font-semibold" data-testid={`feature-title-${index}`}>{feature.title}</h3>
+              <p className="text-sm text-gray-600" data-testid={`feature-description-${index}`}>{feature.description}</p>
             </div>
           ))}
         </div>

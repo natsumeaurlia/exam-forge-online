@@ -1,16 +1,20 @@
 # 6. クイズ一覧ページ
 
 ## 概要
+
 ユーザーが作成したすべてのクイズを管理するためのページ。クイズの作成、検索、フィルタリング、並べ替え、編集、削除などの機能を提供する。
 
 ## ページ構成
+
 1. **ページヘッダー**
+
    - 「クイズ管理」タイトル
    - 「新規クイズ作成」主要CTAボタン
    - 表示切替（リスト/グリッド）
    - ページあたりの表示件数選択
 
 2. **検索・フィルターバー**
+
    - 検索入力フィールド
    - フィルタードロップダウン
      - 作成日
@@ -24,6 +28,7 @@
      - スコア（高い/低い）
 
 3. **クイズリスト/グリッド**
+
    - 各クイズカード/行に表示する情報：
      - クイズタイトル
      - ステータス（下書き/公開済み）
@@ -40,11 +45,13 @@
      - 削除
 
 4. **ページネーション**
+
    - 前へ/次へボタン
    - ページ番号リンク
    - 総クイズ数表示
 
 5. **新規クイズ作成モーダル**
+
    - タイトル入力
    - 説明入力
    - 採点モード選択（自動/手動）
@@ -57,7 +64,9 @@
    - バルク操作ドロップダウン（削除、タグ付け、エクスポートなど）
 
 ## 技術仕様
+
 - **コンポーネント構成**
+
   - `QuizListHeader.tsx`
   - `SearchAndFilterBar.tsx`
   - `QuizCard.tsx` / `QuizListItem.tsx`
@@ -66,6 +75,7 @@
   - `BulkActionToolbar.tsx`
 
 - **状態管理**
+
   - `useQuizListStore.ts` - Zustandストア
     - 表示モード（リスト/グリッド）
     - 検索・フィルター条件
@@ -76,24 +86,21 @@
     - ページネーション処理
 
 - **データフェッチング**
+
   ```typescript
-  const {
-    data,
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery(
-    ['quizzes', searchParams],
-    ({ pageParam = 0 }) => fetchQuizzes(searchParams, pageParam),
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      keepPreviousData: true,
-    }
-  );
+  const { data, isLoading, error, fetchNextPage, hasNextPage } =
+    useInfiniteQuery(
+      ['quizzes', searchParams],
+      ({ pageParam = 0 }) => fetchQuizzes(searchParams, pageParam),
+      {
+        getNextPageParam: lastPage => lastPage.nextCursor,
+        keepPreviousData: true,
+      }
+    );
   ```
 
 - **レスポンシブ設計**
+
   - モバイル: 1カラムリスト表示、省略可能な情報を非表示
   - タブレット: 2カラムグリッドまたは拡張リスト表示
   - デスクトップ: 3-4カラムグリッドまたは詳細リスト表示
@@ -104,6 +111,7 @@
   - 無限スクロールの実装
 
 ## Next.js移行考慮事項
+
 - リスト表示のデータフェッチはServer Componentで実装
 - 検索・フィルター・ソート機能はServer Actionsで実装
 - クライアント状態（選択、表示モードなど）のみをクライアントコンポーネントで管理

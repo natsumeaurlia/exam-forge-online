@@ -1,7 +1,7 @@
-import { LanguageSwitcher } from "./LanguageSwitcher";
-import { MobileMenu } from "./MobileMenu";
-import { AuthButtons } from "./AuthButtons";
-import { useTranslation } from "../../i18n";
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { MobileMenu } from './MobileMenu';
+import { AuthButtons } from './AuthButtons';
+import { useTranslation } from '../../i18n';
 
 export interface NavbarProps {
   lng: string;
@@ -9,7 +9,7 @@ export interface NavbarProps {
 
 export async function Navbar({ lng }: NavbarProps) {
   const { t } = await useTranslation(lng);
-  
+
   const translations = {
     features: t('common.features'),
     pricing: t('common.pricing'),
@@ -17,31 +17,43 @@ export async function Navbar({ lng }: NavbarProps) {
     login: t('common.login'),
     signup: t('common.signup'),
   };
-  
+
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b relative">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-examforge-blue to-examforge-blue-dark flex items-center justify-center text-white font-bold text-xl">
+    <header className="relative sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md" data-testid="navbar">
+      <div className="container mx-auto flex items-center justify-between px-4 py-4">
+        <div className="flex items-center gap-2" data-testid="navbar-logo">
+          <div className="from-examforge-blue to-examforge-blue-dark flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-xl font-bold text-white">
             E
           </div>
           <span className="text-xl font-bold">ExamForge</span>
         </div>
-        
+
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          <a href="#features" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+        <nav className="hidden items-center gap-6 md:flex" data-testid="navbar-desktop-nav">
+          <a
+            href="#features"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-features"
+          >
             {translations.features}
           </a>
-          <a href="#pricing" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+          <a
+            href="#pricing"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-pricing"
+          >
             {translations.pricing}
           </a>
-          <a href="#faq" className="text-sm font-medium hover:text-examforge-blue transition-colors">
+          <a
+            href="#faq"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-faq"
+          >
             {translations.faq}
           </a>
         </nav>
-        
-        <div className="hidden md:flex items-center gap-4">
+
+        <div className="hidden items-center gap-4 md:flex" data-testid="navbar-desktop-actions">
           <LanguageSwitcher lng={lng} />
           <AuthButtons
             loginText={translations.login}
@@ -49,9 +61,9 @@ export async function Navbar({ lng }: NavbarProps) {
             lng={lng}
           />
         </div>
-        
+
         {/* Mobile menu */}
-        <div className="md:hidden flex items-center gap-2">
+        <div className="flex items-center gap-2 md:hidden" data-testid="navbar-mobile-actions">
           <LanguageSwitcher lng={lng} />
           <MobileMenu translations={translations} lng={lng} />
         </div>
