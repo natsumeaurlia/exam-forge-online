@@ -104,6 +104,6 @@
   }
 
   .feature-icon-container {
-    @apply mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-examforge-blue text-white;
+    @apply bg-examforge-blue mb-4 flex h-12 w-12 items-center justify-center rounded-lg text-white;
   }
 }

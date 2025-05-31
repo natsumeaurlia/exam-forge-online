@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
-import { AuthButtons } from './AuthButtons';
+import { AuthButtons } from '../auth/AuthButtons';
 
 export interface MobileMenuProps {
   translations: {
@@ -16,7 +16,7 @@ export interface MobileMenuProps {
   lng: string;
 }
 
-export function MobileMenu({ translations, lng }: MobileMenuProps) {
+export const MobileMenu = ({ translations, lng }: MobileMenuProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -66,4 +66,4 @@ export function MobileMenu({ translations, lng }: MobileMenuProps) {
       )}
     </>
   );
-}
+};

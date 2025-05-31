@@ -1,13 +1,13 @@
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileMenu } from './MobileMenu';
-import { AuthButtons } from './AuthButtons';
+import { AuthButtons } from '../auth/AuthButtons';
 import { getTranslations } from 'next-intl/server';
 
 export interface NavbarProps {
   lng: string;
 }
 
-export async function Navbar({ lng }: NavbarProps) {
+export const Navbar = async ({ lng }: NavbarProps) => {
   const t = await getTranslations();
 
   const translations = {
@@ -82,4 +82,4 @@ export async function Navbar({ lng }: NavbarProps) {
       </div>
     </header>
   );
-}
+};

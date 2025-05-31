@@ -4,7 +4,7 @@ export interface FooterProps {
   lng: string;
 }
 
-export async function Footer({ lng }: FooterProps) {
+export const Footer = async ({ lng }: FooterProps) => {
   const t = await getTranslations();
 
   return (
@@ -194,4 +194,4 @@ export async function Footer({ lng }: FooterProps) {
       </div>
     </footer>
   );
-}
+};
