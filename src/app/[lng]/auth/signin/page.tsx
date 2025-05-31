@@ -18,8 +18,13 @@ export default function SignInPage({ params }: SignInPageProps) {
     string,
     ClientSafeProvider
   > | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // テスト用デフォルト値（開発環境のみ）
+  const [email, setEmail] = useState(
+    process.env.NODE_ENV === 'development' ? 'test@example.com' : ''
+  );
+  const [password, setPassword] = useState(
+    process.env.NODE_ENV === 'development' ? 'password' : ''
+  );
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -39,14 +44,14 @@ export default function SignInPage({ params }: SignInPageProps) {
       const result = await signIn('credentials', {
         email,
         password,
-        callbackUrl: `/${resolvedParams.lng}`,
+        callbackUrl: `/${resolvedParams.lng}/dashboard`,
         redirect: false,
       });
 
       if (result?.error) {
         alert('ログインに失敗しました');
       } else if (result?.ok) {
-        router.push(`/${resolvedParams.lng}`);
+        router.push(`/${resolvedParams.lng}/dashboard`);
       }
     } catch (error) {
       console.error('Sign in error:', error);
@@ -58,7 +63,7 @@ export default function SignInPage({ params }: SignInPageProps) {
 
   const handleProviderSignIn = (providerId: string) => {
     signIn(providerId, {
-      callbackUrl: `/${resolvedParams.lng}`,
+      callbackUrl: `/${resolvedParams.lng}/dashboard`,
     });
   };
 

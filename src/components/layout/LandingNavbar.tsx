@@ -4,11 +4,11 @@ import { AuthButtons } from '../auth/AuthButtons';
 import { getTranslations } from 'next-intl/server';
 import { NavbarLogo } from './NavbarLogo';
 
-export interface NavbarProps {
+export interface LandingNavbarProps {
   lng: string;
 }
 
-export const Navbar = async ({ lng }: NavbarProps) => {
+export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
   const t = await getTranslations();
 
   const translations = {
@@ -27,8 +27,33 @@ export const Navbar = async ({ lng }: NavbarProps) => {
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <NavbarLogo lng={lng} />
 
-        {/* Desktop Navigation - 空のスペース */}
-        <div className="hidden md:flex"></div>
+        {/* Desktop Navigation */}
+        <nav
+          className="hidden items-center gap-6 md:flex"
+          data-testid="navbar-desktop-nav"
+        >
+          <a
+            href="#features"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-features"
+          >
+            {translations.features}
+          </a>
+          <a
+            href="#pricing"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-pricing"
+          >
+            {translations.pricing}
+          </a>
+          <a
+            href="#faq"
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-faq"
+          >
+            {translations.faq}
+          </a>
+        </nav>
 
         <div
           className="hidden items-center gap-4 md:flex"
@@ -51,7 +76,7 @@ export const Navbar = async ({ lng }: NavbarProps) => {
           <MobileMenu
             translations={translations}
             lng={lng}
-            isLandingPage={false}
+            isLandingPage={true}
           />
         </div>
       </div>

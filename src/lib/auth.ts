@@ -71,5 +71,24 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // サインイン後は常にダッシュボードにリダイレクト
+      if (url.includes('/auth/')) {
+        // URLから言語パラメータを抽出（例: /ja/auth/signin から ja を取得）
+        const langMatch = url.match(/\/([a-z]{2})\/auth/);
+        const lng = langMatch ? langMatch[1] : 'ja';
+        return `${baseUrl}/${lng}/dashboard`;
+      }
+      // 相対URLの場合はbaseUrlを追加
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // 同じドメインの場合はそのまま
+      if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      // その他の場合はbaseUrlにリダイレクト
+      return baseUrl;
+    },
   },
 };

@@ -53,11 +53,7 @@ export default async function RootLayout({ children, params }: LayoutProps) {
       <head />
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider>
-            <Navbar lng={lng} />
-            <main>{children}</main>
-            <Footer lng={lng} />
-          </SessionProvider>
+          <SessionProvider>{children}</SessionProvider>
         </NextIntlClientProvider>
       </body>
     </html>

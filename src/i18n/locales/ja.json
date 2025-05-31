@@ -544,5 +544,60 @@
       "message": "お疲れ様でした",
       "homeLink": "ホームに戻る"
     }
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "welcome": "おかえりなさい、{name}さん",
+    "overview": "概要",
+    "recentActivity": "最近のアクティビティ",
+    "quickActions": "クイックアクション",
+    "todaysTasks": "今日のタスク",
+    "today": "今日",
+    "tasksRemaining": "残り",
+    "tasksCompleted": "完了",
+    "settings": "設定",
+    "profile": "プロフィール",
+    "logout": "ログアウト",
+    "recentAchievements": "最近の成果",
+    "weeklyCompletionRate": "今週の完了率",
+    "newParticipants": "新規受験者",
+    "defaultUser": "ユーザー",
+    "tasks": {
+      "marketingQuizReview": "マーケティング基礎クイズの確認",
+      "newEmployeeTrainingReview": "新入社員研修の結果レビュー",
+      "q2AssessmentPrep": "Q2評価テストの準備"
+    },
+    "stats": {
+      "totalQuizzes": "総クイズ数",
+      "monthlyParticipants": "今月の受験者数",
+      "averageScore": "平均スコア",
+      "activeQuizzes": "アクティブなクイズ"
+    },
+    "recentQuizzes": {
+      "title": "最近のクイズ",
+      "created": "作成日",
+      "status": "ステータス",
+      "edit": "編集",
+      "preview": "プレビュー"
+    },
+    "activity": {
+      "title": "アクティビティ",
+      "quizCreated": "クイズが作成されました",
+      "quizCompleted": "クイズが完了されました",
+      "userJoined": "新しいユーザーが参加しました"
+    },
+    "usage": {
+      "title": "使用状況",
+      "quizLimit": "クイズ制限",
+      "participantLimit": "受験者制限",
+      "upgrade": "アップグレード"
+    },
+    "actions": {
+      "title": "クイックアクション",
+      "createQuiz": "新しいクイズを作成",
+      "inviteUsers": "受験者を招待",
+      "viewReports": "レポートを表示",
+      "manageSettings": "設定を管理"
+    }
   }
 }
