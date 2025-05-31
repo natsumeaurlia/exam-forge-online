@@ -91,7 +91,7 @@ export function AnimatedSection({
   return (
     <motion.div
       ref={ref}
-      className={className}
+      className={`${className} gpu-accelerated`}
       data-testid={testId}
       initial="hidden"
       animate={isVisible ? 'visible' : 'hidden'}
