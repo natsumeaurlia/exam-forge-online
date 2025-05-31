@@ -291,7 +291,6 @@ test.describe('ランディングページ', () => {
     const faqDescription = page.locator('[data-testid="faq-description"]');
     await expect(faqDescription).toBeVisible();
   });
-  });
 
   test('言語切り替え機能', async ({ page }) => {
     await page.goto('/ja');
