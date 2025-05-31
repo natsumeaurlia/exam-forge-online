@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('プラン切り替えトグル', () => {
   test.beforeEach(async ({ page }) => {
-    // プラン比較ページへアクセス（実際のページが実装されていない場合は、コンポーネントテスト用のページを作成）
-    await page.goto('/ja');
+    // プラン切り替えトグルのデモページにアクセス
+    await page.goto('/ja/demo/plan-toggle');
   });
 
   test('月額/年額切り替えトグルが表示される', async ({ page }) => {
@@ -83,7 +83,7 @@ test.describe('プラン切り替えトグル', () => {
 
 test.describe('プラン切り替えトグル（English）', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/en');
+    await page.goto('/en/demo/plan-toggle');
   });
 
   test('英語環境でのラベル表示', async ({ page }) => {
