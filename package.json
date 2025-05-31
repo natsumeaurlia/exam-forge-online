@@ -16,6 +16,9 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "test": "playwright test",
+    "test:fast": "playwright test --workers=8",
+    "test:chrome": "playwright test --project=chromium",
+    "test:chrome-fast": "playwright test --project=chromium --workers=8",
     "test:html": "playwright test --reporter=html",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
@@ -168,8 +171,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "pnpm lint --fix",
-      "pnpm format"
+      "next lint --fix --file",
+      "prettier --write"
     ]
   }
 }

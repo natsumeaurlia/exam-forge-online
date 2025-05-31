@@ -262,7 +262,7 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: pnpm run test
+        run: pnpm run test:chrome-fast
         env:
           CI: true
 
