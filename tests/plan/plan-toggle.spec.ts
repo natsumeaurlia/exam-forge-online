@@ -2,9 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('PlanToggle コンポーネント', () => {
   test.beforeEach(async ({ page }) => {
-    // Note: This test assumes there's a test page that renders the PlanToggle component
-    // You may need to create a dedicated test page or integrate this with an existing page
-    await page.goto('/ja/plan-comparison'); // Adjust URL as needed
+    // プラン比較ページに移動してPlanToggleコンポーネントをテスト
+    await page.goto('/ja/plan-comparison');
   });
 
   test('月額/年額トグルが正しく表示される', async ({ page }) => {
