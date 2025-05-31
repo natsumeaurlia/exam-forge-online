@@ -9,6 +9,7 @@ import {
   Timer,
   Upload,
 } from 'lucide-react';
+import { AnimatedSection } from '@/components/common/AnimatedSection';
 
 export interface FeaturesProps {
   lng: string;
@@ -67,7 +68,9 @@ export async function Features({ lng }: FeaturesProps) {
       data-testid="features-section"
     >
       <div className="container mx-auto px-4">
-        <div
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={100}
           className="mx-auto mb-16 max-w-3xl text-center"
           data-testid="features-header"
         >
@@ -80,20 +83,23 @@ export async function Features({ lng }: FeaturesProps) {
           >
             {t('features.description')}
           </p>
-        </div>
+        </AnimatedSection>
 
-        <div
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={300}
+          staggerChildren={0.1}
           className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4"
           data-testid="features-grid"
         >
           {features.map((feature, index) => (
             <div
               key={index}
-              className="rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-xl bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
               data-testid={`feature-item-${index}`}
             >
               <div
-                className="feature-icon-container"
+                className="feature-icon-container mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-examforge-blue/10 text-examforge-blue"
                 data-testid={`feature-icon-${index}`}
               >
                 {feature.icon}
@@ -112,7 +118,7 @@ export async function Features({ lng }: FeaturesProps) {
               </p>
             </div>
           ))}
-        </div>
+        </AnimatedSection>
       </div>
     </div>
   );

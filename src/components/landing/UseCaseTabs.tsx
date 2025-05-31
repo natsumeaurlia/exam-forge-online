@@ -6,6 +6,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnimatedSection } from '@/components/common/AnimatedSection';
 
 export interface UseCaseTabsProps {
   lng: string;
@@ -60,7 +61,9 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
       data-testid="usecases-section"
     >
       <div className="container mx-auto px-4">
-        <div
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={100}
           className="mx-auto mb-16 max-w-3xl text-center"
           data-testid="usecases-header"
         >
@@ -73,13 +76,18 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
           >
             {t('usecases.description')}
           </p>
-        </div>
+        </AnimatedSection>
 
-        <Tabs 
-          defaultValue="education" 
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={300}
           className="mx-auto max-w-6xl"
-          data-testid="usecases-tabs"
         >
+          <Tabs 
+            defaultValue="education" 
+            className="mx-auto max-w-6xl"
+            data-testid="usecases-tabs"
+          >
           <TabsList 
             className="grid w-full grid-cols-3 bg-examforge-gray-light p-2"
             data-testid="usecases-tabs-list"
@@ -88,7 +96,7 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
               <TabsTrigger
                 key={useCase.id}
                 value={useCase.id}
-                className="flex items-center gap-2 py-3 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-examforge-blue data-[state=active]:shadow-sm"
+                className="flex items-center gap-2 py-3 text-sm font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-examforge-blue data-[state=active]:shadow-sm hover:bg-white/50"
                 data-testid={`usecase-tab-${useCase.id}`}
               >
                 <span className="hidden sm:inline">{useCase.icon}</span>
@@ -161,6 +169,7 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
             </TabsContent>
           ))}
         </Tabs>
+        </AnimatedSection>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
+import { AnimatedSection } from '@/components/common/AnimatedSection';
 
 export function HeroView({
   tagline,
@@ -33,7 +34,12 @@ export function HeroView({
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left column */}
-          <div className="flex flex-col justify-center">
+          <AnimatedSection
+            animation="fadeInUp"
+            delay={100}
+            className="flex flex-col justify-center"
+            data-testid="hero-content"
+          >
             <div className="mb-8">
               <div
                 className="bg-examforge-blue/10 text-examforge-blue-dark mb-6 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
@@ -60,7 +66,7 @@ export function HeroView({
               >
                 <Button
                   size="lg"
-                  className="gap-2"
+                  className="gap-2 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                   data-testid="hero-start-button"
                 >
                   {ctaStart}
@@ -69,6 +75,7 @@ export function HeroView({
                 <Button
                   size="lg"
                   variant="outline"
+                  className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                   data-testid="hero-demo-button"
                 >
                   {ctaDemo}
@@ -88,10 +95,12 @@ export function HeroView({
                 ))}
               </div>
             </div>
-          </div>
+          </AnimatedSection>
 
           {/* Right column - Illustration */}
-          <div
+          <AnimatedSection
+            animation="fadeInUp"
+            delay={300}
             className="relative flex items-center justify-center"
             data-testid="hero-illustration"
           >
@@ -162,7 +171,7 @@ export function HeroView({
                 </div>
               </div>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
     </div>
