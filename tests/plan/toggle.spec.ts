@@ -2,8 +2,10 @@ import { test, expect } from '@playwright/test';
 
 test.describe('プラン切り替えトグル', () => {
   test.beforeEach(async ({ page }) => {
-    // プラン切り替えトグルのデモページにアクセス
-    await page.goto('/ja/demo/plan-toggle');
+    // トップページの価格セクションにアクセス
+    await page.goto('/ja');
+    // 価格セクションまでスクロール
+    await page.locator('#pricing').scrollIntoViewIfNeeded();
   });
 
   test('月額/年額切り替えトグルが表示される', async ({ page }) => {
@@ -48,6 +50,26 @@ test.describe('プラン切り替えトグル', () => {
     await expect(discountBadge).toHaveText('約17%割引');
   });
 
+  test('プラン価格が切り替わることを確認', async ({ page }) => {
+    const toggle = page.getByTestId('plan-toggle-switch');
+    const proPrice = page.getByTestId('plan-price-1');
+    
+    // 初期状態（月額）の価格を確認
+    await expect(proPrice).toContainText('¥2,980');
+    
+    // 年額に切り替え
+    await toggle.click();
+    
+    // 年額価格に変わることを確認
+    await expect(proPrice).toContainText('¥2,480');
+    
+    // 月額に戻す
+    await toggle.click();
+    
+    // 月額価格に戻ることを確認
+    await expect(proPrice).toContainText('¥2,980');
+  });
+
   test('月額から年額、年額から月額への切り替えが正常に動作する', async ({ page }) => {
     const toggle = page.getByTestId('plan-toggle-switch');
     const discountBadge = page.getByTestId('plan-toggle-discount-badge');
@@ -83,7 +105,9 @@ test.describe('プラン切り替えトグル', () => {
 
 test.describe('プラン切り替えトグル（English）', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/en/demo/plan-toggle');
+    await page.goto('/en');
+    // 価格セクションまでスクロール
+    await page.locator('#pricing').scrollIntoViewIfNeeded();
   });
 
   test('英語環境でのラベル表示', async ({ page }) => {
@@ -94,6 +118,20 @@ test.describe('プラン切り替えトグル（English）', () => {
     const annualLabel = page.getByTestId('plan-toggle-annual-label');
     await expect(annualLabel).toBeVisible();
     await expect(annualLabel).toHaveText('Annually');
+  });
+
+  test('英語環境でのプラン価格切り替え', async ({ page }) => {
+    const toggle = page.getByTestId('plan-toggle-switch');
+    const proPrice = page.getByTestId('plan-price-1');
+    
+    // 初期状態（月額）の価格を確認
+    await expect(proPrice).toContainText('$29');
+    
+    // 年額に切り替え
+    await toggle.click();
+    
+    // 年額価格に変わることを確認
+    await expect(proPrice).toContainText('$24');
   });
 
   test('英語環境での割引バッジ表示', async ({ page }) => {
