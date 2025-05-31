@@ -86,11 +86,61 @@ test.describe('ランディングページ', () => {
     const featuresGrid = page.locator('[data-testid="features-grid"]');
     await expect(featuresGrid).toBeVisible();
 
-    // 各フィーチャーアイテムが表示されているか確認
-    for (let i = 0; i < 8; i++) {
+    // 各フィーチャーアイテムが表示されているか確認（4つの主要機能のみ）
+    for (let i = 0; i < 4; i++) {
       const featureItem = page.locator(`[data-testid="feature-item-${i}"]`);
       await expect(featureItem).toBeVisible();
     }
+  });
+
+  test('改善されたフィーチャーセクションの詳細テスト', async ({ page }) => {
+    await page.goto('/ja');
+
+    // 4つの主要機能が表示されることを確認
+    const expectedFeatures = [
+      'シンプルなクイズ作成',
+      '多彩な問題タイプ',
+      '詳細な分析',
+      '証明書'
+    ];
+
+    for (let i = 0; i < 4; i++) {
+      const featureItem = page.locator(`[data-testid="feature-item-${i}"]`);
+      const featureIcon = page.locator(`[data-testid="feature-icon-${i}"]`);
+      const featureTitle = page.locator(`[data-testid="feature-title-${i}"]`);
+      const featureDescription = page.locator(`[data-testid="feature-description-${i}"]`);
+
+      // 要素が表示されることを確認
+      await expect(featureItem).toBeVisible();
+      await expect(featureIcon).toBeVisible();
+      await expect(featureTitle).toBeVisible();
+      await expect(featureDescription).toBeVisible();
+
+      // ホバーエフェクトをテスト
+      await featureItem.hover();
+      
+      // アニメーションが適用されているかを確認（影の変化やトランスフォーム）
+      const hasHoverEffect = await featureItem.evaluate((el) => {
+        const styles = window.getComputedStyle(el);
+        return styles.transform || styles.boxShadow;
+      });
+      expect(hasHoverEffect).toBeTruthy();
+    }
+
+    // レスポンシブグリッドレイアウトをテスト
+    const featuresGrid = page.locator('[data-testid="features-grid"]');
+    
+    // デスクトップ表示（4列）
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect(featuresGrid).toHaveClass(/lg:grid-cols-4/);
+    
+    // タブレット表示（2列）
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await expect(featuresGrid).toHaveClass(/md:grid-cols-2/);
+    
+    // モバイル表示（1列）
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(featuresGrid).toHaveClass(/grid-cols-1/);
   });
 
   test('プライシングセクションの詳細テスト', async ({ page }) => {

@@ -1,14 +1,6 @@
 import { getTranslations } from 'next-intl/server';
-import {
-  Award,
-  BarChartBig,
-  FileStack,
-  LayoutDashboard,
-  LockKeyhole,
-  MessageSquare,
-  Timer,
-  Upload,
-} from 'lucide-react';
+import { FeatureCard } from './FeatureCard';
+import { getFeaturesData } from '@/data/features';
 
 export interface FeaturesProps {
   lng: string;
@@ -16,49 +8,7 @@ export interface FeaturesProps {
 
 export async function Features({ lng }: FeaturesProps) {
   const t = await getTranslations();
-
-  const features = [
-    {
-      icon: <LayoutDashboard className="h-6 w-6" />,
-      title: t('features.list.builder.title'),
-      description: t('features.list.builder.description'),
-    },
-    {
-      icon: <FileStack className="h-6 w-6" />,
-      title: t('features.list.questionTypes.title'),
-      description: t('features.list.questionTypes.description'),
-    },
-    {
-      icon: <BarChartBig className="h-6 w-6" />,
-      title: t('features.list.analytics.title'),
-      description: t('features.list.analytics.description'),
-    },
-    {
-      icon: <Timer className="h-6 w-6" />,
-      title: t('features.list.scoring.title'),
-      description: t('features.list.scoring.description'),
-    },
-    {
-      icon: <Upload className="h-6 w-6" />,
-      title: t('features.list.import.title'),
-      description: t('features.list.import.description'),
-    },
-    {
-      icon: <Award className="h-6 w-6" />,
-      title: t('features.list.certificates.title'),
-      description: t('features.list.certificates.description'),
-    },
-    {
-      icon: <LockKeyhole className="h-6 w-6" />,
-      title: t('features.list.security.title'),
-      description: t('features.list.security.description'),
-    },
-    {
-      icon: <MessageSquare className="h-6 w-6" />,
-      title: t('features.list.feedback.title'),
-      description: t('features.list.feedback.description'),
-    },
-  ];
+  const features = getFeaturesData(t);
 
   return (
     <div
@@ -87,30 +37,13 @@ export async function Features({ lng }: FeaturesProps) {
           data-testid="features-grid"
         >
           {features.map((feature, index) => (
-            <div
+            <FeatureCard
               key={index}
-              className="rounded-xl bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-              data-testid={`feature-item-${index}`}
-            >
-              <div
-                className="feature-icon-container"
-                data-testid={`feature-icon-${index}`}
-              >
-                {feature.icon}
-              </div>
-              <h3
-                className="mb-2 text-lg font-semibold"
-                data-testid={`feature-title-${index}`}
-              >
-                {feature.title}
-              </h3>
-              <p
-                className="text-sm text-gray-600"
-                data-testid={`feature-description-${index}`}
-              >
-                {feature.description}
-              </p>
-            </div>
+              icon={feature.icon}
+              title={feature.title}
+              description={feature.description}
+              index={index}
+            />
           ))}
         </div>
       </div>
