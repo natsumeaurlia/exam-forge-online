@@ -33,3 +33,6 @@ dist-ssr
 test-results
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+*storybook.log
+storybook-static
+playwright-report
