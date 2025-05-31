@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { AuthButtons } from "./AuthButtons";
 
 export interface MobileMenuProps {
   translations: {
@@ -12,9 +13,10 @@ export interface MobileMenuProps {
     login: string;
     signup: string;
   };
+  lng: string;
 }
 
-export function MobileMenu({ translations }: MobileMenuProps) {
+export function MobileMenu({ translations, lng }: MobileMenuProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
@@ -52,9 +54,12 @@ export function MobileMenu({ translations }: MobileMenuProps) {
             >
               {translations.faq}
             </a>
-            <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" className="w-full justify-center">{translations.login}</Button>
-              <Button className="w-full justify-center">{translations.signup}</Button>
+            <div className="pt-2">
+              <AuthButtons
+                loginText={translations.login}
+                signupText={translations.signup}
+                lng={lng}
+              />
             </div>
           </nav>
         </div>

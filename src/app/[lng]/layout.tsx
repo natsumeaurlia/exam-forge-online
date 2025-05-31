@@ -3,6 +3,7 @@ import '../../index.css';
 import { Inter } from "next/font/google";
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import { SessionProvider } from '../../components/providers/SessionProvider';
 import { languages } from '../../i18n/settings';
 import { dir } from 'i18next';
 import { Metadata } from 'next';
@@ -50,11 +51,13 @@ export default async function RootLayout({
     <html lang={lng} dir={dir(lng)}>
       <head />
       <body className={inter.className}>
-        <Navbar lng={lng} />
-        <main>
-          {children}
-        </main>
-        <Footer lng={lng} />
+        <SessionProvider>
+          <Navbar lng={lng} />
+          <main>
+            {children}
+          </main>
+          <Footer lng={lng} />
+        </SessionProvider>
       </body>
     </html>
   );

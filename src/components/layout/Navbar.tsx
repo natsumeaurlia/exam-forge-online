@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileMenu } from "./MobileMenu";
+import { AuthButtons } from "./AuthButtons";
 import { useTranslation } from "../../i18n";
 
 export interface NavbarProps {
@@ -43,14 +43,17 @@ export async function Navbar({ lng }: NavbarProps) {
         
         <div className="hidden md:flex items-center gap-4">
           <LanguageSwitcher lng={lng} />
-          <Button variant="ghost">{translations.login}</Button>
-          <Button>{translations.signup}</Button>
+          <AuthButtons
+            loginText={translations.login}
+            signupText={translations.signup}
+            lng={lng}
+          />
         </div>
         
         {/* Mobile menu */}
         <div className="md:hidden flex items-center gap-2">
           <LanguageSwitcher lng={lng} />
-          <MobileMenu translations={translations} />
+          <MobileMenu translations={translations} lng={lng} />
         </div>
       </div>
     </header>
