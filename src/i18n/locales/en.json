@@ -165,6 +165,42 @@
       "backToQuiz": "Back to Quiz Type Selection"
     }
   },
+  "usecases": {
+    "title": "ExamForge Works Across Various Scenarios",
+    "description": "From educational institutions to corporate training, we support a wide range of applications. Find the optimal use case for your needs.",
+    "tabs": {
+      "education": {
+        "title": "For Educational Institutions",
+        "description": "Perfect for classes and exams in schools and universities. Use as an educational tool to maximize learning effectiveness.",
+        "benefits": [
+          "Visualize learning progress to boost student motivation",
+          "Support diverse evaluation methods with rich question types",
+          "Significantly reduce teacher workload with automatic grading",
+          "Support individualized instruction with detailed analysis reports"
+        ]
+      },
+      "corporate": {
+        "title": "For Corporate Training",
+        "description": "Support employee skill development and certification acquisition. Build effective human resource development programs.",
+        "benefits": [
+          "Establish quantitative training effectiveness measurement and improvement cycles",
+          "Create customized training content by department and job type",
+          "Centralized management of participation status for efficient HR operations",
+          "Support internal certification systems with certificate issuance"
+        ]
+      },
+      "certification": {
+        "title": "For Certification Exams",
+        "description": "Implementation of public qualifications and industry certification exams. Provide a secure and fair testing environment.",
+        "benefits": [
+          "Full-scale exam operations with time limits and passing score settings",
+          "Ensure exam fairness with anti-cheating features",
+          "Support large-scale exams with candidate management system",
+          "Streamline certification process with automatic official certificate issuance"
+        ]
+      }
+    }
+  },
   "features": {
     "title": "Create Professional Exams with Simple Operations",
     "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
