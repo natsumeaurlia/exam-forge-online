@@ -428,5 +428,85 @@
         }
       ]
     }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 12, 2025",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By accessing or using ExamForge's services, you agree to be bound by these Terms of Service and all applicable laws and regulations."
+      },
+      "use": {
+        "title": "2. Use of Services",
+        "content": "You may use our services only as permitted by law and in accordance with these Terms. You agree not to misuse our services or help anyone else do so."
+      },
+      "accounts": {
+        "title": "3. User Accounts",
+        "content": "You are responsible for safeguarding the password that you use to access our services and for any activities or actions under your password."
+      },
+      "ip": {
+        "title": "4. Intellectual Property",
+        "content": "Our services and all content included on them, such as text, graphics, logos, and software, are the property of ExamForge or its licensors and are protected by copyright and other intellectual property laws."
+      },
+      "termination": {
+        "title": "5. Termination",
+        "content": "We may terminate or suspend your access to our services immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms."
+      },
+      "changes": {
+        "title": "6. Changes to Terms",
+        "content": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will notify you of any changes by posting the new Terms on this page."
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 12, 2025",
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "content": "This Privacy Policy describes how ExamForge (\"we\", \"us\", or \"our\") collects, uses, and shares your personal information when you use our website and services."
+      },
+      "collection": {
+        "title": "2. Information We Collect",
+        "content": "We may collect personal information that you provide directly to us when you use our services, such as your name, email address, and any other information you choose to provide."
+      },
+      "usage": {
+        "title": "3. How We Use Your Information",
+        "content": "We use the information we collect for various purposes, including to provide and improve our services, communicate with you, and comply with our legal obligations."
+      },
+      "security": {
+        "title": "4. Data Security",
+        "content": "We implement appropriate technical and organizational measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction."
+      },
+      "rights": {
+        "title": "5. Your Rights",
+        "content": "Depending on your location, you may have certain rights regarding your personal information, such as the right to access, correct, or delete your data."
+      },
+      "changes": {
+        "title": "6. Changes to This Privacy Policy",
+        "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page."
+      }
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign in to your account",
+      "subtitle": "or",
+      "homeLink": "return home",
+      "email": "Email address",
+      "password": "Password",
+      "signinButton": "Sign in",
+      "signingIn": "Signing in...",
+      "withProvider": "Sign in with %s",
+      "dividerText": "or",
+      "testCredentialsTitle": "Test Account:",
+      "testCredentialsInfo": "Email: test@example.com\nPassword: password"
+    },
+    "signout": {
+      "title": "Signing out...",
+      "message": "Thank you for using our service",
+      "homeLink": "Return to Home"
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, use } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface SignOutPageProps {
   params: Promise<{
@@ -12,6 +13,7 @@ interface SignOutPageProps {
 
 export default function SignOutPage({ params }: SignOutPageProps) {
   const resolvedParams = use(params);
+  const t = useTranslations('auth.signout');
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -31,10 +33,10 @@ export default function SignOutPage({ params }: SignOutPageProps) {
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            サインアウト中...
+            {t('title')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            お疲れ様でした
+            {t('message')}
           </p>
         </div>
 
@@ -47,7 +49,7 @@ export default function SignOutPage({ params }: SignOutPageProps) {
             onClick={() => router.push(`/${resolvedParams.lng}`)}
             className="text-sm font-medium text-blue-600 hover:text-blue-500"
           >
-            ホームに戻る
+            {t('homeLink')}
           </button>
         </div>
       </div>

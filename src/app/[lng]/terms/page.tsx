@@ -1,52 +1,42 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function TermsPage() {
+  const t = useTranslations('terms');
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="mb-6 text-3xl font-bold">Terms of Service</h1>
-      <div className="prose max-w-none">
-        <p>Last updated: April 12, 2025</p>
+    <div className="container mx-auto px-4 py-12" data-testid="terms-page">
+      <h1 className="mb-6 text-3xl font-bold" data-testid="terms-title">
+        {t('title')}
+      </h1>
+      <div className="prose max-w-none" data-testid="terms-content">
+        <p data-testid="last-updated">{t('lastUpdated')}</p>
 
-        <h2>1. Acceptance of Terms</h2>
-        <p>
-          By accessing or using ExamForge's services, you agree to be bound by
-          these Terms of Service and all applicable laws and regulations.
+        <h2 data-testid="section-acceptance">
+          {t('sections.acceptance.title')}
+        </h2>
+        <p data-testid="acceptance-content">
+          {t('sections.acceptance.content')}
         </p>
 
-        <h2>2. Use of Services</h2>
-        <p>
-          You may use our services only as permitted by law and in accordance
-          with these Terms. You agree not to misuse our services or help anyone
-          else do so.
+        <h2 data-testid="section-use">{t('sections.use.title')}</h2>
+        <p data-testid="use-content">{t('sections.use.content')}</p>
+
+        <h2 data-testid="section-accounts">{t('sections.accounts.title')}</h2>
+        <p data-testid="accounts-content">{t('sections.accounts.content')}</p>
+
+        <h2 data-testid="section-ip">{t('sections.ip.title')}</h2>
+        <p data-testid="ip-content">{t('sections.ip.content')}</p>
+
+        <h2 data-testid="section-termination">
+          {t('sections.termination.title')}
+        </h2>
+        <p data-testid="termination-content">
+          {t('sections.termination.content')}
         </p>
 
-        <h2>3. User Accounts</h2>
-        <p>
-          You are responsible for safeguarding the password that you use to
-          access our services and for any activities or actions under your
-          password.
-        </p>
-
-        <h2>4. Intellectual Property</h2>
-        <p>
-          Our services and all content included on them, such as text, graphics,
-          logos, and software, are the property of ExamForge or its licensors
-          and are protected by copyright and other intellectual property laws.
-        </p>
-
-        <h2>5. Termination</h2>
-        <p>
-          We may terminate or suspend your access to our services immediately,
-          without prior notice or liability, for any reason whatsoever,
-          including without limitation if you breach these Terms.
-        </p>
-
-        <h2>6. Changes to Terms</h2>
-        <p>
-          We reserve the right, at our sole discretion, to modify or replace
-          these Terms at any time. We will notify you of any changes by posting
-          the new Terms on this page.
-        </p>
+        <h2 data-testid="section-changes">{t('sections.changes.title')}</h2>
+        <p data-testid="changes-content">{t('sections.changes.content')}</p>
       </div>
     </div>
   );

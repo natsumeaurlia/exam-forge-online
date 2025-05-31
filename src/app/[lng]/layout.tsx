@@ -28,11 +28,11 @@ export async function generateMetadata({
   const { lng } = await params;
 
   return {
-    title: 'exam-forge-online',
-    description: 'Lovable Generated Project',
+    title: 'ExamForge - Online Exam Platform',
+    description: 'Create and take exams online with ExamForge',
     openGraph: {
-      title: 'exam-forge-online',
-      description: 'Lovable Generated Project',
+      title: 'ExamForge - Online Exam Platform',
+      description: 'Create and take exams online with ExamForge',
       type: 'website',
       images: ['https://lovable.dev/opengraph-image-p98pqg.png'],
     },
