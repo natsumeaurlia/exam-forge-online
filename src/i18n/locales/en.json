@@ -336,9 +336,19 @@
         "cta": "Contact Us"
       }
     },
+    "comparison": {
+      "basic": "Basic Features",
+      "advanced": "Advanced Features",
+      "available": "Available",
+      "notAvailable": "Not available"
+    },
     "guarantee": "All plans come with a 30-day money-back guarantee. Contact us if you have any questions."
   },
   "pages": {
+    "plans": {
+      "title": "Pricing Plans",
+      "description": "Choose the plan that fits your needs."
+    },
     "contact": {
       "title": "Contact Us",
       "description": "If you have any questions or inquiries, please feel free to contact us.",

@@ -336,9 +336,19 @@
         "cta": "お問い合わせ"
       }
     },
+    "comparison": {
+      "basic": "基本機能",
+      "advanced": "高度な機能",
+      "available": "利用可能",
+      "notAvailable": "利用不可"
+    },
     "guarantee": "すべてのプランに30日間の返金保証付き。不明点はお問い合わせください。"
   },
   "pages": {
+    "plans": {
+      "title": "料金プラン",
+      "description": "あなたのニーズに合ったプランをお選びください。"
+    },
     "contact": {
       "title": "お問い合わせ",
       "description": "質問やご不明点がございましたら、お気軽にご連絡ください。",
