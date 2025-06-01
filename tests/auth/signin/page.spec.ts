@@ -160,4 +160,90 @@ test.describe('サインインページ', () => {
       fullPage: true,
     });
   });
+
+  test('パスワード表示/非表示トグル機能テスト', async ({ page }) => {
+    await page.goto('/ja/auth/signin');
+
+    // パスワード入力フィールドが表示されているか確認
+    const passwordInput = page.locator('[data-testid="password-input"]');
+    await expect(passwordInput).toBeVisible();
+
+    // パスワードトグルボタンが表示されているか確認
+    const toggleButton = page.locator('[data-testid="password-toggle-button"]');
+    await expect(toggleButton).toBeVisible();
+
+    // 初期状態でパスワードが非表示（type="password"）であることを確認
+    await expect(passwordInput).toHaveAttribute('type', 'password');
+
+    // 表示アイコン（Eye）が表示されていることを確認
+    const showIcon = page.locator('[data-testid="password-toggle-icon-show"]');
+    await expect(showIcon).toBeVisible();
+
+    // パスワードを入力
+    await passwordInput.fill('testpassword123');
+
+    // トグルボタンをクリックしてパスワードを表示
+    await toggleButton.click();
+
+    // パスワードが表示状態（type="text"）になることを確認
+    await expect(passwordInput).toHaveAttribute('type', 'text');
+
+    // 非表示アイコン（EyeOff）が表示されていることを確認
+    const hideIcon = page.locator('[data-testid="password-toggle-icon-hide"]');
+    await expect(hideIcon).toBeVisible();
+
+    // 入力したパスワードが見えることを確認
+    await expect(passwordInput).toHaveValue('testpassword123');
+
+    // もう一度トグルボタンをクリックしてパスワードを非表示
+    await toggleButton.click();
+
+    // パスワードが非表示状態（type="password"）に戻ることを確認
+    await expect(passwordInput).toHaveAttribute('type', 'password');
+
+    // 表示アイコン（Eye）が再び表示されていることを確認
+    await expect(showIcon).toBeVisible();
+
+    // 入力値が維持されていることを確認
+    await expect(passwordInput).toHaveValue('testpassword123');
+  });
+
+  test('パスワードトグルボタンのアクセシビリティテスト', async ({ page }) => {
+    await page.goto('/ja/auth/signin');
+
+    const toggleButton = page.locator('[data-testid="password-toggle-button"]');
+
+    // ボタンに適切なaria-label属性があることを確認
+    await expect(toggleButton).toHaveAttribute(
+      'aria-label',
+      'パスワードを表示'
+    );
+
+    // ボタンに適切なaria-pressed属性があることを確認（初期状態：false）
+    await expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
+
+    // ボタンをクリック
+    await toggleButton.click();
+
+    // クリック後のaria-label属性が変更されることを確認
+    await expect(toggleButton).toHaveAttribute(
+      'aria-label',
+      'パスワードを非表示'
+    );
+
+    // クリック後のaria-pressed属性が変更されることを確認
+    await expect(toggleButton).toHaveAttribute('aria-pressed', 'true');
+
+    // キーボードナビゲーションテスト
+    await page.keyboard.press('Tab'); // パスワード入力欄からトグルボタンへフォーカス移動
+    await expect(toggleButton).toBeFocused();
+
+    // Enterキーでトグル機能が動作することを確認
+    await page.keyboard.press('Enter');
+    await expect(toggleButton).toHaveAttribute('aria-pressed', 'false');
+
+    // Spaceキーでトグル機能が動作することを確認
+    await page.keyboard.press('Space');
+    await expect(toggleButton).toHaveAttribute('aria-pressed', 'true');
+  });
 });

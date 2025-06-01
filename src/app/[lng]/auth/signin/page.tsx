@@ -4,6 +4,7 @@ import { signIn, getProviders, type ClientSafeProvider } from 'next-auth/react';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface SignInPageProps {
   params: Promise<{
@@ -25,6 +26,7 @@ export default function SignInPage({ params }: SignInPageProps) {
   const [password, setPassword] = useState(
     process.env.NODE_ENV === 'development' ? 'password' : ''
   );
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -173,18 +175,42 @@ export default function SignInPage({ params }: SignInPageProps) {
               >
                 {t('password')}
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="relative mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
-                placeholder="password"
-                data-testid="password-input"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="relative mt-1 block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm"
+                  placeholder="password"
+                  data-testid="password-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-1/2 right-3 -translate-y-1/2 transform text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none"
+                  aria-label={
+                    showPassword ? 'パスワードを非表示' : 'パスワードを表示'
+                  }
+                  aria-pressed={showPassword}
+                  data-testid="password-toggle-button"
+                >
+                  {showPassword ? (
+                    <EyeOff
+                      className="h-5 w-5"
+                      data-testid="password-toggle-icon-hide"
+                    />
+                  ) : (
+                    <Eye
+                      className="h-5 w-5"
+                      data-testid="password-toggle-icon-show"
+                    />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div data-testid="submit-section">
