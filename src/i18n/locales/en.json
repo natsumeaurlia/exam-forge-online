@@ -589,5 +589,60 @@
         "content": "ExamForge powers our customer certification programs. Multi-language support and extensive customization options have enabled our global expansion efforts."
       }
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "overview": "Overview",
+    "recentActivity": "Recent Activity",
+    "quickActions": "Quick Actions",
+    "todaysTasks": "Today's Tasks",
+    "today": "Today",
+    "tasksRemaining": "Remaining",
+    "tasksCompleted": "Completed",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "recentAchievements": "Recent Achievements",
+    "weeklyCompletionRate": "Weekly Completion Rate",
+    "newParticipants": "New Participants",
+    "defaultUser": "User",
+    "tasks": {
+      "marketingQuizReview": "Marketing Basics Quiz Review",
+      "newEmployeeTrainingReview": "New Employee Training Results Review",
+      "q2AssessmentPrep": "Q2 Assessment Test Preparation"
+    },
+    "stats": {
+      "totalQuizzes": "Total Quizzes",
+      "monthlyParticipants": "Monthly Participants",
+      "averageScore": "Average Score",
+      "activeQuizzes": "Active Quizzes"
+    },
+    "recentQuizzes": {
+      "title": "Recent Quizzes",
+      "created": "Created",
+      "status": "Status",
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "activity": {
+      "title": "Activity",
+      "quizCreated": "Quiz was created",
+      "quizCompleted": "Quiz was completed",
+      "userJoined": "New user joined"
+    },
+    "usage": {
+      "title": "Usage",
+      "quizLimit": "Quiz Limit",
+      "participantLimit": "Participant Limit",
+      "upgrade": "Upgrade"
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "createQuiz": "Create New Quiz",
+      "inviteUsers": "Invite Participants",
+      "viewReports": "View Reports",
+      "manageSettings": "Manage Settings"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
 import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
 
-export function PlanToggle() {
+export const PlanToggle = () => {
   const t = useTranslations('pricing.toggle');
   const { isAnnual, toggleBilling } = usePlanComparisonStore();
 
@@ -49,4 +49,4 @@ export function PlanToggle() {
       </div>
     </div>
   );
-}
+};

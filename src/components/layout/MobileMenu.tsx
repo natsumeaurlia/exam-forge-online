@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
-import { AuthButtons } from './AuthButtons';
+import { AuthButtons } from '../auth/AuthButtons';
 
 export interface MobileMenuProps {
   translations: {
@@ -14,9 +14,14 @@ export interface MobileMenuProps {
     signup: string;
   };
   lng: string;
+  isLandingPage?: boolean;
 }
 
-export function MobileMenu({ translations, lng }: MobileMenuProps) {
+export const MobileMenu = ({
+  translations,
+  lng,
+  isLandingPage = false,
+}: MobileMenuProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -33,27 +38,31 @@ export function MobileMenu({ translations, lng }: MobileMenuProps) {
       {mobileMenuOpen && (
         <div className="absolute top-full right-0 left-0 border-t bg-white/80 px-4 py-4 backdrop-blur-md md:hidden">
           <nav className="flex flex-col gap-4">
-            <a
-              href="#features"
-              className="hover:text-examforge-blue text-sm font-medium transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {translations.features}
-            </a>
-            <a
-              href="#pricing"
-              className="hover:text-examforge-blue text-sm font-medium transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {translations.pricing}
-            </a>
-            <a
-              href="#faq"
-              className="hover:text-examforge-blue text-sm font-medium transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {translations.faq}
-            </a>
+            {isLandingPage && (
+              <>
+                <a
+                  href="#features"
+                  className="hover:text-examforge-blue text-sm font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {translations.features}
+                </a>
+                <a
+                  href="#pricing"
+                  className="hover:text-examforge-blue text-sm font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {translations.pricing}
+                </a>
+                <a
+                  href="#faq"
+                  className="hover:text-examforge-blue text-sm font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {translations.faq}
+                </a>
+              </>
+            )}
             <div className="pt-2">
               <AuthButtons
                 loginText={translations.login}
@@ -66,4 +75,4 @@ export function MobileMenu({ translations, lng }: MobileMenuProps) {
       )}
     </>
   );
-}
+};

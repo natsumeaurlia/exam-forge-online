@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getAvailableLanguages } from '@/constants/languages';
-import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 
 interface LanguageSwitcherViewProps {
@@ -20,12 +19,12 @@ interface LanguageSwitcherViewProps {
   languages: ReturnType<typeof getAvailableLanguages>;
 }
 
-export function LanguageSwitcherView({
+export const LanguageSwitcherView = ({
   isOpen,
   setIsOpen,
   currentLng,
   languages,
-}: LanguageSwitcherViewProps) {
+}: LanguageSwitcherViewProps) => {
   return (
     <DropdownMenu
       open={isOpen}
@@ -59,15 +58,13 @@ export function LanguageSwitcherView({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};
 
 export interface LanguageSwitcherProps {
   lng: string;
 }
 
-export function LanguageSwitcher({ lng }: LanguageSwitcherProps) {
-  const t = useTranslations('common');
-  const locale = useLocale();
+export const LanguageSwitcher = ({ lng }: LanguageSwitcherProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -78,4 +75,4 @@ export function LanguageSwitcher({ lng }: LanguageSwitcherProps) {
       languages={getAvailableLanguages(lng)}
     />
   );
-}
+};

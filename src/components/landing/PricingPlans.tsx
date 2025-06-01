@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PlanToggle } from '@/components/plan';
+import { PlanToggle } from '@/components/plan/PlanToggle';
 import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
 
 export interface PricingPlansProps {

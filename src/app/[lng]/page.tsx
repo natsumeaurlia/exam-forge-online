@@ -4,29 +4,29 @@ import { UseCaseTabs } from '../../components/landing/UseCaseTabs';
 import { PricingPlans } from '../../components/landing/PricingPlans';
 import { TestimonialCarousel } from '../../components/landing/TestimonialCarousel';
 import { CallToAction } from '../../components/landing/CallToAction';
-import { getTranslations } from 'next-intl/server';
+import { LandingNavbar } from '../../components/layout/LandingNavbar';
+import { Footer } from '../../components/layout/Footer';
 
 export interface PageProps {
-  params: {
+  params: Promise<{
     lng: string;
-  };
+  }>;
 }
 
 export default async function Home({ params }: PageProps) {
-  // In Next.js 15, params is a promise that needs to be awaited
-  const resolvedParams = await Promise.resolve(params);
-  const lng = resolvedParams.lng;
-
-  const t = await getTranslations();
+  const { lng } = await params;
 
   return (
-    <>
-      <Hero lng={lng} />
-      <Features lng={lng} />
-      <UseCaseTabs lng={lng} />
-      <PricingPlans lng={lng} />
-      <TestimonialCarousel lng={lng} />
-      <CallToAction lng={lng} />
-    </>
+    <div className="flex min-h-screen flex-col">
+      <LandingNavbar lng={lng} />
+      <main className="flex-1">
+        <Hero lng={lng} />
+        <Features lng={lng} />
+        <UseCaseTabs lng={lng} />
+        <PricingPlans lng={lng} />
+        <CallToAction lng={lng} />
+      </main>
+      <Footer lng={lng} />
+    </div>
   );
 }

@@ -48,11 +48,11 @@ interface QuestionFormProps {
   onCancel: () => void;
 }
 
-export function QuestionForm({
+export const QuestionForm = ({
   question,
   onSave,
   onCancel,
-}: QuestionFormProps) {
+}: QuestionFormProps) => {
   const isEditing = !!question?.id;
 
   const [formData, setFormData] = useState<Partial<Question>>({
@@ -532,4 +532,4 @@ export function QuestionForm({
       </CardContent>
     </Card>
   );
-}
+};

@@ -24,7 +24,7 @@ interface QuizTypeSelectorProps {
   onSelect: (type: string) => void;
 }
 
-export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
+export const QuizTypeSelector = ({ onSelect }: QuizTypeSelectorProps) => {
   const t = useTranslations();
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
@@ -108,4 +108,4 @@ export function QuizTypeSelector({ onSelect }: QuizTypeSelectorProps) {
       </div>
     </div>
   );
-}
+};

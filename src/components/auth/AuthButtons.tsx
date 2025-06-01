@@ -19,7 +19,11 @@ interface AuthButtonsProps {
   lng: string;
 }
 
-export function AuthButtons({ loginText, signupText, lng }: AuthButtonsProps) {
+export const AuthButtons = ({
+  loginText,
+  signupText,
+  lng,
+}: AuthButtonsProps) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -70,7 +74,7 @@ export function AuthButtons({ loginText, signupText, lng }: AuthButtonsProps) {
             }}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>ログアウト</span>
+            <span>Logout</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -90,4 +94,4 @@ export function AuthButtons({ loginText, signupText, lng }: AuthButtonsProps) {
       </Button>
     </div>
   );
-}
+};
