@@ -567,6 +567,23 @@
     "weeklyCompletionRate": "今週の完了率",
     "newParticipants": "新規受験者",
     "defaultUser": "ユーザー",
+    "navigation": {
+      "menu": "メニュー",
+      "dashboard": "ダッシュボード",
+      "quizzes": "クイズ管理",
+      "createQuiz": "クイズ作成",
+      "questionBank": "問題バンク",
+      "templates": "テンプレート",
+      "analytics": "レポート・分析",
+      "members": "メンバー管理",
+      "settings": "設定",
+      "help": "ヘルプ",
+      "documentation": "ドキュメント",
+      "expand": "サイドバーを展開",
+      "collapse": "サイドバーを折りたたむ",
+      "upgradePrompt": "より多くの機能をご利用いただけます",
+      "upgradeCta": "プランをアップグレード"
+    },
     "tasks": {
       "marketingQuizReview": "マーケティング基礎クイズの確認",
       "newEmployeeTrainingReview": "新入社員研修の結果レビュー",

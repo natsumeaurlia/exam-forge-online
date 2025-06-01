@@ -1,10 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { 
-  GraduationCap, 
-  Building, 
-  Award,
-  CheckCircle
-} from 'lucide-react';
+import { GraduationCap, Building, Award, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
 
@@ -55,11 +50,7 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
   ];
 
   return (
-    <div
-      id="usecases"
-      className="py-24"
-      data-testid="usecases-section"
-    >
+    <div id="usecases" className="py-24" data-testid="usecases-section">
       <div className="container mx-auto px-4">
         <AnimatedSection
           animation="fadeInUp"
@@ -83,92 +74,92 @@ export async function UseCaseTabs({ lng }: UseCaseTabsProps) {
           delay={300}
           className="mx-auto max-w-6xl"
         >
-          <Tabs 
-            defaultValue="education" 
+          <Tabs
+            defaultValue="education"
             className="mx-auto max-w-6xl"
             data-testid="usecases-tabs"
           >
-          <TabsList 
-            className="grid w-full grid-cols-3 bg-examforge-gray-light p-2"
-            data-testid="usecases-tabs-list"
-          >
-            {useCases.map((useCase) => (
-              <TabsTrigger
+            <TabsList
+              className="bg-examforge-gray-light grid w-full grid-cols-3 p-2"
+              data-testid="usecases-tabs-list"
+            >
+              {useCases.map(useCase => (
+                <TabsTrigger
+                  key={useCase.id}
+                  value={useCase.id}
+                  className="data-[state=active]:text-examforge-blue flex items-center gap-2 py-3 text-sm font-medium transition-all duration-200 hover:bg-white/50 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                  data-testid={`usecase-tab-${useCase.id}`}
+                >
+                  <span className="hidden sm:inline">{useCase.icon}</span>
+                  <span>{useCase.title}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {useCases.map(useCase => (
+              <TabsContent
                 key={useCase.id}
                 value={useCase.id}
-                className="flex items-center gap-2 py-3 text-sm font-medium transition-all duration-200 data-[state=active]:bg-white data-[state=active]:text-examforge-blue data-[state=active]:shadow-sm hover:bg-white/50"
-                data-testid={`usecase-tab-${useCase.id}`}
+                className="mt-8"
+                data-testid={`usecase-content-${useCase.id}`}
               >
-                <span className="hidden sm:inline">{useCase.icon}</span>
-                <span>{useCase.title}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+                <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="bg-examforge-blue flex h-16 w-16 items-center justify-center rounded-full text-white"
+                        data-testid={`usecase-icon-${useCase.id}`}
+                      >
+                        {useCase.icon}
+                      </div>
+                      <div>
+                        <h3
+                          className="text-2xl font-bold text-gray-900"
+                          data-testid={`usecase-title-${useCase.id}`}
+                        >
+                          {useCase.title}
+                        </h3>
+                      </div>
+                    </div>
 
-          {useCases.map((useCase) => (
-            <TabsContent
-              key={useCase.id}
-              value={useCase.id}
-              className="mt-8"
-              data-testid={`usecase-content-${useCase.id}`}
-            >
-              <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div 
-                      className="flex h-16 w-16 items-center justify-center rounded-full bg-examforge-blue text-white"
-                      data-testid={`usecase-icon-${useCase.id}`}
+                    <p
+                      className="text-lg text-gray-600"
+                      data-testid={`usecase-description-${useCase.id}`}
                     >
-                      {useCase.icon}
-                    </div>
-                    <div>
-                      <h3 
-                        className="text-2xl font-bold text-gray-900"
-                        data-testid={`usecase-title-${useCase.id}`}
-                      >
-                        {useCase.title}
-                      </h3>
-                    </div>
+                      {useCase.description}
+                    </p>
+
+                    <ul
+                      className="space-y-4"
+                      data-testid={`usecase-benefits-${useCase.id}`}
+                    >
+                      {useCase.benefits.map((benefit, index) => (
+                        <li
+                          key={index}
+                          className="flex items-start gap-3"
+                          data-testid={`usecase-benefit-${useCase.id}-${index}`}
+                        >
+                          <CheckCircle className="text-examforge-blue mt-1 h-5 w-5 shrink-0" />
+                          <span className="text-gray-700">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  
-                  <p 
-                    className="text-lg text-gray-600"
-                    data-testid={`usecase-description-${useCase.id}`}
-                  >
-                    {useCase.description}
-                  </p>
 
-                  <ul 
-                    className="space-y-4"
-                    data-testid={`usecase-benefits-${useCase.id}`}
+                  <div
+                    className="from-examforge-blue/10 to-examforge-orange/10 rounded-2xl bg-gradient-to-br p-8"
+                    data-testid={`usecase-visual-${useCase.id}`}
                   >
-                    {useCase.benefits.map((benefit, index) => (
-                      <li
-                        key={index}
-                        className="flex items-start gap-3"
-                        data-testid={`usecase-benefit-${useCase.id}-${index}`}
-                      >
-                        <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-examforge-blue" />
-                        <span className="text-gray-700">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div 
-                  className="rounded-2xl bg-gradient-to-br from-examforge-blue/10 to-examforge-orange/10 p-8"
-                  data-testid={`usecase-visual-${useCase.id}`}
-                >
-                  <div className="aspect-square rounded-xl bg-white/50 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-                    <div className="text-6xl text-examforge-blue/30">
-                      {useCase.icon}
+                    <div className="flex aspect-square items-center justify-center rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm">
+                      <div className="text-examforge-blue/30 text-6xl">
+                        {useCase.icon}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+              </TabsContent>
+            ))}
+          </Tabs>
         </AnimatedSection>
       </div>
     </div>

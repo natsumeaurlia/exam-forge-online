@@ -567,6 +567,23 @@
     "weeklyCompletionRate": "Weekly Completion Rate",
     "newParticipants": "New Participants",
     "defaultUser": "User",
+    "navigation": {
+      "menu": "Menu",
+      "dashboard": "Dashboard",
+      "quizzes": "Quiz Management",
+      "createQuiz": "Create Quiz",
+      "questionBank": "Question Bank",
+      "templates": "Templates",
+      "analytics": "Reports & Analytics",
+      "members": "Member Management",
+      "settings": "Settings",
+      "help": "Help",
+      "documentation": "Documentation",
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar",
+      "upgradePrompt": "Get access to more features",
+      "upgradeCta": "Upgrade Plan"
+    },
     "tasks": {
       "marketingQuizReview": "Marketing Basics Quiz Review",
       "newEmployeeTrainingReview": "New Employee Training Results Review",
