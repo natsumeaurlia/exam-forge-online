@@ -1,9 +1,5 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
 import { getTranslations } from 'next-intl/server';
-import { authOptions } from '@/lib/auth';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { RecentQuizCard } from '@/components/dashboard/RecentQuizCard';
@@ -27,85 +23,72 @@ export async function generateMetadata({ params }: DashboardPageProps) {
 
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { lng } = await params;
-  const session = await getServerSession(authOptions);
-
-  // 認証チェック - 未認証の場合はサインインページにリダイレクト
-  if (!session) {
-    redirect(`/${lng}/auth/signin`);
-  }
-
   const t = await getTranslations('dashboard');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ダッシュボードヘッダー */}
-      <DashboardHeader lng={lng} />
+    <div className="container mx-auto space-y-8 px-4 py-8">
+      {/* ウェルカムセクション */}
+      <WelcomeSection lng={lng} />
 
-      {/* メインコンテンツ */}
-      <div className="container mx-auto space-y-8 px-4 py-8">
-        {/* ウェルカムセクション */}
-        <WelcomeSection lng={lng} />
+      {/* 統計カード */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          {t('overview')}
+        </h2>
+        <StatsCard lng={lng} />
+      </section>
 
-        {/* 統計カード */}
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            {t('overview')}
-          </h2>
-          <StatsCard lng={lng} />
-        </section>
+      {/* メインコンテンツグリッド */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        {/* 左カラム - 最近のクイズとアクティビティ */}
+        <div className="space-y-8 lg:col-span-2">
+          {/* 最近のクイズ */}
+          <section>
+            <RecentQuizCard lng={lng} />
+          </section>
 
-        {/* メインコンテンツグリッド */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* 左カラム - 最近のクイズとアクティビティ */}
-          <div className="space-y-8 lg:col-span-2">
-            {/* 最近のクイズ */}
-            <section>
-              <RecentQuizCard lng={lng} />
-            </section>
-
-            {/* アクティビティタイムライン */}
-            <section>
-              <ActivityTimeline lng={lng} />
-            </section>
-          </div>
-
-          {/* 右カラム - 使用状況とクイックアクション */}
-          <div className="space-y-8">
-            {/* 使用状況メーター */}
-            <section>
-              <UsageMeter lng={lng} />
-            </section>
-
-            {/* クイックアクション */}
-            <section>
-              <QuickActionButton lng={lng} />
-            </section>
-          </div>
-        </div>
-
-        {/* モバイル用追加セクション */}
-        <div className="space-y-8 lg:hidden">
-          {/* モバイルでは縦に並べる追加のコンテンツ */}
-          <section className="rounded-lg border bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
-              {t('recentAchievements')}
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg bg-green-50 p-4 text-center">
-                <div className="text-2xl font-bold text-green-600">95%</div>
-                <div className="text-sm text-green-700">
-                  {t('weeklyCompletionRate')}
-                </div>
-              </div>
-              <div className="rounded-lg bg-blue-50 p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">12</div>
-                <div className="text-sm text-blue-700">
-                  {t('newParticipants')}
-                </div>
-              </div>
-            </div>
+          {/* アクティビティタイムライン */}
+          <section>
+            <ActivityTimeline lng={lng} />
           </section>
         </div>
+
+        {/* 右カラム - 使用状況とクイックアクション */}
+        <div className="space-y-8">
+          {/* 使用状況メーター */}
+          <section>
+            <UsageMeter lng={lng} />
+          </section>
+
+          {/* クイックアクション */}
+          <section>
+            <QuickActionButton lng={lng} />
+          </section>
+        </div>
+      </div>
+
+      {/* モバイル用追加セクション */}
+      <div className="space-y-8 lg:hidden">
+        {/* モバイルでは縦に並べる追加のコンテンツ */}
+        <section className="rounded-lg border bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">
+            {t('recentAchievements')}
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-lg bg-green-50 p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">95%</div>
+              <div className="text-sm text-green-700">
+                {t('weeklyCompletionRate')}
+              </div>
+            </div>
+            <div className="rounded-lg bg-blue-50 p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">12</div>
+              <div className="text-sm text-blue-700">
+                {t('newParticipants')}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

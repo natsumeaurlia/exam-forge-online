@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { Bell, Settings, LogOut, User, Globe } from 'lucide-react';
+import { Bell, Settings, LogOut, User, Globe, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { useRouter } from 'next/navigation';
+import { useDashboard } from '@/hooks/use-dashboard';
 
 interface DashboardHeaderProps {
   lng: string;
@@ -23,6 +24,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ lng }: DashboardHeaderProps) {
   const { data: session } = useSession();
+  const { toggleSidebar } = useDashboard();
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const router = useRouter();
@@ -47,6 +49,17 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
         <div className="flex items-center justify-between">
           {/* ExamForgeロゴ */}
           <div className="flex items-center space-x-4">
+            {/* モバイルハンバーガーメニュー */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={toggleSidebar}
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">メニューを開く</span>
+            </Button>
+
             <button
               onClick={handleLogoClick}
               className="flex items-center gap-2 transition-opacity hover:opacity-80"
