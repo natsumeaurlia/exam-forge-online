@@ -1,7 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useScrollAnimation, ScrollAnimationOptions } from '@/hooks/useScrollAnimation';
+import {
+  useScrollAnimation,
+  ScrollAnimationOptions,
+} from '@/hooks/useScrollAnimation';
 import { ReactNode } from 'react';
 
 export interface AnimatedSectionProps {
@@ -68,7 +71,7 @@ export function AnimatedSection({
   staggerChildren,
   'data-testid': testId,
 }: AnimatedSectionProps) {
-  const { ref, isVisible } = useScrollAnimation({
+  const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({
     threshold,
     delay,
     triggerOnce,
