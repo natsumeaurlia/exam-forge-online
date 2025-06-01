@@ -24,6 +24,10 @@ test.describe('ランディングページ', () => {
     const pricing = page.locator('[data-testid="pricing-section"]');
     await expect(pricing).toBeVisible();
 
+    // FAQセクションが表示されているか確認
+    const faq = page.locator('[data-testid="faq-section"]');
+    await expect(faq).toBeVisible();
+
     // CTAセクションが表示されているか確認
     const cta = page.locator('[data-testid="cta-section"]');
     await expect(cta).toBeVisible();
@@ -198,6 +202,94 @@ test.describe('ランディングページ', () => {
 
     const footerLegalLinks = page.locator('[data-testid="footer-legal-links"]');
     await expect(footerLegalLinks).toBeVisible();
+  });
+
+  test('FAQセクションの表示テスト', async ({ page }) => {
+    await page.goto('/ja');
+
+    // FAQセクションが表示されているか確認
+    const faqSection = page.locator('[data-testid="faq-section"]');
+    await expect(faqSection).toBeVisible();
+
+    // FAQタイトルが表示されているか確認
+    const faqTitle = page.locator('[data-testid="faq-title"]');
+    await expect(faqTitle).toBeVisible();
+    await expect(faqTitle).toHaveText('よくある質問');
+
+    // FAQ説明文が表示されているか確認
+    const faqDescription = page.locator('[data-testid="faq-description"]');
+    await expect(faqDescription).toBeVisible();
+
+    // FAQアコーディオンが表示されているか確認
+    const faqAccordion = page.locator('[data-testid="faq-accordion"]');
+    await expect(faqAccordion).toBeVisible();
+
+    // 7つのFAQ項目が表示されているか確認
+    for (let i = 0; i < 7; i++) {
+      const faqItem = page.locator(`[data-testid="faq-item-${i}"]`);
+      await expect(faqItem).toBeVisible();
+
+      const faqTrigger = page.locator(`[data-testid="faq-trigger-${i}"]`);
+      await expect(faqTrigger).toBeVisible();
+    }
+  });
+
+  test('FAQアコーディオンの動作テスト', async ({ page }) => {
+    await page.goto('/ja');
+
+    // 最初のFAQ項目をクリックして展開
+    const firstTrigger = page.locator('[data-testid="faq-trigger-0"]');
+    await firstTrigger.click();
+
+    // コンテンツが表示されることを確認
+    const firstContent = page.locator('[data-testid="faq-content-0"]');
+    await expect(firstContent).toBeVisible();
+
+    // 2番目のFAQ項目もクリックして展開（複数同時展開のテスト）
+    const secondTrigger = page.locator('[data-testid="faq-trigger-1"]');
+    await secondTrigger.click();
+
+    const secondContent = page.locator('[data-testid="faq-content-1"]');
+    await expect(secondContent).toBeVisible();
+
+    // 最初のコンテンツがまだ表示されていることを確認（複数同時展開）
+    await expect(firstContent).toBeVisible();
+
+    // 最初のトリガーを再度クリックして折りたたみ
+    await firstTrigger.click();
+    await expect(firstContent).not.toBeVisible();
+
+    // 2番目のコンテンツはまだ表示されていることを確認
+    await expect(secondContent).toBeVisible();
+  });
+
+  test('FAQナビゲーションリンクのテスト', async ({ page }) => {
+    await page.goto('/ja');
+
+    // ナビゲーションのFAQリンクをクリック
+    const faqNavLink = page.locator('[data-testid="nav-faq"]');
+    await faqNavLink.click();
+
+    // FAQセクションまでスクロールされることを確認
+    const faqSection = page.locator('[data-testid="faq-section"]');
+    await expect(faqSection).toBeInViewport();
+  });
+
+  test('FAQ英語版の表示テスト', async ({ page }) => {
+    await page.goto('/en');
+
+    // FAQセクションが表示されているか確認
+    const faqSection = page.locator('[data-testid="faq-section"]');
+    await expect(faqSection).toBeVisible();
+
+    // FAQタイトルが英語で表示されているか確認
+    const faqTitle = page.locator('[data-testid="faq-title"]');
+    await expect(faqTitle).toBeVisible();
+    await expect(faqTitle).toHaveText('Frequently Asked Questions');
+
+    // FAQ説明文が表示されているか確認
+    const faqDescription = page.locator('[data-testid="faq-description"]');
+    await expect(faqDescription).toBeVisible();
   });
 
   test('言語切り替え機能', async ({ page }) => {

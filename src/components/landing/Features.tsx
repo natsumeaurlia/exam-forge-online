@@ -95,11 +95,11 @@ export async function Features({ lng }: FeaturesProps) {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="rounded-xl bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+              className="rounded-xl bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
               data-testid={`feature-item-${index}`}
             >
               <div
-                className="feature-icon-container mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-examforge-blue/10 text-examforge-blue"
+                className="feature-icon-container bg-examforge-blue/10 text-examforge-blue mb-4 flex h-12 w-12 items-center justify-center rounded-lg"
                 data-testid={`feature-icon-${index}`}
               >
                 {feature.icon}

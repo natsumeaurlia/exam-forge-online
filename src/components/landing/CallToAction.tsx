@@ -45,7 +45,7 @@ export async function CallToAction({ lng }: CallToActionProps) {
             </Button>
             <Button
               size="lg"
-              className="text-examforge-blue-dark bg-white hover:bg-white/90 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
+              className="text-examforge-blue-dark bg-white transition-all duration-200 hover:scale-105 hover:bg-white/90 hover:shadow-lg active:scale-95"
               data-testid="cta-signup-button"
             >
               {t('cta.buttons.signup')}
