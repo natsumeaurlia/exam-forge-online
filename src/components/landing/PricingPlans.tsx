@@ -5,6 +5,7 @@ import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlanToggle } from '@/components/plan/PlanToggle';
 import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
+import { AnimatedSection } from '@/components/common/AnimatedSection';
 
 export interface PricingPlansProps {
   lng: string;
@@ -117,7 +118,9 @@ export function PricingPlans({ lng }: PricingPlansProps) {
   return (
     <div id="pricing" className="bg-white py-24" data-testid="pricing-section">
       <div className="container mx-auto px-4">
-        <div
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={100}
           className="mx-auto mb-16 max-w-3xl text-center"
           data-testid="pricing-header"
         >
@@ -130,11 +133,16 @@ export function PricingPlans({ lng }: PricingPlansProps) {
           >
             {t('pricing.description')}
           </p>
-        </div>
+        </AnimatedSection>
 
-        <PlanToggle />
+        <AnimatedSection animation="fadeInUp" delay={200}>
+          <PlanToggle />
+        </AnimatedSection>
 
-        <div
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={300}
+          staggerChildren={0.15}
           className="grid grid-cols-1 gap-8 md:grid-cols-3"
           data-testid="pricing-plans"
         >
@@ -244,11 +252,13 @@ export function PricingPlans({ lng }: PricingPlansProps) {
               </div>
             </div>
           ))}
-        </div>
+        </AnimatedSection>
 
-        <div className="mt-12 text-center" data-testid="pricing-guarantee">
-          <p className="text-gray-500">{t('pricing.guarantee')}</p>
-        </div>
+        <AnimatedSection animation="fadeInUp" delay={600}>
+          <div className="mt-12 text-center" data-testid="pricing-guarantee">
+            <p className="text-gray-500">{t('pricing.guarantee')}</p>
+          </div>
+        </AnimatedSection>
       </div>
     </div>
   );
