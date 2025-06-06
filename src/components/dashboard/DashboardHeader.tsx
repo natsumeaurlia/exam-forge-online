@@ -1,20 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { Bell, Settings, LogOut, User, Globe, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
+import { UserMenu } from '@/components/layout/UserMenu';
 import { useRouter } from 'next/navigation';
 import { useDashboard } from '@/hooks/use-dashboard';
 
@@ -28,10 +21,6 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
   const router = useRouter();
-
-  const handleSignOut = () => {
-    signOut({ callbackUrl: `/${lng}` });
-  };
 
   const handleLogoClick = () => {
     if (session) {
@@ -62,7 +51,7 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
 
             <button
               onClick={handleLogoClick}
-              className="flex items-center gap-2 transition-opacity hover:opacity-80"
+              className="flex cursor-pointer items-center gap-2 transition-opacity hover:opacity-80"
               data-testid="dashboard-logo"
             >
               <div className="from-examforge-blue to-examforge-blue-dark flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-xl font-bold text-white">
@@ -92,52 +81,7 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
             </Button>
 
             {/* ユーザーメニュー */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-10 w-10 rounded-full"
-                >
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={session?.user?.image || ''}
-                      alt={session?.user?.name || ''}
-                    />
-                    <AvatarFallback>
-                      {session?.user?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <div className="flex items-center justify-start gap-2 p-2">
-                  <div className="flex flex-col space-y-1 leading-none">
-                    {session?.user?.name && (
-                      <p className="font-medium">{session.user.name}</p>
-                    )}
-                    {session?.user?.email && (
-                      <p className="text-muted-foreground w-[200px] truncate text-sm">
-                        {session.user.email}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{t('profile')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>{t('settings')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>{t('logout')}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <UserMenu lng={lng} showDashboardLink={false} />
           </div>
         </div>
       </div>

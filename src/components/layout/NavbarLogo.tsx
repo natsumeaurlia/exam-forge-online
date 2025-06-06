@@ -22,7 +22,7 @@ export const NavbarLogo = ({ lng }: NavbarLogoProps) => {
   return (
     <button
       onClick={handleLogoClick}
-      className="flex items-center gap-2 transition-opacity hover:opacity-80"
+      className="flex cursor-pointer items-center gap-2 transition-opacity hover:opacity-80"
       data-testid="navbar-logo"
     >
       <div className="from-examforge-blue to-examforge-blue-dark flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br text-xl font-bold text-white">

@@ -1,6 +1,8 @@
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { MobileMenu } from './MobileMenu';
 import { AuthButtons } from '../auth/AuthButtons';
+import { UserMenu } from './UserMenu';
+import { LandingNavbarActions } from './LandingNavbarActions';
 import { getTranslations } from 'next-intl/server';
 import { NavbarLogo } from './NavbarLogo';
 
@@ -59,11 +61,12 @@ export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
           className="hidden items-center gap-4 md:flex"
           data-testid="navbar-desktop-actions"
         >
-          <LanguageSwitcher lng={lng} />
-          <AuthButtons
-            loginText={translations.login}
-            signupText={translations.signup}
+          <LandingNavbarActions
             lng={lng}
+            translations={{
+              login: translations.login,
+              signup: translations.signup,
+            }}
           />
         </div>
 

@@ -8,6 +8,7 @@ import { languages, type Language } from '@/i18n/settings';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { Metadata } from 'next';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -54,6 +55,7 @@ export default async function RootLayout({ children, params }: LayoutProps) {
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>{children}</SessionProvider>
+          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>

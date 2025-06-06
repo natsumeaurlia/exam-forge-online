@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -45,6 +46,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  quizzes       Quiz[]
+  quizResponses QuizResponse[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -55,4 +58,201 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+enum QuizStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ScoringType {
+  AUTO
+  MANUAL
+}
+
+enum SharingMode {
+  URL
+  PASSWORD
+}
+
+enum QuestionType {
+  TRUE_FALSE
+  MULTIPLE_CHOICE
+  CHECKBOX
+  SHORT_ANSWER
+  SORTING
+  FILL_IN_BLANK
+  DIAGRAM
+  MATCHING
+  NUMERIC
+}
+
+model Quiz {
+  id            String      @id @default(cuid())
+  title         String      @db.VarChar(200) // タイトル文字数制限を明確化
+  description   String?     @db.Text
+  status        QuizStatus  @default(DRAFT)
+  scoringType   ScoringType @default(AUTO)
+  sharingMode   SharingMode @default(URL)
+  password      String?     @db.VarChar(100) // パスワード長制限
+  passingScore  Int         @default(70) @db.SmallInt // 0-100の範囲
+  coverImage    String?     @db.Text // URL用
+  subdomain     String?     @unique @db.VarChar(30) // サブドメイン長制限
+  timeLimit     Int?        @db.SmallInt // 制限時間（分）
+  shuffleQuestions Boolean   @default(false)
+  shuffleOptions   Boolean   @default(false)
+  maxAttempts   Int?        @db.SmallInt // 回答制限
+  publishedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions     Question[]
+  sections      Section[]
+  tags          QuizTag[]
+  responses     QuizResponse[]
+  
+  // Indexes for performance optimization
+  @@index([userId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([userId, status]) // 複合インデックス追加
+  @@index([subdomain]) // サブドメイン検索用
+}
+
+model Section {
+  id          String     @id @default(cuid())
+  title       String     @db.VarChar(200) // セクションタイトル制限
+  description String?    @db.Text
+  order       Int        @db.SmallInt // 順序番号
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Relations
+  quizId      String
+  quiz        Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  
+  // Indexes for performance optimization
+  @@index([quizId])
+  @@index([quizId, order]) // クイズ内でのセクション順序検索用
+}
+
+model Question {
+  id           String       @id @default(cuid())
+  type         QuestionType
+  text         String       @db.Text
+  points       Int          @default(1) @db.SmallInt // ポイント制限
+  order        Int          @db.SmallInt // 順序番号
+  hint         String?      @db.Text
+  explanation  String?      @db.Text
+  mediaUrl     String?      @db.Text // メディアURL
+  mediaType    String?      @db.VarChar(20) // image, audio, video
+  correctAnswer Json?       // 正解データ（問題タイプによって形式が異なる）
+  gradingCriteria String?   @db.Text // 手動採点の基準
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // Relations
+  quizId       String
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  sectionId    String?
+  section      Section?     @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  options      QuestionOption[]
+  responses    QuestionResponse[]
+  
+  // Indexes for performance optimization
+  @@index([quizId])
+  @@index([sectionId])
+  @@index([quizId, order]) // クイズ内での順序検索用
+  @@index([type]) // 問題タイプ別検索用
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  text       String   @db.Text
+  order      Int      @db.SmallInt // 順序番号
+  isCorrect  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  // Indexes for performance optimization
+  @@index([questionId])
+  @@index([questionId, order]) // 問題内での順序検索用
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String?   // タグの色
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  quizzes   QuizTag[]
+}
+
+model QuizTag {
+  id     String @id @default(cuid())
+  quizId String
+  tagId  String
+  
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([quizId, tagId])
+  @@index([quizId])
+  @@index([tagId])
+}
+
+model QuizResponse {
+  id          String   @id @default(cuid())
+  score       Int?     @db.SmallInt // 自動採点の場合のスコア (0-100)
+  totalPoints Int      @db.SmallInt // 満点
+  isPassed    Boolean? // 合格判定
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId      String?  // 匿名回答の場合はnull
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  responses   QuestionResponse[]
+  
+  // Indexes for performance optimization
+  @@index([quizId])
+  @@index([userId])
+  @@index([completedAt])
+  @@index([quizId, completedAt]) // クイズ別完了日時検索用
+  @@index([quizId, isPassed]) // 合格状況検索用
+}
+
+model QuestionResponse {
+  id         String   @id @default(cuid())
+  answer     Json     // 回答データ（問題タイプによって形式が異なる）
+  score      Int?     @db.SmallInt // 採点結果
+  isCorrect  Boolean? // 正解判定
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  quizResponseId String
+  quizResponse   QuizResponse @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  // Constraints and indexes
+  @@unique([quizResponseId, questionId])
+  @@index([quizResponseId])
+  @@index([questionId])
+  @@index([isCorrect]) // 正解率分析用
 }

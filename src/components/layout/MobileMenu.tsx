@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { AuthButtons } from '../auth/AuthButtons';
+import { UserMenu } from './UserMenu';
 
 export interface MobileMenuProps {
   translations: {
@@ -23,6 +25,7 @@ export const MobileMenu = ({
   isLandingPage = false,
 }: MobileMenuProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <>
@@ -64,11 +67,15 @@ export const MobileMenu = ({
               </>
             )}
             <div className="pt-2">
-              <AuthButtons
-                loginText={translations.login}
-                signupText={translations.signup}
-                lng={lng}
-              />
+              {session ? (
+                <UserMenu lng={lng} showDashboardLink={true} />
+              ) : (
+                <AuthButtons
+                  loginText={translations.login}
+                  signupText={translations.signup}
+                  lng={lng}
+                />
+              )}
             </div>
           </nav>
         </div>
