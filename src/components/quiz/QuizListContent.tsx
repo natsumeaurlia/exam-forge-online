@@ -52,14 +52,7 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
       tags,
     });
 
-    console.log('=== QuizListContent Debug ===');
-    console.log('getQuizzes result:', result);
-    console.log('result.data:', result?.data);
-    console.log('result.serverError:', result?.serverError);
-    console.log('result.validationErrors:', result?.validationErrors);
-
     if (!result?.data) {
-      console.log('❌ No data returned from getQuizzes');
       return (
         <div className="py-12 text-center">
           <p className="text-gray-500">クイズの取得に失敗しました</p>
@@ -68,9 +61,6 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
     }
 
     const { quizzes, pagination } = result.data;
-    console.log('✅ Quizzes found:', quizzes.length);
-    console.log('Quizzes data:', quizzes);
-    console.log('Pagination:', pagination);
 
     return (
       <div className="space-y-6">
@@ -123,7 +113,6 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
       </div>
     );
   } catch (error) {
-    console.error('QuizListContent error:', error);
     return (
       <div className="py-12 text-center">
         <p className="text-gray-500">

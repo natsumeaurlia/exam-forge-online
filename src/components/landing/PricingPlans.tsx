@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PlanToggle } from '@/components/plan/PlanToggle';
-import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
+import { usePlanComparisonStore } from '@/stores/usePlanComparisonStore';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
 
 export interface PricingPlansProps {

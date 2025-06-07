@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,8 +32,8 @@ export function PaginationControls({ pagination }: PaginationControlsProps) {
 
   const { page, totalPages } = pagination;
 
-  // ページネーションボタンの範囲を計算
-  const getPageNumbers = () => {
+  // ページネーションボタンの範囲を計算（メモ化）
+  const pageNumbers = useMemo(() => {
     const delta = 2; // 現在のページの前後に表示するページ数
     const range = [];
     const rangeWithDots = [];
@@ -60,7 +61,7 @@ export function PaginationControls({ pagination }: PaginationControlsProps) {
     }
 
     return rangeWithDots;
-  };
+  }, [page, totalPages]);
 
   if (totalPages <= 1) {
     return null;
@@ -80,7 +81,7 @@ export function PaginationControls({ pagination }: PaginationControlsProps) {
       </Button>
 
       <div className="flex items-center space-x-1">
-        {getPageNumbers().map((pageNumber, index) => (
+        {pageNumbers.map((pageNumber, index) => (
           <div key={index}>
             {pageNumber === '...' ? (
               <span className="px-3 py-2 text-gray-500">...</span>

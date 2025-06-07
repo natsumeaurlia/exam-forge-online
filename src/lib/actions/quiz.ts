@@ -6,6 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+import { correctAnswerSchema } from '@/types/quiz-schemas';
 
 import {
   QuizStatus,
@@ -101,7 +103,7 @@ const addQuestionSchema = z.object({
       })
     )
     .optional(),
-  correctAnswer: z.any().optional(),
+  correctAnswer: correctAnswerSchema.optional(),
   sectionId: z.string().optional(),
 });
 
@@ -111,7 +113,7 @@ const updateQuestionSchema = z.object({
   points: z.number().min(1).optional(),
   hint: z.string().optional(),
   explanation: z.string().optional(),
-  correctAnswer: z.any().optional(),
+  correctAnswer: correctAnswerSchema.optional(),
   options: z
     .array(
       z.object({
@@ -152,8 +154,8 @@ export const createQuiz = action
         data: {
           title: data.title,
           description: data.description,
-          scoringType: data.scoringType as any,
-          sharingMode: data.sharingMode as any,
+          scoringType: data.scoringType,
+          sharingMode: data.sharingMode,
           password: data.password,
           userId,
         },
@@ -288,7 +290,7 @@ export const publishQuiz = action
       const quiz = await prisma.quiz.update({
         where: { id: data.id },
         data: {
-          status: 'PUBLISHED' as any,
+          status: QuizStatus.PUBLISHED,
           subdomain: data.subdomain,
           publishedAt: new Date(),
         },
@@ -315,38 +317,32 @@ export const getQuizzes = action
       const skip = (page - 1) * limit;
 
       // 検索条件の構築
-      const where: any = {
+      const where: Prisma.QuizWhereInput = {
         userId,
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+        ...(status && { status }),
+        ...(tags &&
+          tags.length > 0 && {
+            tags: {
+              some: {
+                tag: {
+                  name: { in: tags },
+                },
+              },
+            },
+          }),
       };
 
-      if (search) {
-        where.OR = [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ];
-      }
-
-      if (status) {
-        where.status = status;
-      }
-
-      if (tags && tags.length > 0) {
-        where.tags = {
-          some: {
-            tag: {
-              name: { in: tags },
-            },
-          },
-        };
-      }
-
       // ソート条件の構築
-      const orderBy: any = {};
-      if (sortBy === 'responseCount') {
-        orderBy.responses = { _count: sortOrder };
-      } else {
-        orderBy[sortBy] = sortOrder;
-      }
+      const orderBy: Prisma.QuizOrderByWithRelationInput =
+        sortBy === 'responseCount'
+          ? { responses: { _count: sortOrder } }
+          : { [sortBy]: sortOrder };
 
       const [quizzes, total] = await Promise.all([
         prisma.quiz.findMany({
@@ -418,7 +414,7 @@ export const addQuestion = action
 
       // 次の順序番号を計算
       const maxOrder = quiz.questions.reduce(
-        (max: number, q: any) => Math.max(max, q.order),
+        (max, q) => Math.max(max, q.order),
         0
       );
       const nextOrder = maxOrder + 1;
@@ -426,7 +422,7 @@ export const addQuestion = action
       const question = await prisma.question.create({
         data: {
           quizId: data.quizId,
-          type: data.type as any,
+          type: data.type as QuestionType,
           text: data.text,
           points: data.points,
           hint: data.hint,
@@ -436,7 +432,7 @@ export const addQuestion = action
           order: nextOrder,
           options: data.options
             ? {
-                create: data.options.map((option: any, index: number) => ({
+                create: data.options.map((option, index) => ({
                   text: option.text,
                   isCorrect: option.isCorrect,
                   order: index + 1,
@@ -501,7 +497,7 @@ export const updateQuestion = action
 
           // 新しい選択肢を作成
           await tx.questionOption.createMany({
-            data: options.map((option: any, index: number) => ({
+            data: options.map((option, index) => ({
               questionId: id,
               text: option.text,
               isCorrect: option.isCorrect,
@@ -577,7 +573,7 @@ export const reorderQuestions = action
 
       // トランザクションで順序を更新
       await prisma.$transaction(
-        data.questionIds.map((questionId: string, index: number) =>
+        data.questionIds.map((questionId, index) =>
           prisma.question.update({
             where: { id: questionId },
             data: { order: index + 1 },

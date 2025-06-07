@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Grid3X3, List, Settings } from 'lucide-react';
+import { Plus, Grid3X3, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,

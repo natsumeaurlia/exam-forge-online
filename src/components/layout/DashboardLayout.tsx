@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useSidebarStore } from '@/lib/stores/useSidebarStore';
+import { useSidebarStore } from '@/stores/useSidebarStore';
 import {
   SidebarProvider,
   Sidebar,

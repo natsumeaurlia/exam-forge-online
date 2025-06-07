@@ -3,7 +3,7 @@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
-import { usePlanComparisonStore } from '@/lib/stores/usePlanComparisonStore';
+import { usePlanComparisonStore } from '@/stores/usePlanComparisonStore';
 
 export const PlanToggle = () => {
   const t = useTranslations('pricing.toggle');

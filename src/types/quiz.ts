@@ -9,6 +9,9 @@ import {
   Section,
 } from '@prisma/client';
 
+// Re-export Prisma types for convenience
+export type { Quiz, Tag } from '@prisma/client';
+
 // 基本的なクイズ型
 export type QuizWithDetails = Quiz & {
   questions: (Question & {

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   useScrollAnimation,
   ScrollAnimationOptions,
-} from '@/hooks/useScrollAnimation';
+} from '@/hooks/use-scroll-animation';
 import { ReactNode } from 'react';
 
 export interface AnimatedSectionProps {
