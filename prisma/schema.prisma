@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -17,15 +14,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -39,17 +35,24 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  quizzes       Quiz[]
-  quizResponses QuizResponse[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                    String         @id @default(cuid())
+  name                  String?
+  email                 String         @unique
+  emailVerified         DateTime?
+  image                 String?
+  stripeCustomerId      String?        @unique
+  stripePaymentMethodId String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  accounts              Account[]
+  invoices              Invoice[]
+  quizzes               Quiz[]
+  quizResponses         QuizResponse[]
+  sessions              Session[]
+  subscription          Subscription?
+  usageRecords          UsageRecord[]
+
+  @@index([stripeCustomerId])
 }
 
 model VerificationToken {
@@ -59,6 +62,287 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model Quiz {
+  id               String         @id @default(cuid())
+  title            String         @db.VarChar(200)
+  description      String?
+  status           QuizStatus     @default(DRAFT)
+  scoringType      ScoringType    @default(AUTO)
+  sharingMode      SharingMode    @default(URL)
+  password         String?        @db.VarChar(100)
+  passingScore     Int            @default(70) @db.SmallInt
+  coverImage       String?
+  subdomain        String?        @unique @db.VarChar(30)
+  timeLimit        Int?           @db.SmallInt
+  shuffleQuestions Boolean        @default(false)
+  shuffleOptions   Boolean        @default(false)
+  maxAttempts      Int?           @db.SmallInt
+  publishedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  userId           String
+  questions        Question[]
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  responses        QuizResponse[]
+  tags             QuizTag[]
+  sections         Section[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([userId, status])
+  @@index([subdomain])
+}
+
+model Section {
+  id          String     @id @default(cuid())
+  title       String     @db.VarChar(200)
+  description String?
+  order       Int        @db.SmallInt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  quizId      String
+  questions   Question[]
+  quiz        Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([quizId, order])
+}
+
+model Question {
+  id              String             @id @default(cuid())
+  type            QuestionType
+  text            String
+  points          Int                @default(1) @db.SmallInt
+  order           Int                @db.SmallInt
+  hint            String?
+  explanation     String?
+  mediaUrl        String?
+  mediaType       String?            @db.VarChar(20)
+  correctAnswer   Json?
+  gradingCriteria String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  quizId          String
+  sectionId       String?
+  quiz            Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  section         Section?           @relation(fields: [sectionId], references: [id])
+  options         QuestionOption[]
+  responses       QuestionResponse[]
+
+  @@index([quizId])
+  @@index([sectionId])
+  @@index([quizId, order])
+  @@index([type])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  text       String
+  order      Int      @db.SmallInt
+  isCorrect  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([questionId, order])
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  quizzes   QuizTag[]
+}
+
+model QuizTag {
+  id     String @id @default(cuid())
+  quizId String
+  tagId  String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, tagId])
+  @@index([quizId])
+  @@index([tagId])
+}
+
+model QuizResponse {
+  id          String             @id @default(cuid())
+  score       Int?               @db.SmallInt
+  totalPoints Int                @db.SmallInt
+  isPassed    Boolean?
+  startedAt   DateTime           @default(now())
+  completedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  quizId      String
+  userId      String?
+  responses   QuestionResponse[]
+  quiz        Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        User?              @relation(fields: [userId], references: [id])
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([completedAt])
+  @@index([quizId, completedAt])
+  @@index([quizId, isPassed])
+}
+
+model QuestionResponse {
+  id             String       @id @default(cuid())
+  answer         Json
+  score          Int?         @db.SmallInt
+  isCorrect      Boolean?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  quizResponseId String
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  quizResponse   QuizResponse @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
+
+  @@unique([quizResponseId, questionId])
+  @@index([quizResponseId])
+  @@index([questionId])
+  @@index([isCorrect])
+}
+
+model Plan {
+  id                     String         @id @default(cuid())
+  type                   PlanType       @unique
+  name                   String
+  description            String?
+  monthlyPrice           Int
+  yearlyPrice            Int
+  stripeMonthlyProductId String?        @unique
+  stripeYearlyProductId  String?        @unique
+  maxQuizzes             Int?
+  maxMembers             Int?
+  maxQuestionsPerQuiz    Int?
+  maxResponsesPerMonth   Int?
+  maxStorageMB           Int?
+  isActive               Boolean        @default(true)
+  displayOrder           Int            @default(0)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  features               PlanFeature[]
+  subscriptions          Subscription[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  stripeSubscriptionId String             @unique
+  stripeCustomerId     String
+  stripePriceId        String
+  stripeProductId      String
+  status               SubscriptionStatus
+  billingCycle         BillingCycle
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  canceledAt           DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  userId               String             @unique
+  planId               String
+  plan                 Plan               @relation(fields: [planId], references: [id])
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  stripeInvoiceId  String        @unique
+  stripeCustomerId String
+  invoiceNumber    String
+  status           InvoiceStatus
+  subtotal         Int
+  tax              Int           @default(0)
+  total            Int
+  amountPaid       Int           @default(0)
+  amountDue        Int
+  currency         String        @default("jpy")
+  dueDate          DateTime?
+  paidAt           DateTime?
+  invoicePdf       String?
+  hostedInvoiceUrl String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeInvoiceId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model UsageRecord {
+  id           String       @id @default(cuid())
+  resourceType ResourceType
+  count        Int
+  periodStart  DateTime
+  periodEnd    DateTime
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resourceType])
+  @@index([periodStart, periodEnd])
+  @@index([userId, resourceType, periodStart])
+}
+
+model Feature {
+  id            String          @id @default(cuid())
+  type          FeatureType     @unique
+  name          String
+  nameEn        String
+  description   String?
+  descriptionEn String?
+  category      FeatureCategory
+  displayOrder  Int             @default(0)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  planFeatures  PlanFeature[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model PlanFeature {
+  id        String   @id @default(cuid())
+  planId    String
+  featureId String
+  isEnabled Boolean  @default(true)
+  limit     Int?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  feature   Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureId])
+  @@index([planId])
+  @@index([featureId])
+}
+
 enum QuizStatus {
   DRAFT
   PUBLISHED
@@ -87,172 +371,71 @@ enum QuestionType {
   NUMERIC
 }
 
-model Quiz {
-  id            String      @id @default(cuid())
-  title         String      @db.VarChar(200) // タイトル文字数制限を明確化
-  description   String?     @db.Text
-  status        QuizStatus  @default(DRAFT)
-  scoringType   ScoringType @default(AUTO)
-  sharingMode   SharingMode @default(URL)
-  password      String?     @db.VarChar(100) // パスワード長制限
-  passingScore  Int         @default(70) @db.SmallInt // 0-100の範囲
-  coverImage    String?     @db.Text // URL用
-  subdomain     String?     @unique @db.VarChar(30) // サブドメイン長制限
-  timeLimit     Int?        @db.SmallInt // 制限時間（分）
-  shuffleQuestions Boolean   @default(false)
-  shuffleOptions   Boolean   @default(false)
-  maxAttempts   Int?        @db.SmallInt // 回答制限
-  publishedAt   DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  
-  // Relations
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questions     Question[]
-  sections      Section[]
-  tags          QuizTag[]
-  responses     QuizResponse[]
-  
-  // Indexes for performance optimization
-  @@index([userId])
-  @@index([status])
-  @@index([publishedAt])
-  @@index([userId, status]) // 複合インデックス追加
-  @@index([subdomain]) // サブドメイン検索用
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
 }
 
-model Section {
-  id          String     @id @default(cuid())
-  title       String     @db.VarChar(200) // セクションタイトル制限
-  description String?    @db.Text
-  order       Int        @db.SmallInt // 順序番号
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  // Relations
-  quizId      String
-  quiz        Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  questions   Question[]
-  
-  // Indexes for performance optimization
-  @@index([quizId])
-  @@index([quizId, order]) // クイズ内でのセクション順序検索用
+enum BillingCycle {
+  MONTHLY
+  YEARLY
 }
 
-model Question {
-  id           String       @id @default(cuid())
-  type         QuestionType
-  text         String       @db.Text
-  points       Int          @default(1) @db.SmallInt // ポイント制限
-  order        Int          @db.SmallInt // 順序番号
-  hint         String?      @db.Text
-  explanation  String?      @db.Text
-  mediaUrl     String?      @db.Text // メディアURL
-  mediaType    String?      @db.VarChar(20) // image, audio, video
-  correctAnswer Json?       // 正解データ（問題タイプによって形式が異なる）
-  gradingCriteria String?   @db.Text // 手動採点の基準
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  
-  // Relations
-  quizId       String
-  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  sectionId    String?
-  section      Section?     @relation(fields: [sectionId], references: [id], onDelete: SetNull)
-  options      QuestionOption[]
-  responses    QuestionResponse[]
-  
-  // Indexes for performance optimization
-  @@index([quizId])
-  @@index([sectionId])
-  @@index([quizId, order]) // クイズ内での順序検索用
-  @@index([type]) // 問題タイプ別検索用
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  UNPAID
 }
 
-model QuestionOption {
-  id         String   @id @default(cuid())
-  text       String   @db.Text
-  order      Int      @db.SmallInt // 順序番号
-  isCorrect  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  // Relations
-  questionId String
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
-  // Indexes for performance optimization
-  @@index([questionId])
-  @@index([questionId, order]) // 問題内での順序検索用
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  UNCOLLECTIBLE
 }
 
-model Tag {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  color     String?   // タグの色
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  // Relations
-  quizzes   QuizTag[]
+enum ResourceType {
+  QUIZ
+  RESPONSE
+  STORAGE
+  MEMBER
 }
 
-model QuizTag {
-  id     String @id @default(cuid())
-  quizId String
-  tagId  String
-  
-  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  
-  @@unique([quizId, tagId])
-  @@index([quizId])
-  @@index([tagId])
+enum FeatureCategory {
+  BASIC
+  PRO
+  ENTERPRISE
 }
 
-model QuizResponse {
-  id          String   @id @default(cuid())
-  score       Int?     @db.SmallInt // 自動採点の場合のスコア (0-100)
-  totalPoints Int      @db.SmallInt // 満点
-  isPassed    Boolean? // 合格判定
-  startedAt   DateTime @default(now())
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Relations
-  quizId      String
-  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  userId      String?  // 匿名回答の場合はnull
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  responses   QuestionResponse[]
-  
-  // Indexes for performance optimization
-  @@index([quizId])
-  @@index([userId])
-  @@index([completedAt])
-  @@index([quizId, completedAt]) // クイズ別完了日時検索用
-  @@index([quizId, isPassed]) // 合格状況検索用
-}
-
-model QuestionResponse {
-  id         String   @id @default(cuid())
-  answer     Json     // 回答データ（問題タイプによって形式が異なる）
-  score      Int?     @db.SmallInt // 採点結果
-  isCorrect  Boolean? // 正解判定
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  // Relations
-  quizResponseId String
-  quizResponse   QuizResponse @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
-  questionId     String
-  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  
-  // Constraints and indexes
-  @@unique([quizResponseId, questionId])
-  @@index([quizResponseId])
-  @@index([questionId])
-  @@index([isCorrect]) // 正解率分析用
+enum FeatureType {
+  TRUE_FALSE_QUESTION
+  SINGLE_CHOICE_QUESTION
+  MULTIPLE_CHOICE_QUESTION
+  FREE_TEXT_QUESTION
+  ADVANCED_QUESTION_TYPES
+  AUTO_GRADING
+  MANUAL_GRADING
+  PASSWORD_PROTECTION
+  PERMISSIONS_MANAGEMENT
+  AUDIT_LOG
+  SUBDOMAIN
+  CUSTOM_DESIGN
+  CUSTOM_DEVELOPMENT
+  MEDIA_UPLOAD
+  QUESTION_BANK
+  SECTIONS
+  ANALYTICS
+  EXCEL_EXPORT
+  CERTIFICATES
+  AI_QUIZ_GENERATION
+  TEAM_MANAGEMENT
+  PRIORITY_SUPPORT
+  SLA_GUARANTEE
+  ON_PREMISE
 }

@@ -7,7 +7,7 @@ interface PlanComparisonState {
 }
 
 export const usePlanComparisonStore = create<PlanComparisonState>(set => ({
-  isAnnual: false,
+  isAnnual: true,
   toggleBilling: () => set(state => ({ isAnnual: !state.isAnnual })),
   setBilling: (isAnnual: boolean) => set({ isAnnual }),
 }));

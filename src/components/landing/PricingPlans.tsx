@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Check, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { PlanToggle } from '@/components/plan/PlanToggle';
+import { PlanToggle } from '@/components/plans/PlanToggle';
 import { usePlanComparisonStore } from '@/stores/usePlanComparisonStore';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
 
@@ -149,7 +149,7 @@ export function PricingPlans({ lng }: PricingPlansProps) {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative rounded-2xl border-2 p-8 ${
+              className={`relative flex h-full flex-col rounded-2xl border-2 p-8 ${
                 plan.popular
                   ? 'border-examforge-orange shadow-xl'
                   : 'border-gray-200'
@@ -194,64 +194,68 @@ export function PricingPlans({ lng }: PricingPlansProps) {
                 </p>
               </div>
 
-              {plan.features.length > 0 && (
-                <>
-                  <div className="mb-4 border-t pt-4">
-                    <span className="font-semibold">
-                      {t('pricing.plans.features.included')}:
-                    </span>
-                  </div>
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
+              <div className="flex-1">
+                {plan.features.length > 0 && (
+                  <>
+                    <div className="mb-4 border-t pt-4">
+                      <span className="font-semibold">
+                        {t('pricing.plans.features.included')}:
+                      </span>
+                    </div>
+                    <ul className="space-y-3">
+                      {plan.features.map((feature, featureIndex) => (
+                        <li
+                          key={featureIndex}
+                          className="flex items-start"
+                          data-testid={`plan-feature-${index}-${featureIndex}`}
+                        >
+                          <Check className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+
+                {plan.notIncluded.length > 0 && (
+                  <ul className="mt-4 space-y-3">
+                    {plan.notIncluded.map((feature, featureIndex) => (
                       <li
                         key={featureIndex}
                         className="flex items-start"
-                        data-testid={`plan-feature-${index}-${featureIndex}`}
+                        data-testid={`plan-not-included-${index}-${featureIndex}`}
                       >
-                        <Check className="mr-3 h-5 w-5 flex-shrink-0 text-green-500" />
-                        <span className="text-sm">{feature}</span>
+                        <X className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400" />
+                        <span className="text-sm text-gray-500">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                </>
-              )}
-
-              {plan.notIncluded.length > 0 && (
-                <ul className="mt-4 space-y-3">
-                  {plan.notIncluded.map((feature, featureIndex) => (
-                    <li
-                      key={featureIndex}
-                      className="flex items-start"
-                      data-testid={`plan-not-included-${index}-${featureIndex}`}
-                    >
-                      <X className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400" />
-                      <span className="text-sm text-gray-500">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <div className="mt-8">
-                <Button
-                  className={`w-full ${
-                    plan.color === 'examforge-orange'
-                      ? 'bg-examforge-orange hover:bg-examforge-orange/90'
-                      : plan.color === 'examforge-blue-dark'
-                        ? 'bg-examforge-blue-dark hover:bg-examforge-blue-dark/90'
-                        : 'bg-examforge-blue hover:bg-examforge-blue/90'
-                  }`}
-                  variant={
-                    plan.name === t('pricing.plans.enterprise.name')
-                      ? 'outline'
-                      : 'default'
-                  }
-                  data-testid={`plan-cta-${index}`}
-                >
-                  {plan.cta}
-                </Button>
+                )}
               </div>
             </div>
           ))}
+        </AnimatedSection>
+
+        <AnimatedSection
+          animation="fadeInUp"
+          delay={500}
+          className="mt-16 flex flex-col justify-center gap-4 sm:flex-row"
+        >
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-examforge-blue text-examforge-blue hover:bg-examforge-blue hover:text-white"
+            onClick={() => (window.location.href = `/${lng}/plans`)}
+          >
+            {t('pricing.viewDetails')}
+          </Button>
+          <Button
+            size="lg"
+            className="bg-examforge-orange hover:bg-examforge-orange/90 text-white"
+            onClick={() => (window.location.href = `/${lng}/auth/signin`)}
+          >
+            {t('pricing.cta')}
+          </Button>
         </AnimatedSection>
 
         <AnimatedSection animation="fadeInUp" delay={600}>

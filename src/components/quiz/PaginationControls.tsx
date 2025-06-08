@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +20,7 @@ interface PaginationControlsProps {
 export function PaginationControls({ pagination }: PaginationControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('ui.pagination');
 
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -77,7 +79,7 @@ export function PaginationControls({ pagination }: PaginationControlsProps) {
         className="flex items-center"
       >
         <ChevronLeft className="mr-1 h-4 w-4" />
-        前へ
+        {t('previous')}
       </Button>
 
       <div className="flex items-center space-x-1">
@@ -106,7 +108,7 @@ export function PaginationControls({ pagination }: PaginationControlsProps) {
         disabled={page >= totalPages}
         className="flex items-center"
       >
-        次へ
+        {t('next')}
         <ChevronRight className="ml-1 h-4 w-4" />
       </Button>
     </div>

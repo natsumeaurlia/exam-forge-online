@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Plus, Grid3X3, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,13 +17,14 @@ export function QuizListHeader() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [itemsPerPage, setItemsPerPage] = useState('12');
+  const t = useTranslations('quizManagement.listHeader');
 
   return (
     <div className="mb-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">クイズ管理</h1>
-          <p className="mt-1 text-gray-600">作成したクイズの管理と編集</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+          <p className="mt-1 text-gray-600">{t('subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -31,7 +33,7 @@ export function QuizListHeader() {
             className="bg-blue-600 text-white hover:bg-blue-700"
           >
             <Plus className="mr-2 h-4 w-4" />
-            新規クイズ作成
+            {t('createNewQuiz')}
           </Button>
         </div>
       </div>
@@ -39,7 +41,9 @@ export function QuizListHeader() {
       <div className="flex flex-col gap-4 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">表示:</span>
+            <span className="text-sm font-medium text-gray-700">
+              {t('view')}:
+            </span>
             <div className="flex rounded-md border">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -63,7 +67,9 @@ export function QuizListHeader() {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">表示件数:</span>
+            <span className="text-sm font-medium text-gray-700">
+              {t('itemsPerPage')}:
+            </span>
             <Select value={itemsPerPage} onValueChange={setItemsPerPage}>
               <SelectTrigger className="w-20">
                 <SelectValue />

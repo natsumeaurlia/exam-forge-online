@@ -76,11 +76,15 @@ export function RecentQuizCard({ lng }: RecentQuizCardProps) {
   const getStatusBadge = (status: Quiz['status']) => {
     switch (status) {
       case 'published':
-        return <Badge className="bg-green-100 text-green-800">公開中</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            {t('statusBadge.published')}
+          </Badge>
+        );
       case 'draft':
-        return <Badge variant="secondary">下書き</Badge>;
+        return <Badge variant="secondary">{t('statusBadge.draft')}</Badge>;
       case 'archived':
-        return <Badge variant="outline">アーカイブ</Badge>;
+        return <Badge variant="outline">{t('statusBadge.archived')}</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -101,7 +105,7 @@ export function RecentQuizCard({ lng }: RecentQuizCardProps) {
         <CardTitle className="flex items-center justify-between">
           <span>{t('title')}</span>
           <Button variant="outline" size="sm">
-            すべて表示
+            {t('viewAll')}
           </Button>
         </CardTitle>
       </CardHeader>
@@ -125,8 +129,10 @@ export function RecentQuizCard({ lng }: RecentQuizCardProps) {
                     <Calendar className="h-3 w-3" />
                     <span>{formatDate(quiz.createdAt)}</span>
                   </div>
-                  <span>問題数: {quiz.questions}</span>
-                  <span>受験者: {quiz.participants}人</span>
+                  <span>{t('questionsCount', { count: quiz.questions })}</span>
+                  <span>
+                    {t('participantsCount', { count: quiz.participants })}
+                  </span>
                 </div>
               </div>
 
@@ -146,11 +152,13 @@ export function RecentQuizCard({ lng }: RecentQuizCardProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>複製</DropdownMenuItem>
-                    <DropdownMenuItem>共有</DropdownMenuItem>
-                    <DropdownMenuItem>エクスポート</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      {t('actions.duplicate')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>{t('actions.share')}</DropdownMenuItem>
+                    <DropdownMenuItem>{t('actions.export')}</DropdownMenuItem>
                     <DropdownMenuItem className="text-red-600">
-                      削除
+                      {t('actions.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

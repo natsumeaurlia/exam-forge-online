@@ -5,11 +5,13 @@
     "demo": "View Demo",
     "features": "Features",
     "pricing": "Pricing",
+    "plans": "Plan Details",
     "faq": "FAQ",
     "proLabel": "PRO",
     "languages": {
       "japanese": "Japanese",
-      "english": "English"
+      "english": "English",
+      "switchLanguage": "Switch language"
     },
     "footer": {
       "description": "A simple and easy-to-use online quiz and exam creation platform for educational institutions and businesses.",
@@ -263,26 +265,31 @@
       "features": {
         "included": "Features Included",
         "quizzes": {
+          "label": "Quiz Creation",
           "free": "Quizzes: up to 5",
           "pro": "Quizzes: unlimited",
           "enterprise": "Quizzes: unlimited"
         },
         "members": {
+          "label": "Team Members",
           "free": "Members: up to 3",
           "pro": "Members: up to 20",
           "enterprise": "Members: unlimited"
         },
         "questions": {
+          "label": "Questions per Quiz",
           "free": "Questions: 20 per quiz",
           "pro": "Questions: 200 per quiz",
           "enterprise": "Questions: unlimited"
         },
         "responses": {
+          "label": "Monthly Responses",
           "free": "Responses: 100 per month/quiz",
           "pro": "Responses: 3,000 per month/quiz",
           "enterprise": "Responses: unlimited"
         },
         "storage": {
+          "label": "Storage Capacity",
           "free": "Storage: 100MB",
           "pro": "Storage: 10GB",
           "enterprise": "Storage: unlimited"
@@ -336,7 +343,9 @@
         "cta": "Contact Us"
       }
     },
-    "guarantee": "All plans come with a 30-day money-back guarantee. Contact us if you have any questions."
+    "guarantee": "Pro and Enterprise plans include a 14-day free trial. Contact us if you have any questions.",
+    "viewDetails": "View Plans in Detail",
+    "cta": "Try Free Now"
   },
   "pages": {
     "contact": {
@@ -465,7 +474,7 @@
         },
         {
           "title": "Cancellation/Returns",
-          "content": "Due to the nature of digital services, returns are not accepted. However, a full refund guarantee is applicable within 30 days of the initial contract."
+          "content": "Due to the nature of digital services, returns are not accepted. However, paid plans include a 14-day free trial period."
         }
       ]
     }
@@ -560,7 +569,7 @@
       },
       "proUpgrade": {
         "question": "How do I upgrade to the Pro plan?",
-        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 30-day money-back guarantee."
+        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
       },
       "dataSecurity": {
         "question": "How secure is my data?",
@@ -589,7 +598,44 @@
     "welcome": "Welcome back, {name}",
     "overview": "Overview",
     "recentActivity": "Recent Activity",
-    "quickActions": "Quick Actions",
+    "quickActions": {
+      "title": "Quick Actions",
+      "createQuiz": {
+        "label": "Create New Quiz",
+        "description": "Quickly create a new quiz"
+      },
+      "inviteUsers": {
+        "label": "Invite Participants",
+        "description": "Invite team members"
+      },
+      "viewReports": {
+        "label": "View Reports",
+        "description": "View detailed analytics reports"
+      },
+      "manageSettings": {
+        "label": "Manage Settings",
+        "description": "Manage account settings"
+      },
+      "questionBank": {
+        "label": "Question Bank",
+        "description": "Manage question bank"
+      },
+      "memberManagement": {
+        "label": "Member Management",
+        "description": "Manage members"
+      },
+      "exportData": {
+        "label": "Export",
+        "description": "Export data"
+      },
+      "customizeTheme": {
+        "label": "Theme",
+        "description": "Customize theme"
+      },
+      "moreActions": "More Actions",
+      "needHelp": "Need help?",
+      "helpCenter": "Visit Help Center"
+    },
     "todaysTasks": "Today's Tasks",
     "today": "Today",
     "tasksRemaining": "Remaining",
@@ -634,19 +680,93 @@
       "created": "Created",
       "status": "Status",
       "edit": "Edit",
-      "preview": "Preview"
+      "preview": "Preview",
+      "viewAll": "View All",
+      "questionsCount": "Questions: {count}",
+      "participantsCount": "Participants: {count}",
+      "statusBadge": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "actions": {
+        "duplicate": "Duplicate",
+        "share": "Share",
+        "export": "Export",
+        "delete": "Delete"
+      }
     },
     "activity": {
       "title": "Activity",
       "quizCreated": "Quiz was created",
       "quizCompleted": "Quiz was completed",
-      "userJoined": "New user joined"
+      "userJoined": "New user joined",
+      "viewAll": "View All Activity",
+      "timeAgo": {
+        "minutes": "{minutes} minutes ago",
+        "hours": "{hours} hours ago"
+      },
+      "types": {
+        "quizCompleted": {
+          "title": "Quiz Completed",
+          "description": "{user} completed {quiz}"
+        },
+        "quizCreated": {
+          "title": "Quiz Created",
+          "description": "New quiz {quiz} was created"
+        },
+        "userJoined": {
+          "title": "New User Joined",
+          "description": "{user} joined the team"
+        },
+        "quizEdited": {
+          "title": "Quiz Edited",
+          "description": "{quiz} questions were updated"
+        },
+        "quizShared": {
+          "title": "Quiz Shared",
+          "description": "{quiz} was shared with new members"
+        }
+      },
+      "metadata": {
+        "score": "Score: {score}%",
+        "participants": "Participants: {participants}"
+      }
     },
     "usage": {
       "title": "Usage",
       "quizLimit": "Quiz Limit",
       "participantLimit": "Participant Limit",
-      "upgrade": "Upgrade"
+      "upgrade": "Upgrade",
+      "units": {
+        "items": "items",
+        "peoplePerMonth": "people/month",
+        "people": "people",
+        "mb": "MB"
+      },
+      "status": {
+        "nearLimit": "Near Limit",
+        "warning": "Warning",
+        "normal": "Normal"
+      },
+      "plans": {
+        "free": "Free Plan",
+        "pro": "Pro Plan",
+        "enterprise": "Enterprise"
+      },
+      "metrics": {
+        "quizzes": "Quizzes",
+        "participants": "Monthly Participants",
+        "storage": "Storage",
+        "members": "Members"
+      },
+      "percentUsed": "{percent}% used",
+      "remaining": "Remaining: {amount} {unit}",
+      "upgradePrompt": "Want to use more features?",
+      "upgradeDescription": "Upgrade to Pro plan for unlimited quiz creation, advanced analytics, AI auto-generation, and more.",
+      "priceFrom": "$29/month",
+      "from": "from",
+      "showDetails": "Show detailed usage"
     },
     "actions": {
       "title": "Quick Actions",
@@ -655,5 +775,280 @@
       "viewReports": "View Reports",
       "manageSettings": "Manage Settings"
     }
+  },
+  "plans": {
+    "meta": {
+      "title": "Pricing Plan Comparison | ExamForge",
+      "description": "Compare ExamForge pricing plans in detail. Review features and pricing for Free, Pro, and Enterprise plans."
+    },
+    "title": "Find the Perfect Plan for You",
+    "subtitle": "Pro and Enterprise plans include a 14-day free trial. Upgrade or downgrade anytime.",
+    "features": {
+      "feature": "Feature",
+      "basic": "Basic Features",
+      "question_types": "Question Types",
+      "advanced": "Advanced Features",
+      "enterprise_only": "Enterprise Only",
+      "quizzes": {
+        "label": "Quiz Creation"
+      },
+      "members": {
+        "label": "Team Members"
+      },
+      "questions": {
+        "label": "Questions per Quiz"
+      },
+      "responses": {
+        "label": "Monthly Responses"
+      },
+      "storage": {
+        "label": "Storage Capacity"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "billing": {
+        "question": "What's the difference between annual and monthly billing?",
+        "answer": "Annual billing offers approximately 17% savings compared to monthly billing. Annual plans are billed yearly in advance, while monthly plans auto-renew each month. You can switch between billing cycles at any time."
+      },
+      "upgrade": {
+        "question": "How do I upgrade my plan?",
+        "answer": "Navigate to your dashboard settings and select 'Plan Management' to choose your desired plan. Upgrades take effect immediately and charges are prorated."
+      },
+      "downgrade": {
+        "question": "Can I downgrade my plan?",
+        "answer": "Yes, you can downgrade anytime. The downgrade will take effect at your next renewal date. Your existing content remains accessible, but features exceeding the lower plan's limits will be restricted."
+      },
+      "trial": {
+        "question": "Is there a free trial?",
+        "answer": "The Free plan lets you test core features indefinitely. Additionally, paid plans include a 14-day free trial, so you can try them risk-free."
+      },
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept major credit cards (VISA, Mastercard, American Express, JCB). Enterprise plans also support bank transfers."
+      },
+      "cancel": {
+        "question": "How do I cancel my subscription?",
+        "answer": "Go to your dashboard settings, select 'Plan Management', and click 'Cancel Plan'. You'll retain access until the end of your current billing period."
+      },
+      "enterprise": {
+        "question": "Tell me more about Enterprise plans",
+        "answer": "Enterprise plans are custom solutions for large organizations. They include dedicated support, SLA guarantees, custom development options, and flexible pricing based on your specific needs. Contact us for details."
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
+      "button": "Start for Free",
+      "note": "No credit card required · Upgrade anytime"
+    }
+  },
+  "quizManagement": {
+    "cardActions": {
+      "openMenu": "Open menu",
+      "preview": "Preview",
+      "edit": "Edit",
+      "share": "Share",
+      "duplicate": "Duplicate",
+      "analytics": "Analytics",
+      "delete": "Delete"
+    },
+    "cardPresentation": {
+      "updated": "Updated"
+    },
+    "listContent": {
+      "errorLoading": "Failed to load quizzes",
+      "noQuizzes": "No quizzes found",
+      "noMatchingQuizzes": "No quizzes match your search criteria.",
+      "noQuizzesCreated": "No quizzes have been created yet. Create your first quiz to get started.",
+      "showingResults": "Showing {start}-{end} of {total} results",
+      "errorProcessing": "An error occurred while processing parameters. Please reload the page."
+    },
+    "listHeader": {
+      "title": "Quiz Management",
+      "subtitle": "Manage and edit your created quizzes",
+      "createNewQuiz": "Create New Quiz",
+      "view": "View",
+      "itemsPerPage": "Items per page"
+    },
+    "search": {
+      "placeholder": "Search quizzes...",
+      "label": "Search:"
+    },
+    "filters": {
+      "status": {
+        "placeholder": "Status",
+        "all": "All",
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "sort": {
+        "placeholder": "Sort by",
+        "createdDesc": "Created (Newest)",
+        "createdAsc": "Created (Oldest)",
+        "updatedDesc": "Updated (Newest)",
+        "updatedAsc": "Updated (Oldest)",
+        "titleAsc": "Title (A-Z)",
+        "titleDesc": "Title (Z-A)",
+        "responsesDesc": "Responses (Most)",
+        "responsesAsc": "Responses (Least)"
+      },
+      "clear": "Clear",
+      "tags": "Tags:"
+    },
+    "createQuiz": {
+      "title": "Title *",
+      "titlePlaceholder": "Enter quiz title",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter quiz description (optional)",
+      "descriptionHelp": "This description will be shown to participants",
+      "scoringMode": "Scoring Mode",
+      "scoringModePlaceholder": "Select scoring mode",
+      "autoScoring": "Auto Scoring",
+      "manualScoring": "Manual Scoring",
+      "sharingMode": "Sharing Mode",
+      "sharingModePlaceholder": "Select sharing mode",
+      "urlSharing": "URL Sharing",
+      "passwordProtected": "Password Protected",
+      "password": "Password",
+      "passwordPlaceholder": "Enter access password",
+      "passwordHelp": "Participants will need this password to access the quiz"
+    },
+    "deleteDialog": {
+      "title": "Delete Quiz?",
+      "description": "Deleting will remove all related questions and response data. This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleteButton": "Delete",
+      "deleting": "Deleting..."
+    },
+    "createModal": {
+      "title": "Create New Quiz",
+      "create": "Create",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "createSuccess": "Quiz created successfully",
+      "createError": "Failed to create quiz"
+    },
+    "editor": {
+      "basicInfo": "Quiz Basic Information",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter quiz description",
+      "passingScore": "Passing Score (%)",
+      "scoringMode": "Scoring Mode",
+      "autoScoring": "Auto Scoring",
+      "manualScoring": "Manual Scoring",
+      "sharingSettings": "Sharing Settings",
+      "urlSharing": "URL Sharing",
+      "passwordProtected": "Password Protected",
+      "password": "Password:",
+      "tags": "Tags",
+      "addTag": "Add tag",
+      "addTagButton": "Add",
+      "coverImage": "Cover Image",
+      "coverImageAlt": "Cover image",
+      "uploadCoverImage": "Upload Cover Image (Pro Plan)",
+      "settings": "Quiz Settings",
+      "timeLimit": "Time Limit (minutes)",
+      "timeLimitPlaceholder": "Unlimited",
+      "shuffleQuestions": "Shuffle Questions",
+      "shuffleOptions": "Shuffle Options",
+      "maxAttempts": "Max Attempts",
+      "maxAttemptsPlaceholder": "Unlimited",
+      "proPlanFeature": "Pro Plan Feature",
+      "publish": {
+        "title": "Publish Quiz",
+        "subdomain": "Subdomain Settings",
+        "subdomainPlaceholder": "my-quiz",
+        "domainSuffix": ".quizservice.com",
+        "subdomainHelp": "3-30 characters, lowercase letters, numbers, and hyphens only",
+        "checking": "Checking...",
+        "available": "Available",
+        "unavailable": "Already in use",
+        "passwordProtectionInfo": "Password protection is enabled. Access password:",
+        "publicUrlInfo": "The quiz will be published at:",
+        "cancel": "Cancel",
+        "publishButton": "Publish",
+        "publishSuccess": "Quiz published successfully",
+        "publishError": "Failed to publish"
+      },
+      "header": {
+        "saveSuccess": "Saved successfully",
+        "saveError": "Failed to save",
+        "saving": "Saving...",
+        "savedAt": "Saved at",
+        "unsavedChanges": "Unsaved changes",
+        "preview": "Preview",
+        "publishSettings": "Publish Settings",
+        "save": "Save"
+      },
+      "questions": {
+        "empty": "No questions yet. Add questions from the toolbar above.",
+        "questionNumber": "Question {number}",
+        "noQuestionText": "(No question text)",
+        "points": "{points} points"
+      },
+      "questionTypes": {
+        "addQuestion": "Add Question",
+        "questionBank": "Question Bank",
+        "selectFromSaved": "Select from saved questions",
+        "proLabel": "PRO",
+        "truefalse": {
+          "label": "True/False",
+          "description": "Question about correctness"
+        },
+        "singlechoice": {
+          "label": "Single Choice",
+          "description": "Select one answer only"
+        },
+        "multiplechoice": {
+          "label": "Multiple Choice",
+          "description": "Select multiple answers"
+        },
+        "freetext": {
+          "label": "Free Text",
+          "description": "Text response question"
+        },
+        "fillinblank": {
+          "label": "Fill in the Blank",
+          "description": "Complete missing text"
+        },
+        "matching": {
+          "label": "Matching",
+          "description": "Match related items"
+        },
+        "ordering": {
+          "label": "Ordering",
+          "description": "Arrange in correct order"
+        },
+        "fileupload": {
+          "label": "File Upload",
+          "description": "Submit file as answer"
+        },
+        "diagram": {
+          "label": "Diagram Question",
+          "description": "Point to locations on diagram"
+        },
+        "numeric": {
+          "label": "Numeric Input",
+          "description": "Answer with numbers"
+        }
+      }
+    }
+  },
+  "ui": {
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "morePages": "More pages"
+    },
+    "breadcrumb": {
+      "more": "More"
+    }
+  },
+  "socialProof": {
+    "badge": "Track Record",
+    "title": "Adopted by Many Companies and Educational Institutions",
+    "subtitle": "ExamForge is utilized in corporate training and educational settings."
   }
 }

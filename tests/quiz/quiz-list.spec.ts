@@ -137,7 +137,7 @@ test.describe('クイズ一覧ページ', () => {
     await page.locator('text=URL共有').click();
 
     // 作成ボタンをクリック
-    await page.locator('button:has-text("作成して編集へ進む")').click();
+    await page.locator('button:has-text("作成する")').click();
 
     // 成功メッセージまたはリダイレクトを確認
     // 実際の実装に応じて調整

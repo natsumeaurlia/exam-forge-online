@@ -1,6 +1,5 @@
 'use client';
 
-import { z } from 'zod';
 import { Control } from 'react-hook-form';
 import { ScoringType, SharingMode } from '@prisma/client';
 import {
@@ -20,30 +19,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { CreateQuizFormData } from '@/types/quiz-schemas';
+import { useTranslations } from 'next-intl';
 
-// Schema definition
-export const createQuizFormSchema = z
-  .object({
-    title: z.string().min(1, 'タイトルは必須です'),
-    description: z.string().optional(),
-    scoringType: z.nativeEnum(ScoringType),
-    sharingMode: z.nativeEnum(SharingMode),
-    password: z.string().optional(),
-  })
-  .refine(
-    data => {
-      if (data.sharingMode === SharingMode.PASSWORD) {
-        return !!data.password && data.password.length >= 4;
-      }
-      return true;
-    },
-    {
-      message: 'パスワードは4文字以上で設定してください',
-      path: ['password'],
-    }
-  );
-
-export type CreateQuizFormData = z.infer<typeof createQuizFormSchema>;
+// Re-export from centralized schemas for backward compatibility
+export {
+  createQuizFormSchema,
+  type CreateQuizFormData,
+} from '@/types/quiz-schemas';
 
 export const defaultCreateQuizFormValues: CreateQuizFormData = {
   title: '',
@@ -64,6 +47,8 @@ export function CreateQuizFormFields({
   isLoading = false,
   watchSharingMode,
 }: CreateQuizFormFieldsProps) {
+  const t = useTranslations('quizManagement.createQuiz');
+
   return (
     <>
       <FormField
@@ -71,11 +56,11 @@ export function CreateQuizFormFields({
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>タイトル *</FormLabel>
+            <FormLabel>{t('title')}</FormLabel>
             <FormControl>
               <Input
                 {...field}
-                placeholder="クイズのタイトルを入力"
+                placeholder={t('titlePlaceholder')}
                 disabled={isLoading}
               />
             </FormControl>
@@ -89,16 +74,16 @@ export function CreateQuizFormFields({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>説明</FormLabel>
+            <FormLabel>{t('description')}</FormLabel>
             <FormControl>
               <Textarea
                 {...field}
-                placeholder="クイズの説明を入力（任意）"
+                placeholder={t('descriptionPlaceholder')}
                 disabled={isLoading}
                 rows={3}
               />
             </FormControl>
-            <FormDescription>受験者に表示される説明文です</FormDescription>
+            <FormDescription>{t('descriptionHelp')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -110,7 +95,7 @@ export function CreateQuizFormFields({
           name="scoringType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>採点モード</FormLabel>
+              <FormLabel>{t('scoringMode')}</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -118,12 +103,16 @@ export function CreateQuizFormFields({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="採点モードを選択" />
+                    <SelectValue placeholder={t('scoringModePlaceholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={ScoringType.AUTO}>自動採点</SelectItem>
-                  <SelectItem value={ScoringType.MANUAL}>手動採点</SelectItem>
+                  <SelectItem value={ScoringType.AUTO}>
+                    {t('autoScoring')}
+                  </SelectItem>
+                  <SelectItem value={ScoringType.MANUAL}>
+                    {t('manualScoring')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -136,7 +125,7 @@ export function CreateQuizFormFields({
           name="sharingMode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>共有モード</FormLabel>
+              <FormLabel>{t('sharingMode')}</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -144,13 +133,15 @@ export function CreateQuizFormFields({
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="共有モードを選択" />
+                    <SelectValue placeholder={t('sharingModePlaceholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={SharingMode.URL}>URL共有</SelectItem>
+                  <SelectItem value={SharingMode.URL}>
+                    {t('urlSharing')}
+                  </SelectItem>
                   <SelectItem value={SharingMode.PASSWORD}>
-                    パスワード保護
+                    {t('passwordProtected')}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -166,18 +157,16 @@ export function CreateQuizFormFields({
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>パスワード</FormLabel>
+              <FormLabel>{t('password')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="password"
-                  placeholder="アクセス用パスワードを入力"
+                  placeholder={t('passwordPlaceholder')}
                   disabled={isLoading}
                 />
               </FormControl>
-              <FormDescription>
-                受験者がクイズにアクセスする際に必要なパスワードです
-              </FormDescription>
+              <FormDescription>{t('passwordHelp')}</FormDescription>
               <FormMessage />
             </FormItem>
           )}

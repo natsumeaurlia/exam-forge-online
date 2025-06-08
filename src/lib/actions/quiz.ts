@@ -1,143 +1,34 @@
 'use server';
 
 import { createSafeActionClient } from 'next-safe-action';
-import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { correctAnswerSchema } from '@/types/quiz-schemas';
-
 import {
-  QuizStatus,
-  ScoringType,
-  SharingMode,
-  QuestionType,
-} from '@prisma/client';
+  createQuizSchema,
+  updateQuizSchema,
+  deleteQuizSchema,
+  publishQuizSchema,
+  getQuizzesSchema,
+  addQuestionSchema,
+  updateQuestionSchema,
+  deleteQuestionSchema,
+  reorderQuestionsSchema,
+  checkSubdomainSchema,
+} from '@/types/quiz-schemas';
+import { QuizStatus, QuestionType } from '@prisma/client';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
 
-// バリデーションスキーマ
-const createQuizSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'タイトルは必須です')
-    .max(200, 'タイトルは200文字以内で入力してください'),
-  description: z.string().optional(),
-  scoringType: z.nativeEnum(ScoringType),
-  sharingMode: z.nativeEnum(SharingMode),
-  password: z.string().optional(),
-});
-
-const updateQuizSchema = z.object({
-  id: z.string(),
-  title: z
-    .string()
-    .min(1, 'タイトルは必須です')
-    .max(200, 'タイトルは200文字以内で入力してください')
-    .optional(),
-  description: z.string().optional(),
-  passingScore: z.number().min(0).max(100).optional(),
-  coverImage: z.string().optional(),
-  subdomain: z
-    .string()
-    .min(3, 'サブドメインは3文字以上必要です')
-    .max(30, 'サブドメインは30文字以下にしてください')
-    .regex(/^[a-z0-9-]+$/, '小文字、数字、ハイフンのみ使用可能です')
-    .optional(),
-  timeLimit: z.number().min(1).optional(),
-  shuffleQuestions: z.boolean().optional(),
-  shuffleOptions: z.boolean().optional(),
-  maxAttempts: z.number().min(1).optional(),
-});
-
-const deleteQuizSchema = z.object({
-  id: z.string(),
-});
-
-const publishQuizSchema = z.object({
-  id: z.string(),
-  subdomain: z
-    .string()
-    .min(3, 'サブドメインは3文字以上必要です')
-    .max(30, 'サブドメインは30文字以下にしてください')
-    .regex(/^[a-z0-9-]+$/, '小文字、数字、ハイフンのみ使用可能です'),
-});
-
-const getQuizzesSchema = z.object({
-  page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(10),
-  search: z.string().optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
-  sortBy: z
-    .enum(['title', 'createdAt', 'updatedAt', 'responseCount'])
-    .default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-  tags: z.array(z.string()).optional(),
-});
-
-const addQuestionSchema = z.object({
-  quizId: z.string(),
-  type: z.enum([
-    'TRUE_FALSE',
-    'MULTIPLE_CHOICE',
-    'CHECKBOX',
-    'SHORT_ANSWER',
-    'SORTING',
-    'FILL_IN_BLANK',
-    'DIAGRAM',
-    'MATCHING',
-    'NUMERIC',
-  ]),
-  text: z.string().min(1, '問題文は必須です'),
-  points: z.number().min(1).default(1),
-  hint: z.string().optional(),
-  explanation: z.string().optional(),
-  options: z
-    .array(
-      z.object({
-        text: z.string().min(1, '選択肢は必須です'),
-        isCorrect: z.boolean().default(false),
-      })
-    )
-    .optional(),
-  correctAnswer: correctAnswerSchema.optional(),
-  sectionId: z.string().optional(),
-});
-
-const updateQuestionSchema = z.object({
-  id: z.string(),
-  text: z.string().min(1, '問題文は必須です').optional(),
-  points: z.number().min(1).optional(),
-  hint: z.string().optional(),
-  explanation: z.string().optional(),
-  correctAnswer: correctAnswerSchema.optional(),
-  options: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        text: z.string().min(1, '選択肢は必須です'),
-        isCorrect: z.boolean().default(false),
-      })
-    )
-    .optional(),
-});
-
-const deleteQuestionSchema = z.object({
-  id: z.string(),
-});
-
-const reorderQuestionsSchema = z.object({
-  quizId: z.string(),
-  questionIds: z.array(z.string()),
-});
-
 // Helper function to get authenticated user
 async function getAuthenticatedUser() {
   const session = await getServerSession(authOptions);
+  console.log('Session in getAuthenticatedUser:', session);
   if (!session?.user?.id) {
+    console.error('No user ID in session:', session);
     throw new Error('認証が必要です');
   }
   return session.user.id;
@@ -153,10 +44,10 @@ export const createQuiz = action
       const quiz = await prisma.quiz.create({
         data: {
           title: data.title,
-          description: data.description,
+          description: data.description || null,
           scoringType: data.scoringType,
           sharingMode: data.sharingMode,
-          password: data.password,
+          password: data.password || null,
           userId,
         },
       });
@@ -164,6 +55,11 @@ export const createQuiz = action
       revalidatePath('/dashboard/quizzes');
       return { quiz };
     } catch (error) {
+      console.error('Quiz creation error:', error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error('Prisma error code:', error.code);
+        console.error('Prisma error meta:', error.meta);
+      }
       throw new Error('クイズの作成に失敗しました');
     }
   });
@@ -592,7 +488,7 @@ export const reorderQuestions = action
 
 // サブドメイン利用可能チェック
 export const checkSubdomainAvailability = action
-  .schema(z.object({ subdomain: z.string() }))
+  .schema(checkSubdomainSchema)
   .action(async ({ parsedInput: data }) => {
     try {
       const existingQuiz = await prisma.quiz.findFirst({
@@ -606,3 +502,42 @@ export const checkSubdomainAvailability = action
       throw new Error('サブドメインの確認に失敗しました');
     }
   });
+
+// クイズ詳細取得（編集用）
+export async function getQuizForEdit(quizId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error('認証が必要です');
+  }
+
+  const quiz = await prisma.quiz.findFirst({
+    where: {
+      id: quizId,
+      userId: session.user.id,
+    },
+    include: {
+      questions: {
+        include: {
+          options: {
+            orderBy: { order: 'asc' },
+          },
+        },
+        orderBy: { order: 'asc' },
+      },
+      sections: {
+        orderBy: { order: 'asc' },
+      },
+      tags: {
+        include: {
+          tag: true,
+        },
+      },
+    },
+  });
+
+  if (!quiz) {
+    throw new Error('クイズが見つからないか、編集権限がありません');
+  }
+
+  return quiz;
+}

@@ -1,47 +1,21 @@
 'use server';
 
 import { createSafeActionClient } from 'next-safe-action';
-import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  createTagSchema,
+  updateTagSchema,
+  deleteTagSchema,
+  addTagToQuizSchema,
+  removeTagFromQuizSchema,
+  getTagsSchema,
+} from '@/types/quiz-schemas';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
-
-// バリデーションスキーマ
-const createTagSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'タグ名は必須です')
-    .max(50, 'タグ名は50文字以内で入力してください'),
-  color: z.string().optional(),
-});
-
-const updateTagSchema = z.object({
-  id: z.string(),
-  name: z
-    .string()
-    .min(1, 'タグ名は必須です')
-    .max(50, 'タグ名は50文字以内で入力してください')
-    .optional(),
-  color: z.string().optional(),
-});
-
-const deleteTagSchema = z.object({
-  id: z.string(),
-});
-
-const addTagToQuizSchema = z.object({
-  quizId: z.string(),
-  tagId: z.string(),
-});
-
-const removeTagFromQuizSchema = z.object({
-  quizId: z.string(),
-  tagId: z.string(),
-});
 
 // Helper function to get authenticated user
 async function getAuthenticatedUser() {
@@ -180,7 +154,7 @@ export const removeTagFromQuiz = action
   });
 
 // タグ一覧取得
-export const getTags = action.schema(z.object({})).action(async () => {
+export const getTags = action.schema(getTagsSchema).action(async () => {
   await getAuthenticatedUser();
 
   try {

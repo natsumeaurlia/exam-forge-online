@@ -47,8 +47,11 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     {
       id: '1',
       type: 'quiz_completed',
-      title: 'クイズが完了されました',
-      description: '田中太郎さんが「マーケティング基礎」を完了しました',
+      title: t('types.quizCompleted.title'),
+      description: t('types.quizCompleted.description', {
+        user: '田中太郎',
+        quiz: 'マーケティング基礎',
+      }),
       timestamp: '2025-06-01T05:30:00Z',
       user: {
         name: '田中太郎',
@@ -62,8 +65,10 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     {
       id: '2',
       type: 'quiz_created',
-      title: 'クイズが作成されました',
-      description: '新しいクイズ「JavaScript基礎」が作成されました',
+      title: t('types.quizCreated.title'),
+      description: t('types.quizCreated.description', {
+        quiz: 'JavaScript基礎',
+      }),
       timestamp: '2025-06-01T04:15:00Z',
       user: {
         name: '山田花子',
@@ -76,8 +81,8 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     {
       id: '3',
       type: 'user_joined',
-      title: '新しいユーザーが参加しました',
-      description: '佐藤次郎さんがチームに参加しました',
+      title: t('types.userJoined.title'),
+      description: t('types.userJoined.description', { user: '佐藤次郎' }),
       timestamp: '2025-06-01T03:45:00Z',
       user: {
         name: '佐藤次郎',
@@ -87,8 +92,10 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     {
       id: '4',
       type: 'quiz_edited',
-      title: 'クイズが編集されました',
-      description: '「プロジェクト管理基礎」の問題が更新されました',
+      title: t('types.quizEdited.title'),
+      description: t('types.quizEdited.description', {
+        quiz: 'プロジェクト管理基礎',
+      }),
       timestamp: '2025-06-01T02:20:00Z',
       user: {
         name: '鈴木一郎',
@@ -101,8 +108,10 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     {
       id: '5',
       type: 'quiz_shared',
-      title: 'クイズが共有されました',
-      description: '「データ分析入門」が新しいメンバーと共有されました',
+      title: t('types.quizShared.title'),
+      description: t('types.quizShared.description', {
+        quiz: 'データ分析入門',
+      }),
       timestamp: '2025-06-01T01:10:00Z',
       user: {
         name: '高橋美咲',
@@ -140,9 +149,9 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
     );
 
     if (diffInMinutes < 60) {
-      return `${diffInMinutes}分前`;
+      return t('timeAgo.minutes', { minutes: diffInMinutes });
     } else if (diffInMinutes < 1440) {
-      return `${Math.floor(diffInMinutes / 60)}時間前`;
+      return t('timeAgo.hours', { hours: Math.floor(diffInMinutes / 60) });
     } else {
       return date.toLocaleDateString(lng === 'ja' ? 'ja-JP' : 'en-US', {
         month: 'short',
@@ -202,10 +211,18 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
                 {activity.metadata && (
                   <div className="mt-2 text-xs text-gray-500">
                     {activity.metadata.score && (
-                      <span>スコア: {activity.metadata.score}%</span>
+                      <span>
+                        {t('metadata.score', {
+                          score: activity.metadata.score,
+                        })}
+                      </span>
                     )}
                     {activity.metadata.participants && (
-                      <span>参加者: {activity.metadata.participants}人</span>
+                      <span>
+                        {t('metadata.participants', {
+                          participants: activity.metadata.participants,
+                        })}
+                      </span>
                     )}
                   </div>
                 )}
@@ -216,7 +233,7 @@ export function ActivityTimeline({ lng }: ActivityTimelineProps) {
 
         <div className="mt-6 text-center">
           <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
-            すべてのアクティビティを表示
+            {t('viewAll')}
           </button>
         </div>
       </CardContent>

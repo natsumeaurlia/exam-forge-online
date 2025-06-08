@@ -30,7 +30,7 @@ interface QuickActionButtonProps {
 }
 
 export function QuickActionButton({ lng }: QuickActionButtonProps) {
-  const t = useTranslations('dashboard.actions');
+  const t = useTranslations('dashboard.quickActions');
 
   const quickActions: QuickAction[] = [
     {
@@ -38,7 +38,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: Plus,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 hover:bg-blue-100',
-      description: '新しいクイズを素早く作成',
+      description: t('createQuiz.description'),
       href: `/${lng}/quiz/create`,
     },
     {
@@ -46,10 +46,10 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: UserPlus,
       color: 'text-green-600',
       bgColor: 'bg-green-50 hover:bg-green-100',
-      description: 'チームメンバーを招待',
+      description: t('inviteUsers.description'),
       onClick: () => {
-        // 招待モーダルを開く処理
-        console.log('招待モーダルを開く');
+        // Open invite modal
+        console.log('Open invite modal');
       },
     },
     {
@@ -57,7 +57,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: BarChart3,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 hover:bg-purple-100',
-      description: '詳細な分析レポートを確認',
+      description: t('viewReports.description'),
       href: `/${lng}/reports`,
     },
     {
@@ -65,7 +65,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: Settings,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50 hover:bg-orange-100',
-      description: 'アカウント設定を管理',
+      description: t('manageSettings.description'),
       href: `/${lng}/settings`,
     },
   ];
@@ -77,7 +77,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: FileText,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-50 hover:bg-indigo-100',
-      description: '問題バンクを管理',
+      description: t('questionBank.description'),
       href: `/${lng}/question-bank`,
     },
     {
@@ -85,7 +85,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: Users,
       color: 'text-pink-600',
       bgColor: 'bg-pink-50 hover:bg-pink-100',
-      description: 'メンバー管理',
+      description: t('memberManagement.description'),
       href: `/${lng}/members`,
     },
     {
@@ -93,10 +93,10 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: Download,
       color: 'text-teal-600',
       bgColor: 'bg-teal-50 hover:bg-teal-100',
-      description: 'データをエクスポート',
+      description: t('exportData.description'),
       onClick: () => {
-        // エクスポート処理
-        console.log('データエクスポート');
+        // Export data
+        console.log('Export data');
       },
     },
     {
@@ -104,7 +104,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       icon: Palette,
       color: 'text-rose-600',
       bgColor: 'bg-rose-50 hover:bg-rose-100',
-      description: 'テーマをカスタマイズ',
+      description: t('customizeTheme.description'),
       href: `/${lng}/customize`,
     },
   ];
@@ -139,7 +139,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
                 </div>
                 <div className="text-center">
                   <div className="font-medium text-gray-900">
-                    {t(action.key as any) || action.key}
+                    {t(`${action.key}.label`)}
                   </div>
                   <div className="mt-1 text-xs text-gray-500">
                     {action.description}
@@ -153,7 +153,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
         {/* 追加アクション */}
         <div className="border-t pt-4">
           <h4 className="mb-3 text-sm font-medium text-gray-700">
-            その他のアクション
+            {t('moreActions')}
           </h4>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {additionalActions.map(action => {
@@ -168,10 +168,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
                 >
                   <Icon className={`h-4 w-4 ${action.color}`} />
                   <span className="text-center text-xs leading-tight text-gray-700">
-                    {action.key === 'questionBank' && '問題バンク'}
-                    {action.key === 'memberManagement' && 'メンバー管理'}
-                    {action.key === 'exportData' && 'エクスポート'}
-                    {action.key === 'customizeTheme' && 'テーマ'}
+                    {t(`${action.key}.label`)}
                   </span>
                 </Button>
               );
@@ -181,9 +178,9 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
 
         {/* ヘルプリンク */}
         <div className="mt-6 border-t pt-4 text-center">
-          <p className="mb-2 text-sm text-gray-500">使い方がわからない場合は</p>
+          <p className="mb-2 text-sm text-gray-500">{t('needHelp')}</p>
           <Button variant="link" size="sm" className="text-blue-600">
-            ヘルプセンターを見る
+            {t('helpCenter')}
           </Button>
         </div>
       </CardContent>

@@ -36,7 +36,6 @@ export function QuizCardContainer({
         questionsCount={quiz._count?.questions || 0}
         responsesCount={quiz._count?.responses || 0}
         tags={quiz.tags?.map(qt => qt.tag) || []}
-        createdAt={quiz.createdAt}
         updatedAt={quiz.updatedAt}
         onPreview={actions.handlePreview}
         onEdit={actions.handleEdit}

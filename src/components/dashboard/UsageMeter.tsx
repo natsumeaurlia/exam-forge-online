@@ -31,28 +31,28 @@ export function UsageMeter({ lng }: UsageMeterProps) {
       key: 'quizzes',
       current: 3,
       limit: 5,
-      unit: '個',
+      unit: t('units.items'),
       color: 'bg-blue-500',
     },
     {
       key: 'participants',
       current: 247,
       limit: 300,
-      unit: '人/月',
+      unit: t('units.peoplePerMonth'),
       color: 'bg-green-500',
     },
     {
       key: 'storage',
       current: 45,
       limit: 100,
-      unit: 'MB',
+      unit: t('units.mb'),
       color: 'bg-purple-500',
     },
     {
       key: 'members',
       current: 2,
       limit: 3,
-      unit: '人',
+      unit: t('units.people'),
       color: 'bg-orange-500',
     },
   ];
@@ -63,20 +63,32 @@ export function UsageMeter({ lng }: UsageMeterProps) {
 
   const getUsageStatus = (percentage: number) => {
     if (percentage >= 90)
-      return { color: 'text-red-600', bg: 'bg-red-100', label: '上限間近' };
+      return {
+        color: 'text-red-600',
+        bg: 'bg-red-100',
+        label: t('status.nearLimit'),
+      };
     if (percentage >= 70)
-      return { color: 'text-yellow-600', bg: 'bg-yellow-100', label: '注意' };
-    return { color: 'text-green-600', bg: 'bg-green-100', label: '正常' };
+      return {
+        color: 'text-yellow-600',
+        bg: 'bg-yellow-100',
+        label: t('status.warning'),
+      };
+    return {
+      color: 'text-green-600',
+      bg: 'bg-green-100',
+      label: t('status.normal'),
+    };
   };
 
   const getPlanName = (plan: string) => {
     switch (plan) {
       case 'free':
-        return 'フリープラン';
+        return t('plans.free');
       case 'pro':
-        return 'プロプラン';
+        return t('plans.pro');
       case 'enterprise':
-        return 'エンタープライズ';
+        return t('plans.enterprise');
       default:
         return plan;
     }
@@ -85,13 +97,13 @@ export function UsageMeter({ lng }: UsageMeterProps) {
   const getUsageLabel = (key: string) => {
     switch (key) {
       case 'quizzes':
-        return 'クイズ数';
+        return t('metrics.quizzes');
       case 'participants':
-        return '月間受験者数';
+        return t('metrics.participants');
       case 'storage':
-        return 'ストレージ';
+        return t('metrics.storage');
       case 'members':
-        return 'メンバー数';
+        return t('metrics.members');
       default:
         return key;
     }
@@ -144,10 +156,14 @@ export function UsageMeter({ lng }: UsageMeterProps) {
                 </div>
 
                 <div className="flex justify-between text-xs text-gray-500">
-                  <span>{percentage.toFixed(1)}% 使用中</span>
                   <span>
-                    残り: {(item.limit - item.current).toLocaleString()}{' '}
-                    {item.unit}
+                    {t('percentUsed', { percent: percentage.toFixed(1) })}
+                  </span>
+                  <span>
+                    {t('remaining', {
+                      amount: (item.limit - item.current).toLocaleString(),
+                      unit: item.unit,
+                    })}
                   </span>
                 </div>
               </div>
@@ -162,19 +178,19 @@ export function UsageMeter({ lng }: UsageMeterProps) {
               <div className="flex items-center space-x-2">
                 <Zap className="h-5 w-5 text-blue-600" />
                 <span className="font-semibold text-blue-900">
-                  より多くの機能を利用しませんか？
+                  {t('upgradePrompt')}
                 </span>
               </div>
             </div>
 
             <p className="mb-4 text-sm text-blue-700">
-              プロプランにアップグレードして、無制限のクイズ作成、高度な分析、AI自動生成などの機能をご利用ください。
+              {t('upgradeDescription')}
             </p>
 
             <div className="flex items-center justify-between">
               <div className="text-sm text-blue-600">
-                <span className="font-semibold">¥2,980/月</span>
-                <span className="ml-1">から</span>
+                <span className="font-semibold">{t('priceFrom')}</span>
+                <span className="ml-1">{t('from')}</span>
               </div>
 
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
@@ -188,7 +204,7 @@ export function UsageMeter({ lng }: UsageMeterProps) {
         {/* 使用量の詳細リンク */}
         <div className="text-center">
           <button className="text-sm text-gray-600 underline hover:text-gray-800">
-            詳細な使用状況を表示
+            {t('showDetails')}
           </button>
         </div>
       </CardContent>

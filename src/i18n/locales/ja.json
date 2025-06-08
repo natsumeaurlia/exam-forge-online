@@ -5,11 +5,13 @@
     "demo": "デモを見る",
     "features": "機能",
     "pricing": "料金プラン",
+    "plans": "プラン詳細",
     "faq": "よくある質問",
     "proLabel": "PRO",
     "languages": {
       "japanese": "日本語",
-      "english": "English"
+      "english": "English",
+      "switchLanguage": "言語を切り替える"
     },
     "footer": {
       "description": "教育機関や企業向けのシンプルで使いやすいオンラインクイズ・試験作成プラットフォーム。",
@@ -263,26 +265,31 @@
       "features": {
         "included": "含まれる機能",
         "quizzes": {
+          "label": "クイズ作成数",
           "free": "クイズ作成数: 5件まで",
           "pro": "クイズ作成数: 無制限",
           "enterprise": "クイズ作成数: 無制限"
         },
         "members": {
+          "label": "メンバー数",
           "free": "メンバー数: 最大3人",
           "pro": "メンバー数: 最大20人",
           "enterprise": "メンバー数: 無制限"
         },
         "questions": {
+          "label": "問題数/クイズ",
           "free": "問題数: クイズあたり20問まで",
           "pro": "問題数: クイズあたり200問まで",
           "enterprise": "問題数: 無制限"
         },
         "responses": {
+          "label": "回答上限/月",
           "free": "回答上限: クイズあたり月100回まで",
           "pro": "回答上限: クイズあたり月3,000回まで",
           "enterprise": "回答上限: 無制限"
         },
         "storage": {
+          "label": "ストレージ容量",
           "free": "ストレージ: 100MB",
           "pro": "ストレージ: 10GB",
           "enterprise": "ストレージ: 無制限"
@@ -336,7 +343,9 @@
         "cta": "お問い合わせ"
       }
     },
-    "guarantee": "すべてのプランに30日間の返金保証付き。不明点はお問い合わせください。"
+    "guarantee": "プロプランとエンタープライズプランには14日間の無料トライアル付き。不明点はお問い合わせください。",
+    "viewDetails": "プランを詳しく見る",
+    "cta": "今すぐ無料で使ってみる"
   },
   "pages": {
     "contact": {
@@ -465,7 +474,7 @@
         },
         {
           "title": "キャンセル・返品",
-          "content": "デジタルサービスの性質上、返品はお受けできません。ただし、初回契約から30日以内であれば全額返金保証を適用いたします。"
+          "content": "デジタルサービスの性質上、返品はお受けできません。ただし、有料プランには14日間の無料トライアル期間を設けています。"
         }
       ]
     }
@@ -560,7 +569,7 @@
       },
       "proUpgrade": {
         "question": "プロプランへのアップグレード方法は？",
-        "answer": "ダッシュボードの「設定」→「プラン管理」からアップグレードできます。クレジットカード情報を入力することで、すぐにプロプランの機能をご利用いただけます。30日間の返金保証もついています。"
+        "answer": "ダッシュボードの「設定」→「プラン管理」からアップグレードできます。クレジットカード情報を入力することで、すぐにプロプランの機能をご利用いただけます。14日間の無料トライアルもついています。"
       },
       "dataSecurity": {
         "question": "データのセキュリティについて教えてください",
@@ -589,7 +598,44 @@
     "welcome": "おかえりなさい、{name}さん",
     "overview": "概要",
     "recentActivity": "最近のアクティビティ",
-    "quickActions": "クイックアクション",
+    "quickActions": {
+      "title": "クイックアクション",
+      "createQuiz": {
+        "label": "新しいクイズを作成",
+        "description": "新しいクイズを素早く作成"
+      },
+      "inviteUsers": {
+        "label": "受験者を招待",
+        "description": "チームメンバーを招待"
+      },
+      "viewReports": {
+        "label": "レポートを表示",
+        "description": "詳細な分析レポートを表示"
+      },
+      "manageSettings": {
+        "label": "設定を管理",
+        "description": "アカウント設定を管理"
+      },
+      "questionBank": {
+        "label": "問題バンク",
+        "description": "問題バンクを管理"
+      },
+      "memberManagement": {
+        "label": "メンバー管理",
+        "description": "メンバーを管理"
+      },
+      "exportData": {
+        "label": "エクスポート",
+        "description": "データをエクスポート"
+      },
+      "customizeTheme": {
+        "label": "テーマ",
+        "description": "テーマをカスタマイズ"
+      },
+      "moreActions": "その他のアクション",
+      "needHelp": "お困りですか？",
+      "helpCenter": "ヘルプセンターへ"
+    },
     "todaysTasks": "今日のタスク",
     "today": "今日",
     "tasksRemaining": "残り",
@@ -598,7 +644,7 @@
     "profile": "プロフィール",
     "logout": "ログアウト",
     "recentAchievements": "最近の成果",
-    "weeklyCompletionRate": "今週の完了率",
+    "weeklyCompletionRate": "週間完了率",
     "newParticipants": "新規受験者",
     "defaultUser": "ユーザー",
     "navigation": {
@@ -615,17 +661,17 @@
       "documentation": "ドキュメント",
       "expand": "サイドバーを展開",
       "collapse": "サイドバーを折りたたむ",
-      "upgradePrompt": "より多くの機能をご利用いただけます",
+      "upgradePrompt": "より多くの機能にアクセス",
       "upgradeCta": "プランをアップグレード"
     },
     "tasks": {
-      "marketingQuizReview": "マーケティング基礎クイズの確認",
+      "marketingQuizReview": "マーケティング基礎クイズのレビュー",
       "newEmployeeTrainingReview": "新入社員研修の結果レビュー",
-      "q2AssessmentPrep": "Q2評価テストの準備"
+      "q2AssessmentPrep": "第2四半期評価テストの準備"
     },
     "stats": {
       "totalQuizzes": "総クイズ数",
-      "monthlyParticipants": "今月の受験者数",
+      "monthlyParticipants": "月間受験者数",
       "averageScore": "平均スコア",
       "activeQuizzes": "アクティブなクイズ"
     },
@@ -634,26 +680,375 @@
       "created": "作成日",
       "status": "ステータス",
       "edit": "編集",
-      "preview": "プレビュー"
+      "preview": "プレビュー",
+      "viewAll": "すべて見る",
+      "questionsCount": "問題数: {count}",
+      "participantsCount": "受験者数: {count}",
+      "statusBadge": {
+        "published": "公開済み",
+        "draft": "下書き",
+        "archived": "アーカイブ"
+      },
+      "actions": {
+        "duplicate": "複製",
+        "share": "共有",
+        "export": "エクスポート",
+        "delete": "削除"
+      }
     },
     "activity": {
       "title": "アクティビティ",
       "quizCreated": "クイズが作成されました",
-      "quizCompleted": "クイズが完了されました",
-      "userJoined": "新しいユーザーが参加しました"
+      "quizCompleted": "クイズが完了しました",
+      "userJoined": "新しいユーザーが参加しました",
+      "viewAll": "すべてのアクティビティを見る",
+      "timeAgo": {
+        "minutes": "{minutes}分前",
+        "hours": "{hours}時間前"
+      },
+      "types": {
+        "quizCompleted": {
+          "title": "クイズ完了",
+          "description": "{user}が{quiz}を完了しました"
+        },
+        "quizCreated": {
+          "title": "クイズ作成",
+          "description": "新しいクイズ{quiz}が作成されました"
+        },
+        "userJoined": {
+          "title": "新規ユーザー参加",
+          "description": "{user}がチームに参加しました"
+        },
+        "quizEdited": {
+          "title": "クイズ編集",
+          "description": "{quiz}の質問が更新されました"
+        },
+        "quizShared": {
+          "title": "クイズ共有",
+          "description": "{quiz}が新しいメンバーと共有されました"
+        }
+      },
+      "metadata": {
+        "score": "スコア: {score}%",
+        "participants": "受験者数: {participants}"
+      }
     },
     "usage": {
       "title": "使用状況",
-      "quizLimit": "クイズ制限",
-      "participantLimit": "受験者制限",
-      "upgrade": "アップグレード"
+      "quizLimit": "クイズ作成上限",
+      "participantLimit": "受験者数上限",
+      "upgrade": "アップグレード",
+      "units": {
+        "items": "個",
+        "peoplePerMonth": "人/月",
+        "people": "人",
+        "mb": "MB"
+      },
+      "status": {
+        "nearLimit": "上限間近",
+        "warning": "警告",
+        "normal": "正常"
+      },
+      "plans": {
+        "free": "無料プラン",
+        "pro": "Proプラン",
+        "enterprise": "エンタープライズ"
+      },
+      "metrics": {
+        "quizzes": "クイズ数",
+        "participants": "月間受験者数",
+        "storage": "ストレージ",
+        "members": "メンバー数"
+      },
+      "percentUsed": "{percent}%使用中",
+      "remaining": "残り: {amount} {unit}",
+      "upgradePrompt": "もっと多くの機能を使いたいですか？",
+      "upgradeDescription": "Proプランにアップグレードして、無制限のクイズ作成、高度な分析、AI自動生成などをご利用ください。",
+      "priceFrom": "月額2,980円",
+      "from": "から",
+      "showDetails": "詳細な使用状況を表示"
     },
     "actions": {
       "title": "クイックアクション",
       "createQuiz": "新しいクイズを作成",
       "inviteUsers": "受験者を招待",
-      "viewReports": "レポートを表示",
+      "viewReports": "レポートを見る",
       "manageSettings": "設定を管理"
     }
+  },
+  "plans": {
+    "meta": {
+      "title": "料金プラン比較 | ExamForge",
+      "description": "ExamForgeの料金プランを詳しく比較。フリープラン、プロプラン、エンタープライズプランの機能と価格をご確認いただけます。"
+    },
+    "title": "最適なプランを見つけましょう",
+    "subtitle": "プロプランとエンタープライズプランには14日間の無料トライアル付き。いつでもアップグレード・ダウングレード可能です。",
+    "features": {
+      "feature": "機能",
+      "basic": "基本機能",
+      "question_types": "問題タイプ",
+      "advanced": "高度な機能",
+      "enterprise_only": "エンタープライズ限定",
+      "quizzes": {
+        "label": "クイズ作成数"
+      },
+      "members": {
+        "label": "メンバー数"
+      },
+      "questions": {
+        "label": "問題数/クイズ"
+      },
+      "responses": {
+        "label": "回答上限/月"
+      },
+      "storage": {
+        "label": "ストレージ容量"
+      }
+    },
+    "faq": {
+      "title": "よくあるご質問",
+      "billing": {
+        "question": "年額プランと月額プランの違いは何ですか？",
+        "answer": "年額プランは月額プランと比べて約17%お得にご利用いただけます。年額プランは年間一括払いとなり、月額プランは毎月自動更新されます。どちらのプランもいつでも変更可能です。"
+      },
+      "upgrade": {
+        "question": "プランのアップグレード方法を教えてください",
+        "answer": "ダッシュボードの設定画面から「プラン管理」を選択し、アップグレードしたいプランを選んでください。アップグレードは即座に反映され、料金は日割り計算されます。"
+      },
+      "downgrade": {
+        "question": "プランのダウングレードは可能ですか？",
+        "answer": "はい、可能です。ダウングレードは次回の更新日から適用されます。ダウングレード後もそれまでに作成したコンテンツは保持されますが、プラン制限を超える機能は利用できなくなります。"
+      },
+      "trial": {
+        "question": "無料トライアルはありますか？",
+        "answer": "フリープランで基本機能を無期限でお試しいただけます。また、有料プランには14日間の無料トライアルがついているため、安心してお試しいただけます。"
+      },
+      "payment": {
+        "question": "支払い方法を教えてください",
+        "answer": "クレジットカード（VISA、Mastercard、American Express、JCB）でのお支払いに対応しています。エンタープライズプランでは銀行振込もご利用いただけます。"
+      },
+      "cancel": {
+        "question": "解約方法を教えてください",
+        "answer": "ダッシュボードの設定画面から「プラン管理」を選択し、「プランをキャンセル」をクリックしてください。解約後も契約期間終了までサービスをご利用いただけます。"
+      },
+      "enterprise": {
+        "question": "エンタープライズプランの詳細を知りたいです",
+        "answer": "エンタープライズプランは大規模組織向けのカスタムプランです。専任のサポート担当者、SLA保証、カスタム開発対応など、お客様のニーズに合わせて柔軟にカスタマイズ可能です。詳細はお問い合わせください。"
+      }
+    },
+    "cta": {
+      "title": "準備はできましたか？",
+      "subtitle": "今すぐ無料でExamForgeを始めて、プロフェッショナルなクイズや試験を作成しましょう。",
+      "button": "無料で始める",
+      "note": "クレジットカード登録不要・いつでもアップグレード可能"
+    }
+  },
+  "quizManagement": {
+    "cardActions": {
+      "openMenu": "メニューを開く",
+      "preview": "プレビュー",
+      "edit": "編集",
+      "share": "共有",
+      "duplicate": "複製",
+      "analytics": "分析",
+      "delete": "削除"
+    },
+    "cardPresentation": {
+      "updated": "更新"
+    },
+    "listContent": {
+      "errorLoading": "クイズの取得に失敗しました",
+      "noQuizzes": "クイズがありません",
+      "noMatchingQuizzes": "検索条件に一致するクイズが見つかりませんでした。",
+      "noQuizzesCreated": "まだクイズが作成されていません。最初のクイズを作成してみましょう。",
+      "showingResults": "{total}件中 {start}-{end}件を表示",
+      "errorProcessing": "パラメータの処理中にエラーが発生しました。ページを再読み込みしてください。"
+    },
+    "listHeader": {
+      "title": "クイズ管理",
+      "subtitle": "作成したクイズの管理と編集",
+      "createNewQuiz": "新規クイズ作成",
+      "view": "表示",
+      "itemsPerPage": "表示件数"
+    },
+    "search": {
+      "placeholder": "クイズを検索...",
+      "label": "検索:"
+    },
+    "filters": {
+      "status": {
+        "placeholder": "ステータス",
+        "all": "すべて",
+        "draft": "下書き",
+        "published": "公開済み",
+        "archived": "アーカイブ"
+      },
+      "sort": {
+        "placeholder": "並び替え",
+        "createdDesc": "作成日（新しい順）",
+        "createdAsc": "作成日（古い順）",
+        "updatedDesc": "更新日（新しい順）",
+        "updatedAsc": "更新日（古い順）",
+        "titleAsc": "タイトル（昇順）",
+        "titleDesc": "タイトル（降順）",
+        "responsesDesc": "回答数（多い順）",
+        "responsesAsc": "回答数（少ない順）"
+      },
+      "clear": "クリア",
+      "tags": "タグ:"
+    },
+    "createQuiz": {
+      "title": "タイトル *",
+      "titlePlaceholder": "クイズのタイトルを入力",
+      "description": "説明",
+      "descriptionPlaceholder": "クイズの説明を入力（任意）",
+      "descriptionHelp": "この説明は受験者に表示されます",
+      "scoringMode": "採点方式",
+      "scoringModePlaceholder": "採点方式を選択",
+      "autoScoring": "自動採点",
+      "manualScoring": "手動採点",
+      "sharingMode": "共有設定",
+      "sharingModePlaceholder": "共有方法を選択",
+      "urlSharing": "URL共有",
+      "passwordProtected": "パスワード保護",
+      "password": "パスワード",
+      "passwordPlaceholder": "アクセスパスワードを入力",
+      "passwordHelp": "受験者はこのパスワードを使用してクイズにアクセスします"
+    },
+    "deleteDialog": {
+      "title": "クイズを削除しますか？",
+      "description": "を削除すると、関連するすべての質問と回答データも削除されます。この操作は取り消せません。",
+      "cancel": "キャンセル",
+      "deleteButton": "削除する",
+      "deleting": "削除中..."
+    },
+    "createModal": {
+      "title": "新しいクイズを作成",
+      "create": "作成",
+      "creating": "作成中...",
+      "cancel": "キャンセル",
+      "createSuccess": "クイズが作成されました",
+      "createError": "クイズの作成に失敗しました"
+    },
+    "editor": {
+      "basicInfo": "クイズ基本情報",
+      "description": "説明",
+      "descriptionPlaceholder": "クイズの説明を入力",
+      "passingScore": "合格点（%）",
+      "scoringMode": "採点方式",
+      "autoScoring": "自動採点",
+      "manualScoring": "手動採点",
+      "sharingSettings": "共有設定",
+      "urlSharing": "URL共有",
+      "passwordProtected": "パスワード保護",
+      "password": "パスワード:",
+      "tags": "タグ",
+      "addTag": "タグを追加",
+      "addTagButton": "追加",
+      "coverImage": "カバー画像",
+      "coverImageAlt": "カバー画像",
+      "uploadCoverImage": "カバー画像をアップロード（Proプラン）",
+      "settings": "クイズ設定",
+      "timeLimit": "制限時間（分）",
+      "timeLimitPlaceholder": "無制限",
+      "shuffleQuestions": "問題をシャッフル",
+      "shuffleOptions": "選択肢をシャッフル",
+      "maxAttempts": "最大試行回数",
+      "maxAttemptsPlaceholder": "無制限",
+      "proPlanFeature": "Proプラン機能",
+      "publish": {
+        "title": "クイズを公開",
+        "subdomain": "サブドメイン設定",
+        "subdomainPlaceholder": "my-quiz",
+        "domainSuffix": ".quizservice.com",
+        "subdomainHelp": "3〜30文字、小文字、数字、ハイフンのみ使用可能",
+        "checking": "確認中...",
+        "available": "利用可能",
+        "unavailable": "既に使用されています",
+        "passwordProtectionInfo": "パスワード保護が有効です。アクセスパスワード:",
+        "publicUrlInfo": "クイズは以下のURLで公開されます:",
+        "cancel": "キャンセル",
+        "publishButton": "公開",
+        "publishSuccess": "クイズが公開されました",
+        "publishError": "公開に失敗しました"
+      },
+      "header": {
+        "saveSuccess": "保存しました",
+        "saveError": "保存に失敗しました",
+        "saving": "保存中...",
+        "savedAt": "保存済み",
+        "unsavedChanges": "未保存の変更",
+        "preview": "プレビュー",
+        "publishSettings": "公開設定",
+        "save": "保存"
+      },
+      "questions": {
+        "empty": "まだ質問がありません。上のツールバーから質問を追加してください。",
+        "questionNumber": "問題 {number}",
+        "noQuestionText": "（質問文なし）",
+        "points": "{points}点"
+      },
+      "questionTypes": {
+        "addQuestion": "質問を追加",
+        "questionBank": "問題バンク",
+        "selectFromSaved": "保存済みの質問から選択",
+        "proLabel": "PRO",
+        "truefalse": {
+          "label": "正誤問題",
+          "description": "正しいか誤りかを問う"
+        },
+        "singlechoice": {
+          "label": "単一選択問題",
+          "description": "1つの答えを選択"
+        },
+        "multiplechoice": {
+          "label": "複数選択問題",
+          "description": "複数の答えを選択"
+        },
+        "freetext": {
+          "label": "記述式問題",
+          "description": "テキストで回答"
+        },
+        "fillinblank": {
+          "label": "穴埋め問題",
+          "description": "空欄を埋める"
+        },
+        "matching": {
+          "label": "組み合わせ問題",
+          "description": "関連項目を結びつける"
+        },
+        "ordering": {
+          "label": "並び替え問題",
+          "description": "正しい順序に並べる"
+        },
+        "fileupload": {
+          "label": "ファイル提出問題",
+          "description": "ファイルを提出"
+        },
+        "diagram": {
+          "label": "図形問題",
+          "description": "図上の位置を指定"
+        },
+        "numeric": {
+          "label": "数値入力問題",
+          "description": "数値で回答"
+        }
+      }
+    }
+  },
+  "ui": {
+    "pagination": {
+      "previous": "前へ",
+      "next": "次へ",
+      "morePages": "その他のページ"
+    },
+    "breadcrumb": {
+      "more": "もっと見る"
+    }
+  },
+  "socialProof": {
+    "badge": "実績",
+    "title": "多くの企業・教育機関で導入",
+    "subtitle": "ExamForgeは、企業研修や教育現場で活用されています。"
   }
 }

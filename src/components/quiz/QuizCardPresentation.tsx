@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -18,7 +21,6 @@ interface QuizCardPresentationProps {
   questionsCount: number;
   responsesCount: number;
   tags: Tag[];
-  createdAt: Date | string;
   updatedAt: Date | string;
   onPreview: () => void;
   onEdit: () => void;
@@ -35,7 +37,6 @@ export function QuizCardPresentation({
   questionsCount,
   responsesCount,
   tags,
-  createdAt,
   updatedAt,
   onPreview,
   onEdit,
@@ -44,6 +45,8 @@ export function QuizCardPresentation({
   onAnalytics,
   onDelete,
 }: QuizCardPresentationProps) {
+  const t = useTranslations('quizManagement');
+
   return (
     <Card
       className="group transition-shadow hover:shadow-md"
@@ -83,7 +86,7 @@ export function QuizCardPresentation({
       <CardFooter className="flex items-center justify-between pt-3">
         <QuizCardTags tags={tags} />
         <div className="text-muted-foreground text-xs">
-          更新: {formatQuizDate(updatedAt)}
+          {t('cardPresentation.updated')}: {formatQuizDate(updatedAt)}
         </div>
       </CardFooter>
     </Card>

@@ -1,3 +1,6 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,27 +28,27 @@ export function QuizCardDeleteDialog({
   onConfirm,
   isDeleting,
 }: QuizCardDeleteDialogProps) {
+  const t = useTranslations('quizManagement.deleteDialog');
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>クイズを削除しますか？</AlertDialogTitle>
+          <AlertDialogTitle>{t('title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            「{quiz.title}
-            」を削除すると、関連するすべての質問と回答データも削除されます。
-            この操作は取り消せません。
+            「{quiz.title}」{t('description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>
-            キャンセル
+            {t('cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isDeleting}
             className="bg-red-600 text-white hover:bg-red-700"
           >
-            {isDeleting ? '削除中...' : '削除する'}
+            {isDeleting ? t('deleting') : t('deleteButton')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

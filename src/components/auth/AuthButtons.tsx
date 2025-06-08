@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface AuthButtonsProps {
   loginText: string;
@@ -26,6 +27,7 @@ export const AuthButtons = ({
 }: AuthButtonsProps) => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const t = useTranslations('dashboard');
 
   if (status === 'loading') {
     return (
@@ -74,7 +76,7 @@ export const AuthButtons = ({
             }}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>Logout</span>
+            <span>{t('logout')}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

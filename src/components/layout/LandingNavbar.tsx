@@ -16,6 +16,7 @@ export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
   const translations = {
     features: t('common.features'),
     pricing: t('common.pricing'),
+    plans: t('common.plans'),
     faq: t('common.faq'),
     login: t('common.login'),
     signup: t('common.signup'),
@@ -47,6 +48,13 @@ export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
             data-testid="nav-pricing"
           >
             {translations.pricing}
+          </a>
+          <a
+            href={`/${lng}/plans`}
+            className="hover:text-examforge-blue text-sm font-medium transition-colors"
+            data-testid="nav-plans"
+          >
+            {translations.plans}
           </a>
           <a
             href="#faq"

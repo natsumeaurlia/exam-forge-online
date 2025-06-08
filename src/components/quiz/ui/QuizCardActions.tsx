@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import {
   MoreVertical,
   Eye,
@@ -35,36 +36,38 @@ export function QuizCardActions({
   onAnalytics,
   onDelete,
 }: QuizCardActionsProps) {
+  const t = useTranslations('quizManagement.cardActions');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <MoreVertical className="h-4 w-4" />
-          <span className="sr-only">メニューを開く</span>
+          <span className="sr-only">{t('openMenu')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem onClick={onPreview}>
           <Eye className="mr-2 h-4 w-4" />
-          プレビュー
+          {t('preview')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onEdit}>
           <Edit className="mr-2 h-4 w-4" />
-          編集
+          {t('edit')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onShare}>
           <Share2 className="mr-2 h-4 w-4" />
-          共有
+          {t('share')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onCopy}>
           <Copy className="mr-2 h-4 w-4" />
-          複製
+          {t('duplicate')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onAnalytics}>
           <BarChart className="mr-2 h-4 w-4" />
-          分析
+          {t('analytics')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -72,7 +75,7 @@ export function QuizCardActions({
           className="text-red-600 focus:bg-red-50 focus:text-red-600"
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          削除
+          {t('delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

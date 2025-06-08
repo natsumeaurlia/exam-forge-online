@@ -14,10 +14,12 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useTranslations } from 'next-intl';
 
 export function SearchAndFilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('quizManagement');
 
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [status, setStatus] = useState(searchParams.get('status') || 'all');
@@ -74,7 +76,7 @@ export function SearchAndFilterBar() {
         <div className="relative flex-1">
           <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <Input
-            placeholder="クイズを検索..."
+            placeholder={t('search.placeholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-10"
@@ -85,13 +87,17 @@ export function SearchAndFilterBar() {
         <div className="flex gap-2">
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="ステータス" />
+              <SelectValue placeholder={t('filters.status.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">すべて</SelectItem>
-              <SelectItem value="DRAFT">下書き</SelectItem>
-              <SelectItem value="PUBLISHED">公開済み</SelectItem>
-              <SelectItem value="ARCHIVED">アーカイブ</SelectItem>
+              <SelectItem value="all">{t('filters.status.all')}</SelectItem>
+              <SelectItem value="DRAFT">{t('filters.status.draft')}</SelectItem>
+              <SelectItem value="PUBLISHED">
+                {t('filters.status.published')}
+              </SelectItem>
+              <SelectItem value="ARCHIVED">
+                {t('filters.status.archived')}
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -104,20 +110,32 @@ export function SearchAndFilterBar() {
             }}
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="並び替え" />
+              <SelectValue placeholder={t('filters.sort.placeholder')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="createdAt-desc">作成日（新しい順）</SelectItem>
-              <SelectItem value="createdAt-asc">作成日（古い順）</SelectItem>
-              <SelectItem value="updatedAt-desc">更新日（新しい順）</SelectItem>
-              <SelectItem value="updatedAt-asc">更新日（古い順）</SelectItem>
-              <SelectItem value="title-asc">タイトル（A-Z）</SelectItem>
-              <SelectItem value="title-desc">タイトル（Z-A）</SelectItem>
+              <SelectItem value="createdAt-desc">
+                {t('filters.sort.createdDesc')}
+              </SelectItem>
+              <SelectItem value="createdAt-asc">
+                {t('filters.sort.createdAsc')}
+              </SelectItem>
+              <SelectItem value="updatedAt-desc">
+                {t('filters.sort.updatedDesc')}
+              </SelectItem>
+              <SelectItem value="updatedAt-asc">
+                {t('filters.sort.updatedAsc')}
+              </SelectItem>
+              <SelectItem value="title-asc">
+                {t('filters.sort.titleAsc')}
+              </SelectItem>
+              <SelectItem value="title-desc">
+                {t('filters.sort.titleDesc')}
+              </SelectItem>
               <SelectItem value="responseCount-desc">
-                回答数（多い順）
+                {t('filters.sort.responsesDesc')}
               </SelectItem>
               <SelectItem value="responseCount-asc">
-                回答数（少ない順）
+                {t('filters.sort.responsesAsc')}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -130,7 +148,7 @@ export function SearchAndFilterBar() {
               className="px-3"
             >
               <X className="mr-1 h-4 w-4" />
-              クリア
+              {t('filters.clear')}
             </Button>
           )}
         </div>
@@ -141,7 +159,7 @@ export function SearchAndFilterBar() {
         <div className="flex flex-wrap gap-2">
           {search && (
             <Badge variant="secondary" className="gap-1">
-              検索: {search}
+              {t('search.label')} {search}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => setSearch('')}
@@ -150,12 +168,12 @@ export function SearchAndFilterBar() {
           )}
           {status !== 'all' && (
             <Badge variant="secondary" className="gap-1">
-              ステータス:{' '}
+              {t('filters.status.placeholder')}:{' '}
               {status === 'DRAFT'
-                ? '下書き'
+                ? t('filters.status.draft')
                 : status === 'PUBLISHED'
-                  ? '公開済み'
-                  : 'アーカイブ'}
+                  ? t('filters.status.published')
+                  : t('filters.status.archived')}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() => setStatus('all')}
@@ -164,7 +182,7 @@ export function SearchAndFilterBar() {
           )}
           {selectedTags.map(tag => (
             <Badge key={tag} variant="secondary" className="gap-1">
-              タグ: {tag}
+              {t('filters.tags')} {tag}
               <X
                 className="h-3 w-3 cursor-pointer"
                 onClick={() =>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import {
@@ -25,6 +26,8 @@ export const LanguageSwitcherView = ({
   currentLng,
   languages,
 }: LanguageSwitcherViewProps) => {
+  const t = useTranslations('common.languages');
+
   return (
     <DropdownMenu
       open={isOpen}
@@ -38,9 +41,7 @@ export const LanguageSwitcherView = ({
           data-testid="language-switcher-button"
         >
           <Globe className="h-5 w-5" />
-          <span className="sr-only">
-            {currentLng === 'ja' ? '言語を切り替える' : 'Switch language'}
-          </span>
+          <span className="sr-only">{t('switchLanguage')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" data-testid="language-switcher-menu">

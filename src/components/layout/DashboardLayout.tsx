@@ -16,6 +16,7 @@ import {
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { usePathname } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile'; // useIsMobileフックをインポート
+import { useTranslations } from 'next-intl';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
     useSidebarStore();
   const pathname = usePathname();
   const isMobile = useIsMobile();
+  const t = useTranslations('dashboard.navigation');
 
   // モバイルでページ遷移時にサイドバーを閉じる
   useEffect(() => {
@@ -51,7 +53,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
           <Sidebar>
             <UISidebarHeader>
               {/* サイドバーヘッダーコンテンツ (例: ロゴやタイトル) */}
-              <h2 className="p-4 text-lg font-semibold">Menu</h2>
+              <h2 className="p-4 text-lg font-semibold">{t('menu')}</h2>
             </UISidebarHeader>
             <SidebarContent>
               <SidebarMenu>
@@ -61,7 +63,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
                     href={`/${lng}/dashboard`}
                     className="block rounded-md p-2 hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
-                    Dashboard
+                    {t('dashboard')}
                   </a>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -69,7 +71,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
                     href={`/${lng}/dashboard/quizzes`}
                     className="block rounded-md p-2 hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
-                    Quizzes
+                    {t('quizzes')}
                   </a>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
@@ -77,7 +79,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
                     href={`/${lng}/dashboard/settings`}
                     className="block rounded-md p-2 hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
-                    Settings
+                    {t('settings')}
                   </a>
                 </SidebarMenuItem>
               </SidebarMenu>

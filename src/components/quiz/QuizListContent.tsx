@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { getQuizzes } from '@/lib/actions/quiz';
 import { SearchAndFilterBar } from './SearchAndFilterBar';
 import { QuizGrid } from './QuizGrid';
@@ -16,6 +17,8 @@ interface QuizListContentProps {
 }
 
 export async function QuizListContent({ searchParams }: QuizListContentProps) {
+  const t = await getTranslations('quizManagement.listContent');
+
   try {
     // searchParamsを非同期で取得
     const resolvedSearchParams = await searchParams;
@@ -55,7 +58,7 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
     if (!result?.data) {
       return (
         <div className="py-12 text-center">
-          <p className="text-gray-500">クイズの取得に失敗しました</p>
+          <p className="text-gray-500">{t('errorLoading')}</p>
         </div>
       );
     }
@@ -85,12 +88,12 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-medium text-gray-900">
-                クイズがありません
+                {t('noQuizzes')}
               </h3>
               <p className="mb-4 text-gray-500">
                 {search || status || tags
-                  ? '検索条件に一致するクイズが見つかりませんでした。'
-                  : 'まだクイズが作成されていません。最初のクイズを作成してみましょう。'}
+                  ? t('noMatchingQuizzes')
+                  : t('noQuizzesCreated')}
               </p>
             </div>
           </div>
@@ -98,10 +101,14 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
           <>
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                {pagination.total}件中{' '}
-                {(pagination.page - 1) * pagination.limit + 1}-
-                {Math.min(pagination.page * pagination.limit, pagination.total)}
-                件を表示
+                {t('showingResults', {
+                  total: pagination.total,
+                  start: (pagination.page - 1) * pagination.limit + 1,
+                  end: Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total
+                  ),
+                })}
               </p>
             </div>
 
@@ -115,9 +122,7 @@ export async function QuizListContent({ searchParams }: QuizListContentProps) {
   } catch (error) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500">
-          パラメータの処理中にエラーが発生しました。ページを再読み込みしてください。
-        </p>
+        <p className="text-gray-500">{t('errorProcessing')}</p>
       </div>
     );
   }

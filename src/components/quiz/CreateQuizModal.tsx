@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import {
   CreateQuizFormFields,
   createQuizFormSchema,
@@ -29,6 +30,7 @@ interface CreateQuizModalProps {
 
 export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
   const router = useRouter();
+  const t = useTranslations('quizManagement.createModal');
 
   const form = useForm<CreateQuizFormData>({
     resolver: zodResolver(createQuizFormSchema),
@@ -37,7 +39,7 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
 
   const { execute, isExecuting } = useAction(createQuiz, {
     onSuccess: ({ data }) => {
-      toast.success('クイズが作成されました');
+      toast.success(t('createSuccess'));
       handleClose();
       if (data?.quiz.id) {
         router.push(`/dashboard/quizzes/${data.quiz.id}/edit`);
@@ -53,7 +55,7 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
           });
         });
       } else {
-        toast.error(error.serverError || 'クイズの作成に失敗しました');
+        toast.error(error.serverError || t('createError'));
       }
     },
   });
@@ -75,7 +77,7 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>新規クイズ作成</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -93,7 +95,7 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
                 onClick={handleClose}
                 disabled={isExecuting}
               >
-                キャンセル
+                {t('cancel')}
               </Button>
               <Button
                 type="submit"
@@ -103,7 +105,7 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
                 {isExecuting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                作成して編集へ進む
+                {isExecuting ? t('creating') : t('create')}
               </Button>
             </div>
           </form>
