@@ -1,0 +1,566 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                     String           @id @default(cuid())
+  name                   String?
+  email                  String           @unique
+  emailVerified          DateTime?
+  image                  String?
+  stripeCustomerId       String?          @unique
+  stripePaymentMethodId  String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  accounts               Account[]
+  createdQuizzes         Quiz[]           @relation("QuizCreator")
+  quizResponses          QuizResponse[]
+  sessions               Session[]
+  createdTeams           Team[]           @relation("TeamCreator")
+  TeamInvitation         TeamInvitation[]
+  teamMembers            TeamMember[]
+  storage                UserStorage?
+
+  @@index([stripeCustomerId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Team {
+  id           String           @id @default(cuid())
+  name         String
+  slug         String           @unique @db.VarChar(50)
+  description  String?
+  logo         String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  creatorId    String
+  invoices     Invoice[]
+  quizzes      Quiz[]
+  subscription Subscription?
+  creator      User             @relation("TeamCreator", fields: [creatorId], references: [id])
+  invitations  TeamInvitation[]
+  members      TeamMember[]
+  teamSettings TeamSettings?
+  usageRecords UsageRecord[]
+
+  @@index([creatorId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  role      TeamRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  teamId    String
+  userId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+model TeamInvitation {
+  id          String               @id @default(cuid())
+  email       String
+  token       String               @unique @default(cuid())
+  status      TeamInvitationStatus @default(PENDING)
+  role        TeamRole             @default(MEMBER)
+  expiresAt   DateTime
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  teamId      String
+  invitedById String
+  invitedBy   User                 @relation(fields: [invitedById], references: [id])
+  team        Team                 @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([email])
+  @@index([token])
+  @@index([status])
+}
+
+model TeamSettings {
+  id                    String      @id @default(cuid())
+  maxMembers            Int         @default(5)
+  allowMemberInvite     Boolean     @default(false)
+  requireApproval       Boolean     @default(true)
+  defaultQuizVisibility SharingMode @default(URL)
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  teamId                String      @unique
+  team                  Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model Quiz {
+  id                     String         @id @default(cuid())
+  title                  String         @db.VarChar(200)
+  description            String?
+  status                 QuizStatus     @default(DRAFT)
+  scoringType            ScoringType    @default(AUTO)
+  sharingMode            SharingMode    @default(URL)
+  password               String?        @db.VarChar(100)
+  passingScore           Int            @default(70) @db.SmallInt
+  coverImage             String?
+  subdomain              String?        @unique @db.VarChar(30)
+  timeLimit              Int?           @db.SmallInt
+  shuffleQuestions       Boolean        @default(false)
+  shuffleOptions         Boolean        @default(false)
+  maxAttempts            Int?           @db.SmallInt
+  publishedAt            DateTime?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  teamId                 String
+  createdById            String
+  questions              Question[]
+  createdBy              User           @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  team                   Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  responses              QuizResponse[]
+  tags                   QuizTag[]
+  sections               Section[]
+
+  @@index([teamId])
+  @@index([createdById])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([subdomain])
+  @@index([teamId, status])
+}
+
+model Section {
+  id          String     @id @default(cuid())
+  title       String     @db.VarChar(200)
+  description String?
+  order       Int        @db.SmallInt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  quizId      String
+  questions   Question[]
+  quiz        Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([quizId, order])
+}
+
+model Question {
+  id              String             @id @default(cuid())
+  type            QuestionType
+  text            String
+  points          Int                @default(1) @db.SmallInt
+  order           Int                @db.SmallInt
+  hint            String?
+  explanation     String?
+  correctAnswer   Json?
+  gradingCriteria String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  quizId          String
+  sectionId       String?
+  quiz            Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  section         Section?           @relation(fields: [sectionId], references: [id])
+  media           QuestionMedia[]
+  options         QuestionOption[]
+  responses       QuestionResponse[]
+
+  @@index([quizId])
+  @@index([sectionId])
+  @@index([quizId, order])
+  @@index([type])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  text       String
+  order      Int      @db.SmallInt
+  isCorrect  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([questionId, order])
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  color     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  quizzes   QuizTag[]
+}
+
+model QuizTag {
+  id     String @id @default(cuid())
+  quizId String
+  tagId  String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, tagId])
+  @@index([quizId])
+  @@index([tagId])
+}
+
+model QuizResponse {
+  id          String             @id @default(cuid())
+  score       Int?               @db.SmallInt
+  totalPoints Int                @db.SmallInt
+  isPassed    Boolean?
+  startedAt   DateTime           @default(now())
+  completedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  quizId      String
+  userId      String?
+  responses   QuestionResponse[]
+  quiz        Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user        User?              @relation(fields: [userId], references: [id])
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([completedAt])
+  @@index([quizId, completedAt])
+  @@index([quizId, isPassed])
+}
+
+model QuestionResponse {
+  id             String       @id @default(cuid())
+  answer         Json
+  score          Int?         @db.SmallInt
+  isCorrect      Boolean?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  quizResponseId String
+  questionId     String
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  quizResponse   QuizResponse @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
+
+  @@unique([quizResponseId, questionId])
+  @@index([quizResponseId])
+  @@index([questionId])
+  @@index([isCorrect])
+}
+
+model Plan {
+  id                     String         @id @default(cuid())
+  type                   PlanType       @unique
+  name                   String
+  description            String?
+  monthlyPrice           Int
+  yearlyPrice            Int
+  stripeMonthlyProductId String?        @unique
+  stripeYearlyProductId  String?        @unique
+  maxQuizzes             Int?
+  maxMembers             Int?
+  maxQuestionsPerQuiz    Int?
+  maxResponsesPerMonth   Int?
+  maxStorageMB           Int?
+  isActive               Boolean        @default(true)
+  displayOrder           Int            @default(0)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  monthlyPricePerMember  Int            @default(0)
+  yearlyPricePerMember   Int            @default(0)
+  includedMembers        Int            @default(1)
+  features               PlanFeature[]
+  subscriptions          Subscription[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  stripeSubscriptionId String             @unique
+  stripeCustomerId     String
+  stripePriceId        String
+  stripeProductId      String
+  status               SubscriptionStatus
+  billingCycle         BillingCycle
+  trialStart           DateTime?
+  trialEnd             DateTime?
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  canceledAt           DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  planId               String
+  teamId               String             @unique
+  memberCount          Int                @default(1)
+  pricePerMember       Int                @default(0)
+  plan                 Plan               @relation(fields: [planId], references: [id])
+  team                 Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@index([status])
+  @@index([stripeSubscriptionId])
+  @@index([teamId])
+}
+
+model Invoice {
+  id               String        @id @default(cuid())
+  stripeInvoiceId  String        @unique
+  stripeCustomerId String
+  invoiceNumber    String
+  status           InvoiceStatus
+  subtotal         Int
+  tax              Int           @default(0)
+  total            Int
+  amountPaid       Int           @default(0)
+  amountDue        Int
+  currency         String        @default("jpy")
+  dueDate          DateTime?
+  paidAt           DateTime?
+  invoicePdf       String?
+  hostedInvoiceUrl String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  teamId           String
+  team             Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([stripeInvoiceId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([teamId])
+}
+
+model UsageRecord {
+  id           String       @id @default(cuid())
+  resourceType ResourceType
+  count        Int
+  periodStart  DateTime
+  periodEnd    DateTime
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  teamId       String
+  team         Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([resourceType])
+  @@index([periodStart, periodEnd])
+  @@index([teamId])
+  @@index([teamId, resourceType, periodStart])
+}
+
+model Feature {
+  id            String          @id @default(cuid())
+  type          FeatureType     @unique
+  name          String
+  nameEn        String
+  description   String?
+  descriptionEn String?
+  category      FeatureCategory
+  displayOrder  Int             @default(0)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  planFeatures  PlanFeature[]
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model PlanFeature {
+  id        String   @id @default(cuid())
+  planId    String
+  featureId String
+  isEnabled Boolean  @default(true)
+  limit     Int?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  feature   Feature  @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureId])
+  @@index([planId])
+  @@index([featureId])
+}
+
+model QuestionMedia {
+  id         String    @id @default(cuid())
+  url        String
+  type       MediaType
+  fileName   String
+  fileSize   Int
+  mimeType   String
+  order      Int       @default(0) @db.SmallInt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  questionId String
+  question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([questionId, order])
+}
+
+model UserStorage {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  usedBytes BigInt   @default(0)
+  maxBytes  BigInt   @default(10737418240)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum QuizStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ScoringType {
+  AUTO
+  MANUAL
+}
+
+enum SharingMode {
+  URL
+  PASSWORD
+}
+
+enum QuestionType {
+  TRUE_FALSE
+  MULTIPLE_CHOICE
+  CHECKBOX
+  SHORT_ANSWER
+  SORTING
+  FILL_IN_BLANK
+  DIAGRAM
+  MATCHING
+  NUMERIC
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  UNPAID
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  UNCOLLECTIBLE
+}
+
+enum ResourceType {
+  QUIZ
+  RESPONSE
+  STORAGE
+  MEMBER
+}
+
+enum FeatureCategory {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum FeatureType {
+  TRUE_FALSE_QUESTION
+  SINGLE_CHOICE_QUESTION
+  MULTIPLE_CHOICE_QUESTION
+  FREE_TEXT_QUESTION
+  ADVANCED_QUESTION_TYPES
+  AUTO_GRADING
+  MANUAL_GRADING
+  PASSWORD_PROTECTION
+  PERMISSIONS_MANAGEMENT
+  AUDIT_LOG
+  SUBDOMAIN
+  CUSTOM_DESIGN
+  CUSTOM_DEVELOPMENT
+  MEDIA_UPLOAD
+  QUESTION_BANK
+  SECTIONS
+  ANALYTICS
+  EXCEL_EXPORT
+  CERTIFICATES
+  AI_QUIZ_GENERATION
+  TEAM_MANAGEMENT
+  PRIORITY_SUPPORT
+  SLA_GUARANTEE
+  ON_PREMISE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TeamInvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}

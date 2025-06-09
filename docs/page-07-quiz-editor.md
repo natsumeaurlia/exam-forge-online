@@ -54,6 +54,15 @@
    - 問題タイプに応じた動的フォーム
    - 問題文入力（リッチテキストエディタ）
    - メディア追加ボタン（画像、音声、動画）（プロプラン）
+     - 複数ファイルの同時アップロード対応
+     - ドラッグ&ドロップでファイルを追加
+     - アップロード済みメディアの並べ替え機能
+     - 対応フォーマット：
+       - 画像：JPEG, PNG, GIF, WebP（最大10MB）
+       - 動画：MP4, WebM, OGG, MOV（最大500MB）
+     - プログレスバー付きアップロード
+     - サムネイルプレビュー表示
+     - メディアの削除機能
    - 回答選択肢管理
      - 選択肢テキスト入力（選択問題の場合）
      - 正解チェックボックス/ラジオボタン
@@ -111,6 +120,10 @@
   - `SectionManager.tsx`
   - `QuizSettingsPanel.tsx`
   - `MediaUploader.tsx`
+    - `MediaDropzone.tsx` - ドラッグ&ドロップ対応
+    - `MediaThumbnail.tsx` - サムネイル表示
+    - `MediaReorder.tsx` - 並べ替え機能
+    - `UploadProgress.tsx` - アップロード進捗表示
   - `RichTextEditor.tsx`
   - `PublishSettingsModal.tsx`
 
@@ -164,7 +177,19 @@
     points: number;
     hint?: string; // オプショナルのヒント
     explanation?: string; // オプショナルの解説
+    media?: MediaAttachment[]; // プロプラン向けメディア添付
     // ... 他のプロパティ
+  }
+
+  interface MediaAttachment {
+    id: string;
+    type: 'image' | 'video';
+    url: string;
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+    order: number; // 表示順序
+    uploadedAt: Date;
   }
   ```
 
@@ -215,6 +240,11 @@
   - クイズ保存: `/api/quizzes/:id` (PUT/PATCH)
   - 問題操作: `/api/quizzes/:id/questions`
   - メディアアップロード: `/api/upload`
+    - MinIOバックエンドへの直接アップロード
+    - 事前署名URL生成: `/api/upload/presigned-url`
+    - アップロード完了通知: `/api/upload/complete`
+    - メディア削除: `/api/upload/:id` (DELETE)
+  - ストレージ使用量確認: `/api/storage/usage`
   - サブドメイン利用可能チェック: `/api/check-subdomain`
   - クイズ公開: `/api/quizzes/:id/publish`
 

@@ -1,0 +1,1413 @@
+{
+  "common": {
+    "login": "Login",
+    "signup": "Get Started Free",
+    "demo": "View Demo",
+    "features": "Features",
+    "pricing": "Pricing",
+    "plans": {
+      "title": "Plans & Pricing",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "faq": "FAQ",
+    "proLabel": "PRO",
+    "upgradeToPro": "Upgrade to Pro",
+    "upgradeToEnterprise": "Upgrade to Enterprise",
+    "featureLocked": "This feature requires an upgrade",
+    "viewPlans": "View Plans",
+    "languages": {
+      "japanese": "Japanese",
+      "english": "English",
+      "switchLanguage": "Switch language"
+    },
+    "footer": {
+      "description": "A simple and easy-to-use online quiz and exam creation platform for educational institutions and businesses.",
+      "products": "Products",
+      "company": "Company",
+      "resources": "Resources",
+      "support": "Support",
+      "blog": "Blog",
+      "developers": "Developers",
+      "about": "About",
+      "contact": "Contact",
+      "careers": "Careers",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "commercialTransactions": "Legal Information",
+      "copyright": "© 2025 ExamForge Inc. All rights reserved."
+    }
+  },
+  "hero": {
+    "tagline": "Online Quiz Creation & Certification",
+    "title": "Create Professional Quizzes with Simple Operations",
+    "description": "ExamForge is an all-in-one platform that allows educational institutions and corporate trainers to easily create, distribute, and manage high-quality quizzes and exams.",
+    "cta": {
+      "start": "Start for Free",
+      "demo": "View Demo"
+    },
+    "benefits": {
+      "noCard": "No credit card required",
+      "freeQuizzes": "Create up to 5 quizzes for free",
+      "scoring": "Automatic and manual grading"
+    },
+    "quiz": {
+      "title": "Marketing Basics",
+      "question": "Which of the following is NOT one of the 4Ps of Marketing Mix?",
+      "options": {
+        "0": "Product",
+        "1": "Performance",
+        "2": "Price",
+        "3": "Promotion"
+      },
+      "progress": "Question 2/10",
+      "nextButton": "Next"
+    }
+  },
+  "quiz": {
+    "selector": {
+      "title": "Select Quiz Type",
+      "description": "Choose the type of quiz you want to create. You can select the format that best suits your purpose.",
+      "selectButton": "Select this type",
+      "proOnlyButton": "Available in Pro plan"
+    },
+    "types": {
+      "simple-quiz": {
+        "title": "Simple Quiz",
+        "description": "Basic quiz format that includes true/false and multiple choice questions.",
+        "features": {
+          "truefalse": "True/False Questions",
+          "single": "Single Choice Questions",
+          "multiple": "Multiple Choice Questions",
+          "freetext": "Free Text Questions"
+        },
+        "featureInfo": {
+          "truefalse": "Basic question format that asks for true or false answers.",
+          "single": "Questions with multiple options where only one answer is correct.",
+          "multiple": "Questions that allow selecting multiple correct answers.",
+          "freetext": "Questions that require free text responses."
+        }
+      },
+      "exam": {
+        "title": "Exam",
+        "description": "Full-fledged exam mode with passing score settings and time limits.",
+        "features": {
+          "passingScore": "Passing Score Setting",
+          "analytics": "Detailed Analytics",
+          "certificate": "Certificate Issuance",
+          "timeLimit": "Time Limit"
+        },
+        "featureInfo": {
+          "passingScore": "Set a pass/fail threshold for the exam.",
+          "analytics": "Analyze test-taker performance in detail.",
+          "certificate": "Automatically issue certificates for passing candidates.",
+          "timeLimit": "Set time constraints for the exam."
+        }
+      },
+      "survey": {
+        "title": "Survey",
+        "description": "Forms for opinion and information gathering without right or wrong answers.",
+        "features": {
+          "freeAnswer": "Free Answer Format",
+          "choice": "Choice Format",
+          "matrix": "Matrix Questions",
+          "analytics": "Collection and Analysis"
+        },
+        "featureInfo": {
+          "freeAnswer": "Format where responses can be entered freely.",
+          "choice": "Format where answers are selected from choices.",
+          "matrix": "Format where multiple questions are answered with the same set of choices.",
+          "analytics": "Collect and analyze response results."
+        }
+      },
+      "assessment": {
+        "title": "Assessment",
+        "description": "Complex question sets for more advanced evaluation.",
+        "features": {
+          "sections": "Section Organization",
+          "branching": "Conditional Branching",
+          "scoring": "Composite Scoring",
+          "reports": "Detailed Reports"
+        },
+        "featureInfo": {
+          "sections": "Organize questions by sections.",
+          "branching": "Set conditional branching where the next question changes based on responses.",
+          "scoring": "Combine multiple scoring methods.",
+          "reports": "Create detailed evaluation reports."
+        }
+      },
+      "course": {
+        "title": "Course",
+        "description": "Learning experience that combines educational content and quizzes.",
+        "features": {
+          "lessons": "Lesson Structure",
+          "progress": "Learning Progress Management",
+          "quizzes": "Confirmation Quizzes",
+          "certificates": "Completion Certificate"
+        },
+        "featureInfo": {
+          "lessons": "Progress through a step-by-step lesson structure.",
+          "progress": "Manage learner progress.",
+          "quizzes": "Set up quizzes to confirm understanding of lessons.",
+          "certificates": "Issue certificates to course completers."
+        }
+      },
+      "ai-quiz": {
+        "title": "AI-Generated Quiz",
+        "description": "AI automatically generates quizzes based on topics.",
+        "features": {
+          "autoGenerate": "Auto Generation",
+          "customPrompt": "Custom Prompts",
+          "instant": "Instant Creation",
+          "edit": "Editable"
+        },
+        "featureInfo": {
+          "autoGenerate": "Simply input a topic and AI automatically creates questions.",
+          "customPrompt": "Customize detailed instructions to the AI.",
+          "instant": "Completed quizzes are generated in just seconds.",
+          "edit": "Generated questions can be freely edited and adjusted."
+        }
+      }
+    },
+    "demo": {
+      "try": "Try Quiz Creation Demo",
+      "backToHome": "Back to Home",
+      "backToQuiz": "Back to Quiz Type Selection"
+    }
+  },
+  "usecases": {
+    "title": "ExamForge Works Across Various Scenarios",
+    "description": "From educational institutions to corporate training, we support a wide range of applications. Find the optimal use case for your needs.",
+    "tabs": {
+      "education": {
+        "title": "For Educational Institutions",
+        "description": "Perfect for classes and exams in schools and universities. Use as an educational tool to maximize learning effectiveness.",
+        "benefits": [
+          "Visualize learning progress to boost student motivation",
+          "Support diverse evaluation methods with rich question types",
+          "Significantly reduce teacher workload with automatic grading",
+          "Support individualized instruction with detailed analysis reports"
+        ]
+      },
+      "corporate": {
+        "title": "For Corporate Training",
+        "description": "Support employee skill development and certification acquisition. Build effective human resource development programs.",
+        "benefits": [
+          "Establish quantitative training effectiveness measurement and improvement cycles",
+          "Create customized training content by department and job type",
+          "Centralized management of participation status for efficient HR operations",
+          "Support internal certification systems with certificate issuance"
+        ]
+      },
+      "certification": {
+        "title": "For Certification Exams",
+        "description": "Implementation of public qualifications and industry certification exams. Provide a secure and fair testing environment.",
+        "benefits": [
+          "Full-scale exam operations with time limits and passing score settings",
+          "Ensure exam fairness with anti-cheating features",
+          "Support large-scale exams with candidate management system",
+          "Streamline certification process with automatic official certificate issuance"
+        ]
+      }
+    },
+    "cta": {
+      "tryFree": "Try Free",
+      "watchDemo": "Watch Demo"
+    },
+    "mockup": {
+      "badge": "Active",
+      "previewDescription": "Experience the actual quiz interface",
+      "previewButton": "View Preview",
+      "education": {
+        "title": "Final Exam - Math II",
+        "questionUnit": " questions",
+        "stats": {
+          "students": "Students",
+          "avgTime": "Avg Time",
+          "avgScore": "Avg Score"
+        },
+        "content": {
+          "title": "Question Types",
+          "multipleChoice": "Multiple Choice",
+          "essay": "Essay",
+          "calculation": "Calculation"
+        }
+      },
+      "corporate": {
+        "title": "New Employee Training - Compliance",
+        "stats": {
+          "trainees": "Trainees",
+          "completion": "Completion",
+          "passRate": "Pass Rate"
+        },
+        "content": {
+          "title": "Training Modules",
+          "ethics": "Business Ethics",
+          "security": "Info Security",
+          "harassment": "Anti-Harassment"
+        }
+      },
+      "certification": {
+        "title": "IT Certification - Fundamental IT Engineer",
+        "stats": {
+          "questions": "Questions",
+          "timeLimit": "Time Limit",
+          "passScore": "Pass Score"
+        },
+        "content": {
+          "title": "Exam Features",
+          "realExam": "Real exam environment",
+          "instantScoring": "Instant scoring & feedback",
+          "certificate": "Auto certificate generation"
+        }
+      }
+    }
+  },
+  "features": {
+    "title": "Create Professional Exams with Simple Operations",
+    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
+    "list": {
+      "builder": {
+        "title": "Intuitive Quiz Builder",
+        "description": "Easily create and rearrange questions with drag & drop. Anyone can use it without programming knowledge."
+      },
+      "questionTypes": {
+        "title": "Diverse Question Types",
+        "description": "Supports various question formats such as true/false, single choice, multiple choice, and free text. Pro plan offers even more advanced question types."
+      },
+      "analytics": {
+        "title": "Detailed Analysis Reports",
+        "description": "Visually confirm test-takers' scores and correct answer rates for each question. Provides insights to maximize learning effectiveness."
+      },
+      "scoring": {
+        "title": "Automatic Scoring System",
+        "description": "Immediately check results with automatic scoring for selection and specified answers. Manual grading mode also allows for more flexible evaluation."
+      },
+      "import": {
+        "title": "Excel/CSV Integration",
+        "description": "Bulk import existing questions from Excel or CSV. Efficiently register large volumes of questions. (Pro plan)"
+      },
+      "certificates": {
+        "title": "Certificate Issuance",
+        "description": "Automatically generate customizable certificates for download as PDF or auto-send to test-takers. (Pro plan)"
+      },
+      "security": {
+        "title": "Security Measures",
+        "description": "Securely manage important exam content with password protection and access restriction features."
+      },
+      "feedback": {
+        "title": "Feedback System",
+        "description": "Support learners' comprehension with explanations for each question and comment functions during grading."
+      },
+      "ai": {
+        "title": "AI Question Generation",
+        "description": "Simply specify a topic, and AI automatically creates high-quality questions. Save time while preparing diverse questions. (Pro plan)"
+      }
+    }
+  },
+  "cta": {
+    "title": "Create Professional Quizzes Now",
+    "description": "With ExamForge's user-friendly interface, you can create and distribute quizzes and exams in minutes. Try it with our free plan.",
+    "buttons": {
+      "demo": "View Demo",
+      "signup": "Create Free Account"
+    }
+  },
+  "pricing": {
+    "title": "Simple Pricing Plans",
+    "description": "Choose from three plans to suit your needs. Upgrade as you grow.",
+    "toggle": {
+      "monthly": "Monthly",
+      "annually": "Annually",
+      "discount": "Save ~17%"
+    },
+    "plans": {
+      "features": {
+        "included": "Features Included",
+        "quizzes": {
+          "label": "Quiz Creation",
+          "free": "Quizzes: up to 5",
+          "pro": "Quizzes: unlimited",
+          "enterprise": "Quizzes: unlimited"
+        },
+        "members": {
+          "label": "Team Members",
+          "free": "Members: up to 3",
+          "pro": "Members: up to 20",
+          "enterprise": "Members: unlimited"
+        },
+        "questions": {
+          "label": "Questions per Quiz",
+          "free": "Questions: 20 per quiz",
+          "pro": "Questions: 200 per quiz",
+          "enterprise": "Questions: unlimited"
+        },
+        "responses": {
+          "label": "Monthly Responses",
+          "free": "Responses: 100 per month/quiz",
+          "pro": "Responses: 3,000 per month/quiz",
+          "enterprise": "Responses: unlimited"
+        },
+        "storage": {
+          "label": "Storage Capacity",
+          "free": "Storage: 100MB",
+          "pro": "Storage: 10GB",
+          "enterprise": "Storage: unlimited"
+        },
+        "truefalse": "True/False Questions",
+        "singlechoice": "Single Choice Questions",
+        "multiplechoice": "Multiple Choice Questions",
+        "freetext": "Free Text Questions",
+        "autograding": "Auto Grading",
+        "manualgrading": "Manual Grading",
+        "password": "Password Protection",
+        "subdomain": "Custom Subdomain",
+        "media": "Media Embedding",
+        "questionbank": "Question Bank",
+        "advancedtypes": "Advanced Question Types",
+        "analytics": "Detailed Analytics",
+        "sections": "Section Organization",
+        "certificates": "Certificate Issuance",
+        "excel": "Excel/CSV Integration",
+        "teams": "Team Creation",
+        "customdesign": "Design Customization",
+        "permissions": "Advanced Permission Control",
+        "audit": "Audit Logging",
+        "sla": "SLA Guarantee",
+        "customdev": "Custom Development",
+        "onpremise": "On-premise Support",
+        "support": "Dedicated Support Manager",
+        "allpro": "All Pro Plan Features",
+        "aiquiz": "AI Question Generation"
+      },
+      "free": {
+        "name": "Free Plan",
+        "price": "$0",
+        "period": "Forever free",
+        "description": "Perfect for individuals and small teams",
+        "cta": "Start for Free"
+      },
+      "pro": {
+        "name": "Pro Plan",
+        "price": "$29",
+        "period": "per month/tenant",
+        "description": "Perfect for educational institutions and businesses",
+        "cta": "Upgrade",
+        "popular": "Popular"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "Contact us",
+        "period": "Custom plan",
+        "description": "For large organizations and educational institutions",
+        "cta": "Contact Us"
+      }
+    },
+    "guarantee": "Pro and Enterprise plans include a 14-day free trial. Contact us if you have any questions.",
+    "viewDetails": "View Plans in Detail",
+    "cta": "Try Free Now"
+  },
+  "pages": {
+    "contact": {
+      "title": "Contact Us",
+      "description": "If you have any questions or inquiries, please feel free to contact us.",
+      "form": {
+        "name": "Name",
+        "email": "Email Address",
+        "company": "Company/Organization",
+        "subject": "Subject",
+        "message": "Message",
+        "submit": "Submit",
+        "success": "Your inquiry has been received. We will contact you once our staff reviews it.",
+        "error": "An error occurred. Please try again or contact us directly by email."
+      },
+      "contact": {
+        "title": "Other Ways to Contact Us",
+        "email": "Email: info@examforge.com",
+        "phone": "Phone: +1-XXX-XXX-XXXX",
+        "address": "Address: 123 Main St, Suite 456, New York, NY 10001"
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "questions": [
+          {
+            "question": "What can I do with the free plan?",
+            "answer": "With the free plan, you can create up to 5 quizzes with 20 questions each and accept up to 100 responses per month per quiz. Basic question types and auto-grading features are also available."
+          },
+          {
+            "question": "How do I upgrade to the Pro plan?",
+            "answer": "You can upgrade to the Pro plan from your account settings under billing information. Enter your credit card details to start using it immediately."
+          },
+          {
+            "question": "Can I cancel at any time?",
+            "answer": "Yes, you can cancel at any time. You'll continue to have access to the service until the end of your billing period. We also offer a 30-day money-back guarantee."
+          }
+        ]
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "updated": "Last Updated: April 1, 2025",
+      "sections": [
+        {
+          "title": "1. Application of Terms of Service",
+          "content": "These Terms of Service set forth the conditions for the use of the ExamForge service (hereinafter referred to as the 'Service') provided by ExamForge Inc. (hereinafter referred to as the 'Company'). By using the Service, users are deemed to have agreed to these Terms of Service."
+        },
+        {
+          "title": "2. Service Content",
+          "content": "The Service provides an online quiz and exam creation platform. Users can create, distribute, and manage quizzes and exams. Service content may be changed without notice."
+        },
+        {
+          "title": "3. Account",
+          "content": "Users are responsible for creating and maintaining their accounts with accurate and up-to-date information. Users have the obligation to notify the Company immediately in the event of any unauthorized use or breach of account information."
+        },
+        {
+          "title": "4. Service Fees",
+          "content": "The Service includes free and paid plans. The fees for paid plans shall be as posted on the Company website. Fees may be changed without notice."
+        },
+        {
+          "title": "5. Prohibited Actions",
+          "content": "Users must not engage in illegal activities or infringe upon the rights of third parties while using the Service. Actions that interfere with the normal operation of the Service are also prohibited."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "updated": "Last Updated: April 1, 2025",
+      "sections": [
+        {
+          "title": "1. Collection of Personal Information",
+          "content": "The Company collects users' personal information to the extent necessary for providing the Service. The collected information includes names, email addresses, payment information, etc."
+        },
+        {
+          "title": "2. Purpose of Using Personal Information",
+          "content": "Collected personal information is used for service provision, customer support, service improvement, marketing activities, etc. We will not use it for purposes other than those specified, except as required by law."
+        },
+        {
+          "title": "3. Sharing of Personal Information",
+          "content": "The Company will not provide personal information to third parties except as required by law or based on contracts with service providers. Service providers are obligated to implement appropriate management measures."
+        },
+        {
+          "title": "4. Security",
+          "content": "The Company implements appropriate security measures to prevent the leakage, loss, or damage of personal information."
+        },
+        {
+          "title": "5. Use of Cookies and Similar Technologies",
+          "content": "Our services use cookies and similar technologies to improve user experience and service. Users can restrict the use of these through browser settings."
+        }
+      ]
+    },
+    "legal": {
+      "title": "Legal Information",
+      "sections": [
+        {
+          "title": "Business Name",
+          "content": "ExamForge Inc."
+        },
+        {
+          "title": "Representative",
+          "content": "John Smith"
+        },
+        {
+          "title": "Location",
+          "content": "123 Main St, Suite 456, New York, NY 10001"
+        },
+        {
+          "title": "Contact",
+          "content": "Phone: +1-XXX-XXX-XXXX (Hours: Weekdays 10:00-18:00)\nEmail: info@examforge.com"
+        },
+        {
+          "title": "Sales Price",
+          "content": "Each pricing plan is based on the price shown on the service website. All displayed prices include tax."
+        },
+        {
+          "title": "Payment Methods",
+          "content": "Credit Card Payment (VISA, Mastercard, American Express, JCB)\nBank Transfer (Enterprise plan only)"
+        },
+        {
+          "title": "Payment Timing",
+          "content": "Credit Card Payment: Automatic payment on contract renewal date each month\nBank Transfer: Payment within 14 days of invoice issuance"
+        },
+        {
+          "title": "Contract Period/Renewal",
+          "content": "The contract period is 1 month for monthly plans and 12 months for annual plans. If cancellation procedures are not completed 7 days before the expiration date, the contract will be automatically renewed under the same conditions."
+        },
+        {
+          "title": "Cancellation/Returns",
+          "content": "Due to the nature of digital services, returns are not accepted. However, paid plans include a 14-day free trial period."
+        }
+      ]
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: April 12, 2025",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By accessing or using ExamForge's services, you agree to be bound by these Terms of Service and all applicable laws and regulations."
+      },
+      "use": {
+        "title": "2. Use of Services",
+        "content": "You may use our services only as permitted by law and in accordance with these Terms. You agree not to misuse our services or help anyone else do so."
+      },
+      "accounts": {
+        "title": "3. User Accounts",
+        "content": "You are responsible for safeguarding the password that you use to access our services and for any activities or actions under your password."
+      },
+      "ip": {
+        "title": "4. Intellectual Property",
+        "content": "Our services and all content included on them, such as text, graphics, logos, and software, are the property of ExamForge or its licensors and are protected by copyright and other intellectual property laws."
+      },
+      "termination": {
+        "title": "5. Termination",
+        "content": "We may terminate or suspend your access to our services immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms."
+      },
+      "changes": {
+        "title": "6. Changes to Terms",
+        "content": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will notify you of any changes by posting the new Terms on this page."
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: April 12, 2025",
+    "sections": {
+      "introduction": {
+        "title": "1. Introduction",
+        "content": "This Privacy Policy describes how ExamForge (\"we\", \"us\", or \"our\") collects, uses, and shares your personal information when you use our website and services."
+      },
+      "collection": {
+        "title": "2. Information We Collect",
+        "content": "We may collect personal information that you provide directly to us when you use our services, such as your name, email address, and any other information you choose to provide."
+      },
+      "usage": {
+        "title": "3. How We Use Your Information",
+        "content": "We use the information we collect for various purposes, including to provide and improve our services, communicate with you, and comply with our legal obligations."
+      },
+      "security": {
+        "title": "4. Data Security",
+        "content": "We implement appropriate technical and organizational measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction."
+      },
+      "rights": {
+        "title": "5. Your Rights",
+        "content": "Depending on your location, you may have certain rights regarding your personal information, such as the right to access, correct, or delete your data."
+      },
+      "changes": {
+        "title": "6. Changes to This Privacy Policy",
+        "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page."
+      }
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign in to your account",
+      "subtitle": "or",
+      "homeLink": "return home",
+      "email": "Email address",
+      "password": "Password",
+      "signinButton": "Sign in",
+      "signingIn": "Signing in...",
+      "withProvider": "Sign in with %s",
+      "dividerText": "or",
+      "testCredentialsTitle": "Test Account:",
+      "testCredentialsInfo": "Email: test@example.com\nPassword: password",
+      "signupLink": "Create account",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "welcome": {
+        "title": "Welcome back!",
+        "subtitle": "Resume efficient quiz and exam management with ExamForge.",
+        "benefit1": {
+          "title": "Centralized Quiz Management",
+          "description": "Manage, analyze, and improve all your quizzes in one place"
+        },
+        "benefit2": {
+          "title": "Real-time Analytics",
+          "description": "Instantly understand test-taker performance and response trends"
+        },
+        "benefit3": {
+          "title": "Secure Environment",
+          "description": "Your data is safely protected and always accessible"
+        }
+      }
+    },
+    "signout": {
+      "title": "Signing out...",
+      "message": "Thank you for using our service",
+      "homeLink": "Return to Home"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Already have an account?",
+      "signinLink": "Sign in",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "continueWithGoogle": "Continue with Google",
+      "continueWithGitHub": "Continue with GitHub",
+      "orContinueWith": "Or continue with email",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "and": " and ",
+      "agreeToTerms": "I agree to the",
+      "createAccount": "Create account",
+      "creatingAccount": "Creating...",
+      "benefits": {
+        "title": "Get started with ExamForge",
+        "item1": {
+          "title": "Easy Quiz Creation",
+          "description": "Create professional quizzes in minutes with our intuitive editor"
+        },
+        "item2": {
+          "title": "Rich Question Types",
+          "description": "Support for various question formats from multiple choice to essay"
+        },
+        "item3": {
+          "title": "Detailed Analytics",
+          "description": "Analyze test-taker performance and response trends in detail"
+        }
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Common questions and answers about ExamForge to help you get started.",
+    "questions": {
+      "freePlanLimits": {
+        "question": "What can I do with the free plan?",
+        "answer": "With the free plan, you can create up to 5 quizzes with 20 questions each and accept up to 100 responses per month per quiz. Basic question types including true/false, single choice, multiple choice, and free text questions are available, along with automatic grading features."
+      },
+      "proUpgrade": {
+        "question": "How do I upgrade to the Pro plan?",
+        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
+      },
+      "dataSecurity": {
+        "question": "How secure is my data?",
+        "answer": "ExamForge implements SSL encryption, regular backups, and strict access controls. Your data is stored in security-certified data centers and we comply with GDPR and privacy protection regulations. We take data security very seriously."
+      },
+      "browserSupport": {
+        "question": "Which browsers are supported?",
+        "answer": "We support the latest versions of Chrome, Firefox, Safari, and Microsoft Edge. Mobile devices (iOS Safari, Android Chrome) are also fully supported. Internet Explorer 11 and earlier versions are not supported."
+      },
+      "customerSupport": {
+        "question": "What customer support do you provide?",
+        "answer": "We provide email support (weekdays 10:00-18:00). Pro plan users receive priority support, and Enterprise plan users get a dedicated support manager. We also maintain comprehensive FAQ and help documentation."
+      },
+      "dataExport": {
+        "question": "Can I export my data?",
+        "answer": "Yes, you can export your quiz data and results in CSV and Excel formats. Pro plan users can also generate advanced analytics reports in PDF format. Data migration and integration with other systems is straightforward."
+      },
+      "teamFeatures": {
+        "question": "How do team features work?",
+        "answer": "Pro plan supports up to 20 team members, while Enterprise plan offers unlimited members. Role-based permission management allows you to set detailed permissions for editors, viewers, administrators, and more."
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "overview": "Overview",
+    "recentActivity": "Recent Activity",
+    "quickActions": {
+      "title": "Quick Actions",
+      "createQuiz": {
+        "label": "Create New Quiz",
+        "description": "Quickly create a new quiz"
+      },
+      "inviteUsers": {
+        "label": "Invite Participants",
+        "description": "Invite team members"
+      },
+      "viewReports": {
+        "label": "View Reports",
+        "description": "View detailed analytics reports"
+      },
+      "manageSettings": {
+        "label": "Manage Settings",
+        "description": "Manage account settings"
+      },
+      "questionBank": {
+        "label": "Question Bank",
+        "description": "Manage question bank"
+      },
+      "memberManagement": {
+        "label": "Member Management",
+        "description": "Manage members"
+      },
+      "exportData": {
+        "label": "Export",
+        "description": "Export data"
+      },
+      "customizeTheme": {
+        "label": "Theme",
+        "description": "Customize theme"
+      },
+      "moreActions": "More Actions",
+      "needHelp": "Need help?",
+      "helpCenter": "Visit Help Center"
+    },
+    "todaysTasks": "Today's Tasks",
+    "today": "Today",
+    "tasksRemaining": "Remaining",
+    "tasksCompleted": "Completed",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "recentAchievements": "Recent Achievements",
+    "weeklyCompletionRate": "Weekly Completion Rate",
+    "newParticipants": "New Participants",
+    "defaultUser": "User",
+    "navigation": {
+      "menu": "Menu",
+      "dashboard": "Dashboard",
+      "quizzes": "Quiz Management",
+      "createQuiz": "Create Quiz",
+      "questionBank": "Question Bank",
+      "templates": "Templates",
+      "analytics": "Reports & Analytics",
+      "members": "Member Management",
+      "settings": "Settings",
+      "help": "Help",
+      "documentation": "Documentation",
+      "expand": "Expand sidebar",
+      "collapse": "Collapse sidebar",
+      "upgradePrompt": "Get access to more features",
+      "upgradeCta": "Upgrade Plan"
+    },
+    "tasks": {
+      "marketingQuizReview": "Marketing Basics Quiz Review",
+      "newEmployeeTrainingReview": "New Employee Training Results Review",
+      "q2AssessmentPrep": "Q2 Assessment Test Preparation"
+    },
+    "stats": {
+      "totalQuizzes": "Total Quizzes",
+      "monthlyParticipants": "Monthly Participants",
+      "averageScore": "Average Score",
+      "activeQuizzes": "Active Quizzes"
+    },
+    "recentQuizzes": {
+      "title": "Recent Quizzes",
+      "created": "Created",
+      "status": "Status",
+      "edit": "Edit",
+      "preview": "Preview",
+      "viewAll": "View All",
+      "questionsCount": "Questions: {count}",
+      "participantsCount": "Participants: {count}",
+      "statusBadge": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "actions": {
+        "duplicate": "Duplicate",
+        "share": "Share",
+        "export": "Export",
+        "delete": "Delete"
+      }
+    },
+    "activity": {
+      "title": "Activity",
+      "quizCreated": "Quiz was created",
+      "quizCompleted": "Quiz was completed",
+      "userJoined": "New user joined",
+      "viewAll": "View All Activity",
+      "timeAgo": {
+        "minutes": "{minutes} minutes ago",
+        "hours": "{hours} hours ago"
+      },
+      "types": {
+        "quizCompleted": {
+          "title": "Quiz Completed",
+          "description": "{user} completed {quiz}"
+        },
+        "quizCreated": {
+          "title": "Quiz Created",
+          "description": "New quiz {quiz} was created"
+        },
+        "userJoined": {
+          "title": "New User Joined",
+          "description": "{user} joined the team"
+        },
+        "quizEdited": {
+          "title": "Quiz Edited",
+          "description": "{quiz} questions were updated"
+        },
+        "quizShared": {
+          "title": "Quiz Shared",
+          "description": "{quiz} was shared with new members"
+        }
+      },
+      "metadata": {
+        "score": "Score: {score}%",
+        "participants": "Participants: {participants}"
+      }
+    },
+    "usage": {
+      "title": "Usage",
+      "quizLimit": "Quiz Limit",
+      "participantLimit": "Participant Limit",
+      "upgrade": "Upgrade",
+      "units": {
+        "items": "items",
+        "peoplePerMonth": "people/month",
+        "people": "people",
+        "mb": "MB"
+      },
+      "status": {
+        "nearLimit": "Near Limit",
+        "warning": "Warning",
+        "normal": "Normal"
+      },
+      "plans": {
+        "free": "Free Plan",
+        "pro": "Pro Plan",
+        "enterprise": "Enterprise"
+      },
+      "metrics": {
+        "quizzes": "Quizzes",
+        "participants": "Monthly Participants",
+        "storage": "Storage",
+        "members": "Members"
+      },
+      "percentUsed": "{percent}% used",
+      "remaining": "Remaining: {amount} {unit}",
+      "upgradePrompt": "Want to use more features?",
+      "upgradeDescription": "Upgrade to Pro plan for unlimited quiz creation, advanced analytics, AI auto-generation, and more.",
+      "priceFrom": "$29/month",
+      "from": "from",
+      "showDetails": "Show detailed usage"
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "createQuiz": "Create New Quiz",
+      "inviteUsers": "Invite Participants",
+      "viewReports": "View Reports",
+      "manageSettings": "Manage Settings"
+    },
+    "planStatus": {
+      "title": "Current Plan",
+      "plans": {
+        "free": "Free Plan",
+        "pro": "Pro Plan",
+        "enterprise": "Enterprise"
+      },
+      "usage": {
+        "quizzes": "Quizzes",
+        "responses": "Responses this month",
+        "questionsPerQuiz": "Questions per quiz",
+        "upTo": "Up to"
+      },
+      "features": {
+        "title": "Plan Features",
+        "aiGeneration": "AI Question Generation",
+        "advancedAnalytics": "Advanced Analytics",
+        "excelImport": "Excel Bulk Import"
+      },
+      "upgradeButton": "Upgrade to Pro",
+      "subscription": {
+        "nextBilling": "Next billing date"
+      }
+    }
+  },
+  "plans": {
+    "meta": {
+      "title": "Pricing Plan Comparison | ExamForge",
+      "description": "Compare ExamForge pricing plans in detail. Review features and pricing for Free, Pro, and Enterprise plans."
+    },
+    "title": "Find the Perfect Plan for You",
+    "subtitle": "Pro and Enterprise plans include a 14-day free trial. Upgrade or downgrade anytime.",
+    "features": {
+      "feature": "Feature",
+      "basic": "Basic Features",
+      "question_types": "Question Types",
+      "advanced": "Advanced Features",
+      "enterprise_only": "Enterprise Only",
+      "quizzes": {
+        "label": "Quiz Creation"
+      },
+      "members": {
+        "label": "Team Members"
+      },
+      "questions": {
+        "label": "Questions per Quiz"
+      },
+      "responses": {
+        "label": "Monthly Responses"
+      },
+      "storage": {
+        "label": "Storage Capacity"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "billing": {
+        "question": "What's the difference between annual and monthly billing?",
+        "answer": "Annual billing offers approximately 17% savings compared to monthly billing. Annual plans are billed yearly in advance, while monthly plans auto-renew each month. You can switch between billing cycles at any time."
+      },
+      "upgrade": {
+        "question": "How do I upgrade my plan?",
+        "answer": "Navigate to your dashboard settings and select 'Plan Management' to choose your desired plan. Upgrades take effect immediately and charges are prorated."
+      },
+      "downgrade": {
+        "question": "Can I downgrade my plan?",
+        "answer": "Yes, you can downgrade anytime. The downgrade will take effect at your next renewal date. Your existing content remains accessible, but features exceeding the lower plan's limits will be restricted."
+      },
+      "trial": {
+        "question": "Is there a free trial?",
+        "answer": "The Free plan lets you test core features indefinitely. Additionally, paid plans include a 14-day free trial, so you can try them risk-free."
+      },
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept major credit cards (VISA, Mastercard, American Express, JCB). Enterprise plans also support bank transfers."
+      },
+      "cancel": {
+        "question": "How do I cancel my subscription?",
+        "answer": "Go to your dashboard settings, select 'Plan Management', and click 'Cancel Plan'. You'll retain access until the end of your current billing period."
+      },
+      "enterprise": {
+        "question": "Tell me more about Enterprise plans",
+        "answer": "Enterprise plans are custom solutions for large organizations. They include dedicated support, SLA guarantees, custom development options, and flexible pricing based on your specific needs. Contact us for details."
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
+      "button": "Start for Free",
+      "note": "No credit card required · Upgrade anytime"
+    }
+  },
+  "quizManagement": {
+    "cardActions": {
+      "openMenu": "Open menu",
+      "preview": "Preview",
+      "edit": "Edit",
+      "share": "Share",
+      "duplicate": "Duplicate",
+      "analytics": "Analytics",
+      "delete": "Delete"
+    },
+    "cardPresentation": {
+      "updated": "Updated"
+    },
+    "listContent": {
+      "errorLoading": "Failed to load quizzes",
+      "noQuizzes": "No quizzes found",
+      "noMatchingQuizzes": "No quizzes match your search criteria.",
+      "noQuizzesCreated": "No quizzes have been created yet. Create your first quiz to get started.",
+      "showingResults": "Showing {start}-{end} of {total} results",
+      "errorProcessing": "An error occurred while processing parameters. Please reload the page."
+    },
+    "listHeader": {
+      "title": "Quiz Management",
+      "subtitle": "Manage and edit your created quizzes",
+      "createNewQuiz": "Create New Quiz",
+      "view": "View",
+      "itemsPerPage": "Items per page"
+    },
+    "search": {
+      "placeholder": "Search quizzes...",
+      "label": "Search:"
+    },
+    "filters": {
+      "status": {
+        "placeholder": "Status",
+        "all": "All",
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "sort": {
+        "placeholder": "Sort by",
+        "createdDesc": "Created (Newest)",
+        "createdAsc": "Created (Oldest)",
+        "updatedDesc": "Updated (Newest)",
+        "updatedAsc": "Updated (Oldest)",
+        "titleAsc": "Title (A-Z)",
+        "titleDesc": "Title (Z-A)",
+        "responsesDesc": "Responses (Most)",
+        "responsesAsc": "Responses (Least)"
+      },
+      "clear": "Clear",
+      "tags": "Tags:"
+    },
+    "createQuiz": {
+      "title": "Title *",
+      "titlePlaceholder": "Enter quiz title",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter quiz description (optional)",
+      "descriptionHelp": "This description will be shown to participants",
+      "scoringMode": "Scoring Mode",
+      "scoringModePlaceholder": "Select scoring mode",
+      "autoScoring": "Auto Scoring",
+      "manualScoring": "Manual Scoring",
+      "sharingMode": "Sharing Mode",
+      "sharingModePlaceholder": "Select sharing mode",
+      "urlSharing": "URL Sharing",
+      "passwordProtected": "Password Protected",
+      "password": "Password",
+      "passwordPlaceholder": "Enter access password",
+      "passwordHelp": "Participants will need this password to access the quiz"
+    },
+    "deleteDialog": {
+      "title": "Delete Quiz?",
+      "description": "Deleting will remove all related questions and response data. This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleteButton": "Delete",
+      "deleting": "Deleting..."
+    },
+    "createModal": {
+      "title": "Create New Quiz",
+      "create": "Create",
+      "creating": "Creating...",
+      "cancel": "Cancel",
+      "createSuccess": "Quiz created successfully",
+      "createError": "Failed to create quiz"
+    },
+    "editor": {
+      "basicInfo": "Quiz Basic Information",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter quiz description",
+      "passingScore": "Passing Score (%)",
+      "scoringMode": "Scoring Mode",
+      "autoScoring": "Auto Scoring",
+      "manualScoring": "Manual Scoring",
+      "sharingSettings": "Sharing Settings",
+      "urlSharing": "URL Sharing",
+      "passwordProtected": "Password Protected",
+      "password": "Password:",
+      "tags": "Tags",
+      "addTag": "Add tag",
+      "addTagButton": "Add",
+      "coverImage": "Cover Image",
+      "coverImageAlt": "Cover image",
+      "uploadCoverImage": "Upload Cover Image (Pro Plan)",
+      "settings": "Quiz Settings",
+      "timeLimit": "Time Limit (minutes)",
+      "timeLimitPlaceholder": "Unlimited",
+      "shuffleQuestions": "Shuffle Questions",
+      "shuffleOptions": "Shuffle Options",
+      "maxAttempts": "Max Attempts",
+      "maxAttemptsPlaceholder": "Unlimited",
+      "proPlanFeature": "Pro Plan Feature",
+      "publish": {
+        "title": "Publish Quiz",
+        "subdomain": "Subdomain Settings",
+        "subdomainPlaceholder": "my-quiz",
+        "domainSuffix": ".quizservice.com",
+        "subdomainHelp": "3-30 characters, lowercase letters, numbers, and hyphens only",
+        "checking": "Checking...",
+        "available": "Available",
+        "unavailable": "Already in use",
+        "passwordProtectionInfo": "Password protection is enabled. Access password:",
+        "publicUrlInfo": "The quiz will be published at:",
+        "cancel": "Cancel",
+        "publishButton": "Publish",
+        "publishSuccess": "Quiz published successfully",
+        "publishError": "Failed to publish"
+      },
+      "header": {
+        "saveSuccess": "Saved successfully",
+        "saveError": "Failed to save",
+        "saving": "Saving...",
+        "savedAt": "Saved at",
+        "unsavedChanges": "Unsaved changes",
+        "preview": "Preview",
+        "publishSettings": "Publish Settings",
+        "save": "Save"
+      },
+      "questions": {
+        "empty": "No questions yet. Add questions from the toolbar above.",
+        "questionNumber": "Question {number}",
+        "noQuestionText": "(No question text)",
+        "points": "{points} points",
+        "pointsLabel": "points"
+      },
+      "questionTypes": {
+        "addQuestion": "Add Question",
+        "questionBank": "Question Bank",
+        "selectFromSaved": "Select from saved questions",
+        "proLabel": "PRO",
+        "truefalse": {
+          "label": "True/False",
+          "description": "Question about correctness",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Enter your question text",
+          "correctAnswer": "Correct Answer",
+          "true": "True",
+          "false": "False",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "singlechoice": {
+          "label": "Single Choice",
+          "description": "Select one answer only",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Enter your question text",
+          "options": "Options",
+          "addOption": "Add Option",
+          "option": "Option",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "multiplechoice": {
+          "label": "Multiple Choice",
+          "description": "Select multiple answers",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Enter your question text",
+          "options": "Options",
+          "addOption": "Add Option",
+          "option": "Option",
+          "selectAtLeastOneCorrect": "Please select at least one correct answer",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "freetext": {
+          "label": "Free Text",
+          "description": "Text response question",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Enter your question text",
+          "correctAnswer": "Model Answer",
+          "correctAnswerPlaceholder": "Enter model answer (for auto-grading)",
+          "correctAnswerHint": "For automatic grading, this model answer will be used for AI comparison and scoring",
+          "gradingCriteria": "Grading Criteria",
+          "gradingCriteriaPlaceholder": "Enter grading criteria (for manual grading)",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "fillinblank": {
+          "label": "Fill in the Blank",
+          "description": "Fill in the gaps",
+          "instructions": "Type [blank] where you want to create a blank space",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Example: The capital of Japan is [blank].",
+          "preview": "Preview",
+          "blanksAnswers": "Blank Answers",
+          "blank": "Blank",
+          "correctAnswer": "Correct Answer",
+          "alternativeAnswers": "Alternative Answers",
+          "addAlternative": "Add Alternative",
+          "alternativePlaceholder": "Alternative correct answer",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "matching": {
+          "label": "Matching Question",
+          "description": "Match items correctly",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Match the items on the left with their correct pairs on the right",
+          "matchingPairs": "Matching Pairs",
+          "addPair": "Add Pair",
+          "shuffleRight": "Shuffle Right",
+          "leftColumn": "Left Column",
+          "rightColumn": "Right Column",
+          "leftPlaceholder": "Left item",
+          "rightPlaceholder": "Right item",
+          "matchingHint": "Right column items will be shuffled during the quiz",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "ordering": {
+          "label": "Sorting Question",
+          "description": "Arrange in correct order",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Please arrange the items in the correct order",
+          "sortItems": "Sort Items",
+          "addItem": "Add Item",
+          "itemPlaceholder": "Enter item text",
+          "sortingHint": "Drag and drop to set the correct order",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "fileupload": {
+          "label": "File Upload",
+          "description": "Submit file as answer"
+        },
+        "diagram": {
+          "label": "Diagram Question",
+          "description": "Point to locations on diagram",
+          "instructions": "Upload an image and click to add hotspots",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Click on the correct location in the diagram",
+          "diagramImage": "Diagram Image",
+          "uploadImage": "Upload Image",
+          "uploadHint": "Supports JPG, PNG, GIF formats",
+          "addHotSpot": "Add Hotspot",
+          "clickToAdd": "Click image to add",
+          "changeImage": "Change Image",
+          "hotSpotSettings": "Hotspot Settings",
+          "labelPlaceholder": "Enter label",
+          "correctAnswer": "Correct Answer",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "numeric": {
+          "label": "Numeric Input",
+          "description": "Answer with numbers",
+          "questionText": "Question Text",
+          "questionPlaceholder": "Enter a calculation or numeric question",
+          "correctAnswer": "Correct Answer",
+          "answerPlaceholder": "Correct numeric value",
+          "tolerance": "Tolerance",
+          "tolerancePlaceholder": "± tolerance",
+          "toleranceHint": "Example: Setting 0.1 accepts answers within ±0.1 of the correct answer",
+          "allowRange": "Specify as Range",
+          "minValue": "Minimum Value",
+          "minPlaceholder": "Min value",
+          "maxValue": "Maximum Value",
+          "maxPlaceholder": "Max value",
+          "unit": "Unit",
+          "unitPlaceholder": "e.g., cm, kg, $",
+          "decimalPlaces": "Decimal Places",
+          "decimalPlaceholder": "e.g., 2",
+          "manualGradingNote": "In manual grading mode, graders will review and score answers",
+          "points": "Points",
+          "hint": "Hint",
+          "hintPlaceholder": "Enter a hint (optional)",
+          "addHint": "Add Hint",
+          "explanation": "Explanation",
+          "explanationPlaceholder": "Enter an explanation (optional)",
+          "addExplanation": "Add Explanation"
+        },
+        "proFeatureRequired": "Pro feature required"
+      },
+      "passwordPlaceholder": "Enter password",
+      "questionMedia": {
+        "title": "Question Media",
+        "proBadge": "PRO"
+      },
+      "multiMediaUpload": {
+        "title": "Media Attachments",
+        "clickOrDrag": "Click or drag files to upload",
+        "supportedFormats": "Images: JPEG, PNG, GIF, WebP • Videos: MP4, WebM, OGG, MOV",
+        "sizeLimit": "Images: max 10MB • Videos: max 500MB",
+        "uploading": "Uploading...",
+        "uploadSuccess": "{count, plural, one {# file} other {# files}} uploaded successfully",
+        "uploadError": "Failed to upload files",
+        "deleteTitle": "Delete Media",
+        "deleteDescription": "Are you sure you want to delete this media file?",
+        "deleteSuccess": "Media deleted successfully",
+        "deleteError": "Failed to delete media",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "image": "Image",
+        "video": "Video",
+        "preview": "Preview",
+        "storageRemaining": "{remaining} remaining",
+        "storageExceeded": "Storage limit exceeded. You have {remaining} remaining."
+      },
+      "proFeatures": {
+        "title": "Pro Features",
+        "proBadge": "PRO",
+        "tabs": {
+          "ai": "AI Features",
+          "import": "Import",
+          "advanced": "Advanced",
+          "analytics": "Analytics"
+        },
+        "aiGeneration": {
+          "title": "AI Question Generation",
+          "description": "Automatically generate questions using AI",
+          "generate": "Generate Questions"
+        },
+        "aiImprovement": {
+          "title": "AI Quality Improvement",
+          "description": "Analyze and improve existing questions with AI",
+          "improve": "Improve Questions"
+        },
+        "excelImport": {
+          "title": "Excel Bulk Import",
+          "description": "Import multiple questions from Excel files",
+          "upload": "Upload File"
+        },
+        "questionBank": {
+          "title": "Question Bank",
+          "description": "Select from saved question templates",
+          "browse": "Browse Question Bank"
+        },
+        "advancedSettings": {
+          "title": "Advanced Settings",
+          "timeLimit": "Time Limit",
+          "timeLimitDescription": "Set a time limit for the entire quiz",
+          "minutes": "minutes",
+          "maxAttempts": "Attempt Limit",
+          "maxAttemptsDescription": "Limit how many times respondents can retake",
+          "times": "times",
+          "certificate": "Completion Certificate",
+          "certificateDescription": "Automatically issue certificates to passing respondents",
+          "configureCertificate": "Configure Certificate",
+          "shuffleQuestions": "Shuffle Questions",
+          "shuffleOptions": "Shuffle Options"
+        },
+        "analytics": {
+          "title": "Quiz Analytics",
+          "detailedTitle": "Detailed Analytics",
+          "realtime": "Real-time",
+          "avgScore": "Average Score",
+          "completionRate": "Completion Rate",
+          "totalResponses": "Total Responses",
+          "viewDetails": "View Details",
+          "viewFullReport": "View Full Report"
+        }
+      }
+    }
+  },
+  "ui": {
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "morePages": "More pages"
+    },
+    "breadcrumb": {
+      "more": "More"
+    }
+  },
+  "socialProof": {
+    "badge": "Track Record",
+    "title": "Adopted by Many Companies and Educational Institutions",
+    "subtitle": "ExamForge is utilized in corporate training and educational settings."
+  }
+}

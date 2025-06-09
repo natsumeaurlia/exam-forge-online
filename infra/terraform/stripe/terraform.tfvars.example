@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and update with your values
+
+environment = "sandbox"
+
+# Webhook URL - Update this with your actual endpoint
+webhook_url = "https://your-domain.com/api/stripe/webhook"
+
+# Currency
+currency = "jpy"
+
+# Tax rate (10% for Japan)
+team_member_tax_rate = 0.1

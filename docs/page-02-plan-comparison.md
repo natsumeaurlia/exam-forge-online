@@ -31,6 +31,15 @@
    - 横：プラン、縦：機能のテーブル形式
    - 基本機能と高度な機能を分けて表示
    - チェックマークまたは制限値で各プランの対応を表示
+   - メディアアップロード機能の詳細：
+     - フリープラン：メディアアップロード不可
+     - プロプラン：
+       - 画像・動画の複数アップロード可能
+       - 10GBのストレージ容量
+       - 対応フォーマット：画像（JPEG, PNG, GIF, WebP）、動画（MP4, WebM, OGG, MOV）
+       - ファイルサイズ制限：画像10MB、動画500MB
+       - ドラッグ&ドロップでの並べ替え対応
+     - エンタープライズプラン：カスタムストレージ容量
 
 4. **FAQ セクション**
 
@@ -73,6 +82,18 @@
       questionsPerQuiz: number | string;
       responsesPerMonth: number | string;
       storage: string;
+      mediaUpload?: {
+        enabled: boolean;
+        storageLimit: string; // e.g., "10GB"
+        allowedFormats: {
+          images: string[]; // ["JPEG", "PNG", "GIF", "WebP"]
+          videos: string[]; // ["MP4", "WebM", "OGG", "MOV"]
+        };
+        maxFileSize: {
+          images: string; // "10MB"
+          videos: string; // "500MB"
+        };
+      };
     };
     includedFeatures: string[];
   }

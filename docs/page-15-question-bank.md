@@ -58,7 +58,14 @@
    - 難易度設定
    - タグ設定
    - カテゴリー設定
-   - メディア追加（画像/音声/動画）
+   - メディア追加（画像/音声/動画）（プロプラン）
+     - 複数ファイル同時アップロード
+     - ドラッグ&ドロップ対応
+     - 対応フォーマット：
+       - 画像：JPEG, PNG, GIF, WebP（最大10MB）
+       - 動画：MP4, WebM, OGG, MOV（最大500MB）
+     - アップロード済みメディアの管理
+     - ストレージ使用量表示
 
 6. **一括インポート/エクスポートセクション**
 
@@ -120,11 +127,23 @@
     difficulty: 'easy' | 'medium' | 'hard';
     tags: string[];
     categoryId?: string;
-    mediaUrls: string[];
+    mediaUrls: string[]; // MinIOに保存されたメディアのURL
+    media?: MediaAttachment[]; // 詳細なメディア情報（プロプラン）
     createdAt: Date;
     updatedAt: Date;
     usageCount: number;
     lastUsedAt?: Date;
+  }
+
+  interface MediaAttachment {
+    id: string;
+    type: 'image' | 'video';
+    url: string;
+    fileName: string;
+    fileSize: number;
+    mimeType: string;
+    order: number;
+    uploadedAt: Date;
   }
   ```
 
@@ -133,6 +152,9 @@
   - 画像/音声/動画のプレビュー
   - 最適化とリサイズ
   - ストレージ使用量の追跡
+  - MinIOバックエンドでのオブジェクトストレージ
+  - ユーザーごとの10GB制限管理（プロプラン）
+  - CDN経由での高速配信
 
 - **一括インポート/エクスポート**
 

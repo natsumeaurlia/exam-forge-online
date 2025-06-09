@@ -6,33 +6,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ExamForge is a multi-language online quiz and exam creation platform built with Next.js 15, TypeScript, and Prisma. It supports Japanese and English with comprehensive quiz management, authentication, and analytics.
 
+## Project Structure Update
+
+The project has been reorganized with the following structure:
+```
+exam-forge/
+├── web/          # Next.js application (all previous code moved here)
+├── infra/        # Infrastructure configuration
+│   └── terraform/
+│       └── stripe/  # Stripe billing setup
+├── docs/         # Documentation
+└── .env          # Environment variables (root level, NOT in web/)
+```
+
+**Important**: 
+- All application code is now in the `web/` directory
+- The `.env` file is at the ROOT level (exam-forge/.env), not in the web directory
+- The web application reads environment variables from the parent directory
+- All Prisma commands use `dotenv-cli` to load the parent .env file
+- When running commands, ensure you're in the correct directory:
+  - For application commands (pnpm dev, db:migrate, etc.): `cd web`
+  - For infrastructure: `cd infra/terraform/stripe`
+
 ## Essential Commands
 
-### Development
+### Development (run from web/ directory)
 
 - `pnpm dev` - Start development server with Turbopack
 - `pnpm build` - Production build
 - `pnpm start` - Start production server
 
-### Database (Prisma)
+### Database (Prisma) (run from web/ directory)
 
 - `pnpm db:migrate` - Run database migrations
 - `pnpm db:generate` - Generate Prisma client
 - `pnpm db:studio` - Open Prisma Studio GUI
 - `pnpm db:reset` - Reset database with seed data
 
-### Testing
+### Testing (run from web/ directory)
 
 - `pnpm test` - Run all Playwright E2E tests
 - `pnpm test:fast` - Run tests in parallel (faster)
 - `pnpm test:ui` - Interactive test runner
 - `pnpm test:headed` - Run tests with browser UI
 
-### Code Quality
+### Code Quality (run from web/ directory)
 
 - `pnpm lint` - ESLint check
 - `pnpm format` - Prettier formatting
 - `pnpm type-check` - TypeScript validation
+
+### Infrastructure (run from infra/terraform/stripe/)
+
+- `terraform init` - Initialize Terraform
+- `terraform plan` - Preview changes
+- `terraform apply` - Apply infrastructure changes
 
 ## Architecture Overview
 
@@ -42,11 +70,27 @@ ExamForge is a multi-language online quiz and exam creation platform built with 
 - **TypeScript** in strict mode
 - **Prisma ORM** with PostgreSQL
 - **NextAuth.js** for authentication (Google, GitHub, Credentials)
+- **Stripe** for billing and payments
 - **next-intl** for i18n (Japanese/English)
 - **Tailwind CSS** + **shadcn/ui** for styling
 - **Playwright** for E2E testing
+- **Terraform** for infrastructure as code
 
 ### Key Patterns
+
+#### Team-Based Architecture
+
+- All resources (quizzes, subscriptions) belong to teams
+- Users can be members of multiple teams
+- Pricing is per team member (Pro plan: ¥2,980/user/month)
+- Free plan limited to 1 member (individual use)
+
+#### Billing System
+
+- Stripe integration for subscription management
+- Webhook handlers in `/api/stripe/webhook`
+- Customer portal for self-service subscription management
+- Support for monthly and yearly billing cycles
 
 #### Internationalization
 
@@ -64,8 +108,9 @@ ExamForge is a multi-language online quiz and exam creation platform built with 
 
 #### Database Architecture
 
-Core models: User, Quiz, Question, QuestionOption, QuizResponse, Tag, Section
+Core models: User, Team, TeamMember, Quiz, Question, QuestionOption, QuizResponse, Subscription, Plan
 
+- Team-based multi-tenancy
 - Quizzes support multiple question types, time limits, password protection
 - Rich analytics with QuizResponse tracking
 - Tag-based categorization system
@@ -125,6 +170,17 @@ Core models: User, Quiz, Question, QuestionOption, QuizResponse, Tag, Section
 - Update seed.ts for development data
 - Regenerate client after schema changes: `pnpm db:generate`
 
+### Stripe Integration
+
+- Webhook endpoint: `/api/stripe/webhook`
+- Checkout session: `/api/stripe/checkout`
+- Customer portal: `/api/stripe/portal`
+- Environment variables required:
+  - `STRIPE_SECRET_KEY`
+  - `STRIPE_PUBLISHABLE_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
+  - Price IDs from Terraform output
+
 ## Common Patterns
 
 ### Creating New Pages
@@ -151,3 +207,15 @@ Core models: User, Quiz, Question, QuestionOption, QuizResponse, Tag, Section
 - Use `auth()` from `src/lib/auth.ts` to get session
 - Protect pages with middleware or component-level checks
 - Redirect unauthenticated users to `/[lng]/auth/signin`
+
+### Team Context
+
+- Always check team membership and permissions
+- Use `teamId` from user's active team context
+- Verify user role (OWNER, ADMIN, MEMBER, VIEWER) for actions
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
