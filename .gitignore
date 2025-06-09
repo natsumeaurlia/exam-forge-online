@@ -36,3 +36,6 @@ tsconfig.tsbuildinfo
 *storybook.log
 storybook-static
 playwright-report
+
+.turbo
+.claude
