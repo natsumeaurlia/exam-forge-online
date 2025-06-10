@@ -4,11 +4,23 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-});
+// Initialize Stripe only if the API key is available
+const stripeApiKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeApiKey
+  ? new Stripe(stripeApiKey, {
+      apiVersion: '2025-05-28.basil',
+    })
+  : null;
 
 export async function POST(request: NextRequest) {
+  // Check if Stripe is properly configured
+  if (!stripe) {
+    return NextResponse.json(
+      { error: 'Payment system is not configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
