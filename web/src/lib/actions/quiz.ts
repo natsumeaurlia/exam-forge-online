@@ -17,6 +17,7 @@ import {
   deleteQuestionSchema,
   reorderQuestionsSchema,
   checkSubdomainSchema,
+  saveQuizWithQuestionsSchema,
 } from '@/types/quiz-schemas';
 import { QuizStatus, QuestionType } from '@prisma/client';
 
@@ -725,3 +726,155 @@ export async function getQuizWithQuestionsById(quizId: string) {
     return { data: null, error: 'クイズの取得に失敗しました' };
   }
 }
+
+// クイズと問題を一括保存（自動保存用）
+export const saveQuizWithQuestions = action
+  .schema(saveQuizWithQuestionsSchema)
+  .action(async ({ parsedInput: data }) => {
+    const userId = await getAuthenticatedUser();
+
+    try {
+      const teamId = await getUserActiveTeam(userId);
+
+      // クイズの所有者確認
+      const existingQuiz = await prisma.quiz.findFirst({
+        where: {
+          id: data.id,
+          teamId,
+        },
+      });
+
+      if (!existingQuiz) {
+        throw new Error('クイズが見つからないか、編集権限がありません');
+      }
+
+      // トランザクションで一括更新
+      const result = await prisma.$transaction(async tx => {
+        // 1. クイズのメタデータを更新
+        const { questions, ...quizData } = data;
+        await tx.quiz.update({
+          where: { id: data.id },
+          data: quizData,
+        });
+
+        // 2. 既存の問題IDを取得
+        const existingQuestions = await tx.question.findMany({
+          where: { quizId: data.id },
+          select: { id: true },
+        });
+        const existingQuestionIds = new Set(existingQuestions.map(q => q.id));
+
+        // 3. 新しい問題IDセットを作成
+        const newQuestionIds = new Set(
+          questions.filter(q => !q.id.startsWith('temp-')).map(q => q.id)
+        );
+
+        // 4. 削除された問題を削除
+        const deletedQuestionIds = [...existingQuestionIds].filter(
+          id => !newQuestionIds.has(id)
+        );
+        if (deletedQuestionIds.length > 0) {
+          await tx.question.deleteMany({
+            where: {
+              id: { in: deletedQuestionIds },
+              quizId: data.id,
+            },
+          });
+        }
+
+        // 5. 問題を更新または作成
+        for (const question of questions) {
+          const { id, options, media, ...questionData } = question;
+
+          if (id.startsWith('temp-')) {
+            // 新規問題を作成
+            const newQuestion = await tx.question.create({
+              data: {
+                ...questionData,
+                quizId: data.id,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              },
+            });
+
+            // 選択肢を作成
+            if (options && options.length > 0) {
+              await tx.questionOption.createMany({
+                data: options.map(opt => ({
+                  questionId: newQuestion.id,
+                  text: opt.text,
+                  isCorrect: opt.isCorrect,
+                  order: opt.order,
+                })),
+              });
+            }
+
+            // メディアを作成
+            if (media && media.length > 0) {
+              await tx.questionMedia.createMany({
+                data: media.map(m => ({
+                  questionId: newQuestion.id,
+                  url: m.url,
+                  type: m.type,
+                })),
+              });
+            }
+          } else {
+            // 既存問題を更新
+            await tx.question.update({
+              where: { id },
+              data: {
+                ...questionData,
+                updatedAt: new Date(),
+              },
+            });
+
+            // 選択肢を更新（削除して再作成）
+            if (options !== undefined) {
+              await tx.questionOption.deleteMany({
+                where: { questionId: id },
+              });
+
+              if (options.length > 0) {
+                await tx.questionOption.createMany({
+                  data: options.map(opt => ({
+                    questionId: id,
+                    text: opt.text,
+                    isCorrect: opt.isCorrect,
+                    order: opt.order,
+                  })),
+                });
+              }
+            }
+
+            // メディアを更新（削除して再作成）
+            if (media !== undefined) {
+              await tx.questionMedia.deleteMany({
+                where: { questionId: id },
+              });
+
+              if (media.length > 0) {
+                await tx.questionMedia.createMany({
+                  data: media.map(m => ({
+                    questionId: id,
+                    url: m.url,
+                    type: m.type,
+                  })),
+                });
+              }
+            }
+          }
+        }
+
+        return { success: true };
+      });
+
+      revalidatePath(`/dashboard/quizzes/${data.id}`);
+      return { success: true };
+    } catch (error) {
+      console.error('Auto-save error:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'クイズの保存に失敗しました'
+      );
+    }
+  });

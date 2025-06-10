@@ -15,9 +15,18 @@ import { useTranslations } from 'next-intl';
 interface QuizEditorHeaderProps {
   quizId: string;
   lng: string;
+  autoSaveTime?: Date | null;
+  isAutoSaving?: boolean;
+  autoSaveError?: string | null;
 }
 
-export function QuizEditorHeader({ quizId, lng }: QuizEditorHeaderProps) {
+export function QuizEditorHeader({
+  quizId,
+  lng,
+  autoSaveTime,
+  isAutoSaving,
+  autoSaveError,
+}: QuizEditorHeaderProps) {
   const router = useRouter();
   const { quiz, isDirty, setSaving } = useQuizEditorStore();
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
@@ -102,6 +111,7 @@ export function QuizEditorHeader({ quizId, lng }: QuizEditorHeaderProps) {
             )}
 
             <div className="flex items-center gap-2 text-sm text-gray-500">
+              {/* 手動保存状態 */}
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -118,9 +128,41 @@ export function QuizEditorHeader({ quizId, lng }: QuizEditorHeaderProps) {
                     {t('savedAt')}
                   </span>
                 </>
-              ) : isDirty ? (
-                <span className="text-orange-500">{t('unsavedChanges')}</span>
               ) : null}
+
+              {/* 自動保存状態 */}
+              {isAutoSaving && (
+                <>
+                  <span className="mx-2 text-gray-300">|</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                  <span className="text-blue-500">自動保存中...</span>
+                </>
+              )}
+
+              {!isAutoSaving && autoSaveTime && !isSaving && (
+                <>
+                  <span className="mx-2 text-gray-300">|</span>
+                  <Check className="h-4 w-4 text-gray-400" />
+                  <span className="text-gray-400">
+                    自動保存済み{' '}
+                    {autoSaveTime.toLocaleTimeString('ja-JP', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </>
+              )}
+
+              {autoSaveError && (
+                <>
+                  <span className="mx-2 text-gray-300">|</span>
+                  <span className="text-red-500">自動保存エラー</span>
+                </>
+              )}
+
+              {isDirty && !isAutoSaving && !isSaving && (
+                <span className="text-orange-500">{t('unsavedChanges')}</span>
+              )}
             </div>
           </div>
 

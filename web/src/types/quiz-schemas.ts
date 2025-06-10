@@ -188,6 +188,52 @@ export const reorderQuestionsSchema = z.object({
   questionIds: z.array(idSchema),
 });
 
+// クイズ全体保存スキーマ（自動保存用）
+export const saveQuizWithQuestionsSchema = z.object({
+  id: idSchema,
+  title: z.string().min(1, 'タイトルは必須です').max(200),
+  description: z.string().optional(),
+  passingScore: z.number().min(0).max(100).optional(),
+  coverImage: z.string().optional(),
+  subdomain: z.string().optional(),
+  timeLimit: z.number().min(1).optional(),
+  shuffleQuestions: z.boolean().optional(),
+  shuffleOptions: z.boolean().optional(),
+  maxAttempts: z.number().min(1).optional(),
+  questions: z.array(
+    z.object({
+      id: z.string(),
+      type: z.nativeEnum(QuestionType),
+      text: z.string(),
+      points: z.number().min(1),
+      hint: z.string().optional().nullable(),
+      explanation: z.string().optional().nullable(),
+      correctAnswer: correctAnswerSchema.optional().nullable(),
+      isRequired: z.boolean(),
+      order: z.number(),
+      options: z
+        .array(
+          z.object({
+            id: z.string().optional(),
+            text: z.string(),
+            isCorrect: z.boolean(),
+            order: z.number(),
+          })
+        )
+        .optional(),
+      media: z
+        .array(
+          z.object({
+            id: z.string().optional(),
+            url: z.string(),
+            type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']),
+          })
+        )
+        .optional(),
+    })
+  ),
+});
+
 // ============================================
 // タグ関連スキーマ
 // ============================================
@@ -264,6 +310,9 @@ export type AddQuestionInput = z.infer<typeof addQuestionSchema>;
 export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>;
 export type DeleteQuestionInput = z.infer<typeof deleteQuestionSchema>;
 export type ReorderQuestionsInput = z.infer<typeof reorderQuestionsSchema>;
+export type SaveQuizWithQuestionsInput = z.infer<
+  typeof saveQuizWithQuestionsSchema
+>;
 
 // タグ関連
 export type CreateTagInput = z.infer<typeof createTagSchema>;
