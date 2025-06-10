@@ -96,7 +96,13 @@ export const addTagToQuiz = action
       const quiz = await prisma.quiz.findFirst({
         where: {
           id: data.quizId,
-          userId,
+          team: {
+            members: {
+              some: {
+                userId,
+              },
+            },
+          },
         },
       });
 
@@ -130,7 +136,13 @@ export const removeTagFromQuiz = action
       const quiz = await prisma.quiz.findFirst({
         where: {
           id: data.quizId,
-          userId,
+          team: {
+            members: {
+              some: {
+                userId,
+              },
+            },
+          },
         },
       });
 

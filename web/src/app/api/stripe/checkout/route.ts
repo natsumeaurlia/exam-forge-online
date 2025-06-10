@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { auth } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-05-28.basil',
 });
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -59,11 +60,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create or get Stripe customer
-    let stripeCustomerId =
-      teamMember.team.creatorId === session.user.id
-        ? session.user.stripeCustomerId
-        : null;
+    // Get user's Stripe customer ID
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { stripeCustomerId: true },
+    });
+
+    let stripeCustomerId = user?.stripeCustomerId || null;
 
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
