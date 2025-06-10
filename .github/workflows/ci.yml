@@ -6,10 +6,16 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'src/**'
-      - 'prisma/**'
-      - 'package.json'
-      - 'tsconfig.json'
+      - 'web/src/**'
+      - 'web/prisma/**'
+      - 'web/package.json'
+      - 'web/tsconfig.json'
+      - 'web/pnpm-lock.yaml'
+      - '.github/workflows/**'
+
+defaults:
+  run:
+    working-directory: web
 
 jobs:
   # 依存関係のインストールとキャッシュを共有する基盤ジョブ
@@ -47,7 +53,7 @@ jobs:
         run: pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm exec prisma generate
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
@@ -150,11 +156,11 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma migrate deploy
+        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
 
       - name: Run Prisma migration validation
         run: |
-          pnpm exec prisma migrate status
+          pnpm exec dotenv -e ../.env -- prisma migrate status
           echo "✅ Prisma migrations validated successfully"
 
   # ビルドテスト
@@ -258,7 +264,7 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma migrate deploy
+        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
 
       - name: Build application
         run: pnpm run build
