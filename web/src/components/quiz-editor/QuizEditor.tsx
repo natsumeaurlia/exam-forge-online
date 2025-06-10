@@ -76,7 +76,10 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       <QuizEditorHeader quizId={quiz.id} lng={lng} />
 
       {/* Mobile Layout (up to md/768px) */}
-      <div className="quiz-editor-transition flex flex-1 overflow-hidden md:hidden">
+      <div
+        className="quiz-editor-transition flex flex-1 overflow-hidden md:hidden"
+        data-testid="mobile-layout"
+      >
         <div className="flex-1 overflow-y-auto">
           {/* Mobile: Back button when editing */}
           {isEditingOnMobile && (
@@ -123,7 +126,10 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       </div>
 
       {/* Tablet Layout (md to lg/768px-1024px) */}
-      <div className="quiz-editor-transition hidden flex-1 overflow-hidden md:flex lg:hidden">
+      <div
+        className="quiz-editor-transition hidden flex-1 overflow-hidden md:flex lg:hidden"
+        data-testid="tablet-layout"
+      >
         {/* Left Panel: Question List */}
         <div className="w-80 overflow-y-auto border-r bg-gray-50">
           <div className="p-4">
@@ -142,7 +148,10 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       </div>
 
       {/* Desktop Layout (lg+/1024px+) */}
-      <div className="quiz-editor-transition hidden flex-1 overflow-hidden lg:flex">
+      <div
+        className="quiz-editor-transition hidden flex-1 overflow-hidden lg:flex"
+        data-testid="desktop-layout"
+      >
         {/* Left Panel: Question List */}
         <div className="w-80 overflow-y-auto border-r bg-gray-50">
           <div className="p-4">
@@ -183,6 +192,7 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
           onClick={() => setShowSettings(!showSettings)}
           className="rounded-full bg-blue-600 p-3 text-white shadow-lg hover:bg-blue-700"
           size="sm"
+          data-testid="settings-button"
         >
           <Settings className="h-5 w-5" />
         </Button>
