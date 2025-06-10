@@ -19,7 +19,7 @@ export function useAutoSave({
   onError,
 }: UseAutoSaveOptions) {
   const debouncedData = useDebounce(data, delay);
-  const previousDataRef = useRef<any>();
+  const previousDataRef = useRef<any>(undefined);
   const isSavingRef = useRef(false);
   const retryCountRef = useRef(0);
   const [lastError, setLastError] = useState<Error | null>(null);

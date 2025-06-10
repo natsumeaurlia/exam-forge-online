@@ -791,6 +791,7 @@ export const saveQuizWithQuestions = action
             const newQuestion = await tx.question.create({
               data: {
                 ...questionData,
+                correctAnswer: questionData.correctAnswer ?? Prisma.JsonNull,
                 quizId: data.id,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -816,6 +817,9 @@ export const saveQuizWithQuestions = action
                   questionId: newQuestion.id,
                   url: m.url,
                   type: m.type,
+                  fileName: '', // 必須フィールドを追加
+                  fileSize: 0,
+                  mimeType: '',
                 })),
               });
             }
@@ -825,6 +829,7 @@ export const saveQuizWithQuestions = action
               where: { id },
               data: {
                 ...questionData,
+                correctAnswer: questionData.correctAnswer ?? Prisma.JsonNull,
                 updatedAt: new Date(),
               },
             });
@@ -859,6 +864,9 @@ export const saveQuizWithQuestions = action
                     questionId: id,
                     url: m.url,
                     type: m.type,
+                    fileName: '', // 必須フィールドを追加
+                    fileSize: 0,
+                    mimeType: '',
                   })),
                 });
               }
