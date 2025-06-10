@@ -52,7 +52,7 @@ resource "stripe_product" "pro_plan" {
 
 resource "stripe_product" "premium_plan" {
   name        = "ExamForge Premium Plan"
-  description = "大規模組織向けのエンタープライズプラン"
+  description = "大規模組織向けのプレミアムプラン"
   active      = true
   
   metadata = {
