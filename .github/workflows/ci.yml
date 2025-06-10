@@ -10,7 +10,12 @@ on:
       - 'web/prisma/**'
       - 'web/package.json'
       - 'web/tsconfig.json'
+      - 'web/pnpm-lock.yaml'
       - '.github/workflows/**'
+
+defaults:
+  run:
+    working-directory: web
 
 jobs:
   # 依存関係のインストールとキャッシュを共有する基盤ジョブ
@@ -29,8 +34,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Cache node modules
         id: cache-deps
@@ -38,27 +41,23 @@ jobs:
         with:
           path: |
             ~/.pnpm-store
-            web/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
-        working-directory: ./web
 
       - name: Generate Prisma client
-        run: pnpm db:generate
-        working-directory: ./web
-        env:
-          DATABASE_URL: "postgresql://postgres:password@localhost:5432/test_db"
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
         with:
-          path: web/node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('web/prisma/schema.prisma') }}
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
   # 型チェックとリント（軽量なので並列実行）
   lint-and-typecheck:
@@ -75,34 +74,29 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.pnpm-store
-            web/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
-          path: web/node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('web/prisma/schema.prisma') }}
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: TypeScript type checking
-        run: pnpm type-check
-        working-directory: ./web
+        run: pnpm exec tsc --noEmit
 
       - name: Format check
-        run: pnpm format
-        working-directory: ./web
+        run: pnpm exec prettier --check .
 
       - name: Lint
-        run: pnpm lint
-        working-directory: ./web
+        run: pnpm run lint
 
   # データベースとPrismaのテスト
   database:
@@ -134,22 +128,20 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.pnpm-store
-            web/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
-          path: web/node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('web/prisma/schema.prisma') }}
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Setup environment variables
         run: |
@@ -158,14 +150,12 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm db:migrate
-        working-directory: ./web
+        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
 
       - name: Run Prisma migration validation
         run: |
-          pnpm exec prisma migrate status
+          pnpm exec dotenv -e ../.env -- prisma migrate status
           echo "✅ Prisma migrations validated successfully"
-        working-directory: ./web
 
   # ビルドテスト
   build:
@@ -182,22 +172,20 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.pnpm-store
-            web/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
-          path: web/node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('web/prisma/schema.prisma') }}
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Setup environment variables
         run: |
@@ -206,13 +194,12 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Build application
-        run: pnpm build
-        working-directory: ./web
+        run: pnpm run build
 
       - name: Cache build output
         uses: actions/cache@v4
         with:
-          path: web/.next
+          path: .next
           key: ${{ runner.os }}-build-${{ github.sha }}
 
   # E2Eテスト（Playwright）
@@ -245,22 +232,20 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.pnpm-store
-            web/node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('web/pnpm-lock.yaml') }}
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
-          path: web/node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('web/prisma/schema.prisma') }}
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Setup environment variables
         run: |
@@ -269,20 +254,16 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm db:migrate
-        working-directory: ./web
+        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
 
       - name: Build application
-        run: pnpm build
-        working-directory: ./web
+        run: pnpm run build
 
       - name: Install Playwright Browsers
-        run: pnpm playwright install --with-deps
-        working-directory: ./web
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: pnpm test:fast
-        working-directory: ./web
+        run: pnpm run test:chrome-fast
         env:
           CI: true
 
@@ -291,7 +272,7 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          path: web/playwright-report/
+          path: playwright-report/
           retention-days: 30
 
   # すべてのジョブが成功したことを確認する集約ジョブ
@@ -299,6 +280,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, database, build, e2e-tests]
     if: always()
+    defaults:
+      run:
+        working-directory: ./web
     steps:
       - name: Check all jobs success
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
