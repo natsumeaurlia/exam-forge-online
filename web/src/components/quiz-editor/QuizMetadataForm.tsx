@@ -18,11 +18,11 @@ export function QuizMetadataForm() {
   const { quiz, updateQuizMetadata } = useQuizEditorStore();
   const [tagInput, setTagInput] = useState('');
   const t = useTranslations('quizManagement.editor');
-  const { isPro, isEnterprise } = useUserPlan();
+  const { isPro, isPremium } = useUserPlan();
 
   if (!quiz) return null;
 
-  const hasPaidPlan = isPro || isEnterprise;
+  const hasPaidPlan = isPro || isPremium;
 
   const handleDescriptionChange = (description: string) => {
     updateQuizMetadata({ description });
@@ -125,7 +125,7 @@ export function QuizMetadataForm() {
               <input
                 type="checkbox"
                 id="passwordProtection"
-                checked={quiz.isPasswordProtected}
+                checked={quiz.isPasswordProtected || false}
                 onChange={e => {
                   const isPasswordProtected = e.target.checked;
                   updateQuizMetadata({ 

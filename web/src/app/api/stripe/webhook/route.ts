@@ -2,9 +2,10 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
+import { SubscriptionStatus } from '@prisma/client';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-05-28.basil',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -108,10 +109,10 @@ async function handleCheckoutSessionCompleted(
       stripeProductId: subscription.items.data[0].price.product as string,
       status: mapStripeStatus(subscription.status),
       billingCycle,
-      memberCount: subscription.quantity || 1,
+      memberCount: subscription.items.data[0].quantity || 1,
       pricePerMember: subscription.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       planId: (await prisma.plan.findUnique({
         where: { type: planType as any },
       }))!.id,
@@ -119,8 +120,8 @@ async function handleCheckoutSessionCompleted(
     update: {
       stripeSubscriptionId: subscription.id,
       status: mapStripeStatus(subscription.status),
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
     },
   });
 }
@@ -142,9 +143,9 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     where: { id: dbSubscription.id },
     data: {
       status: mapStripeStatus(subscription.status),
-      memberCount: subscription.quantity || 1,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      memberCount: subscription.items.data[0].quantity || 1,
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       canceledAt: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000)
         : null,
@@ -201,19 +202,19 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   await prisma.invoice.create({
     data: {
       teamId,
-      stripeInvoiceId: invoice.id,
+      stripeInvoiceId: invoice.id!,
       stripeCustomerId: invoice.customer as string,
-      invoiceNumber: invoice.number || invoice.id,
+      invoiceNumber: invoice.number || invoice.id || '',
       status: 'PAID',
       subtotal: invoice.subtotal,
-      tax: invoice.tax || 0,
+      tax: (invoice as any).tax || 0,
       total: invoice.total,
       amountPaid: invoice.amount_paid,
       amountDue: invoice.amount_due,
       currency: invoice.currency,
-      paidAt: invoice.paid_at ? new Date(invoice.paid_at * 1000) : new Date(),
-      invoicePdf: invoice.invoice_pdf,
-      hostedInvoiceUrl: invoice.hosted_invoice_url,
+      paidAt: (invoice as any).paid_at ? new Date((invoice as any).paid_at * 1000) : new Date(),
+      invoicePdf: invoice.invoice_pdf || null,
+      hostedInvoiceUrl: invoice.hosted_invoice_url || null,
     },
   });
 }
@@ -221,7 +222,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   console.log('Invoice payment failed:', invoice.id);
 
-  const subscription = await prisma.subscription.findUnique({
+  const subscription = await prisma.subscription.findFirst({
     where: { stripeCustomerId: invoice.customer as string },
   });
 
@@ -238,8 +239,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   }
 }
 
-function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): any {
-  const statusMap: Record<Stripe.Subscription.Status, string> = {
+function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): SubscriptionStatus {
+  const statusMap: Record<Stripe.Subscription.Status, SubscriptionStatus> = {
     active: 'ACTIVE',
     past_due: 'PAST_DUE',
     canceled: 'CANCELED',

@@ -12,7 +12,7 @@ import type { FeatureType } from '@prisma/client';
 interface ProFeatureGateProps {
   children: React.ReactNode;
   featureType?: FeatureType;
-  requiredPlan?: 'PRO' | 'ENTERPRISE';
+  requiredPlan?: 'PRO' | 'PREMIUM';
   className?: string;
 }
 
@@ -22,7 +22,7 @@ export function ProFeatureGate({
   requiredPlan = 'PRO',
   className,
 }: ProFeatureGateProps) {
-  const { isPro, isEnterprise, hasFeature, loading } = useUserPlan();
+  const { isPro, isPremium, hasFeature, loading } = useUserPlan();
   const t = useTranslations('common');
   const router = useRouter();
 
@@ -31,7 +31,7 @@ export function ProFeatureGate({
   }
 
   // Check if user has required plan
-  let hasAccess = requiredPlan === 'PRO' ? isPro || isEnterprise : isEnterprise;
+  let hasAccess = requiredPlan === 'PRO' ? isPro || isPremium : isPremium;
 
   // Check specific feature if provided
   if (featureType && !hasFeature(featureType)) {
@@ -45,8 +45,8 @@ export function ProFeatureGate({
           <div className="flex flex-col items-center gap-4">
             <Lock className="h-12 w-12 text-gray-400" />
             <h3 className="text-lg font-semibold">
-              {requiredPlan === 'ENTERPRISE'
-                ? t('upgradeToEnterprise')
+              {requiredPlan === 'PREMIUM'
+                ? t('upgradeToPremium')
                 : t('upgradeToPro')}
             </h3>
             <p className="max-w-md text-sm text-gray-600">

@@ -36,9 +36,9 @@ export function QuizEditorProFeatures({
 }: QuizEditorProFeaturesProps) {
   const t = useTranslations('quizManagement.editor.proFeatures');
   const { quiz, updateQuizMetadata } = useQuizEditorStore();
-  const { isPro, isEnterprise } = useUserPlan();
+  const { isPro, isPremium } = useUserPlan();
   
-  const hasPaidPlan = isPro || isEnterprise;
+  const hasPaidPlan = isPro || isPremium;
 
   if (showSidebar) {
     // サイドバー表示用のコンパクトビュー

@@ -6,6 +6,7 @@ import {
   QuestionType,
   TeamRole,
 } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 /**
  * テストデータのシード
@@ -21,17 +22,21 @@ export async function seedTestData(prisma: PrismaClient) {
     });
 
     if (!testUser) {
+      // パスワードをハッシュ化
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      
       testUser = await prisma.user.create({
         data: {
           email: 'test@example.com',
           name: 'テストユーザー',
+          password: hashedPassword,
           image: null,
           stripeCustomerId: `cus_test_${Date.now()}`,
         },
       });
       console.log('✅ テストユーザー作成:', testUser.email);
+      console.log('   パスワード: password123');
     }
-
     // 追加のユーザーを作成（チームメンバー用）
     const teamMembers = [];
     for (let i = 1; i <= 3; i++) {
@@ -40,10 +45,12 @@ export async function seedTestData(prisma: PrismaClient) {
       });
 
       if (!member) {
+        const hashedPassword = await bcrypt.hash('password123', 10);
         member = await prisma.user.create({
           data: {
             email: `member${i}@example.com`,
             name: `チームメンバー${i}`,
+            password: hashedPassword,
             image: null,
           },
         });
@@ -317,10 +324,12 @@ export async function seedTestData(prisma: PrismaClient) {
     });
 
     if (!personalUser) {
+      const hashedPassword = await bcrypt.hash('password123', 10);
       personalUser = await prisma.user.create({
         data: {
           email: 'personal@example.com',
           name: '個人ユーザー',
+          password: hashedPassword,
           image: null,
         },
       });

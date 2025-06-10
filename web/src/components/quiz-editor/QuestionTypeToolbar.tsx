@@ -95,7 +95,7 @@ const getQuestionTypes = (t: ReturnType<typeof useTranslations>) => [
 
 export function QuestionTypeToolbar() {
   const { addQuestion } = useQuizEditorStore();
-  const { isPro, isEnterprise } = useUserPlan();
+  const { isPro, isPremium } = useUserPlan();
   const t = useTranslations('quizManagement.editor.questionTypes');
   const questionTypes = getQuestionTypes(t);
 
@@ -103,7 +103,7 @@ export function QuestionTypeToolbar() {
     addQuestion(type);
   };
 
-  const hasPaidPlan = isPro || isEnterprise;
+  const hasPaidPlan = isPro || isPremium;
 
   return (
     <Card>
@@ -135,7 +135,7 @@ export function QuestionTypeToolbar() {
                           <Icon className="h-5 w-5" />
                         )}
                         <span className="text-xs">{label}</span>
-                        {isPro && (
+                        {isPro && !hasPaidPlan && (
                           <span className="text-xs text-orange-500">
                             {t('proLabel')}
                           </span>
@@ -165,9 +165,11 @@ export function QuestionTypeToolbar() {
                 >
                   <Database className="h-5 w-5" />
                   <span className="text-xs">{t('questionBank')}</span>
-                  <span className="text-xs text-orange-500">
-                    {t('proLabel')}
-                  </span>
+                  {!hasPaidPlan && (
+                    <span className="text-xs text-orange-500">
+                      {t('proLabel')}
+                    </span>
+                  )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

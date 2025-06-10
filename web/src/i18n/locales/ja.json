@@ -666,7 +666,7 @@
       "withProvider": "%sでサインイン",
       "dividerText": "または",
       "testCredentialsTitle": "テスト用アカウント:",
-      "testCredentialsInfo": "メール: test@example.com\nパスワード: password",
+      "testCredentialsInfo": "メール: test@example.com\nパスワード: password123",
       "signupLink": "アカウントを作成",
       "rememberMe": "ログイン状態を保持",
       "forgotPassword": "パスワードをお忘れですか？",

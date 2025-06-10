@@ -26,16 +26,17 @@ const action = createSafeActionClient();
 // Helper function to get authenticated user
 async function getAuthenticatedUser() {
   const session = await getServerSession(authOptions);
-  console.log('Session in getAuthenticatedUser:', session);
+  
   if (!session?.user?.id) {
-    console.error('No user ID in session:', session);
     throw new Error('認証が必要です');
   }
+  
   return session.user.id;
 }
 
 // Helper function to get user's active team
 async function getUserActiveTeam(userId: string) {
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -56,26 +57,70 @@ async function getUserActiveTeam(userId: string) {
   });
 
   if (!user || user.teamMembers.length === 0) {
-    // Create a default team for the user if they don't have one
-    const newTeam = await prisma.team.create({
-      data: {
-        name: `${user?.name || 'ユーザー'}のチーム`,
-        slug: `team-${userId.substring(0, 8)}`,
-        creatorId: userId,
-        members: {
-          create: {
-            userId,
-            role: 'OWNER',
+    console.log('Creating new team for user:', userId, 'User name:', user?.name);
+    
+    try {
+      // Generate a unique slug
+      let teamSlug = `team-${userId.substring(0, 8)}`;
+      let slugSuffix = 0;
+      
+      // Check if slug already exists and make it unique
+      while (await prisma.team.findUnique({ where: { slug: teamSlug } })) {
+        slugSuffix++;
+        teamSlug = `team-${userId.substring(0, 8)}-${slugSuffix}`;
+      }
+      
+      // Use transaction to ensure atomicity
+      const newTeam = await prisma.$transaction(async (tx) => {
+        // Double-check user exists in the transaction
+        const userCheck = await tx.user.findUnique({
+          where: { id: userId },
+          select: { id: true, name: true }
+        });
+        
+        if (!userCheck) {
+          throw new Error(`セッションのユーザーIDが無効です。ブラウザのCookieをクリアして再ログインしてください。`);
+        }
+        
+        // Create the team
+        const team = await tx.team.create({
+          data: {
+            name: `${userCheck.name || 'ユーザー'}のチーム`,
+            slug: teamSlug,
+            creatorId: userId,
+            members: {
+              create: {
+                userId,
+                role: 'OWNER',
+              },
+            },
+            teamSettings: {
+              create: {
+                maxMembers: 1, // Free plan default
+              },
+            },
           },
-        },
-        teamSettings: {
-          create: {
-            maxMembers: 1, // Free plan default
-          },
-        },
-      },
-    });
-    return newTeam.id;
+        });
+        
+        return team;
+      });
+      
+      console.log('New team created:', newTeam.id, 'with slug:', newTeam.slug);
+      return newTeam.id;
+    } catch (error) {
+      console.error('Error creating team:', error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        console.error('Prisma error code:', error.code);
+        console.error('Prisma error meta:', error.meta);
+        console.error('Prisma error message:', error.message);
+        
+        // Handle specific foreign key constraint error
+        if (error.code === 'P2003' && error.meta?.field_name === 'Team_creatorId_fkey') {
+          throw new Error('ユーザーの認証に問題があります。再ログインしてください。');
+        }
+      }
+      throw new Error('チームの作成に失敗しました');
+    }
   }
 
   // Return the first team (in the future, we can implement team switching)

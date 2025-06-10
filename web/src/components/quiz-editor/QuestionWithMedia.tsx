@@ -33,8 +33,8 @@ export function QuestionWithMedia({
   onMediaChange,
 }: QuestionWithMediaProps) {
   const t = useTranslations('quizManagement.editor.questionMedia');
-  const { isPro, isEnterprise } = useUserPlan();
-  const hasPaidPlan = isPro || isEnterprise;
+  const { isPro, isPremium } = useUserPlan();
+  const hasPaidPlan = isPro || isPremium;
   const [storageInfo, setStorageInfo] = useState<{
     used: number;
     max: number;

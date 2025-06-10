@@ -74,7 +74,7 @@ function getDefaultCorrectAnswer(type: QuestionType): CorrectAnswerByType<typeof
   }
 }
 
-interface QuizWithRelations extends Omit<Quiz, 'sharingMode'> {
+interface QuizWithRelations extends Quiz {
   questions: (Question & {
     options: QuestionOption[];
     media?: MediaItem[];
@@ -83,8 +83,6 @@ interface QuizWithRelations extends Omit<Quiz, 'sharingMode'> {
   tags: (QuizTag & {
     tag: Tag;
   })[];
-  // パスワード保護の設定
-  isPasswordProtected: boolean;
 }
 
 interface QuizEditorState {
@@ -135,14 +133,8 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           correctAnswer: q.correctAnswer ?? getDefaultCorrectAnswer(q.type),
         }));
 
-        // Convert sharingMode to isPasswordProtected
-        const quizWithPasswordProtection = {
-          ...quiz,
-          isPasswordProtected: quiz.sharingMode === 'PASSWORD',
-        };
-
         set({
-          quiz: quizWithPasswordProtection,
+          quiz,
           questions,
           currentQuestionIndex: null,
           isDirty: false,
@@ -217,6 +209,15 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           currentQuestionIndex: state.questions.length,
           isDirty: true,
         }));
+        
+        // Scroll to the new question after a short delay to ensure DOM is updated
+        setTimeout(() => {
+          const questionId = `question-${questions.length}`;
+          const element = document.getElementById(questionId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
       },
 
       updateQuestion: (index, updates) => {

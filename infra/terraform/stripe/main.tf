@@ -50,14 +50,14 @@ resource "stripe_product" "pro_plan" {
   }
 }
 
-resource "stripe_product" "enterprise_plan" {
-  name        = "ExamForge Enterprise Plan"
+resource "stripe_product" "premium_plan" {
+  name        = "ExamForge Premium Plan"
   description = "大規模組織向けのエンタープライズプラン"
   active      = true
   
   metadata = {
     environment = var.environment
-    plan_type   = "ENTERPRISE"
+    plan_type   = "PREMIUM"
   }
 }
 
@@ -176,8 +176,8 @@ output "pro_plan_product_id" {
   value = stripe_product.pro_plan.id
 }
 
-output "enterprise_plan_product_id" {
-  value = stripe_product.enterprise_plan.id
+output "premium_plan_product_id" {
+  value = stripe_product.premium_plan.id
 }
 
 output "pro_monthly_price_id" {

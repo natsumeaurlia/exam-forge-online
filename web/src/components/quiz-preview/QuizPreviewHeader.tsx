@@ -18,44 +18,44 @@ export function QuizPreviewHeader({ quizId, lng }: QuizPreviewHeaderProps) {
 
   return (
     <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link href={`/${lng}/dashboard/quizzes/${quizId}/edit`}>
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("backToEdit")}
+              <Button variant="ghost" size="sm" className="px-2 sm:px-4">
+                <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{t("backToEdit")}</span>
               </Button>
             </Link>
             
-            <Badge variant="secondary" className="text-sm">
+            <Badge variant="secondary" className="text-xs sm:text-sm">
               {t("previewMode")}
             </Badge>
           </div>
           
-          <div className="flex items-center gap-3">
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 sm:p-1">
               <Button
                 variant={deviceMode === "desktop" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setDeviceMode("desktop")}
-                className="h-8 px-3"
+                className="h-7 sm:h-8 px-2 sm:px-3"
               >
-                <Monitor className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">{t("desktop")}</span>
+                <Monitor className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
+                <span className="ml-1.5 hidden lg:inline">{t("desktop")}</span>
               </Button>
               <Button
                 variant={deviceMode === "mobile" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setDeviceMode("mobile")}
-                className="h-8 px-3"
+                className="h-7 sm:h-8 px-2 sm:px-3"
               >
-                <Smartphone className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">{t("mobile")}</span>
+                <Smartphone className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
+                <span className="ml-1.5 hidden lg:inline">{t("mobile")}</span>
               </Button>
             </div>
             
-            <Link href={`/${lng}/quizzes/${quizId}/preview`}>
+            <Link href={`/${lng}/quizzes/${quizId}/preview`} className="hidden sm:block">
               <Button variant="outline" size="sm">
                 {t("detailedPreview")}
                 <ExternalLink className="h-4 w-4 ml-2" />

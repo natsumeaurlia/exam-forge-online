@@ -12,13 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Clock, HelpCircle } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { Question, QuestionOption, QuestionMedia, MediaType } from "@prisma/client";
+import type {
+  TrueFalseAnswer,
+  MultipleChoiceAnswer,
+  CheckboxAnswer,
+  ShortAnswer,
+} from '@/types/quiz-schemas';
 
 interface QuestionDisplayProps {
   question: Question & {
@@ -39,17 +39,17 @@ export function QuestionDisplay({
   const t = useTranslations("quiz.preview");
   const { mockAnswers, submitAnswer } = useQuizPreviewStore();
   const [showHint, setShowHint] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState<any>(
-    mockAnswers[question.id] || null
-  );
-
+  
+  // Get the answer for this question
+  const currentAnswer = mockAnswers[question.id];
+  
+  // Reset hint when question changes
   useEffect(() => {
-    setSelectedAnswer(mockAnswers[question.id] || null);
     setShowHint(false);
-  }, [question.id, mockAnswers]);
-
-  const handleAnswerChange = (value: any) => {
-    setSelectedAnswer(value);
+  }, [question.id]);
+  
+  // Helper function to handle different answer types
+  const handleAnswerChange = (value: TrueFalseAnswer | MultipleChoiceAnswer | CheckboxAnswer | ShortAnswer) => {
     submitAnswer(question.id, value);
   };
 
@@ -60,8 +60,8 @@ export function QuestionDisplay({
       case "TRUE_FALSE":
         return (
           <RadioGroup
-            value={selectedAnswer}
-            onValueChange={handleAnswerChange}
+            value={currentAnswer === true ? "true" : currentAnswer === false ? "false" : ""}
+            onValueChange={(value) => handleAnswerChange(value === "true")}
             className="space-y-3"
           >
             <div className="flex items-center space-x-2">
@@ -82,8 +82,8 @@ export function QuestionDisplay({
       case "MULTIPLE_CHOICE":
         return (
           <RadioGroup
-            value={selectedAnswer}
-            onValueChange={handleAnswerChange}
+            value={currentAnswer as string || ""}
+            onValueChange={(value) => handleAnswerChange(value)}
             className="space-y-3"
           >
             {question.options?.map((option) => (
@@ -98,20 +98,20 @@ export function QuestionDisplay({
         );
 
       case "CHECKBOX":
+        const checkboxAnswer = (currentAnswer as string[] || []);
         return (
           <div className="space-y-3">
             {question.options?.map((option) => (
               <div key={option.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={option.id}
-                  checked={selectedAnswer?.includes(option.id) || false}
+                  checked={checkboxAnswer.includes(option.id)}
                   onCheckedChange={(checked) => {
-                    const newAnswer = selectedAnswer || [];
                     if (checked) {
-                      handleAnswerChange([...newAnswer, option.id]);
+                      handleAnswerChange([...checkboxAnswer, option.id]);
                     } else {
                       handleAnswerChange(
-                        newAnswer.filter((id: string) => id !== option.id)
+                        checkboxAnswer.filter((id) => id !== option.id)
                       );
                     }
                   }}
@@ -127,7 +127,7 @@ export function QuestionDisplay({
       case "SHORT_ANSWER":
         return (
           <Textarea
-            value={selectedAnswer || ""}
+            value={(currentAnswer as string) || ""}
             onChange={(e) => handleAnswerChange(e.target.value)}
             placeholder={t("typeYourAnswer")}
             className="min-h-[100px]"

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useDashboard } from '@/hooks/use-dashboard';
+import { useSidebarStore } from '@/stores/useSidebarStore';
+import { useUserPlan } from '@/hooks/use-user-plan';
 import { cn } from '@/lib/utils';
 import {
   BarChart3,
@@ -14,8 +16,17 @@ import {
   Settings,
   Users,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface SideNavigationProps {
   lng: string;
@@ -24,7 +35,11 @@ interface SideNavigationProps {
 export function SideNavigation({ lng }: SideNavigationProps) {
   const t = useTranslations('dashboard');
   const { isSidebarOpen, closeSidebar } = useDashboard();
+  const { isOpen: isDesktopSidebarOpen, toggleSidebar } = useSidebarStore();
+  const { isPro, isPremium } = useUserPlan();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  const hasPaidPlan = isPro || isPremium;
 
   const navigationItems = [
     {
@@ -66,91 +81,156 @@ export function SideNavigation({ lng }: SideNavigationProps) {
   ];
 
   return (
-    <>
-      {/* モバイル用オーバーレイ */}
-      {isSidebarOpen && (
-        <div
-          className="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
-          onClick={closeSidebar}
-        />
-      )}
-
-      {/* サイドバー */}
-      <aside
-        className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:static lg:translate-x-0',
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
-        {/* ヘッダー */}
-        <div className="flex h-16 items-center justify-between border-b px-6">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {t('navigation.menu')}
-          </h2>
-          <button
+    <TooltipProvider>
+      <>
+        {/* モバイル用オーバーレイ */}
+        {isSidebarOpen && (
+          <div
+            className="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden"
             onClick={closeSidebar}
-            className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:hidden"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+          />
+        )}
 
-        {/* ナビゲーションメニュー */}
-        <nav className="flex-1 space-y-1 px-4 py-6">
-          {navigationItems.map(item => {
-            const Icon = item.icon;
-            
-            if (item.onClick) {
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    item.onClick();
-                    closeSidebar();
-                  }}
-                  className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                >
-                  <Icon className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
-                  {item.label}
-                </button>
-              );
-            }
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={closeSidebar}
-                className="group flex items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+        {/* サイドバー */}
+        <aside
+          className={cn(
+            'fixed inset-y-0 left-0 z-50 transform bg-white shadow-lg transition-all duration-300 ease-in-out lg:static',
+            // モバイル
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+            // デスクトップ
+            'lg:translate-x-0',
+            isDesktopSidebarOpen ? 'lg:w-64' : 'lg:w-16'
+          )}
+        >
+          {/* ヘッダー */}
+          <div className="flex h-16 items-center justify-between border-b px-6">
+            {isDesktopSidebarOpen && (
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t('navigation.menu')}
+              </h2>
+            )}
+            <div className="flex items-center gap-2">
+              {/* デスクトップ用折り畳みボタン */}
+              <button
+                onClick={toggleSidebar}
+                className={cn(
+                  "hidden lg:block rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600",
+                  !isDesktopSidebarOpen && "mx-auto"
+                )}
               >
-                <Icon className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* フッター */}
-        <div className="border-t p-4">
-          <div className="rounded-lg bg-blue-50 p-3">
-            <p className="text-xs text-blue-700">
-              {t('navigation.upgradePrompt')}
-            </p>
-            <Link
-              href={`/${lng}/pricing`}
-              className="mt-2 inline-block text-xs font-medium text-blue-600 hover:text-blue-500"
-            >
-              {t('navigation.upgradeCta')}
-            </Link>
+                {isDesktopSidebarOpen ? (
+                  <ChevronLeft className="h-5 w-5" />
+                ) : (
+                  <ChevronRight className="h-5 w-5" />
+                )}
+              </button>
+              {/* モバイル用閉じるボタン */}
+              <button
+                onClick={closeSidebar}
+                className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:hidden"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-        </div>
-      </aside>
 
-      {/* Create Quiz Modal */}
-      <CreateQuizModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
-    </>
+          {/* ナビゲーションメニュー */}
+          <nav className={cn("flex-1 space-y-1 py-6", isDesktopSidebarOpen ? "px-4" : "px-2")}>
+            {navigationItems.map(item => {
+              const Icon = item.icon;
+              
+              if (item.onClick) {
+                const button = (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      item.onClick();
+                      closeSidebar();
+                    }}
+                    className={cn(
+                      "group flex w-full items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                      isDesktopSidebarOpen ? "px-3 py-2" : "px-2 py-2 justify-center"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500",
+                      isDesktopSidebarOpen && "mr-3"
+                    )} />
+                    {isDesktopSidebarOpen && item.label}
+                  </button>
+                );
+
+                return isDesktopSidebarOpen ? (
+                  button
+                ) : (
+                  <Tooltip key={item.label}>
+                    <TooltipTrigger asChild>
+                      {button}
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+              
+              const link = (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeSidebar}
+                  className={cn(
+                    "group flex items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                    isDesktopSidebarOpen ? "px-3 py-2" : "px-2 py-2 justify-center"
+                  )}
+                >
+                  <Icon className={cn(
+                    "h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500",
+                    isDesktopSidebarOpen && "mr-3"
+                  )} />
+                  {isDesktopSidebarOpen && item.label}
+                </Link>
+              );
+
+              return isDesktopSidebarOpen ? (
+                link
+              ) : (
+                <Tooltip key={item.href}>
+                  <TooltipTrigger asChild>
+                    {link}
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </nav>
+
+          {/* フッター */}
+          {isDesktopSidebarOpen && !hasPaidPlan && (
+            <div className="border-t p-4">
+              <div className="rounded-lg bg-blue-50 p-3">
+                <p className="text-xs text-blue-700">
+                  {t('navigation.upgradePrompt')}
+                </p>
+                <Link
+                  href={`/${lng}/pricing`}
+                  className="mt-2 inline-block text-xs font-medium text-blue-600 hover:text-blue-500"
+                >
+                  {t('navigation.upgradeCta')}
+                </Link>
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* Create Quiz Modal */}
+        <CreateQuizModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
+      </>
+    </TooltipProvider>
   );
 }

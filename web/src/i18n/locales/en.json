@@ -9,12 +9,13 @@
       "title": "Plans & Pricing",
       "free": "Free",
       "pro": "Pro",
-      "enterprise": "Enterprise"
+      "premium": "Premium"
     },
     "faq": "FAQ",
     "proLabel": "PRO",
+    "premiumLabel": "PREMIUM",
     "upgradeToPro": "Upgrade to Pro",
-    "upgradeToEnterprise": "Upgrade to Enterprise",
+    "upgradeToPremium": "Upgrade to Premium",
     "featureLocked": "This feature requires an upgrade",
     "viewPlans": "View Plans",
     "languages": {
@@ -201,12 +202,20 @@
       "true": "True",
       "false": "False",
       "typeYourAnswer": "Type your answer here",
+      "enterNumber": "Enter a number",
+      "blank": "Blank",
+      "selectMatch": "Select a match",
+      "diagramInstructions": "Label the parts of the diagram",
+      "label": "Label",
+      "enterLabel": "Enter label",
       "unsupportedQuestionType": "Unsupported question type",
       "showHint": "Show Hint",
       "hint": "Hint",
       "previous": "Previous",
       "next": "Next",
       "submit": "Submit",
+      "required": "Required",
+      "requiredQuestion": "This question requires an answer",
       "results": {
         "passed": "Passed",
         "failed": "Failed",
@@ -383,31 +392,31 @@
           "label": "Quiz Creation",
           "free": "Quizzes: up to 5",
           "pro": "Quizzes: unlimited",
-          "enterprise": "Quizzes: unlimited"
+          "premium": "Quizzes: unlimited"
         },
         "members": {
           "label": "Team Members",
           "free": "Members: up to 3",
           "pro": "Members: up to 20",
-          "enterprise": "Members: unlimited"
+          "premium": "Members: unlimited"
         },
         "questions": {
           "label": "Questions per Quiz",
           "free": "Questions: 20 per quiz",
           "pro": "Questions: 200 per quiz",
-          "enterprise": "Questions: unlimited"
+          "premium": "Questions: unlimited"
         },
         "responses": {
           "label": "Monthly Responses",
           "free": "Responses: 100 per month/quiz",
           "pro": "Responses: 3,000 per month/quiz",
-          "enterprise": "Responses: unlimited"
+          "premium": "Responses: unlimited"
         },
         "storage": {
           "label": "Storage Capacity",
           "free": "Storage: 100MB",
           "pro": "Storage: 10GB",
-          "enterprise": "Storage: unlimited"
+          "premium": "Storage: unlimited"
         },
         "truefalse": "True/False Questions",
         "singlechoice": "Single Choice Questions",
@@ -433,7 +442,27 @@
         "onpremise": "On-premise Support",
         "support": "Dedicated Support Manager",
         "allpro": "All Pro Plan Features",
-        "aiquiz": "AI Question Generation"
+        "aiquiz": "AI Question Generation",
+        "aiimprovement": "AI Quality Improvement",
+        "aigrading": "AI Auto Grading",
+        "lmsmode": "LMS Mode",
+        "pagebuilder": "Page Builder",
+        "customdomain": "Custom Domain",
+        "userauth": "User Authentication",
+        "billing": "Billing System",
+        "coursemanagement": "Course Management",
+        "whitelabel": "White Label",
+        "apiAccess": "API Access",
+        "allbusiness": "All Business Plan Features",
+        "aiquiz": "AI Question Generation",
+        "aiimprovement": "AI Quality Improvement",
+        "aigrading": "AI Auto Grading",
+        "lmsmode": "LMS Mode",
+        "pagebuilder": "Page Builder",
+        "customdomain": "Custom Domain",
+        "userauth": "User Authentication",
+        "billing": "Billing System",
+        "coursemanagement": "Course Management"
       },
       "free": {
         "name": "Free Plan",
@@ -448,17 +477,24 @@
         "period": "per month/tenant",
         "description": "Perfect for educational institutions and businesses",
         "cta": "Upgrade",
-        "popular": "Popular"
+        "popular": "Recommended"
       },
-      "enterprise": {
-        "name": "Enterprise",
-        "price": "Contact us",
-        "period": "Custom plan",
-        "description": "For large organizations and educational institutions",
-        "cta": "Contact Us"
+      "premium": {
+        "name": "Premium Plan",
+        "price": "$49",
+        "period": "per month/tenant",
+        "description": "For premiums wanting AI features and LMS",
+        "cta": "Upgrade",
+        "popular": "Popular",
+        "badge": "AI + LMS"
       }
     },
-    "guarantee": "Pro and Enterprise plans include a 14-day free trial. Contact us if you have any questions.",
+    "guarantee": "Pro and Premium plans include a 14-day free trial. Contact us if you have any questions.",
+    "toggle": {
+      "monthly": "monthly",
+      "annually": "annually",
+      "discount": "17% OFF"
+    },
     "viewDetails": "View Plans in Detail",
     "cta": "Try Free Now"
   },
@@ -577,7 +613,7 @@
         },
         {
           "title": "Payment Methods",
-          "content": "Credit Card Payment (VISA, Mastercard, American Express, JCB)\nBank Transfer (Enterprise plan only)"
+          "content": "Credit Card Payment (VISA, Mastercard, American Express, JCB)\nBank Transfer (Premium plan only)"
         },
         {
           "title": "Payment Timing",
@@ -748,7 +784,7 @@
       },
       "customerSupport": {
         "question": "What customer support do you provide?",
-        "answer": "We provide email support (weekdays 10:00-18:00). Pro plan users receive priority support, and Enterprise plan users get a dedicated support manager. We also maintain comprehensive FAQ and help documentation."
+        "answer": "We provide email support (weekdays 10:00-18:00). Pro plan users receive priority support, and Premium plan users get a dedicated support manager. We also maintain comprehensive FAQ and help documentation."
       },
       "dataExport": {
         "question": "Can I export my data?",
@@ -756,7 +792,7 @@
       },
       "teamFeatures": {
         "question": "How do team features work?",
-        "answer": "Pro plan supports up to 20 team members, while Enterprise plan offers unlimited members. Role-based permission management allows you to set detailed permissions for editors, viewers, administrators, and more."
+        "answer": "Pro plan supports up to 20 team members, while Premium plan offers unlimited members. Role-based permission management allows you to set detailed permissions for editors, viewers, administrators, and more."
       }
     }
   },
@@ -919,7 +955,7 @@
       "plans": {
         "free": "Free Plan",
         "pro": "Pro Plan",
-        "enterprise": "Enterprise"
+        "premium": "Premium Plan"
       },
       "metrics": {
         "quizzes": "Quizzes",
@@ -947,7 +983,7 @@
       "plans": {
         "free": "Free Plan",
         "pro": "Pro Plan",
-        "enterprise": "Enterprise"
+        "premium": "Premium Plan"
       },
       "usage": {
         "quizzes": "Quizzes",
@@ -970,16 +1006,16 @@
   "plans": {
     "meta": {
       "title": "Pricing Plan Comparison | ExamForge",
-      "description": "Compare ExamForge pricing plans in detail. Review features and pricing for Free, Pro, and Enterprise plans."
+      "description": "Compare ExamForge pricing plans in detail. Review features and pricing for Free, Pro, and Premium plans."
     },
     "title": "Find the Perfect Plan for You",
-    "subtitle": "Pro and Enterprise plans include a 14-day free trial. Upgrade or downgrade anytime.",
+    "subtitle": "Pro and Premium plans include a 14-day free trial. Upgrade or downgrade anytime.",
     "features": {
       "feature": "Feature",
       "basic": "Basic Features",
       "question_types": "Question Types",
       "advanced": "Advanced Features",
-      "enterprise_only": "Enterprise Only",
+      "premium_only": "Premium Only",
       "quizzes": {
         "label": "Quiz Creation"
       },
@@ -1016,15 +1052,15 @@
       },
       "payment": {
         "question": "What payment methods do you accept?",
-        "answer": "We accept major credit cards (VISA, Mastercard, American Express, JCB). Enterprise plans also support bank transfers."
+        "answer": "We accept major credit cards (VISA, Mastercard, American Express, JCB). Premium plans also support bank transfers."
       },
       "cancel": {
         "question": "How do I cancel my subscription?",
         "answer": "Go to your dashboard settings, select 'Plan Management', and click 'Cancel Plan'. You'll retain access until the end of your current billing period."
       },
-      "enterprise": {
-        "question": "Tell me more about Enterprise plans",
-        "answer": "Enterprise plans are custom solutions for large organizations. They include dedicated support, SLA guarantees, custom development options, and flexible pricing based on your specific needs. Contact us for details."
+      "premium": {
+        "question": "Tell me more about Premium plans",
+        "answer": "Premium plans are our top-tier solution featuring AI capabilities and LMS mode. Includes AI question generation, quality improvement suggestions, auto-grading, plus comprehensive LMS features like page builder, custom domains, billing integration, and course management."
       }
     },
     "cta": {
@@ -1193,7 +1229,13 @@
         "questionNumber": "Question {number}",
         "noQuestionText": "(No question text)",
         "points": "{points} points",
-        "pointsLabel": "points"
+        "pointsLabel": "points",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "isRequired": "Required answer",
+        "isRequiredDescription": "Respondents must answer this question"
       },
       "questionTypes": {
         "addQuestion": "Add Question",
@@ -1482,5 +1524,23 @@
     "badge": "Track Record",
     "title": "Adopted by Many Companies and Educational Institutions",
     "subtitle": "ExamForge is utilized in corporate training and educational settings."
+  },
+  "components": {
+    "mediaUpload": {
+      "maxFilesReached": "Maximum files reached",
+      "maxFilesReachedDescription": "You can only upload up to {max} files",
+      "uploadSuccess": "Upload successful",
+      "uploadSuccessDescription": "{count} file(s) uploaded successfully",
+      "uploadError": "Upload failed",
+      "storageUsed": "Storage used",
+      "uploading": "Uploading...",
+      "dropFiles": "Drop files here",
+      "dragDropOrClick": "Drag & drop files here, or click to select",
+      "maxSize": "Max file size: {size}",
+      "deleteTitle": "Delete Media",
+      "deleteDescription": "Are you sure you want to delete this media? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
   }
 }

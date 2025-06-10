@@ -57,7 +57,7 @@ terraform apply
 - **Products（商品）**
   - Free Plan: 個人利用向け無料プラン
   - Pro Plan: チーム向けプロプラン  
-  - Enterprise Plan: 大規模組織向けプラン
+  - Premium Plan: 大規模組織向けプラン
 
 - **Prices（価格）**
   - Pro月額: ¥2,980/ユーザー/月
