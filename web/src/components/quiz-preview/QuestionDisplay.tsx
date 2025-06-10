@@ -43,7 +43,7 @@ export function QuestionDisplay({
             </Badge>
             {(question.isRequired ?? false) && (
               <Badge variant="destructive" className="text-xs">
-                {t('required', 'Required')}
+                {t('required')}
               </Badge>
             )}
           </div>

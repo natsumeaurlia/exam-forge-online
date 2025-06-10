@@ -199,7 +199,7 @@ export async function DELETE(request: NextRequest) {
         id: mediaId,
         question: {
           quiz: {
-            userId: session.user.id,
+            createdById: session.user.id,
           },
         },
       },

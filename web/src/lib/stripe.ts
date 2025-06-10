@@ -1,13 +1,18 @@
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-  typescript: true,
-});
+// Initialize Stripe only if the API key is available
+const stripeApiKey = process.env.STRIPE_SECRET_KEY;
+
+export const stripe = stripeApiKey
+  ? new Stripe(stripeApiKey, {
+      apiVersion: '2025-05-28.basil',
+      typescript: true,
+    })
+  : null;
 
 // Stripe public key for client-side
 export const getStripePublishableKey = () => {
-  return process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
+  return process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 };
 
 /**

@@ -125,7 +125,7 @@ export function PublishSettingsModal({
             )}
           </div>
 
-          {quiz?.isPasswordProtected && quiz.password && (
+          {quiz?.password && (
             <Alert>
               <AlertDescription>
                 {t('passwordProtectionInfo', { password: quiz.password })}

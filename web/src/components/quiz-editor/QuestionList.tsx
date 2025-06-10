@@ -207,7 +207,9 @@ export function QuestionList() {
       currentQuestionIndex !== null &&
       !expandedQuestions.has(currentQuestionIndex)
     ) {
-      setExpandedQuestions(prev => new Set([...prev, currentQuestionIndex]));
+      setExpandedQuestions(
+        prev => new Set([...Array.from(prev), currentQuestionIndex])
+      );
     }
   }, [currentQuestionIndex]);
 

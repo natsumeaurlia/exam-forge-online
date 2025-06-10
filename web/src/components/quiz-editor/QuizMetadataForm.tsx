@@ -125,13 +125,12 @@ export function QuizMetadataForm() {
               <input
                 type="checkbox"
                 id="passwordProtection"
-                checked={quiz.isPasswordProtected || false}
+                checked={!!quiz.password}
                 onChange={e => {
                   const isPasswordProtected = e.target.checked;
                   updateQuizMetadata({
-                    isPasswordProtected,
                     sharingMode: isPasswordProtected ? 'PASSWORD' : 'URL',
-                    password: isPasswordProtected ? quiz.password : null,
+                    password: isPasswordProtected ? quiz.password || '' : null,
                   });
                 }}
                 className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
@@ -143,7 +142,7 @@ export function QuizMetadataForm() {
                 {t('enablePasswordProtection')}
               </label>
             </div>
-            {quiz.isPasswordProtected && (
+            {!!quiz.password && (
               <Input
                 type="text"
                 placeholder={t('passwordPlaceholder')}

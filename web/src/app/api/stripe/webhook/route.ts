@@ -4,13 +4,26 @@ import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { SubscriptionStatus } from '@prisma/client';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-});
+// Initialize Stripe only if the API key is available
+const stripeApiKey = process.env.STRIPE_SECRET_KEY;
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const stripe = stripeApiKey
+  ? new Stripe(stripeApiKey, {
+      apiVersion: '2025-05-28.basil',
+    })
+  : null;
 
 export async function POST(request: NextRequest) {
+  // Check if Stripe is properly configured
+  if (!stripe || !webhookSecret) {
+    console.error('Stripe webhook error: Missing configuration');
+    return NextResponse.json(
+      { error: 'Webhook endpoint is not properly configured' },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = await request.text();
     const signature = (await headers()).get('stripe-signature');
@@ -35,7 +48,7 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        await handleCheckoutSessionCompleted(session);
+        await handleCheckoutSessionCompleted(session, stripe);
         break;
       }
 
@@ -79,7 +92,8 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCheckoutSessionCompleted(
-  session: Stripe.Checkout.Session
+  session: Stripe.Checkout.Session,
+  stripe: Stripe
 ) {
   console.log('Checkout session completed:', session.id);
 
