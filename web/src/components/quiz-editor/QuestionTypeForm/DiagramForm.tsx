@@ -91,9 +91,11 @@ export function DiagramForm({
 
   return (
     <div className="space-y-4">
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>{t('instructions')}</AlertDescription>
+      <Alert className="border-blue-200 bg-blue-50">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-800">
+          {t('instructions')}
+        </AlertDescription>
       </Alert>
 
       <div>

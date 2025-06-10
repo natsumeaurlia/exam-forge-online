@@ -39,6 +39,7 @@ model User {
   email                  String           @unique
   emailVerified          DateTime?
   image                  String?
+  password               String?
   stripeCustomerId       String?          @unique
   stripePaymentMethodId  String?
   createdAt              DateTime         @default(now())

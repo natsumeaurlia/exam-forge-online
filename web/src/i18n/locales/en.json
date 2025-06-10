@@ -174,6 +174,60 @@
       "try": "Try Quiz Creation Demo",
       "backToHome": "Back to Home",
       "backToQuiz": "Back to Quiz Type Selection"
+    },
+    "preview": {
+      "title": "Preview",
+      "previewMode": "Preview Mode",
+      "backToEdit": "Back to Edit",
+      "desktop": "Desktop",
+      "mobile": "Mobile",
+      "detailedPreview": "Detailed Preview",
+      "questions": "Questions",
+      "passingScore": "Passing Score",
+      "timeLimit": "Time Limit",
+      "minutes": "minutes",
+      "tags": "Tags",
+      "startQuiz": "Start Quiz",
+      "participantInfo": {
+        "title": "Participant Information",
+        "description": "Please enter your information below",
+        "name": "Name",
+        "namePlaceholder": "John Doe",
+        "email": "Email",
+        "emailPlaceholder": "example@email.com"
+      },
+      "question": "Question",
+      "timeRemaining": "Time Remaining",
+      "true": "True",
+      "false": "False",
+      "typeYourAnswer": "Type your answer here",
+      "unsupportedQuestionType": "Unsupported question type",
+      "showHint": "Show Hint",
+      "hint": "Hint",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "results": {
+        "passed": "Passed",
+        "failed": "Failed",
+        "previewNote": "This is preview mode. No results will be saved.",
+        "score": "Score",
+        "correctAnswers": "Correct Answers",
+        "passingScore": "Passing Score",
+        "breakdown": "Question Breakdown",
+        "tryAgain": "Try Again"
+      },
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "controls": {
+        "title": "Preview Settings",
+        "description": "Adjust preview display and behavior",
+        "actions": "Actions",
+        "resetPreview": "Reset Preview",
+        "jumpToQuestion": "Jump to First Question",
+        "language": "Language",
+        "note": "Answers are not saved in preview mode"
+      }
     }
   },
   "usecases": {
@@ -1068,17 +1122,16 @@
       "createError": "Failed to create quiz"
     },
     "editor": {
-      "basicInfo": "Quiz Basic Information",
+      "basicInfo": "Quiz Basic Settings",
       "description": "Description",
       "descriptionPlaceholder": "Enter quiz description",
       "passingScore": "Passing Score (%)",
       "scoringMode": "Scoring Mode",
       "autoScoring": "Auto Scoring",
       "manualScoring": "Manual Scoring",
-      "sharingSettings": "Sharing Settings",
-      "urlSharing": "URL Sharing",
-      "passwordProtected": "Password Protected",
-      "password": "Password:",
+      "passwordProtection": "Password Protection",
+      "enablePasswordProtection": "Enable password protection",
+      "passwordPlaceholder": "Enter password",
       "tags": "Tags",
       "addTag": "Add tag",
       "addTagButton": "Add",
@@ -1093,6 +1146,9 @@
       "maxAttempts": "Max Attempts",
       "maxAttemptsPlaceholder": "Unlimited",
       "proPlanFeature": "Pro Plan Feature",
+      "minutes": "minutes",
+      "settingsMovedToProTab": "Advanced settings have been moved to the Pro Features tab.",
+      "coverImageHelperText": "Recommended size: 1200x630px",
       "publish": {
         "title": "Publish Quiz",
         "subdomain": "Subdomain Settings",
@@ -1118,6 +1174,19 @@
         "preview": "Preview",
         "publishSettings": "Publish Settings",
         "save": "Save"
+      },
+      "imageUpload": {
+        "title": "Upload Image",
+        "dragDrop": "Drag & drop an image, or click to select",
+        "clickToUpload": "Click to upload",
+        "uploading": "Uploading...",
+        "uploadError": "Upload failed",
+        "maxSize": "Max file size: 10MB",
+        "supportedFormats": "Supported formats: JPEG, PNG, GIF, WebP",
+        "deleteTitle": "Delete Image",
+        "deleteDescription": "Are you sure you want to delete this image?",
+        "cancel": "Cancel",
+        "delete": "Delete"
       },
       "questions": {
         "empty": "No questions yet. Add questions from the toolbar above.",
@@ -1187,7 +1256,7 @@
           "questionPlaceholder": "Enter your question text",
           "correctAnswer": "Model Answer",
           "correctAnswerPlaceholder": "Enter model answer (for auto-grading)",
-          "correctAnswerHint": "For automatic grading, this model answer will be used for AI comparison and scoring",
+            "correctAnswerHint": "For auto-grading, the model answer will be compared by AI for scoring",
           "gradingCriteria": "Grading Criteria",
           "gradingCriteriaPlaceholder": "Enter grading criteria (for manual grading)",
           "points": "Points",
@@ -1317,7 +1386,9 @@
       "passwordPlaceholder": "Enter password",
       "questionMedia": {
         "title": "Question Media",
-        "proBadge": "PRO"
+        "proBadge": "PRO",
+        "upgradeTitle": "Add Images & Videos with Pro Plan",
+        "upgradeDescription": "Enhance your quizzes by adding images and videos to questions"
       },
       "multiMediaUpload": {
         "title": "Media Attachments",
@@ -1380,7 +1451,9 @@
           "certificateDescription": "Automatically issue certificates to passing respondents",
           "configureCertificate": "Configure Certificate",
           "shuffleQuestions": "Shuffle Questions",
-          "shuffleOptions": "Shuffle Options"
+          "shuffleOptions": "Shuffle Options",
+          "shuffleQuestionsDescription": "Randomly reorder questions for each participant",
+          "shuffleOptionsDescription": "Randomly reorder answer choices for each participant"
         },
         "analytics": {
           "title": "Quiz Analytics",

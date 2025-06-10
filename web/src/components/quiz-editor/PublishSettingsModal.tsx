@@ -125,10 +125,10 @@ export function PublishSettingsModal({
             )}
           </div>
 
-          {quiz?.sharingMode === 'PASSWORD' && (
+          {quiz?.isPasswordProtected && quiz.password && (
             <Alert>
               <AlertDescription>
-                {t('passwordProtectionInfo', { password: quiz.password ?? '' })}
+                {t('passwordProtectionInfo', { password: quiz.password })}
               </AlertDescription>
             </Alert>
           )}

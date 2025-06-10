@@ -18,16 +18,30 @@ export async function getUserPlan() {
   }
 
   try {
+    // First, get the user's active team membership
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        subscription: {
+        teamMembers: {
+          where: {
+            role: {
+              in: ['OWNER', 'ADMIN', 'MEMBER', 'VIEWER'],
+            },
+          },
           include: {
-            plan: {
+            team: {
               include: {
-                features: {
+                subscription: {
                   include: {
-                    feature: true,
+                    plan: {
+                      include: {
+                        features: {
+                          include: {
+                            feature: true,
+                          },
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -45,8 +59,12 @@ export async function getUserPlan() {
       };
     }
 
-    // If no subscription, user is on FREE plan
-    if (!user.subscription) {
+    // Get the first team's subscription (or the active team if we implement team switching)
+    const activeTeamMember = user.teamMembers[0];
+    const subscription = activeTeamMember?.team.subscription;
+
+    // If no team or subscription, user is on FREE plan
+    if (!activeTeamMember || !subscription) {
       const freePlan = await prisma.plan.findUnique({
         where: { type: 'FREE' },
         include: {
@@ -72,8 +90,8 @@ export async function getUserPlan() {
 
     // Check if subscription is active
     const isActive =
-      user.subscription.status === 'ACTIVE' ||
-      user.subscription.status === 'TRIALING';
+      subscription.status === 'ACTIVE' ||
+      subscription.status === 'TRIALING';
 
     // If subscription is not active, treat as FREE plan
     if (!isActive) {
@@ -94,7 +112,7 @@ export async function getUserPlan() {
         data: {
           planType: 'FREE' as const,
           plan: freePlan,
-          subscription: user.subscription,
+          subscription: subscription,
           features: freePlan?.features.map(pf => pf.feature.type) || [],
         },
       };
@@ -104,10 +122,10 @@ export async function getUserPlan() {
       success: true,
       error: null,
       data: {
-        planType: user.subscription.plan.type,
-        plan: user.subscription.plan,
-        subscription: user.subscription,
-        features: user.subscription.plan.features.map(pf => pf.feature.type),
+        planType: subscription.plan.type,
+        plan: subscription.plan,
+        subscription: subscription,
+        features: subscription.plan.features.map(pf => pf.feature.type),
       },
     };
   } catch (error) {

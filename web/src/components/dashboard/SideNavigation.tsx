@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useDashboard } from '@/hooks/use-dashboard';
@@ -15,6 +15,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
 
 interface SideNavigationProps {
   lng: string;
@@ -23,6 +24,7 @@ interface SideNavigationProps {
 export function SideNavigation({ lng }: SideNavigationProps) {
   const t = useTranslations('dashboard');
   const { isSidebarOpen, closeSidebar } = useDashboard();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const navigationItems = [
     {
@@ -36,9 +38,10 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       label: t('navigation.quizzes'),
     },
     {
-      href: `/${lng}/dashboard/create`,
+      href: '#',
       icon: PlusCircle,
       label: t('navigation.createQuiz'),
+      onClick: () => setIsCreateModalOpen(true),
     },
     {
       href: `/${lng}/dashboard/analytics`,
@@ -96,6 +99,23 @@ export function SideNavigation({ lng }: SideNavigationProps) {
         <nav className="flex-1 space-y-1 px-4 py-6">
           {navigationItems.map(item => {
             const Icon = item.icon;
+            
+            if (item.onClick) {
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    item.onClick();
+                    closeSidebar();
+                  }}
+                  className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                >
+                  <Icon className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
+                  {item.label}
+                </button>
+              );
+            }
+            
             return (
               <Link
                 key={item.href}
@@ -125,6 +145,12 @@ export function SideNavigation({ lng }: SideNavigationProps) {
           </div>
         </div>
       </aside>
+
+      {/* Create Quiz Modal */}
+      <CreateQuizModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </>
   );
 }

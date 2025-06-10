@@ -1,14 +1,14 @@
-'use client';
-
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
-import { useParams } from 'next/navigation';
 
-export default function TermsPage() {
-  const t = useTranslations('terms');
-  const params = useParams();
-  const lng = params.lng as string;
+interface TermsPageProps {
+  params: Promise<{ lng: string }>;
+}
+
+export default async function TermsPage({ params }: TermsPageProps) {
+  const { lng } = await params;
+  const t = await getTranslations('terms');
 
   return (
     <DefaultLayout lng={lng}>

@@ -1,14 +1,14 @@
-'use client';
-
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
-import { useParams } from 'next/navigation';
 
-export default function PrivacyPage() {
-  const t = useTranslations('privacy');
-  const params = useParams();
-  const lng = params.lng as string;
+interface PrivacyPageProps {
+  params: Promise<{ lng: string }>;
+}
+
+export default async function PrivacyPage({ params }: PrivacyPageProps) {
+  const { lng } = await params;
+  const t = await getTranslations('privacy');
 
   return (
     <DefaultLayout lng={lng}>

@@ -34,6 +34,54 @@ async function getAuthenticatedUser() {
   return session.user.id;
 }
 
+// Helper function to get user's active team
+async function getUserActiveTeam(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      teamMembers: {
+        where: {
+          role: {
+            in: ['OWNER', 'ADMIN', 'MEMBER'],
+          },
+        },
+        include: {
+          team: true,
+        },
+        orderBy: {
+          joinedAt: 'asc',
+        },
+      },
+    },
+  });
+
+  if (!user || user.teamMembers.length === 0) {
+    // Create a default team for the user if they don't have one
+    const newTeam = await prisma.team.create({
+      data: {
+        name: `${user?.name || 'ユーザー'}のチーム`,
+        slug: `team-${userId.substring(0, 8)}`,
+        creatorId: userId,
+        members: {
+          create: {
+            userId,
+            role: 'OWNER',
+          },
+        },
+        teamSettings: {
+          create: {
+            maxMembers: 1, // Free plan default
+          },
+        },
+      },
+    });
+    return newTeam.id;
+  }
+
+  // Return the first team (in the future, we can implement team switching)
+  return user.teamMembers[0].team.id;
+}
+
 // クイズ作成
 export const createQuiz = action
   .schema(createQuizSchema)
@@ -41,6 +89,8 @@ export const createQuiz = action
     const userId = await getAuthenticatedUser();
 
     try {
+      const teamId = await getUserActiveTeam(userId);
+      
       const quiz = await prisma.quiz.create({
         data: {
           title: data.title,
@@ -48,7 +98,8 @@ export const createQuiz = action
           scoringType: data.scoringType,
           sharingMode: data.sharingMode,
           password: data.password || null,
-          userId,
+          createdById: userId,
+          teamId,
         },
       });
 
@@ -71,11 +122,14 @@ export const updateQuiz = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // クイズの所有者確認
       const existingQuiz = await prisma.quiz.findFirst({
         where: {
           id: data.id,
-          userId,
+          teamId,
         },
       });
 
@@ -120,11 +174,14 @@ export const deleteQuiz = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // クイズの所有者確認
       const existingQuiz = await prisma.quiz.findFirst({
         where: {
           id: data.id,
-          userId,
+          teamId,
         },
       });
 
@@ -152,11 +209,14 @@ export const publishQuiz = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // クイズの所有者確認
       const existingQuiz = await prisma.quiz.findFirst({
         where: {
           id: data.id,
-          userId,
+          teamId,
         },
         include: {
           questions: true,
@@ -212,9 +272,12 @@ export const getQuizzes = action
       const { page, limit, search, status, sortBy, sortOrder, tags } = data;
       const skip = (page - 1) * limit;
 
+      // Get user's team to filter quizzes
+      const teamId = await getUserActiveTeam(userId);
+
       // 検索条件の構築
       const where: Prisma.QuizWhereInput = {
-        userId,
+        teamId,
         ...(search && {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
@@ -280,6 +343,7 @@ export const getQuizzes = action
       };
       return result;
     } catch (error) {
+      console.error('getQuizzes error:', error);
       throw new Error('クイズ一覧の取得に失敗しました');
     }
   });
@@ -291,11 +355,14 @@ export const addQuestion = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // クイズの所有者確認
       const quiz = await prisma.quiz.findFirst({
         where: {
           id: data.quizId,
-          userId,
+          teamId,
         },
         include: {
           questions: {
@@ -357,12 +424,15 @@ export const updateQuestion = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // 問題の所有者確認
       const question = await prisma.question.findFirst({
         where: {
           id: data.id,
           quiz: {
-            userId,
+            teamId,
           },
         },
         include: {
@@ -421,12 +491,15 @@ export const deleteQuestion = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // 問題の所有者確認
       const question = await prisma.question.findFirst({
         where: {
           id: data.id,
           quiz: {
-            userId,
+            teamId,
           },
         },
       });
@@ -455,11 +528,14 @@ export const reorderQuestions = action
     const userId = await getAuthenticatedUser();
 
     try {
+      // Get user's team to verify permissions
+      const teamId = await getUserActiveTeam(userId);
+      
       // クイズの所有者確認
       const quiz = await prisma.quiz.findFirst({
         where: {
           id: data.quizId,
-          userId,
+          teamId,
         },
       });
 
@@ -510,10 +586,13 @@ export async function getQuizForEdit(quizId: string) {
     throw new Error('認証が必要です');
   }
 
+  // Get user's team to verify permissions
+  const teamId = await getUserActiveTeam(session.user.id);
+  
   const quiz = await prisma.quiz.findFirst({
     where: {
       id: quizId,
-      userId: session.user.id,
+      teamId,
     },
     include: {
       questions: {
@@ -540,4 +619,50 @@ export async function getQuizForEdit(quizId: string) {
   }
 
   return quiz;
+}
+
+// Get quiz with questions for preview
+export async function getQuizWithQuestionsById(quizId: string) {
+  try {
+    const userId = await getAuthenticatedUser();
+    const teamId = await getUserActiveTeam(userId);
+    
+    const quiz = await prisma.quiz.findFirst({
+      where: {
+        id: quizId,
+        teamId,
+      },
+      include: {
+        questions: {
+          include: {
+            options: {
+              orderBy: { order: 'asc' },
+            },
+            media: true,
+          },
+          orderBy: { order: 'asc' },
+        },
+        tags: {
+          include: {
+            tag: true,
+          },
+        },
+      },
+    });
+
+    if (!quiz) {
+      return { data: null, error: 'クイズが見つからないか、アクセス権限がありません' };
+    }
+
+    // Transform tags for easier use
+    const transformedQuiz = {
+      ...quiz,
+      tags: quiz.tags.map((quizTag) => quizTag.tag),
+    };
+
+    return { data: transformedQuiz, error: null };
+  } catch (error) {
+    console.error('Error fetching quiz:', error);
+    return { data: null, error: 'クイズの取得に失敗しました' };
+  }
 }

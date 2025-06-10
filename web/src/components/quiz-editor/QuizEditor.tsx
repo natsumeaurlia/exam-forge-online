@@ -74,26 +74,9 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
           </div>
         )}
 
-        {showProFeatures && hasPaidPlan && (
-          <div className="w-96 border-l bg-gradient-to-b from-blue-50 to-white p-6">
-            <div className="mb-4 flex items-center gap-2">
-              <Crown className="h-5 w-5 text-blue-600" />
-              <h3 className="text-lg font-semibold">Pro機能</h3>
-            </div>
-            <QuizEditorProFeatures lng={lng} showSidebar />
-          </div>
-        )}
       </div>
 
-      <div className="fixed right-6 bottom-6 flex flex-col gap-3">
-        {hasPaidPlan && (
-          <button
-            onClick={() => setShowProFeatures(!showProFeatures)}
-            className="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 p-3 text-white shadow-lg transition-all hover:from-blue-700 hover:to-purple-700"
-          >
-            <Crown className="h-5 w-5" />
-          </button>
-        )}
+      <div className="fixed right-6 bottom-6">
         <button
           onClick={() => setShowSettings(!showSettings)}
           className="rounded-full bg-blue-600 p-3 text-white shadow-lg hover:bg-blue-700"

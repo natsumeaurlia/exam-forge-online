@@ -11,13 +11,18 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, X } from 'lucide-react';
 import { useQuizEditorStore } from '@/stores/useQuizEditorStore';
 import { useTranslations } from 'next-intl';
+import { ImageUpload } from './ImageUpload';
+import { useUserPlan } from '@/components/providers/UserPlanProvider';
 
 export function QuizMetadataForm() {
   const { quiz, updateQuizMetadata } = useQuizEditorStore();
   const [tagInput, setTagInput] = useState('');
   const t = useTranslations('quizManagement.editor');
+  const { isPro, isEnterprise } = useUserPlan();
 
   if (!quiz) return null;
+
+  const hasPaidPlan = isPro || isEnterprise;
 
   const handleDescriptionChange = (description: string) => {
     updateQuizMetadata({ description });
@@ -93,21 +98,49 @@ export function QuizMetadataForm() {
         </div>
 
         <div>
-          <Label>{t('sharingSettings')}</Label>
+          <Label htmlFor="timeLimit">{t('timeLimit')}</Label>
+          <div className="mt-1 flex items-center gap-2">
+            <Input
+              id="timeLimit"
+              type="number"
+              value={quiz.timeLimit || ''}
+              onChange={e => {
+                const value = e.target.value
+                  ? parseInt(e.target.value, 10)
+                  : null;
+                updateQuizMetadata({ timeLimit: value });
+              }}
+              placeholder={t('timeLimitPlaceholder')}
+              className="w-32"
+              min="1"
+            />
+            <span className="text-sm text-gray-600">{t('minutes')}</span>
+          </div>
+        </div>
+
+        <div>
+          <Label>{t('passwordProtection')}</Label>
           <div className="mt-2 space-y-2">
-            <select
-              value={quiz.sharingMode}
-              onChange={e =>
-                updateQuizMetadata({
-                  sharingMode: e.target.value as 'URL' | 'PASSWORD',
-                })
-              }
-              className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
-            >
-              <option value="URL">{t('urlSharing')}</option>
-              <option value="PASSWORD">{t('passwordProtected')}</option>
-            </select>
-            {quiz.sharingMode === 'PASSWORD' && (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="passwordProtection"
+                checked={quiz.isPasswordProtected}
+                onChange={e => {
+                  const isPasswordProtected = e.target.checked;
+                  updateQuizMetadata({ 
+                    isPasswordProtected,
+                    sharingMode: isPasswordProtected ? 'PASSWORD' : 'URL',
+                    password: isPasswordProtected ? quiz.password : null
+                  });
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label htmlFor="passwordProtection" className="text-sm font-medium">
+                {t('enablePasswordProtection')}
+              </label>
+            </div>
+            {quiz.isPasswordProtected && (
               <Input
                 type="text"
                 placeholder={t('passwordPlaceholder')}
@@ -165,33 +198,30 @@ export function QuizMetadataForm() {
         </div>
 
         <div>
-          <Label>{t('coverImage')}</Label>
-          <div className="mt-2">
-            {quiz.coverImage ? (
-              <div className="relative">
-                <Image
-                  src={quiz.coverImage}
-                  alt={t('coverImageAlt')}
-                  width={800}
-                  height={128}
-                  className="h-32 w-full rounded-lg object-cover"
-                />
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2"
-                  onClick={() => updateQuizMetadata({ coverImage: null })}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ) : (
+          <Label>
+            {t('coverImage')}
+            {!hasPaidPlan && (
+              <span className="ml-2 text-xs text-orange-500">
+                {t('proPlanFeature')}
+              </span>
+            )}
+          </Label>
+          {hasPaidPlan ? (
+            <div className="mt-2">
+              <ImageUpload
+                value={quiz.coverImage || undefined}
+                onChange={(url) => updateQuizMetadata({ coverImage: url || null })}
+                helperText={t('coverImageHelperText')}
+              />
+            </div>
+          ) : (
+            <div className="mt-2">
               <Button variant="outline" className="w-full" disabled>
                 <Upload className="mr-2 h-4 w-4" />
                 {t('uploadCoverImage')}
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

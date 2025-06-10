@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Plus,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
 
 interface QuickAction {
   key: string;
@@ -31,6 +32,7 @@ interface QuickActionButtonProps {
 
 export function QuickActionButton({ lng }: QuickActionButtonProps) {
   const t = useTranslations('dashboard.quickActions');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const quickActions: QuickAction[] = [
     {
@@ -39,7 +41,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 hover:bg-blue-100',
       description: t('createQuiz.description'),
-      href: `/${lng}/quiz/create`,
+      onClick: () => setIsCreateModalOpen(true),
     },
     {
       key: 'inviteUsers',
@@ -118,6 +120,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
   };
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>{t('title')}</CardTitle>
@@ -185,5 +188,12 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
         </div>
       </CardContent>
     </Card>
+
+    {/* Create Quiz Modal */}
+    <CreateQuizModal
+      isOpen={isCreateModalOpen}
+      onClose={() => setIsCreateModalOpen(false)}
+    />
+  </>
   );
 }

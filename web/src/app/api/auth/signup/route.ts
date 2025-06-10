@@ -36,9 +36,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         email: validatedData.email,
-        // Note: In a real app with NextAuth, you'd typically store the password
-        // in a separate table or use a different auth provider
-        // For now, we'll create the user without password storage
+        password: hashedPassword,
       },
     });
 

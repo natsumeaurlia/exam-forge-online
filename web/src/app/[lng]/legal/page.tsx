@@ -1,12 +1,12 @@
-'use client';
-
 import React from 'react';
 import { DefaultLayout } from '@/components/layout/DefaultLayout';
-import { useParams } from 'next/navigation';
 
-export default function LegalPage() {
-  const params = useParams();
-  const lng = params.lng as string;
+interface LegalPageProps {
+  params: { lng: string };
+}
+
+export default async function LegalPage({ params }: LegalPageProps) {
+  const { lng } = params;
 
   return (
     <DefaultLayout lng={lng}>

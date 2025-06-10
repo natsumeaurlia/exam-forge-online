@@ -7,7 +7,7 @@ export interface DefaultLayoutProps {
   lng: string;
 }
 
-export const DefaultLayout = ({ children, lng }: DefaultLayoutProps) => {
+export const DefaultLayout = async ({ children, lng }: DefaultLayoutProps) => {
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar lng={lng} />

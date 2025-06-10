@@ -57,16 +57,20 @@ export function QuestionWithMedia({
     <div className="space-y-6">
       {children}
 
-      {hasPaidPlan && (
-        <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
-          <CardContent className="pt-4">
-            <div className="mb-4 flex items-center gap-2">
-              <Crown className="h-5 w-5 text-amber-600" />
-              <span className="font-medium text-amber-900">{t('title')}</span>
+      <Card className={hasPaidPlan ? "border-gray-200" : "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50"}>
+        <CardContent className="pt-4">
+          <div className="mb-4 flex items-center gap-2">
+            {!hasPaidPlan && <Crown className="h-5 w-5 text-amber-600" />}
+            <span className={hasPaidPlan ? "font-medium" : "font-medium text-amber-900"}>
+              {t('title')}
+            </span>
+            {!hasPaidPlan && (
               <Badge className="border-0 bg-gradient-to-r from-amber-400 to-orange-400 text-white">
                 {t('proBadge')}
               </Badge>
-            </div>
+            )}
+          </div>
+          {hasPaidPlan ? (
             <MultiMediaUpload
               questionId={questionId}
               media={media}
@@ -74,9 +78,19 @@ export function QuestionWithMedia({
               storageUsed={storageInfo?.used}
               storageMax={storageInfo?.max}
             />
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="rounded-lg border-2 border-dashed border-amber-300 bg-amber-50/50 p-8 text-center">
+              <Crown className="mx-auto mb-3 h-12 w-12 text-amber-600" />
+              <p className="mb-2 text-sm font-medium text-amber-900">
+                {t('upgradeTitle')}
+              </p>
+              <p className="text-xs text-amber-700">
+                {t('upgradeDescription')}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -11,12 +11,70 @@ import type {
   Tag,
   MediaType,
 } from '@prisma/client';
+import type {
+  TrueFalseAnswer,
+  MultipleChoiceAnswer,
+  CheckboxAnswer,
+  ShortAnswer,
+  SortingAnswer,
+  FillInBlankAnswer,
+  DiagramAnswer,
+  MatchingAnswer,
+  NumericAnswer,
+} from '@/types/quiz-schemas';
 
 interface MediaItem extends QuestionMedia {
   type: MediaType;
 }
 
-interface QuizWithRelations extends Quiz {
+// Type for correct answer based on question type
+type CorrectAnswerByType<T extends QuestionType> = T extends 'TRUE_FALSE'
+  ? TrueFalseAnswer
+  : T extends 'MULTIPLE_CHOICE'
+    ? MultipleChoiceAnswer
+    : T extends 'CHECKBOX'
+      ? CheckboxAnswer
+      : T extends 'SHORT_ANSWER'
+        ? ShortAnswer
+        : T extends 'SORTING'
+          ? SortingAnswer
+          : T extends 'FILL_IN_BLANK'
+            ? FillInBlankAnswer
+            : T extends 'DIAGRAM'
+              ? DiagramAnswer
+              : T extends 'MATCHING'
+                ? MatchingAnswer
+                : T extends 'NUMERIC'
+                  ? NumericAnswer
+                  : null;
+
+// Utility function to get default correct answer by type
+function getDefaultCorrectAnswer(type: QuestionType): CorrectAnswerByType<typeof type> {
+  switch (type) {
+    case 'TRUE_FALSE':
+      return false as CorrectAnswerByType<typeof type>;
+    case 'MULTIPLE_CHOICE':
+      return '' as CorrectAnswerByType<typeof type>;
+    case 'CHECKBOX':
+      return [] as CorrectAnswerByType<typeof type>;
+    case 'SHORT_ANSWER':
+      return '' as CorrectAnswerByType<typeof type>;
+    case 'SORTING':
+      return [] as CorrectAnswerByType<typeof type>;
+    case 'FILL_IN_BLANK':
+      return {} as CorrectAnswerByType<typeof type>;
+    case 'DIAGRAM':
+      return { x: 0, y: 0, label: '' } as CorrectAnswerByType<typeof type>;
+    case 'MATCHING':
+      return {} as CorrectAnswerByType<typeof type>;
+    case 'NUMERIC':
+      return 0 as CorrectAnswerByType<typeof type>;
+    default:
+      return null as CorrectAnswerByType<typeof type>;
+  }
+}
+
+interface QuizWithRelations extends Omit<Quiz, 'sharingMode'> {
   questions: (Question & {
     options: QuestionOption[];
     media?: MediaItem[];
@@ -25,6 +83,8 @@ interface QuizWithRelations extends Quiz {
   tags: (QuizTag & {
     tag: Tag;
   })[];
+  // パスワード保護の設定
+  isPasswordProtected: boolean;
 }
 
 interface QuizEditorState {
@@ -72,19 +132,17 @@ export const useQuizEditorStore = create<QuizEditorState>()(
         // Ensure correctAnswer is properly initialized for all question types
         const questions = (quiz.questions || []).map(q => ({
           ...q,
-          correctAnswer:
-            q.correctAnswer ??
-            (q.type === 'TRUE_FALSE'
-              ? false
-              : q.type === 'CHECKBOX'
-                ? []
-                : q.type === 'SHORT_ANSWER'
-                  ? ''
-                  : null),
+          correctAnswer: q.correctAnswer ?? getDefaultCorrectAnswer(q.type),
         }));
 
+        // Convert sharingMode to isPasswordProtected
+        const quizWithPasswordProtection = {
+          ...quiz,
+          isPasswordProtected: quiz.sharingMode === 'PASSWORD',
+        };
+
         set({
-          quiz,
+          quiz: quizWithPasswordProtection,
           questions,
           currentQuestionIndex: null,
           isDirty: false,
@@ -122,14 +180,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           order: questions.length + 1,
           hint: null,
           explanation: null,
-          correctAnswer:
-            type === 'TRUE_FALSE'
-              ? false
-              : type === 'CHECKBOX'
-                ? []
-                : type === 'SHORT_ANSWER'
-                  ? ''
-                  : null,
+          correctAnswer: getDefaultCorrectAnswer(type),
           gradingCriteria: null,
           quizId: quiz.id,
           sectionId: null,

@@ -174,6 +174,60 @@
       "try": "クイズ作成デモを試す",
       "backToHome": "ホームに戻る",
       "backToQuiz": "クイズタイプ選択に戻る"
+    },
+    "preview": {
+      "title": "プレビュー",
+      "previewMode": "プレビューモード",
+      "backToEdit": "編集に戻る",
+      "desktop": "デスクトップ",
+      "mobile": "モバイル",
+      "detailedPreview": "詳細プレビュー",
+      "questions": "問題数",
+      "passingScore": "合格点",
+      "timeLimit": "制限時間",
+      "minutes": "分",
+      "tags": "タグ",
+      "startQuiz": "クイズを開始",
+      "participantInfo": {
+        "title": "受験者情報",
+        "description": "以下の情報を入力してください",
+        "name": "名前",
+        "namePlaceholder": "山田太郎",
+        "email": "メールアドレス",
+        "emailPlaceholder": "example@email.com"
+      },
+      "question": "問題",
+      "timeRemaining": "残り時間",
+      "true": "正しい",
+      "false": "誤り",
+      "typeYourAnswer": "回答を入力してください",
+      "unsupportedQuestionType": "未対応の問題タイプです",
+      "showHint": "ヒントを表示",
+      "hint": "ヒント",
+      "previous": "前へ",
+      "next": "次へ",
+      "submit": "提出",
+      "results": {
+        "passed": "合格",
+        "failed": "不合格",
+        "previewNote": "これはプレビューモードです。実際の結果は記録されません。",
+        "score": "スコア",
+        "correctAnswers": "正解数",
+        "passingScore": "合格ライン",
+        "breakdown": "問題別結果",
+        "tryAgain": "もう一度試す"
+      },
+      "correct": "正解",
+      "incorrect": "不正解",
+      "controls": {
+        "title": "プレビュー設定",
+        "description": "プレビューの表示や動作を調整できます",
+        "actions": "アクション",
+        "resetPreview": "プレビューをリセット",
+        "jumpToQuestion": "最初の問題へジャンプ",
+        "language": "言語",
+        "note": "プレビューモードでは回答は保存されません"
+      }
     }
   },
   "usecases": {
@@ -334,7 +388,7 @@
         "members": {
           "label": "メンバー数",
           "free": "メンバー数: 最大3人",
-          "pro": "メンバー数: 最大20人",
+          "pro": "メンバー数: 無制限",
           "enterprise": "メンバー数: 無制限"
         },
         "questions": {
@@ -1068,17 +1122,16 @@
       "createError": "クイズの作成に失敗しました"
     },
     "editor": {
-      "basicInfo": "クイズ基本情報",
+      "basicInfo": "クイズ基本設定",
       "description": "説明",
       "descriptionPlaceholder": "クイズの説明を入力",
       "passingScore": "合格点（%）",
       "scoringMode": "採点方式",
       "autoScoring": "自動採点",
       "manualScoring": "手動採点",
-      "sharingSettings": "共有設定",
-      "urlSharing": "URL共有",
-      "passwordProtected": "パスワード保護",
-      "password": "パスワード:",
+      "passwordProtection": "パスワード保護",
+      "enablePasswordProtection": "パスワード保護を有効にする",
+      "passwordPlaceholder": "パスワードを入力",
       "tags": "タグ",
       "addTag": "タグを追加",
       "addTagButton": "追加",
@@ -1093,6 +1146,9 @@
       "maxAttempts": "最大試行回数",
       "maxAttemptsPlaceholder": "無制限",
       "proPlanFeature": "Proプラン機能",
+      "minutes": "分",
+      "settingsMovedToProTab": "詳細設定はPro機能タブに移動しました。",
+      "coverImageHelperText": "推奨サイズ: 1200x630px",
       "publish": {
         "title": "クイズを公開",
         "subdomain": "サブドメイン設定",
@@ -1118,6 +1174,19 @@
         "preview": "プレビュー",
         "publishSettings": "公開設定",
         "save": "保存"
+      },
+      "imageUpload": {
+        "title": "画像をアップロード",
+        "dragDrop": "画像をドラッグ＆ドロップ、またはクリックして選択",
+        "clickToUpload": "クリックしてアップロード",
+        "uploading": "アップロード中...",
+        "uploadError": "アップロードに失敗しました",
+        "maxSize": "最大ファイルサイズ: 10MB",
+        "supportedFormats": "対応フォーマット: JPEG, PNG, GIF, WebP",
+        "deleteTitle": "画像を削除",
+        "deleteDescription": "この画像を削除してもよろしいですか？",
+        "cancel": "キャンセル",
+        "delete": "削除"
       },
       "questions": {
         "empty": "まだ質問がありません。上のツールバーから質問を追加してください。",
@@ -1187,7 +1256,7 @@
           "questionPlaceholder": "問題文を入力してください",
           "correctAnswer": "模範解答",
           "correctAnswerPlaceholder": "模範解答を入力してください（自動採点の場合）",
-          "correctAnswerHint": "自動採点では、この模範解答としてAIで比較して採点されます",
+          "correctAnswerHint": "自動採点では、模範解答とAIが比較して採点されます",
           "gradingCriteria": "採点基準",
           "gradingCriteriaPlaceholder": "採点基準を入力してください（手動採点の場合）",
           "points": "配点",
@@ -1317,7 +1386,9 @@
       "passwordPlaceholder": "パスワードを入力",
       "questionMedia": {
         "title": "問題メディア",
-        "proBadge": "PRO"
+        "proBadge": "PRO",
+        "upgradeTitle": "プロプランで画像・動画を追加",
+        "upgradeDescription": "問題に画像や動画を追加して、より分かりやすいクイズを作成しましょう"
       },
       "multiMediaUpload": {
         "title": "メディア添付",
@@ -1380,7 +1451,9 @@
           "certificateDescription": "合格者に自動的に証明書を発行",
           "configureCertificate": "証明書設定",
           "shuffleQuestions": "問題をシャッフル",
-          "shuffleOptions": "選択肢をシャッフル"
+          "shuffleOptions": "選択肢をシャッフル",
+          "shuffleQuestionsDescription": "問題の順番を受験者ごとにランダムに変更します",
+          "shuffleOptionsDescription": "選択肢の順番を受験者ごとにランダムに変更します"
         },
         "analytics": {
           "title": "クイズ分析",
