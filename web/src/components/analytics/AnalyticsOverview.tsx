@@ -43,7 +43,7 @@ export function AnalyticsOverview({ data, lng }: AnalyticsOverviewProps) {
           </div>
         </div>
         <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm text-gray-500">{t('realtime')}</div>
+          <div className="text-sm text-gray-500">{t('avgTime')}</div>
           <div className="text-2xl font-bold text-gray-900">
             {Math.round(data.averageTime)}s
           </div>

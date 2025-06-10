@@ -381,9 +381,9 @@
     "title": "Simple Pricing Plans",
     "description": "Choose from three plans to suit your needs. Upgrade as you grow.",
     "toggle": {
-      "monthly": "Monthly",
-      "annually": "Annually",
-      "discount": "Save ~17%"
+      "monthly": "monthly",
+      "annually": "annually",
+      "discount": "17% OFF"
     },
     "plans": {
       "features": {
@@ -453,16 +453,7 @@
         "coursemanagement": "Course Management",
         "whitelabel": "White Label",
         "apiAccess": "API Access",
-        "allbusiness": "All Business Plan Features",
-        "aiquiz": "AI Question Generation",
-        "aiimprovement": "AI Quality Improvement",
-        "aigrading": "AI Auto Grading",
-        "lmsmode": "LMS Mode",
-        "pagebuilder": "Page Builder",
-        "customdomain": "Custom Domain",
-        "userauth": "User Authentication",
-        "billing": "Billing System",
-        "coursemanagement": "Course Management"
+        "allbusiness": "All Business Plan Features"
       },
       "free": {
         "name": "Free Plan",
@@ -490,11 +481,6 @@
       }
     },
     "guarantee": "Pro and Premium plans include a 14-day free trial. Contact us if you have any questions.",
-    "toggle": {
-      "monthly": "monthly",
-      "annually": "annually",
-      "discount": "17% OFF"
-    },
     "viewDetails": "View Plans in Detail",
     "cta": "Try Free Now"
   },
@@ -1001,6 +987,20 @@
       "subscription": {
         "nextBilling": "Next billing date"
       }
+    },
+    "quizzes": {
+      "analytics": {
+        "title": "Quiz Analytics",
+        "totalResponses": "Total Responses",
+        "avgScore": "Average Score",
+        "completionRate": "Completion Rate",
+        "avgTime": "Average Time",
+        "back": "Back to Quiz",
+        "export": "Export",
+        "filterAll": "All Time",
+        "filter30d": "Last 30 Days",
+        "filter7d": "Last 7 Days"
+      }
     }
   },
   "plans": {
@@ -1425,7 +1425,6 @@
         },
         "proFeatureRequired": "Pro feature required"
       },
-      "passwordPlaceholder": "Enter password",
       "questionMedia": {
         "title": "Question Media",
         "proBadge": "PRO",
