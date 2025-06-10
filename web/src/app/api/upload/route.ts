@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const hasPaidPlan =
       userPlanResult.data.planType === 'PRO' ||
-      userPlanResult.data.planType === 'ENTERPRISE';
+      userPlanResult.data.planType === 'PREMIUM';
 
     if (!hasPaidPlan) {
       return NextResponse.json(

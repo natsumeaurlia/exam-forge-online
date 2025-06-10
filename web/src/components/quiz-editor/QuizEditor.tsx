@@ -45,14 +45,14 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showProFeatures, setShowProFeatures] = useState(false);
   const { initializeQuiz } = useQuizEditorStore();
-  const { isPro, isEnterprise } = useUserPlan();
+  const { isPro, isPremium } = useUserPlan();
 
   // Zustandストアを初期化
   React.useEffect(() => {
     initializeQuiz(quiz);
   }, [quiz, initializeQuiz]);
 
-  const hasPaidPlan = isPro || isEnterprise;
+  const hasPaidPlan = isPro || isPremium;
 
   return (
     <div className="flex h-full flex-col">
@@ -73,7 +73,6 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
             <QuizSettingsPanel />
           </div>
         )}
-
       </div>
 
       <div className="fixed right-6 bottom-6">

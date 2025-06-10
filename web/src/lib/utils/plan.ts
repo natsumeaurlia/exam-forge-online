@@ -4,14 +4,12 @@ export function isPlanPro(planType: PlanType | null | undefined): boolean {
   return planType === 'PRO';
 }
 
-export function isPlanEnterprise(
-  planType: PlanType | null | undefined
-): boolean {
-  return planType === 'ENTERPRISE';
+export function isPlanPremium(planType: PlanType | null | undefined): boolean {
+  return planType === 'PREMIUM';
 }
 
 export function isPlanPaid(planType: PlanType | null | undefined): boolean {
-  return planType === 'PRO' || planType === 'ENTERPRISE';
+  return planType === 'PRO' || planType === 'PREMIUM';
 }
 
 export function isPlanFree(planType: PlanType | null | undefined): boolean {
@@ -27,7 +25,7 @@ export function hasRequiredPlan(
   const planHierarchy: Record<PlanType, number> = {
     FREE: 0,
     PRO: 1,
-    ENTERPRISE: 2,
+    PREMIUM: 2,
   };
 
   return planHierarchy[userPlanType] >= planHierarchy[requiredPlanType];

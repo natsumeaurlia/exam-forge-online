@@ -6,6 +6,7 @@ import {
   ScrollAnimationOptions,
 } from '@/hooks/use-scroll-animation';
 import { ReactNode } from 'react';
+import * as React from 'react';
 
 export interface AnimatedSectionProps {
   children: ReactNode;
@@ -77,6 +78,18 @@ export function AnimatedSection({
     triggerOnce,
   });
 
+  // Add a fallback state to ensure content is visible after a timeout
+  const [forceVisible, setForceVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    // Force visibility after 2 seconds as a fallback
+    const timer = setTimeout(() => {
+      setForceVisible(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const variants = animationVariants[animation];
 
   const containerVariants = staggerChildren
@@ -97,7 +110,7 @@ export function AnimatedSection({
       className={`${className} gpu-accelerated`}
       data-testid={testId}
       initial="hidden"
-      animate={isVisible ? 'visible' : 'hidden'}
+      animate={isVisible || forceVisible ? 'visible' : 'hidden'}
       variants={containerVariants}
       transition={{
         duration,

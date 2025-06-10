@@ -37,8 +37,8 @@ export function PlanFaq() {
       answer: t('plans.faq.cancel.answer'),
     },
     {
-      question: t('plans.faq.enterprise.question'),
-      answer: t('plans.faq.enterprise.answer'),
+      question: t('plans.faq.premium.question'),
+      answer: t('plans.faq.premium.answer'),
     },
   ];
 

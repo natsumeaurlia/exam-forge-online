@@ -9,7 +9,7 @@ import { Crown, Sparkles, TrendingUp, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function UserPlanStatus() {
-  const { data, loading, isPro, isEnterprise } = useUserPlan();
+  const { data, loading, isPro, isPremium } = useUserPlan();
   const t = useTranslations('dashboard.planStatus');
   const router = useRouter();
 
@@ -30,7 +30,7 @@ export function UserPlanStatus() {
   const planLimits = {
     FREE: { quizzes: 5, responses: 100, questions: 10 },
     PRO: { quizzes: 50, responses: 5000, questions: 100 },
-    ENTERPRISE: { quizzes: null, responses: null, questions: null },
+    PREMIUM: { quizzes: null, responses: null, questions: null },
   };
 
   const limits = planLimits[data?.planType || 'FREE'];
@@ -46,13 +46,13 @@ export function UserPlanStatus() {
   };
 
   const getIcon = () => {
-    if (isEnterprise) return <Sparkles className="h-5 w-5 text-purple-600" />;
+    if (isPremium) return <Sparkles className="h-5 w-5 text-purple-600" />;
     if (isPro) return <Crown className="h-5 w-5 text-blue-600" />;
     return <TrendingUp className="h-5 w-5 text-gray-600" />;
   };
 
   const getPlanColor = () => {
-    if (isEnterprise) return 'bg-purple-100 text-purple-700';
+    if (isPremium) return 'bg-purple-100 text-purple-700';
     if (isPro) return 'bg-blue-100 text-blue-700';
     return 'bg-gray-100 text-gray-700';
   };
@@ -140,14 +140,14 @@ export function UserPlanStatus() {
         )}
 
         {/* アップグレードボタン */}
-        {!isPro && !isEnterprise && (
+        {!isPro && !isPremium && (
           <Button className="w-full" onClick={() => router.push('/plans')}>
             {t('upgradeButton')}
           </Button>
         )}
 
         {/* サブスクリプション管理 */}
-        {(isPro || isEnterprise) && data?.subscription && (
+        {(isPro || isPremium) && data?.subscription && (
           <div className="text-center text-xs text-gray-500">
             {t('subscription.nextBilling')}:{' '}
             {new Date(data.subscription.currentPeriodEnd).toLocaleDateString()}

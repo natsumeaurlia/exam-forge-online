@@ -24,7 +24,7 @@ export async function seedTestData(prisma: PrismaClient) {
     if (!testUser) {
       // パスワードをハッシュ化
       const hashedPassword = await bcrypt.hash('password123', 10);
-      
+
       testUser = await prisma.user.create({
         data: {
           email: 'test@example.com',

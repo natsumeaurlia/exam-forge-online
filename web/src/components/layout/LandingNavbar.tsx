@@ -3,6 +3,7 @@ import { MobileMenu } from './MobileMenu';
 import { AuthButtons } from '../auth/AuthButtons';
 import { UserMenu } from './UserMenu';
 import { LandingNavbarActions } from './LandingNavbarActions';
+import { LandingNavbarLinks } from './LandingNavbarLinks';
 import { getTranslations } from 'next-intl/server';
 import { NavbarLogo } from './NavbarLogo';
 
@@ -35,34 +36,15 @@ export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
           className="hidden items-center gap-6 md:flex"
           data-testid="navbar-desktop-nav"
         >
-          <a
-            href="#features"
-            className="hover:text-examforge-blue text-sm font-medium transition-colors"
-            data-testid="nav-features"
-          >
-            {translations.features}
-          </a>
-          <a
-            href="#pricing"
-            className="hover:text-examforge-blue text-sm font-medium transition-colors"
-            data-testid="nav-pricing"
-          >
-            {translations.pricing}
-          </a>
-          <a
-            href={`/${lng}/plans`}
-            className="hover:text-examforge-blue text-sm font-medium transition-colors"
-            data-testid="nav-plans"
-          >
-            {translations.plans}
-          </a>
-          <a
-            href="#faq"
-            className="hover:text-examforge-blue text-sm font-medium transition-colors"
-            data-testid="nav-faq"
-          >
-            {translations.faq}
-          </a>
+          <LandingNavbarLinks
+            lng={lng}
+            translations={{
+              features: translations.features,
+              pricing: translations.pricing,
+              plans: translations.plans,
+              faq: translations.faq,
+            }}
+          />
         </nav>
 
         <div
@@ -85,7 +67,14 @@ export const LandingNavbar = async ({ lng }: LandingNavbarProps) => {
         >
           <LanguageSwitcher lng={lng} />
           <MobileMenu
-            translations={translations}
+            translations={{
+              features: translations.features,
+              pricing: translations.pricing,
+              plans: translations.plans,
+              faq: translations.faq,
+              login: translations.login,
+              signup: translations.signup,
+            }}
             lng={lng}
             isLandingPage={true}
           />

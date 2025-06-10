@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useQuizPreviewStore } from "@/stores/useQuizPreviewStore";
-import { QuizPreviewHeader } from "./QuizPreviewHeader";
-import { QuizStartScreen } from "./QuizStartScreen";
-import { ParticipantForm } from "./ParticipantForm";
-import { QuestionDisplay } from "./QuestionDisplay";
-import { QuestionNavigation } from "./QuestionNavigation";
-import { ResultsSummary } from "./ResultsSummary";
-import { PreviewControls } from "./PreviewControls";
-import type { Quiz } from "@/types/quiz";
-import type { Question, QuestionOption, QuestionMedia } from "@prisma/client";
+import { useState } from 'react';
+import { useQuizPreviewStore } from '@/stores/useQuizPreviewStore';
+import { QuizPreviewHeader } from './QuizPreviewHeader';
+import { QuizStartScreen } from './QuizStartScreen';
+import { ParticipantForm } from './ParticipantForm';
+import { QuestionDisplay } from './QuestionDisplay';
+import { QuestionNavigation } from './QuestionNavigation';
+import { ResultsSummary } from './ResultsSummary';
+import { PreviewControls } from './PreviewControls';
+import type { Quiz } from '@/types/quiz';
+import type { Question, QuestionOption, QuestionMedia } from '@prisma/client';
 
 interface QuizPreviewClientProps {
-  quiz: Quiz & { 
+  quiz: Quiz & {
     questions: (Question & {
       options: QuestionOption[];
       media: QuestionMedia[];
@@ -30,7 +30,7 @@ export function QuizPreviewClient({ quiz, lng }: QuizPreviewClientProps) {
     deviceMode,
     participantInfo,
   } = useQuizPreviewStore();
-  
+
   const [showParticipantForm, setShowParticipantForm] = useState(false);
 
   const handleStartQuiz = () => {
@@ -47,18 +47,20 @@ export function QuizPreviewClient({ quiz, lng }: QuizPreviewClientProps) {
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
   return (
-    <div className={`relative ${deviceMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
+    <div className="relative">
       <QuizPreviewHeader quizId={quiz.id} lng={lng} />
-      
-      <div className="container mx-auto px-4 py-8">
+
+      <div
+        className={`${deviceMode === 'mobile' ? 'mx-auto max-w-sm px-4' : 'container mx-auto px-4'} py-8`}
+      >
         {!isStarted && !showParticipantForm && (
           <QuizStartScreen quiz={quiz} onStart={handleStartQuiz} />
         )}
-        
+
         {!isStarted && showParticipantForm && (
           <ParticipantForm onSubmit={handleParticipantSubmit} />
         )}
-        
+
         {isStarted && !isCompleted && currentQuestion && (
           <div className="space-y-6">
             <QuestionDisplay
@@ -71,10 +73,11 @@ export function QuizPreviewClient({ quiz, lng }: QuizPreviewClientProps) {
               currentIndex={currentQuestionIndex}
               totalQuestions={quiz.questions.length}
               onComplete={() => useQuizPreviewStore.getState().completeQuiz()}
+              questions={quiz.questions}
             />
           </div>
         )}
-        
+
         {isCompleted && (
           <ResultsSummary
             quiz={quiz}
@@ -82,7 +85,7 @@ export function QuizPreviewClient({ quiz, lng }: QuizPreviewClientProps) {
           />
         )}
       </div>
-      
+
       <PreviewControls />
     </div>
   );

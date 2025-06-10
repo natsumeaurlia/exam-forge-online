@@ -20,7 +20,11 @@ export const ContactForm = ({ translations }: ContactFormProps) => {
   };
 
   return (
-    <form className="max-w-md" data-testid="contact-form" onSubmit={handleSubmit}>
+    <form
+      className="max-w-md"
+      data-testid="contact-form"
+      onSubmit={handleSubmit}
+    >
       <div className="mb-4" data-testid="name-field">
         <label
           htmlFor="name"

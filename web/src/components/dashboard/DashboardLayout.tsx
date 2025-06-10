@@ -1,8 +1,12 @@
+'use client';
+
 import React from 'react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { SideNavigation } from '@/components/dashboard/SideNavigation';
 import { DashboardProvider } from '@/hooks/use-dashboard';
 import { UserPlanProvider } from '@/components/providers/UserPlanProvider';
+import { useSidebarStore } from '@/stores/useSidebarStore';
+import { cn } from '@/lib/utils';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,6 +14,8 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
+  const { isOpen: isSidebarOpen } = useSidebarStore();
+
   return (
     <UserPlanProvider>
       <DashboardProvider>
@@ -23,7 +29,14 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
             <SideNavigation lng={lng} />
 
             {/* メインコンテンツエリア */}
-            <main className="flex-1 overflow-auto">{children}</main>
+            <main
+              className={cn(
+                'flex-1 overflow-auto transition-all duration-300',
+                isSidebarOpen ? 'lg:ml-0' : 'lg:ml-0'
+              )}
+            >
+              {children}
+            </main>
           </div>
         </div>
       </DashboardProvider>

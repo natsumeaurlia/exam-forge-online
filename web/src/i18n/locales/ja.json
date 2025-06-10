@@ -9,12 +9,13 @@
       "details": "プランの詳細",
       "free": "無料",
       "pro": "プロ",
-      "enterprise": "エンタープライズ"
+      "premium": "プレミアム"
     },
     "faq": "よくある質問",
     "proLabel": "PRO",
+    "premiumLabel": "PREMIUM",
     "upgradeToPro": "プロプランへアップグレード",
-    "upgradeToEnterprise": "エンタープライズプランへアップグレード",
+    "upgradeToPremium": "プレミアムプランへアップグレード",
     "featureLocked": "この機能はアップグレードが必要です",
     "viewPlans": "プランを見る",
     "languages": {
@@ -201,12 +202,20 @@
       "true": "正しい",
       "false": "誤り",
       "typeYourAnswer": "回答を入力してください",
+      "enterNumber": "数値を入力してください",
+      "blank": "空欄",
+      "selectMatch": "一致する項目を選択",
+      "diagramInstructions": "図の各部分にラベルを付けてください",
+      "label": "ラベル",
+      "enterLabel": "ラベルを入力",
       "unsupportedQuestionType": "未対応の問題タイプです",
       "showHint": "ヒントを表示",
       "hint": "ヒント",
       "previous": "前へ",
       "next": "次へ",
       "submit": "提出",
+      "required": "必須",
+      "requiredQuestion": "この質問は回答必須です",
       "results": {
         "passed": "合格",
         "failed": "不合格",
@@ -383,31 +392,31 @@
           "label": "クイズ作成数",
           "free": "クイズ作成数: 5件まで",
           "pro": "クイズ作成数: 無制限",
-          "enterprise": "クイズ作成数: 無制限"
+          "premium": "クイズ作成数: 無制限"
         },
         "members": {
           "label": "メンバー数",
           "free": "メンバー数: 最大3人",
-          "pro": "メンバー数: 無制限",
-          "enterprise": "メンバー数: 無制限"
+          "pro": "メンバー数: 最大20人",
+          "premium": "メンバー数: 無制限"
         },
         "questions": {
           "label": "問題数/クイズ",
           "free": "問題数: クイズあたり20問まで",
           "pro": "問題数: クイズあたり200問まで",
-          "enterprise": "問題数: 無制限"
+          "premium": "問題数: 無制限"
         },
         "responses": {
           "label": "回答上限/月",
           "free": "回答上限: クイズあたり月100回まで",
           "pro": "回答上限: クイズあたり月3,000回まで",
-          "enterprise": "回答上限: 無制限"
+          "premium": "回答上限: 無制限"
         },
         "storage": {
           "label": "ストレージ容量",
           "free": "ストレージ: 100MB",
           "pro": "ストレージ: 10GB",
-          "enterprise": "ストレージ: 無制限"
+          "premium": "ストレージ: 無制限"
         },
         "truefalse": "マルバツ問題",
         "singlechoice": "指定択一問題",
@@ -433,7 +442,27 @@
         "onpremise": "オンプレミス対応",
         "support": "専任サポート担当者",
         "allpro": "プロプランのすべての機能",
-        "aiquiz": "AI自動問題生成"
+        "aiquiz": "AI自動問題生成",
+        "aiimprovement": "AI品質改善",
+        "aigrading": "AI自動採点",
+        "lmsmode": "LMSモード",
+        "pagebuilder": "ページビルダー",
+        "customdomain": "独自ドメイン",
+        "userauth": "ユーザー認証",
+        "billing": "課金機能",
+        "coursemanagement": "コース管理",
+        "whitelabel": "ホワイトラベル",
+        "apiAccess": "API アクセス",
+        "allbusiness": "ビジネスプランのすべての機能",
+        "aiquiz": "AI自動問題生成",
+        "aiimprovement": "AI品質改善",
+        "aigrading": "AI自動採点",
+        "lmsmode": "LMSモード",
+        "pagebuilder": "ページビルダー",
+        "customdomain": "独自ドメイン",
+        "userauth": "ユーザー認証",
+        "billing": "課金機能",
+        "coursemanagement": "コース管理"
       },
       "free": {
         "name": "フリープラン",
@@ -445,20 +474,26 @@
       "pro": {
         "name": "プロプラン",
         "price": "¥2,980",
-        "period": "月額/テナント",
+        "period": "月額/ライセンス",
         "description": "教育機関や企業に最適",
         "cta": "今すぐ申し込む",
         "popular": "人気"
       },
-      "enterprise": {
-        "name": "エンタープライズ",
-        "price": "要問合せ",
-        "period": "カスタムプラン",
-        "description": "大規模組織・教育機関向け",
-        "cta": "お問い合わせ"
+      "premium": {
+        "name": "プレミアムプラン",
+        "price": "¥4,980",
+        "period": "月額/ライセンス",
+        "description": "AI機能とLMSを活用したい企業向け",
+        "cta": "今すぐ申し込む",
+        "badge": "AI + LMS"
       }
     },
-    "guarantee": "プロプランとエンタープライズプランには14日間の無料トライアル付き。不明点はお問い合わせください。",
+    "guarantee": "プロプランとプレミアムプランには14日間の無料トライアル付き。不明点はお問い合わせください。",
+    "toggle": {
+      "monthly": "月額",
+      "annually": "年額",
+      "discount": "17%お得"
+    },
     "viewDetails": "プランを詳しく見る",
     "cta": "今すぐ無料で使ってみる"
   },
@@ -919,7 +954,7 @@
       "plans": {
         "free": "無料プラン",
         "pro": "Proプラン",
-        "enterprise": "エンタープライズ"
+        "premium": "プレミアムプラン"
       },
       "metrics": {
         "quizzes": "クイズ数",
@@ -947,7 +982,7 @@
       "plans": {
         "free": "無料プラン",
         "pro": "プロプラン",
-        "enterprise": "エンタープライズ"
+        "premium": "プレミアムプラン"
       },
       "usage": {
         "quizzes": "クイズ数",
@@ -973,13 +1008,13 @@
       "description": "ExamForgeの料金プランを詳しく比較。フリープラン、プロプラン、エンタープライズプランの機能と価格をご確認いただけます。"
     },
     "title": "最適なプランを見つけましょう",
-    "subtitle": "プロプランとエンタープライズプランには14日間の無料トライアル付き。いつでもアップグレード・ダウングレード可能です。",
+    "subtitle": "プロプランとプレミアムプランには14日間の無料トライアル付き。いつでもアップグレード・ダウングレード可能です。",
     "features": {
       "feature": "機能",
       "basic": "基本機能",
       "question_types": "問題タイプ",
       "advanced": "高度な機能",
-      "enterprise_only": "エンタープライズ限定",
+      "premium_only": "プレミアム限定",
       "quizzes": {
         "label": "クイズ作成数"
       },
@@ -1016,15 +1051,15 @@
       },
       "payment": {
         "question": "支払い方法を教えてください",
-        "answer": "クレジットカード（VISA、Mastercard、American Express、JCB）でのお支払いに対応しています。エンタープライズプランでは銀行振込もご利用いただけます。"
+        "answer": "クレジットカード（VISA、Mastercard、American Express、JCB）でのお支払いに対応しています。プレミアムプランでは銀行振込もご利用いただけます。"
       },
       "cancel": {
         "question": "解約方法を教えてください",
         "answer": "ダッシュボードの設定画面から「プラン管理」を選択し、「プランをキャンセル」をクリックしてください。解約後も契約期間終了までサービスをご利用いただけます。"
       },
-      "enterprise": {
-        "question": "エンタープライズプランの詳細を知りたいです",
-        "answer": "エンタープライズプランは大規模組織向けのカスタムプランです。専任のサポート担当者、SLA保証、カスタム開発対応など、お客様のニーズに合わせて柔軟にカスタマイズ可能です。詳細はお問い合わせください。"
+      "premium": {
+        "question": "プレミアムプランの詳細を知りたいです",
+        "answer": "プレミアムプランはAI機能とLMSモードを含む最上位プランです。AI自動問題生成、品質改善提案、自動採点機能に加え、独自ドメインでのLMS構築、ページビルダー、課金機能統合など、包括的な学習管理機能を提供しています。"
       }
     },
     "cta": {
@@ -1193,7 +1228,13 @@
         "questionNumber": "問題 {number}",
         "noQuestionText": "（質問文なし）",
         "points": "{points}点",
-        "pointsLabel": "点"
+        "pointsLabel": "点",
+        "moveUp": "上に移動",
+        "moveDown": "下に移動",
+        "duplicate": "複製",
+        "delete": "削除",
+        "isRequired": "回答必須",
+        "isRequiredDescription": "受験者はこの問題に必ず回答する必要があります"
       },
       "questionTypes": {
         "addQuestion": "質問を追加",
@@ -1482,5 +1523,23 @@
     "badge": "実績",
     "title": "多くの企業・教育機関で導入",
     "subtitle": "ExamForgeは、企業研修や教育現場で活用されています。"
+  },
+  "components": {
+    "mediaUpload": {
+      "maxFilesReached": "最大ファイル数に達しました",
+      "maxFilesReachedDescription": "最大{max}個のファイルまでアップロード可能です",
+      "uploadSuccess": "アップロード成功",
+      "uploadSuccessDescription": "{count}個のファイルをアップロードしました",
+      "uploadError": "アップロード失敗",
+      "storageUsed": "使用容量",
+      "uploading": "アップロード中...",
+      "dropFiles": "ここにファイルをドロップ",
+      "dragDropOrClick": "ファイルをドラッグ＆ドロップまたはクリックして選択",
+      "maxSize": "最大ファイルサイズ: {size}",
+      "deleteTitle": "メディアを削除",
+      "deleteDescription": "このメディアを削除してもよろしいですか？この操作は取り消せません。",
+      "cancel": "キャンセル",
+      "delete": "削除"
+    }
   }
 }

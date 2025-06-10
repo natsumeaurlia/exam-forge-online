@@ -193,6 +193,7 @@ model Question {
   explanation     String?
   correctAnswer   Json?
   gradingCriteria String?
+  isRequired      Boolean            @default(false)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   quizId          String
@@ -480,7 +481,7 @@ enum QuestionType {
 enum PlanType {
   FREE
   PRO
-  ENTERPRISE
+  PREMIUM
 }
 
 enum BillingCycle {
@@ -516,7 +517,7 @@ enum ResourceType {
 enum FeatureCategory {
   BASIC
   PRO
-  ENTERPRISE
+  PREMIUM
 }
 
 enum FeatureType {

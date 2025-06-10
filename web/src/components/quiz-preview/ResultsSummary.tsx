@@ -1,18 +1,24 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { useTranslations } from "next-intl";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { CheckCircle, XCircle, Trophy, RotateCcw } from "lucide-react";
-import { useQuizPreviewStore } from "@/stores/useQuizPreviewStore";
-import type { Quiz } from "@/types/quiz";
-import type { Question, QuestionOption } from "@prisma/client";
+import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { CheckCircle, XCircle, Trophy, RotateCcw } from 'lucide-react';
+import { useQuizPreviewStore } from '@/stores/useQuizPreviewStore';
+import type { Quiz } from '@/types/quiz';
+import type { Question, QuestionOption } from '@prisma/client';
 
 interface ResultsSummaryProps {
-  quiz: Quiz & { 
+  quiz: Quiz & {
     questions: (Question & {
       options: QuestionOption[];
     })[];
@@ -21,7 +27,7 @@ interface ResultsSummaryProps {
 }
 
 export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
-  const t = useTranslations("quiz.preview");
+  const t = useTranslations('quiz.preview');
   const { resetPreview } = useQuizPreviewStore();
 
   const results = useMemo(() => {
@@ -29,24 +35,24 @@ export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
     let totalPoints = 0;
     let earnedPoints = 0;
 
-    const questionResults = quiz.questions.map((question) => {
+    const questionResults = quiz.questions.map(question => {
       const userAnswer = answers[question.id];
       let isCorrect = false;
 
       totalPoints += question.points || 1;
 
-      if (quiz.scoringType === "AUTO") {
+      if (quiz.scoringType === 'AUTO') {
         switch (question.type) {
-          case "TRUE_FALSE":
+          case 'TRUE_FALSE':
             isCorrect = userAnswer === question.correctAnswer;
             break;
-          case "MULTIPLE_CHOICE":
+          case 'MULTIPLE_CHOICE':
             isCorrect = userAnswer === question.correctAnswer;
             break;
-          case "CHECKBOX":
+          case 'CHECKBOX':
             const correctOptions = question.options
-              ?.filter((opt) => opt.isCorrect)
-              .map((opt) => opt.id);
+              ?.filter(opt => opt.isCorrect)
+              .map(opt => opt.id);
             isCorrect =
               Array.isArray(userAnswer) &&
               userAnswer.length === correctOptions?.length &&
@@ -84,42 +90,42 @@ export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
   }, [quiz, answers]);
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             {results.isPassed ? (
               <>
                 <Trophy className="h-6 w-6 text-green-600" />
-                {t("results.passed")}
+                {t('results.passed')}
               </>
             ) : (
               <>
                 <XCircle className="h-6 w-6 text-red-600" />
-                {t("results.failed")}
+                {t('results.failed')}
               </>
             )}
           </CardTitle>
-          <CardDescription>{t("results.previewNote")}</CardDescription>
+          <CardDescription>{t('results.previewNote')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="text-center">
               <p className="text-3xl font-bold">{results.percentage}%</p>
-              <p className="text-muted-foreground">{t("results.score")}</p>
+              <p className="text-muted-foreground">{t('results.score')}</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold">
                 {results.correctCount}/{results.totalQuestions}
               </p>
               <p className="text-muted-foreground">
-                {t("results.correctAnswers")}
+                {t('results.correctAnswers')}
               </p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold">{quiz.passingScore}%</p>
               <p className="text-muted-foreground">
-                {t("results.passingScore")}
+                {t('results.passingScore')}
               </p>
             </div>
           </div>
@@ -127,23 +133,23 @@ export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
           <Progress
             value={results.percentage}
             className={`h-4 ${
-              results.isPassed ? "bg-green-100" : "bg-red-100"
+              results.isPassed ? 'bg-green-100' : 'bg-red-100'
             }`}
           />
         </CardContent>
       </Card>
 
-      {quiz.scoringType === "AUTO" && (
+      {quiz.scoringType === 'AUTO' && (
         <Card>
           <CardHeader>
-            <CardTitle>{t("results.breakdown")}</CardTitle>
+            <CardTitle>{t('results.breakdown')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {results.questionResults.map((result, index) => (
                 <div
                   key={result.question.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
+                  className="flex items-center justify-between rounded-lg bg-gray-50 p-3"
                 >
                   <div className="flex items-center gap-3">
                     {result.isCorrect ? (
@@ -152,13 +158,11 @@ export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
                       <XCircle className="h-5 w-5 text-red-600" />
                     )}
                     <span className="font-medium">
-                      {t("question")} {index + 1}
+                      {t('question')} {index + 1}
                     </span>
                   </div>
-                  <Badge
-                    variant={result.isCorrect ? "default" : "destructive"}
-                  >
-                    {result.isCorrect ? t("correct") : t("incorrect")}
+                  <Badge variant={result.isCorrect ? 'default' : 'destructive'}>
+                    {result.isCorrect ? t('correct') : t('incorrect')}
                   </Badge>
                 </div>
               ))}
@@ -169,8 +173,8 @@ export function ResultsSummary({ quiz, answers }: ResultsSummaryProps) {
 
       <div className="flex justify-center">
         <Button onClick={resetPreview} size="lg">
-          <RotateCcw className="h-4 w-4 mr-2" />
-          {t("results.tryAgain")}
+          <RotateCcw className="mr-2 h-4 w-4" />
+          {t('results.tryAgain')}
         </Button>
       </div>
     </div>

@@ -16,7 +16,7 @@ interface UserPlanContextType {
   loading: boolean;
   error: string | null;
   isPro: boolean;
-  isEnterprise: boolean;
+  isPremium: boolean;
   isFree: boolean;
   hasFeature: (featureType: FeatureType) => boolean;
   refetch: () => Promise<void>;
@@ -56,7 +56,7 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isPro = data?.planType === 'PRO';
-  const isEnterprise = data?.planType === 'ENTERPRISE';
+  const isPremium = data?.planType === 'PREMIUM';
   const isFree = data?.planType === 'FREE' || !data;
 
   const hasFeature = (featureType: FeatureType): boolean => {
@@ -69,7 +69,7 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
     loading,
     error,
     isPro,
-    isEnterprise,
+    isPremium,
     isFree,
     hasFeature,
     refetch: fetchPlan,
@@ -92,7 +92,7 @@ export function useUserPlan() {
       loading: false,
       error: null,
       isPro: false,
-      isEnterprise: false,
+      isPremium: false,
       isFree: true,
       hasFeature: () => false,
       refetch: async () => {},

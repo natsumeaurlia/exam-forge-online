@@ -24,7 +24,7 @@ export function UsageMeter({ lng }: UsageMeterProps) {
   const t = useTranslations('dashboard.usage');
 
   // モックデータ - 実際のプロジェクトではAPIから取得
-  const currentPlan = 'free'; // 'free' | 'pro' | 'enterprise'
+  const currentPlan = 'free'; // 'free' | 'pro' | 'premium'
 
   const usageData: UsageItem[] = [
     {
@@ -87,8 +87,8 @@ export function UsageMeter({ lng }: UsageMeterProps) {
         return t('plans.free');
       case 'pro':
         return t('plans.pro');
-      case 'enterprise':
-        return t('plans.enterprise');
+      case 'premium':
+        return t('plans.premium');
       default:
         return plan;
     }

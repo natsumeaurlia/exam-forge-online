@@ -38,10 +38,12 @@ export function FeatureComparisonTable({
       priceAnnual: currentLanguage === 'en' ? '$24' : '¥2,480',
       cta: t('pricing.plans.pro.cta'),
     },
-    enterprise: {
-      name: t('pricing.plans.enterprise.name'),
-      price: t('pricing.plans.enterprise.price'),
-      cta: t('pricing.plans.enterprise.cta'),
+    premium: {
+      name: t('pricing.plans.premium.name'),
+      priceMonthly: currentLanguage === 'en' ? '$49' : '¥4,980',
+      priceAnnual: currentLanguage === 'en' ? '$41' : '¥4,150',
+      cta: t('pricing.plans.premium.cta'),
+      badge: t('pricing.plans.premium.badge'),
     },
   };
 
@@ -53,31 +55,31 @@ export function FeatureComparisonTable({
           name: t('pricing.plans.features.quizzes.label'),
           free: t('pricing.plans.features.quizzes.free'),
           pro: t('pricing.plans.features.quizzes.pro'),
-          enterprise: t('pricing.plans.features.quizzes.enterprise'),
+          premium: t('pricing.plans.features.quizzes.premium'),
         },
         {
           name: t('pricing.plans.features.members.label'),
           free: t('pricing.plans.features.members.free'),
           pro: t('pricing.plans.features.members.pro'),
-          enterprise: t('pricing.plans.features.members.enterprise'),
+          premium: t('pricing.plans.features.members.premium'),
         },
         {
           name: t('pricing.plans.features.questions.label'),
           free: t('pricing.plans.features.questions.free'),
           pro: t('pricing.plans.features.questions.pro'),
-          enterprise: t('pricing.plans.features.questions.enterprise'),
+          premium: t('pricing.plans.features.questions.premium'),
         },
         {
           name: t('pricing.plans.features.responses.label'),
           free: t('pricing.plans.features.responses.free'),
           pro: t('pricing.plans.features.responses.pro'),
-          enterprise: t('pricing.plans.features.responses.enterprise'),
+          premium: t('pricing.plans.features.responses.premium'),
         },
         {
           name: t('pricing.plans.features.storage.label'),
           free: t('pricing.plans.features.storage.free'),
           pro: t('pricing.plans.features.storage.pro'),
-          enterprise: t('pricing.plans.features.storage.enterprise'),
+          premium: t('pricing.plans.features.storage.premium'),
         },
       ],
     },
@@ -88,31 +90,31 @@ export function FeatureComparisonTable({
           name: t('pricing.plans.features.truefalse'),
           free: true,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.singlechoice'),
           free: true,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.multiplechoice'),
           free: true,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.freetext'),
           free: true,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.advancedtypes'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
       ],
     },
@@ -123,84 +125,97 @@ export function FeatureComparisonTable({
           name: t('pricing.plans.features.subdomain'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.media'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.questionbank'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.analytics'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.sections'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.certificates'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.excel'),
           free: false,
           pro: true,
-          enterprise: true,
+          premium: true,
         },
-      ],
-    },
-    {
-      category: t('plans.features.enterprise_only'),
-      items: [
+        {
+          name: t('pricing.plans.features.aiquiz'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
+        {
+          name: t('pricing.plans.features.aiimprovement'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
+        {
+          name: t('pricing.plans.features.aigrading'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
+        {
+          name: t('pricing.plans.features.lmsmode'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
+        {
+          name: t('pricing.plans.features.pagebuilder'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
+        {
+          name: t('pricing.plans.features.customdomain'),
+          free: false,
+          pro: false,
+          premium: true,
+        },
         {
           name: t('pricing.plans.features.permissions'),
           free: false,
           pro: false,
-          enterprise: true,
+          premium: true,
         },
         {
           name: t('pricing.plans.features.audit'),
           free: false,
           pro: false,
-          enterprise: true,
+          premium: true,
         },
         {
-          name: t('pricing.plans.features.sla'),
+          name: t('pricing.plans.features.apiAccess'),
           free: false,
           pro: false,
-          enterprise: true,
-        },
-        {
-          name: t('pricing.plans.features.customdev'),
-          free: false,
-          pro: false,
-          enterprise: true,
-        },
-        {
-          name: t('pricing.plans.features.onpremise'),
-          free: false,
-          pro: false,
-          enterprise: true,
-        },
-        {
-          name: t('pricing.plans.features.support'),
-          free: false,
-          pro: false,
-          enterprise: true,
+          premium: true,
         },
       ],
     },
@@ -218,8 +233,8 @@ export function FeatureComparisonTable({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border bg-white">
-      <Table>
+    <div className="w-full overflow-x-auto rounded-lg border bg-white">
+      <Table className="w-full">
         <TableHeader>
           <TableRow>
             <TableHead className="w-2/5 min-w-[300px]">
@@ -264,18 +279,25 @@ export function FeatureComparisonTable({
             </TableHead>
             <TableHead className="w-1/5 min-w-[200px] py-6 text-center">
               <div className="space-y-2">
-                <div className="mb-3 font-semibold">
-                  {plans.enterprise.name}
-                </div>
+                <div className="mb-3 font-semibold">{plans.premium.name}</div>
                 <div className="text-2xl font-bold">
-                  {plans.enterprise.price}
+                  {isAnnual
+                    ? plans.premium.priceAnnual
+                    : plans.premium.priceMonthly}
+                  <span className="text-sm font-normal text-gray-500">
+                    /
+                    {isAnnual
+                      ? t('pricing.toggle.annually')
+                      : t('pricing.toggle.monthly')}
+                  </span>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   className="border-examforge-blue-dark text-examforge-blue-dark hover:bg-examforge-blue-dark w-full hover:text-white"
+                  onClick={() => (window.location.href = `/${lng}/auth/signin`)}
                 >
-                  {plans.enterprise.cta}
+                  {plans.premium.cta}
                 </Button>
               </div>
             </TableHead>
@@ -299,7 +321,7 @@ export function FeatureComparisonTable({
                     {renderValue(feature.pro)}
                   </TableCell>
                   <TableCell className="text-center">
-                    {renderValue(feature.enterprise)}
+                    {renderValue(feature.premium)}
                   </TableCell>
                 </TableRow>
               ))}

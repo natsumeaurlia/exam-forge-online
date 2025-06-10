@@ -1298,7 +1298,7 @@
           "questionPlaceholder": "Enter your question text",
           "correctAnswer": "Model Answer",
           "correctAnswerPlaceholder": "Enter model answer (for auto-grading)",
-            "correctAnswerHint": "For auto-grading, the model answer will be compared by AI for scoring",
+          "correctAnswerHint": "For auto-grading, the model answer will be compared by AI for scoring",
           "gradingCriteria": "Grading Criteria",
           "gradingCriteriaPlaceholder": "Enter grading criteria (for manual grading)",
           "points": "Points",

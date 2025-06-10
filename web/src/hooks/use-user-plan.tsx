@@ -16,7 +16,7 @@ interface UseUserPlanReturn {
   loading: boolean;
   error: string | null;
   isPro: boolean;
-  isEnterprise: boolean;
+  isPremium: boolean;
   isFree: boolean;
   hasFeature: (featureType: FeatureType) => boolean;
   refetch: () => Promise<void>;
@@ -52,7 +52,7 @@ export function useUserPlan(): UseUserPlanReturn {
   }, []);
 
   const isPro = data?.planType === 'PRO';
-  const isEnterprise = data?.planType === 'ENTERPRISE';
+  const isPremium = data?.planType === 'PREMIUM';
   const isFree = data?.planType === 'FREE' || !data;
 
   const hasFeature = (featureType: FeatureType): boolean => {
@@ -65,7 +65,7 @@ export function useUserPlan(): UseUserPlanReturn {
     loading,
     error,
     isPro,
-    isEnterprise,
+    isPremium,
     isFree,
     hasFeature,
     refetch: fetchPlan,

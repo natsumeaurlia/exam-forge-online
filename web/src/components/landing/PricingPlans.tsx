@@ -89,29 +89,32 @@ export function PricingPlans({ lng }: PricingPlansProps) {
       cta: t('pricing.plans.pro.cta'),
     },
     {
-      name: t('pricing.plans.enterprise.name'),
-      priceMonthly: t('pricing.plans.enterprise.price'),
-      priceAnnual: t('pricing.plans.enterprise.price'),
-      period: t('pricing.plans.enterprise.period'),
-      description: t('pricing.plans.enterprise.description'),
+      name: t('pricing.plans.premium.name'),
+      priceMonthly: currentLanguage === 'en' ? '$49' : '¥4,980',
+      priceAnnual: currentLanguage === 'en' ? '$41' : '¥4,150',
+      period: t('pricing.plans.premium.period'),
+      description: t('pricing.plans.premium.description'),
       features: [
-        t('pricing.plans.features.quizzes.enterprise'),
-        t('pricing.plans.features.members.enterprise'),
-        t('pricing.plans.features.questions.enterprise'),
-        t('pricing.plans.features.responses.enterprise'),
-        t('pricing.plans.features.storage.enterprise'),
+        t('pricing.plans.features.quizzes.premium'),
+        t('pricing.plans.features.members.premium'),
+        t('pricing.plans.features.questions.premium'),
+        t('pricing.plans.features.responses.premium'),
+        t('pricing.plans.features.storage.premium'),
         t('pricing.plans.features.allpro'),
+        t('pricing.plans.features.aiquiz'),
+        t('pricing.plans.features.aiimprovement'),
+        t('pricing.plans.features.aigrading'),
+        t('pricing.plans.features.lmsmode'),
+        t('pricing.plans.features.pagebuilder'),
+        t('pricing.plans.features.customdomain'),
         t('pricing.plans.features.permissions'),
         t('pricing.plans.features.audit'),
-        t('pricing.plans.features.sla'),
-        t('pricing.plans.features.customdev'),
-        t('pricing.plans.features.onpremise'),
-        t('pricing.plans.features.support'),
+        t('pricing.plans.features.apiAccess'),
       ],
       notIncluded: [],
       color: 'examforge-blue-dark',
       popular: false,
-      cta: t('pricing.plans.enterprise.cta'),
+      cta: t('pricing.plans.premium.cta'),
     },
   ];
 
@@ -179,7 +182,7 @@ export function PricingPlans({ lng }: PricingPlansProps) {
                     /
                     {plan.name === t('pricing.plans.free.name')
                       ? plan.period
-                      : plan.name === t('pricing.plans.enterprise.name')
+                      : plan.name === t('pricing.plans.premium.name')
                         ? plan.period
                         : isAnnual
                           ? t('pricing.toggle.annually')

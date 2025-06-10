@@ -128,15 +128,18 @@ export function QuizMetadataForm() {
                 checked={quiz.isPasswordProtected || false}
                 onChange={e => {
                   const isPasswordProtected = e.target.checked;
-                  updateQuizMetadata({ 
+                  updateQuizMetadata({
                     isPasswordProtected,
                     sharingMode: isPasswordProtected ? 'PASSWORD' : 'URL',
-                    password: isPasswordProtected ? quiz.password : null
+                    password: isPasswordProtected ? quiz.password : null,
                   });
                 }}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300"
               />
-              <label htmlFor="passwordProtection" className="text-sm font-medium">
+              <label
+                htmlFor="passwordProtection"
+                className="text-sm font-medium"
+              >
                 {t('enablePasswordProtection')}
               </label>
             </div>
@@ -210,7 +213,9 @@ export function QuizMetadataForm() {
             <div className="mt-2">
               <ImageUpload
                 value={quiz.coverImage || undefined}
-                onChange={(url) => updateQuizMetadata({ coverImage: url || null })}
+                onChange={url =>
+                  updateQuizMetadata({ coverImage: url || null })
+                }
                 helperText={t('coverImageHelperText')}
               />
             </div>

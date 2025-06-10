@@ -37,7 +37,7 @@ export function PlanComparison({ lng }: PlanComparisonProps) {
         </AnimatedSection>
 
         {/* Feature Comparison Table */}
-        <AnimatedSection animation="fadeInUp" delay={300}>
+        <AnimatedSection animation="fadeInUp" delay={300} threshold={0.1}>
           <FeatureComparisonTable isAnnual={isAnnual} lng={lng} />
         </AnimatedSection>
 

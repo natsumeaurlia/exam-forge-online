@@ -37,7 +37,7 @@ export function QuizEditorProFeatures({
   const t = useTranslations('quizManagement.editor.proFeatures');
   const { quiz, updateQuizMetadata } = useQuizEditorStore();
   const { isPro, isPremium } = useUserPlan();
-  
+
   const hasPaidPlan = isPro || isPremium;
 
   if (showSidebar) {
@@ -104,7 +104,6 @@ export function QuizEditorProFeatures({
             </div>
           </CardContent>
         </Card>
-
       </div>
     );
   }
@@ -294,7 +293,6 @@ export function QuizEditorProFeatures({
               </div>
             </div>
           </TabsContent>
-
         </Tabs>
       </CardContent>
     </Card>

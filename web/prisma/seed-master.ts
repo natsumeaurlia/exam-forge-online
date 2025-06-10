@@ -179,14 +179,14 @@ export async function seedMasterData(prisma: PrismaClient) {
         category: 'PRO',
         displayOrder: 30,
       },
-      // Enterprise機能
+      // PREMIUM機能
       {
         type: 'PERMISSIONS_MANAGEMENT',
         name: '権限管理',
         nameEn: 'Permission Management',
         description: '詳細な権限設定と管理機能',
         descriptionEn: 'Detailed permission settings and management',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 40,
       },
       {
@@ -195,7 +195,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         nameEn: 'Audit Log',
         description: 'すべての操作履歴を記録・追跡',
         descriptionEn: 'Track and record all operations',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 41,
       },
       {
@@ -204,7 +204,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         nameEn: 'SLA Guarantee',
         description: 'サービスレベル保証',
         descriptionEn: 'Service Level Agreement guarantee',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 42,
       },
       {
@@ -213,7 +213,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         nameEn: 'Custom Development',
         description: '要望に応じたカスタム機能開発',
         descriptionEn: 'Custom feature development on request',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 43,
       },
       {
@@ -222,7 +222,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         nameEn: 'On-Premise Support',
         description: '自社サーバーでの運用対応',
         descriptionEn: 'Support for on-premise deployment',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 44,
       },
       {
@@ -231,7 +231,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         nameEn: 'Priority Support',
         description: '24時間365日の優先技術サポート',
         descriptionEn: '24/7 priority technical support',
-        category: 'ENTERPRISE',
+        category: 'PREMIUM',
         displayOrder: 45,
       },
     ];
@@ -292,7 +292,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         displayOrder: 2,
       },
       {
-        type: 'ENTERPRISE',
+        type: 'PREMIUM',
         name: 'エンタープライズ',
         description: '大規模組織・教育機関向け',
         monthlyPrice: 0, // カスタム価格
@@ -384,7 +384,7 @@ export async function seedMasterData(prisma: PrismaClient) {
         ],
       },
       // エンタープライズ: すべての機能
-      { plan: 'ENTERPRISE', features: features.map(f => f.type) },
+      { plan: 'PREMIUM', features: features.map(f => f.type) },
     ];
 
     // プランと機能の関連付けを投入

@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { getQuizWithQuestionsById } from "@/lib/actions/quiz";
-import { QuizPreviewClient } from "@/components/quiz-preview/QuizPreviewClient";
+import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { getQuizWithQuestionsById } from '@/lib/actions/quiz';
+import { QuizPreviewClient } from '@/components/quiz-preview/QuizPreviewClient';
 
 interface QuizPreviewPageProps {
   params: {
@@ -13,10 +13,10 @@ interface QuizPreviewPageProps {
 export default async function QuizPreviewPage({
   params,
 }: QuizPreviewPageProps) {
-  const t = await getTranslations("quiz.preview");
-  
+  const t = await getTranslations('quiz.preview');
+
   const { data: quiz, error } = await getQuizWithQuestionsById(params.id);
-  
+
   if (error || !quiz) {
     notFound();
   }
@@ -28,13 +28,11 @@ export default async function QuizPreviewPage({
   );
 }
 
-export async function generateMetadata({
-  params,
-}: QuizPreviewPageProps) {
-  const t = await getTranslations("quiz.preview");
+export async function generateMetadata({ params }: QuizPreviewPageProps) {
+  const t = await getTranslations('quiz.preview');
   const { data: quiz } = await getQuizWithQuestionsById(params.id);
-  
+
   return {
-    title: quiz ? `${t("title")} - ${quiz.title}` : t("title"),
+    title: quiz ? `${t('title')} - ${quiz.title}` : t('title'),
   };
 }

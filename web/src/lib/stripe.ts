@@ -38,7 +38,7 @@ export function formatPrice(amount: number, currency: string = 'jpy'): string {
  * Get Stripe price ID based on plan and billing cycle
  */
 export function getStripePriceId(
-  planType: 'PRO' | 'ENTERPRISE',
+  planType: 'PRO' | 'PREMIUM',
   billingCycle: 'MONTHLY' | 'YEARLY'
 ): string | undefined {
   const priceKey = `STRIPE_${planType}_${billingCycle}_PRICE_ID`;

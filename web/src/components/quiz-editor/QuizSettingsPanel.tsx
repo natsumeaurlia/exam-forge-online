@@ -20,9 +20,7 @@ export function QuizSettingsPanel() {
           <CardTitle className="text-lg">{t('settings')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">
-            {t('settingsMovedToProTab')}
-          </p>
+          <p className="text-sm text-gray-600">{t('settingsMovedToProTab')}</p>
         </CardContent>
       </Card>
     </div>

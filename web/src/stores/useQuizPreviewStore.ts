@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 import type { QuestionType } from '@prisma/client';
 import type {
   TrueFalseAnswer,
@@ -13,7 +13,7 @@ import type {
 } from '@/types/quiz-schemas';
 
 // Union type for all possible answer types
-type QuizAnswer = 
+type QuizAnswer =
   | TrueFalseAnswer
   | MultipleChoiceAnswer
   | CheckboxAnswer
@@ -27,7 +27,7 @@ type QuizAnswer =
 interface QuizPreviewState {
   currentQuestionIndex: number;
   mockAnswers: Record<string, QuizAnswer>;
-  deviceMode: "desktop" | "mobile";
+  deviceMode: 'desktop' | 'mobile';
   isStarted: boolean;
   isCompleted: boolean;
   startTime: Date | null;
@@ -40,17 +40,17 @@ interface QuizPreviewState {
   submitAnswer: (questionId: string, answer: QuizAnswer) => void;
   navigateToQuestion: (index: number) => void;
   resetPreview: () => void;
-  setDeviceMode: (mode: "desktop" | "mobile") => void;
+  setDeviceMode: (mode: 'desktop' | 'mobile') => void;
   completeQuiz: () => void;
   setParticipantInfo: (info: { name?: string; email?: string }) => void;
   goToPreviousQuestion: () => void;
   goToNextQuestion: (totalQuestions: number) => void;
 }
 
-export const useQuizPreviewStore = create<QuizPreviewState>((set) => ({
+export const useQuizPreviewStore = create<QuizPreviewState>(set => ({
   currentQuestionIndex: 0,
   mockAnswers: {},
-  deviceMode: "desktop",
+  deviceMode: 'desktop',
   isStarted: false,
   isCompleted: false,
   startTime: null,
@@ -64,14 +64,14 @@ export const useQuizPreviewStore = create<QuizPreviewState>((set) => ({
     }),
 
   submitAnswer: (questionId, answer) =>
-    set((state) => ({
+    set(state => ({
       mockAnswers: {
         ...state.mockAnswers,
         [questionId]: answer,
       },
     })),
 
-  navigateToQuestion: (index) =>
+  navigateToQuestion: index =>
     set({
       currentQuestionIndex: index,
     }),
@@ -86,7 +86,7 @@ export const useQuizPreviewStore = create<QuizPreviewState>((set) => ({
       participantInfo: {},
     }),
 
-  setDeviceMode: (mode) =>
+  setDeviceMode: mode =>
     set({
       deviceMode: mode,
     }),
@@ -96,8 +96,8 @@ export const useQuizPreviewStore = create<QuizPreviewState>((set) => ({
       isCompleted: true,
     }),
 
-  setParticipantInfo: (info) =>
-    set((state) => ({
+  setParticipantInfo: info =>
+    set(state => ({
       participantInfo: {
         ...state.participantInfo,
         ...info,
@@ -105,12 +105,12 @@ export const useQuizPreviewStore = create<QuizPreviewState>((set) => ({
     })),
 
   goToPreviousQuestion: () =>
-    set((state) => ({
+    set(state => ({
       currentQuestionIndex: Math.max(0, state.currentQuestionIndex - 1),
     })),
 
-  goToNextQuestion: (totalQuestions) =>
-    set((state) => ({
+  goToNextQuestion: totalQuestions =>
+    set(state => ({
       currentQuestionIndex: Math.min(
         totalQuestions - 1,
         state.currentQuestionIndex + 1

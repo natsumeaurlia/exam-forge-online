@@ -90,8 +90,7 @@ export async function getUserPlan() {
 
     // Check if subscription is active
     const isActive =
-      subscription.status === 'ACTIVE' ||
-      subscription.status === 'TRIALING';
+      subscription.status === 'ACTIVE' || subscription.status === 'TRIALING';
 
     // If subscription is not active, treat as FREE plan
     if (!isActive) {

@@ -6,7 +6,7 @@ import { Crown, Sparkles, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export function PlanBadge() {
-  const { data, loading, isPro, isEnterprise, isFree } = useUserPlan();
+  const { data, loading, isPro, isPremium, isFree } = useUserPlan();
   const t = useTranslations('common.plans');
 
   if (loading) {
@@ -17,11 +17,11 @@ export function PlanBadge() {
     );
   }
 
-  if (isEnterprise) {
+  if (isPremium) {
     return (
       <Badge variant="default" className="bg-purple-600 hover:bg-purple-700">
         <Sparkles className="mr-1 h-3 w-3" />
-        {t('enterprise')}
+        {t('premium')}
       </Badge>
     );
   }

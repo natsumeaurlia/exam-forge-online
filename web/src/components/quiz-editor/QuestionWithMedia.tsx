@@ -57,11 +57,21 @@ export function QuestionWithMedia({
     <div className="space-y-6">
       {children}
 
-      <Card className={hasPaidPlan ? "border-gray-200" : "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50"}>
+      <Card
+        className={
+          hasPaidPlan
+            ? 'border-gray-200'
+            : 'border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50'
+        }
+      >
         <CardContent className="pt-4">
           <div className="mb-4 flex items-center gap-2">
             {!hasPaidPlan && <Crown className="h-5 w-5 text-amber-600" />}
-            <span className={hasPaidPlan ? "font-medium" : "font-medium text-amber-900"}>
+            <span
+              className={
+                hasPaidPlan ? 'font-medium' : 'font-medium text-amber-900'
+              }
+            >
               {t('title')}
             </span>
             {!hasPaidPlan && (

@@ -38,7 +38,7 @@ export function SideNavigation({ lng }: SideNavigationProps) {
   const { isOpen: isDesktopSidebarOpen, toggleSidebar } = useSidebarStore();
   const { isPro, isPremium } = useUserPlan();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
+
   const hasPaidPlan = isPro || isPremium;
 
   const navigationItems = [
@@ -114,8 +114,8 @@ export function SideNavigation({ lng }: SideNavigationProps) {
               <button
                 onClick={toggleSidebar}
                 className={cn(
-                  "hidden lg:block rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600",
-                  !isDesktopSidebarOpen && "mx-auto"
+                  'hidden rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:block',
+                  !isDesktopSidebarOpen && 'mx-auto'
                 )}
               >
                 {isDesktopSidebarOpen ? (
@@ -135,10 +135,15 @@ export function SideNavigation({ lng }: SideNavigationProps) {
           </div>
 
           {/* ナビゲーションメニュー */}
-          <nav className={cn("flex-1 space-y-1 py-6", isDesktopSidebarOpen ? "px-4" : "px-2")}>
+          <nav
+            className={cn(
+              'flex-1 space-y-1 py-6',
+              isDesktopSidebarOpen ? 'px-4' : 'px-2'
+            )}
+          >
             {navigationItems.map(item => {
               const Icon = item.icon;
-              
+
               if (item.onClick) {
                 const button = (
                   <button
@@ -148,14 +153,18 @@ export function SideNavigation({ lng }: SideNavigationProps) {
                       closeSidebar();
                     }}
                     className={cn(
-                      "group flex w-full items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                      isDesktopSidebarOpen ? "px-3 py-2" : "px-2 py-2 justify-center"
+                      'group flex w-full items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+                      isDesktopSidebarOpen
+                        ? 'px-3 py-2'
+                        : 'justify-center px-2 py-2'
                     )}
                   >
-                    <Icon className={cn(
-                      "h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500",
-                      isDesktopSidebarOpen && "mr-3"
-                    )} />
+                    <Icon
+                      className={cn(
+                        'h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500',
+                        isDesktopSidebarOpen && 'mr-3'
+                      )}
+                    />
                     {isDesktopSidebarOpen && item.label}
                   </button>
                 );
@@ -164,30 +173,32 @@ export function SideNavigation({ lng }: SideNavigationProps) {
                   button
                 ) : (
                   <Tooltip key={item.label}>
-                    <TooltipTrigger asChild>
-                      {button}
-                    </TooltipTrigger>
+                    <TooltipTrigger asChild>{button}</TooltipTrigger>
                     <TooltipContent side="right">
                       <p>{item.label}</p>
                     </TooltipContent>
                   </Tooltip>
                 );
               }
-              
+
               const link = (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={closeSidebar}
                   className={cn(
-                    "group flex items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-                    isDesktopSidebarOpen ? "px-3 py-2" : "px-2 py-2 justify-center"
+                    'group flex items-center rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+                    isDesktopSidebarOpen
+                      ? 'px-3 py-2'
+                      : 'justify-center px-2 py-2'
                   )}
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500",
-                    isDesktopSidebarOpen && "mr-3"
-                  )} />
+                  <Icon
+                    className={cn(
+                      'h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500',
+                      isDesktopSidebarOpen && 'mr-3'
+                    )}
+                  />
                   {isDesktopSidebarOpen && item.label}
                 </Link>
               );
@@ -196,9 +207,7 @@ export function SideNavigation({ lng }: SideNavigationProps) {
                 link
               ) : (
                 <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>
-                    {link}
-                  </TooltipTrigger>
+                  <TooltipTrigger asChild>{link}</TooltipTrigger>
                   <TooltipContent side="right">
                     <p>{item.label}</p>
                   </TooltipContent>

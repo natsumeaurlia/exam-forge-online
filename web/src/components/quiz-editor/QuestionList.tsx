@@ -30,24 +30,22 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 // Sortable Question Item Component
-function SortableQuestionItem({ 
-  question, 
-  index, 
-  isExpanded, 
-  onToggleExpanded, 
-  onDelete, 
+function SortableQuestionItem({
+  question,
+  index,
+  isExpanded,
+  onToggleExpanded,
+  onDelete,
   onDuplicate,
   onMoveUp,
   onMoveDown,
   isFirst,
   isLast,
-  isCurrentQuestion 
+  isCurrentQuestion,
 }: {
   question: any;
   index: number;
@@ -194,10 +192,21 @@ export function QuestionList() {
     new Set()
   );
   const t = useTranslations('quizManagement.editor.questions');
-  
+
+  // Setup DnD sensors - must be called before any conditional returns
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   // Auto-expand new questions
   useEffect(() => {
-    if (currentQuestionIndex !== null && !expandedQuestions.has(currentQuestionIndex)) {
+    if (
+      currentQuestionIndex !== null &&
+      !expandedQuestions.has(currentQuestionIndex)
+    ) {
       setExpandedQuestions(prev => new Set([...prev, currentQuestionIndex]));
     }
   }, [currentQuestionIndex]);
@@ -233,79 +242,56 @@ export function QuestionList() {
     duplicateQuestion(index);
   };
 
-  return (
-    <div className="space-y-4">
-      {questions.map((question, index) => (
-        <Card
-          key={question.id}
-          id={`question-${index}`}
-          className={`transition-all ${
-            currentQuestionIndex === index ? 'ring-2 ring-blue-500' : ''
-          }`}
-        >
-          <div
-            className="flex cursor-pointer items-start justify-between p-4 hover:bg-gray-50"
-            onClick={() => toggleExpanded(index)}
-          >
-            <div className="flex flex-1 items-start gap-3">
-              <GripVertical className="mt-0.5 h-5 w-5 text-gray-400" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-500">
-                    {t('questionNumber', { number: index + 1 })}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {question.type.replace(/_/g, ' ')}
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-2 text-sm">
-                  {question.text || t('noQuestionText')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {question.points} {t('pointsLabel')}
-              </span>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleDuplicate(index);
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleDelete(index);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  {expandedQuestions.has(index) ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-          {expandedQuestions.has(index) && (
-            <div className="border-t px-6 py-4">
-              <QuestionEditForm questionIndex={index} />
-            </div>
-          )}
-        </Card>
-      ))}
-    </div>
+    if (active.id !== over?.id) {
+      const oldIndex = questions.findIndex(q => q.id === active.id);
+      const newIndex = questions.findIndex(q => q.id === over?.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(questions, oldIndex, newIndex);
+        reorderQuestions(newOrder.map(q => q.id));
+      }
+    }
+  };
+
+  const moveQuestion = (fromIndex: number, toIndex: number) => {
+    if (toIndex >= 0 && toIndex < questions.length) {
+      const newOrder = arrayMove(questions, fromIndex, toIndex);
+      reorderQuestions(newOrder.map(q => q.id));
+    }
+  };
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={questions.map(q => q.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-4">
+          {questions.map((question, index) => (
+            <SortableQuestionItem
+              key={question.id}
+              question={question}
+              index={index}
+              isExpanded={expandedQuestions.has(index)}
+              onToggleExpanded={() => toggleExpanded(index)}
+              onDelete={() => handleDelete(index)}
+              onDuplicate={() => handleDuplicate(index)}
+              onMoveUp={() => moveQuestion(index, index - 1)}
+              onMoveDown={() => moveQuestion(index, index + 1)}
+              isFirst={index === 0}
+              isLast={index === questions.length - 1}
+              isCurrentQuestion={currentQuestionIndex === index}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

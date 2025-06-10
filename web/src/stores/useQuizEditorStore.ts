@@ -49,7 +49,9 @@ type CorrectAnswerByType<T extends QuestionType> = T extends 'TRUE_FALSE'
                   : null;
 
 // Utility function to get default correct answer by type
-function getDefaultCorrectAnswer(type: QuestionType): CorrectAnswerByType<typeof type> {
+function getDefaultCorrectAnswer(
+  type: QuestionType
+): CorrectAnswerByType<typeof type> {
   switch (type) {
     case 'TRUE_FALSE':
       return false as CorrectAnswerByType<typeof type>;
@@ -174,6 +176,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           explanation: null,
           correctAnswer: getDefaultCorrectAnswer(type),
           gradingCriteria: null,
+          isRequired: false,
           quizId: quiz.id,
           sectionId: null,
           createdAt: new Date(),
@@ -209,7 +212,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           currentQuestionIndex: state.questions.length,
           isDirty: true,
         }));
-        
+
         // Scroll to the new question after a short delay to ensure DOM is updated
         setTimeout(() => {
           const questionId = `question-${questions.length}`;
@@ -278,25 +281,18 @@ export const useQuizEditorStore = create<QuizEditorState>()(
       },
 
       reorderQuestions: questionIds => {
-        const { quiz } = get();
-        if (!quiz) return;
+        const { questions } = get();
 
-        const questionMap = new Map(quiz.questions.map(q => [q.id, q]));
+        const questionMap = new Map(questions.map(q => [q.id, q]));
         const newQuestions = questionIds
           .map(id => questionMap.get(id))
-          .filter((q): q is (typeof quiz.questions)[0] => q !== undefined)
+          .filter((q): q is (typeof questions)[0] => q !== undefined)
           .map((q, index) => ({ ...q, order: index + 1 }));
 
-        const newQuiz = { ...quiz, questions: newQuestions };
-
-        set(state => ({
-          quiz: newQuiz,
+        set({
+          questions: newQuestions,
           isDirty: true,
-          history: {
-            past: [...state.history.past, quiz],
-            future: [],
-          },
-        }));
+        });
       },
 
       setCurrentQuestion: index => {

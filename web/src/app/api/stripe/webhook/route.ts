@@ -111,8 +111,12 @@ async function handleCheckoutSessionCompleted(
       billingCycle,
       memberCount: subscription.items.data[0].quantity || 1,
       pricePerMember: subscription.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
       planId: (await prisma.plan.findUnique({
         where: { type: planType as any },
       }))!.id,
@@ -120,8 +124,12 @@ async function handleCheckoutSessionCompleted(
     update: {
       stripeSubscriptionId: subscription.id,
       status: mapStripeStatus(subscription.status),
-      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
     },
   });
 }
@@ -144,8 +152,12 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     data: {
       status: mapStripeStatus(subscription.status),
       memberCount: subscription.items.data[0].quantity || 1,
-      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
       canceledAt: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000)
         : null,
@@ -212,7 +224,9 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       amountPaid: invoice.amount_paid,
       amountDue: invoice.amount_due,
       currency: invoice.currency,
-      paidAt: (invoice as any).paid_at ? new Date((invoice as any).paid_at * 1000) : new Date(),
+      paidAt: (invoice as any).paid_at
+        ? new Date((invoice as any).paid_at * 1000)
+        : new Date(),
       invoicePdf: invoice.invoice_pdf || null,
       hostedInvoiceUrl: invoice.hosted_invoice_url || null,
     },
@@ -239,7 +253,9 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   }
 }
 
-function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): SubscriptionStatus {
+function mapStripeStatus(
+  stripeStatus: Stripe.Subscription.Status
+): SubscriptionStatus {
   const statusMap: Record<Stripe.Subscription.Status, SubscriptionStatus> = {
     active: 'ACTIVE',
     past_due: 'PAST_DUE',
