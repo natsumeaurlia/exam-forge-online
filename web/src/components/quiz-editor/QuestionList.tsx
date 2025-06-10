@@ -86,14 +86,14 @@ function SortableQuestionItem({
       } ${isDragging ? 'z-50' : ''}`}
     >
       <div
-        className="flex cursor-pointer items-start justify-between p-4 hover:bg-gray-50"
+        className="quiz-editor-transition flex cursor-pointer items-start justify-between p-3 hover:bg-gray-50 md:p-4"
         onClick={onToggleExpanded}
       >
         <div className="flex flex-1 items-start gap-3">
           <div
             {...attributes}
             {...listeners}
-            className="mt-0.5 cursor-grab touch-none"
+            className="touch-drag-handle -m-1 mt-0.5 cursor-grab touch-none p-1 md:m-0 md:p-0"
           >
             <GripVertical className="h-5 w-5 text-gray-400" />
           </div>
@@ -116,6 +116,7 @@ function SortableQuestionItem({
             {question.points} {t('pointsLabel')}
           </span>
           <div className="flex items-center gap-1">
+            {/* Hide move buttons on mobile, keep only essential actions */}
             <Button
               variant="ghost"
               size="sm"
@@ -125,6 +126,7 @@ function SortableQuestionItem({
               }}
               disabled={isFirst}
               title={t('moveUp')}
+              className="touch-drag-handle hidden sm:flex"
             >
               <ArrowUp className="h-4 w-4" />
             </Button>
@@ -137,6 +139,7 @@ function SortableQuestionItem({
               }}
               disabled={isLast}
               title={t('moveDown')}
+              className="touch-drag-handle hidden sm:flex"
             >
               <ArrowDown className="h-4 w-4" />
             </Button>
@@ -148,6 +151,7 @@ function SortableQuestionItem({
                 onDuplicate();
               }}
               title={t('duplicate')}
+              className="touch-drag-handle"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -159,6 +163,7 @@ function SortableQuestionItem({
                 onDelete();
               }}
               title={t('delete')}
+              className="touch-drag-handle"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -171,7 +176,7 @@ function SortableQuestionItem({
         </div>
       </div>
       {isExpanded && (
-        <div className="border-t px-4 py-4">
+        <div className="border-t px-3 py-3 md:px-4 md:py-4">
           <QuestionEditForm questionIndex={index} />
         </div>
       )}
@@ -193,9 +198,13 @@ export function QuestionList() {
   );
   const t = useTranslations('quizManagement.editor.questions');
 
-  // Setup DnD sensors - must be called before any conditional returns
+  // Setup DnD sensors with touch optimization
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

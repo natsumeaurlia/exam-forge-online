@@ -76,7 +76,7 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       <QuizEditorHeader quizId={quiz.id} lng={lng} />
 
       {/* Mobile Layout (up to md/768px) */}
-      <div className="flex flex-1 overflow-hidden md:hidden">
+      <div className="quiz-editor-transition flex flex-1 overflow-hidden md:hidden">
         <div className="flex-1 overflow-y-auto">
           {/* Mobile: Back button when editing */}
           {isEditingOnMobile && (
@@ -123,7 +123,7 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       </div>
 
       {/* Tablet Layout (md to lg/768px-1024px) */}
-      <div className="hidden flex-1 overflow-hidden md:flex lg:hidden">
+      <div className="quiz-editor-transition hidden flex-1 overflow-hidden md:flex lg:hidden">
         {/* Left Panel: Question List */}
         <div className="w-80 overflow-y-auto border-r bg-gray-50">
           <div className="p-4">
@@ -142,7 +142,7 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       </div>
 
       {/* Desktop Layout (lg+/1024px+) */}
-      <div className="hidden flex-1 overflow-hidden lg:flex">
+      <div className="quiz-editor-transition hidden flex-1 overflow-hidden lg:flex">
         {/* Left Panel: Question List */}
         <div className="w-80 overflow-y-auto border-r bg-gray-50">
           <div className="p-4">

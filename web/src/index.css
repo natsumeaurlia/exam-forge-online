@@ -149,6 +149,29 @@
     }
   }
 
+  /* Responsive font scaling */
+  @media (max-width: 768px) {
+    .quiz-editor-mobile-font {
+      font-size: 0.9rem;
+    }
+    
+    .quiz-editor-mobile-text-sm {
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Smooth transitions for responsive changes */
+  .quiz-editor-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .quiz-editor-transition {
+      transition: none;
+    }
+  }
+
   /* Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
     .respect-motion-preference {
