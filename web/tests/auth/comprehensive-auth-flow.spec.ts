@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { faker } from '@faker-js/faker';
 
 test.describe('包括的認証フローテスト', () => {
   const baseURL =
@@ -10,7 +9,7 @@ test.describe('包括的認証フローテスト', () => {
       // テスト用のユニークなメールアドレスを生成
       const testEmail = `test-${Date.now()}@example.com`;
       const testPassword = 'TestPassword123!';
-      const testName = faker.person.fullName();
+      const testName = `Test User ${Date.now()}`;
 
       // サインアップページへ移動
       await page.goto('/ja/auth/signup');
