@@ -54,6 +54,8 @@ model User {
   storage                UserStorage?
   createdBankQuestions   BankQuestion[]
   createdCertificateTemplates CertificateTemplate[]
+  lmsEnrollments         LmsEnrollment[]
+  lmsComments            LmsComment[]
 
   @@index([stripeCustomerId])
 }
@@ -88,6 +90,7 @@ model Team {
   bankQuestions BankQuestion[]
   certificateTemplates CertificateTemplate[]
   tags         Tag[]
+  lmsTenant    LmsTenant?
 
   @@index([creatorId])
 }
@@ -170,6 +173,7 @@ model Quiz {
   sections               Section[]
   certificateTemplates   QuizCertificateTemplate[]
   quizBankQuestions      QuizBankQuestion[]
+  lmsLessons             LmsLesson[]
 
   @@index([teamId])
   @@index([createdById])
@@ -762,6 +766,7 @@ model CertificateTemplate {
   createdBy         User                @relation(fields: [createdById], references: [id])
   certificates      Certificate[]
   quizTemplates     QuizCertificateTemplate[]
+  lmsCertificates   LmsCertificate[]
   
   @@index([teamId])
   @@index([createdById])
@@ -806,4 +811,293 @@ model QuizCertificateTemplate {
   @@unique([quizId, templateId])
   @@index([quizId])
   @@index([templateId])
+}
+
+// ==================== LMS MULTI-TENANCY MODELS ====================
+
+model LmsTenant {
+  id                String              @id @default(cuid())
+  teamId            String              @unique
+  subdomain         String              @unique
+  customDomain      String?             @unique
+  
+  // Branding
+  brandName         String
+  logoUrl           String?
+  primaryColor      String              @default("#3B82F6") // Default blue
+  secondaryColor    String              @default("#1E40AF")
+  
+  // Settings
+  isActive          Boolean             @default(true)
+  enableSelfSignup  Boolean             @default(false)
+  enableCertificates Boolean            @default(true)
+  enableAnalytics   Boolean             @default(true)
+  
+  // Metadata
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  team              Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  courses           LmsCourse[]
+  enrollments       LmsEnrollment[]
+  categories        LmsCourseCategory[]
+  
+  @@index([teamId])
+  @@index([subdomain])
+  @@index([customDomain])
+}
+
+model LmsCourse {
+  id                String              @id @default(cuid())
+  tenantId          String
+  
+  // Basic info
+  title             String
+  slug              String
+  description       String?
+  thumbnailUrl      String?
+  
+  // Course settings
+  status            CourseStatus        @default(DRAFT)
+  isPublic          Boolean             @default(true)
+  price             Int                 @default(0) // 0 means free
+  currency          String              @default("JPY")
+  
+  // Access control
+  enrollmentLimit   Int?
+  startDate         DateTime?
+  endDate           DateTime?
+  
+  // Metadata
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  publishedAt       DateTime?
+  
+  // Relations
+  tenant            LmsTenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  modules           LmsModule[]
+  enrollments       LmsEnrollment[]
+  categories        LmsCourseCategory[]
+  prerequisites     LmsCoursePrerequisite[] @relation("CoursePrerequisites")
+  requiredFor       LmsCoursePrerequisite[] @relation("RequiredCourses")
+  
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([slug])
+  @@index([status])
+}
+
+model LmsModule {
+  id                String              @id @default(cuid())
+  courseId          String
+  
+  // Basic info
+  title             String
+  description       String?
+  order             Int
+  
+  // Settings
+  isPublished       Boolean             @default(false)
+  isMandatory       Boolean             @default(true)
+  
+  // Metadata
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  course            LmsCourse           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons           LmsLesson[]
+  
+  @@index([courseId])
+  @@index([order])
+}
+
+model LmsLesson {
+  id                String              @id @default(cuid())
+  moduleId          String
+  
+  // Basic info
+  title             String
+  description       String?
+  order             Int
+  
+  // Content
+  contentType       LmsContentType
+  content           Json?               // Flexible content based on type
+  duration          Int?                // Estimated duration in minutes
+  
+  // Quiz integration
+  quizId            String?
+  passingScore      Int?                // Required score to complete
+  
+  // Settings
+  isPublished       Boolean             @default(false)
+  allowComments     Boolean             @default(true)
+  
+  // Metadata
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  module            LmsModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quiz              Quiz?               @relation(fields: [quizId], references: [id])
+  progress          LmsLessonProgress[]
+  comments          LmsComment[]
+  
+  @@index([moduleId])
+  @@index([order])
+  @@index([quizId])
+}
+
+model LmsEnrollment {
+  id                String              @id @default(cuid())
+  tenantId          String
+  courseId          String
+  userId            String
+  
+  // Enrollment info
+  status            LmsEnrollmentStatus @default(ACTIVE)
+  enrolledAt        DateTime            @default(now())
+  completedAt       DateTime?
+  expiresAt         DateTime?
+  
+  // Progress tracking
+  progressPercent   Int                 @default(0)
+  lastAccessedAt    DateTime?
+  
+  // Relations
+  tenant            LmsTenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  course            LmsCourse           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonProgress    LmsLessonProgress[]
+  certificates      LmsCertificate[]
+  
+  @@unique([courseId, userId])
+  @@index([tenantId])
+  @@index([courseId])
+  @@index([userId])
+  @@index([status])
+}
+
+model LmsLessonProgress {
+  id                String              @id @default(cuid())
+  enrollmentId      String
+  lessonId          String
+  
+  // Progress info
+  status            LmsProgressStatus   @default(NOT_STARTED)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  lastAccessedAt    DateTime            @default(now())
+  
+  // Quiz attempts (if lesson has quiz)
+  quizAttempts      Int                 @default(0)
+  bestScore         Int?
+  
+  // Time tracking
+  timeSpent         Int                 @default(0) // in seconds
+  
+  // Relations
+  enrollment        LmsEnrollment       @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson            LmsLesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
+  @@index([status])
+}
+
+model LmsCourseCategory {
+  id                String              @id @default(cuid())
+  tenantId          String
+  name              String
+  slug              String
+  description       String?
+  parentId          String?
+  order             Int                 @default(0)
+  
+  // Relations
+  tenant            LmsTenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent            LmsCourseCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children          LmsCourseCategory[] @relation("CategoryHierarchy")
+  courses           LmsCourse[]
+  
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+  @@index([parentId])
+}
+
+model LmsCoursePrerequisite {
+  id                String              @id @default(cuid())
+  courseId          String
+  prerequisiteId    String
+  
+  course            LmsCourse           @relation("CoursePrerequisites", fields: [courseId], references: [id], onDelete: Cascade)
+  prerequisite      LmsCourse           @relation("RequiredCourses", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+  
+  @@unique([courseId, prerequisiteId])
+  @@index([courseId])
+  @@index([prerequisiteId])
+}
+
+model LmsComment {
+  id                String              @id @default(cuid())
+  lessonId          String
+  userId            String
+  content           String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  lesson            LmsLesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([lessonId])
+  @@index([userId])
+}
+
+model LmsCertificate {
+  id                String              @id @default(cuid())
+  enrollmentId      String
+  templateId        String
+  
+  // Certificate info
+  certificateNumber String              @unique
+  issuedAt          DateTime            @default(now())
+  expiresAt         DateTime?
+  
+  // Metadata
+  metadata          Json?               // Additional certificate data
+  
+  // Relations
+  enrollment        LmsEnrollment       @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  template          CertificateTemplate @relation(fields: [templateId], references: [id])
+  
+  @@index([enrollmentId])
+  @@index([certificateNumber])
+}
+
+// ==================== LMS ENUMS ====================
+
+enum LmsContentType {
+  VIDEO
+  TEXT
+  PDF
+  QUIZ
+  ASSIGNMENT
+  EXTERNAL_LINK
+}
+
+enum LmsEnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  SUSPENDED
+}
+
+enum LmsProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
 }
