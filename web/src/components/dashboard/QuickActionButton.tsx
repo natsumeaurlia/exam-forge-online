@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
+import { useRouter } from 'next/navigation';
 
 interface QuickAction {
   key: string;
@@ -33,6 +34,7 @@ interface QuickActionButtonProps {
 export function QuickActionButton({ lng }: QuickActionButtonProps) {
   const t = useTranslations('dashboard.quickActions');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const router = useRouter();
 
   const quickActions: QuickAction[] = [
     {
@@ -115,7 +117,7 @@ export function QuickActionButton({ lng }: QuickActionButtonProps) {
     if (action.onClick) {
       action.onClick();
     } else if (action.href) {
-      window.location.href = action.href;
+      router.push(action.href);
     }
   };
 

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { PlanToggle } from '@/components/plans/PlanToggle';
 import { usePlanComparisonStore } from '@/stores/usePlanComparisonStore';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
+import Link from 'next/link';
 
 export interface PricingPlansProps {
   lng: string;
@@ -245,19 +246,19 @@ export function PricingPlans({ lng }: PricingPlansProps) {
           className="mt-16 flex flex-col justify-center gap-4 sm:flex-row"
         >
           <Button
+            asChild
             variant="outline"
             size="lg"
             className="border-examforge-blue text-examforge-blue hover:bg-examforge-blue hover:text-white"
-            onClick={() => (window.location.href = `/${lng}/plans`)}
           >
-            {t('pricing.viewDetails')}
+            <Link href={`/${lng}/plans`}>{t('pricing.viewDetails')}</Link>
           </Button>
           <Button
+            asChild
             size="lg"
             className="bg-examforge-orange hover:bg-examforge-orange/90 text-white"
-            onClick={() => (window.location.href = `/${lng}/auth/signin`)}
           >
-            {t('pricing.cta')}
+            <Link href={`/${lng}/auth/signin`}>{t('pricing.cta')}</Link>
           </Button>
         </AnimatedSection>
 

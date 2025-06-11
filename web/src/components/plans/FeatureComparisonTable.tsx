@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface FeatureComparisonTableProps {
   isAnnual: boolean;
@@ -246,13 +247,8 @@ export function FeatureComparisonTable({
                 <div className="text-2xl font-bold">
                   {isAnnual ? plans.free.priceAnnual : plans.free.priceMonthly}
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => (window.location.href = `/${lng}/auth/signin`)}
-                >
-                  {plans.free.cta}
+                <Button asChild size="sm" variant="outline" className="w-full">
+                  <Link href={`/${lng}/auth/signin`}>{plans.free.cta}</Link>
                 </Button>
               </div>
             </TableHead>
@@ -269,11 +265,11 @@ export function FeatureComparisonTable({
                   </span>
                 </div>
                 <Button
+                  asChild
                   size="sm"
                   className="bg-examforge-orange hover:bg-examforge-orange/90 w-full text-white"
-                  onClick={() => (window.location.href = `/${lng}/auth/signin`)}
                 >
-                  {plans.pro.cta}
+                  <Link href={`/${lng}/auth/signin`}>{plans.pro.cta}</Link>
                 </Button>
               </div>
             </TableHead>
@@ -292,12 +288,12 @@ export function FeatureComparisonTable({
                   </span>
                 </div>
                 <Button
+                  asChild
                   size="sm"
                   variant="outline"
                   className="border-examforge-blue-dark text-examforge-blue-dark hover:bg-examforge-blue-dark w-full hover:text-white"
-                  onClick={() => (window.location.href = `/${lng}/auth/signin`)}
                 >
-                  {plans.premium.cta}
+                  <Link href={`/${lng}/auth/signin`}>{plans.premium.cta}</Link>
                 </Button>
               </div>
             </TableHead>

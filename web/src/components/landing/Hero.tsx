@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
+import Link from 'next/link';
 
 export function HeroView({
   tagline,
@@ -11,6 +12,7 @@ export function HeroView({
   ctaDemo,
   benefits,
   quizExample,
+  lng,
 }: {
   tagline: string;
   title: string;
@@ -25,6 +27,7 @@ export function HeroView({
     progress: string;
     nextButton: string;
   };
+  lng: string;
 }) {
   return (
     <div
@@ -65,20 +68,27 @@ export function HeroView({
                 data-testid="hero-cta-buttons"
               >
                 <Button
+                  asChild
                   size="lg"
                   className="gap-2 transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
                   data-testid="hero-start-button"
                 >
-                  {ctaStart}
-                  <ArrowRight className="h-4 w-4" />
+                  <Link
+                    href={`/${lng}/auth/signup`}
+                    className="flex items-center"
+                  >
+                    {ctaStart}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button
+                  asChild
                   size="lg"
                   variant="outline"
                   className="transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                   data-testid="hero-demo-button"
                 >
-                  {ctaDemo}
+                  <Link href={`/${lng}/dashboard/quizzes`}>{ctaDemo}</Link>
                 </Button>
               </div>
 
@@ -214,6 +224,7 @@ export async function Hero({ lng }: HeroProps) {
       ctaDemo={t('hero.cta.demo')}
       benefits={benefits}
       quizExample={quizExample}
+      lng={lng}
     />
   );
 }

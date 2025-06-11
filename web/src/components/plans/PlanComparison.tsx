@@ -7,6 +7,7 @@ import { FeatureComparisonTable } from './FeatureComparisonTable';
 import { PlanFaq } from './PlanFaq';
 import { Button } from '@/components/ui/button';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
+import Link from 'next/link';
 
 interface PlanComparisonProps {
   lng: string;
@@ -59,11 +60,11 @@ export function PlanComparison({ lng }: PlanComparisonProps) {
             <h3 className="mb-4 text-2xl font-bold">{t('plans.cta.title')}</h3>
             <p className="mb-8 text-gray-600">{t('plans.cta.subtitle')}</p>
             <Button
+              asChild
               size="lg"
               className="bg-examforge-orange hover:bg-examforge-orange/90 text-white"
-              onClick={() => (window.location.href = `/${lng}/auth/signin`)}
             >
-              {t('plans.cta.button')}
+              <Link href={`/${lng}/auth/signin`}>{t('plans.cta.button')}</Link>
             </Button>
             <p className="mt-4 text-sm text-gray-500">{t('plans.cta.note')}</p>
           </div>

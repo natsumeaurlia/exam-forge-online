@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { getTranslations } from 'next-intl/server';
 import { AnimatedSection } from '@/components/common/AnimatedSection';
+import Link from 'next/link';
 
 export interface CallToActionProps {
   lng: string;
@@ -36,19 +37,25 @@ export async function CallToAction({ lng }: CallToActionProps) {
             data-testid="cta-buttons"
           >
             <Button
+              asChild
               size="lg"
               variant="secondary"
               className="text-examforge-blue-dark transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-95"
               data-testid="cta-demo-button"
             >
-              {t('cta.buttons.demo')}
+              <Link href={`/${lng}/dashboard/quizzes`}>
+                {t('cta.buttons.demo')}
+              </Link>
             </Button>
             <Button
+              asChild
               size="lg"
               className="text-examforge-blue-dark bg-white transition-all duration-200 hover:scale-105 hover:bg-white/90 hover:shadow-lg active:scale-95"
               data-testid="cta-signup-button"
             >
-              {t('cta.buttons.signup')}
+              <Link href={`/${lng}/auth/signup`}>
+                {t('cta.buttons.signup')}
+              </Link>
             </Button>
           </div>
         </AnimatedSection>
