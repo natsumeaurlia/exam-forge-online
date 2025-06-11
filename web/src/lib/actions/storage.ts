@@ -13,7 +13,11 @@ const action = createSafeActionClient();
 export async function getUserStorage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return { success: false, error: 'Not authenticated', data: null };
+    return {
+      storageUsed: 0,
+      storageLimit: 0,
+      files: [],
+    };
   }
 
   try {
@@ -32,24 +36,40 @@ export async function getUserStorage() {
       });
     }
 
+    // Get user's files
+    const files = await prisma.questionMedia.findMany({
+      where: {
+        question: {
+          quiz: {
+            createdById: session.user.id,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
     // Convert BigInt to number for JSON serialization
     return {
-      success: true,
-      error: null,
-      data: {
-        usedBytes: Number(storage.usedBytes),
-        maxBytes: Number(storage.maxBytes),
-        usedMB: Number(storage.usedBytes) / (1024 * 1024),
-        maxMB: Number(storage.maxBytes) / (1024 * 1024),
-        usedGB: Number(storage.usedBytes) / (1024 * 1024 * 1024),
-        maxGB: Number(storage.maxBytes) / (1024 * 1024 * 1024),
-        percentageUsed:
-          (Number(storage.usedBytes) / Number(storage.maxBytes)) * 100,
-      },
+      storageUsed: Number(storage.usedBytes),
+      storageLimit: Number(storage.maxBytes),
+      files: files.map(file => ({
+        id: file.id,
+        url: file.url,
+        contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
+        filename: file.url.split('/').pop() || 'unknown',
+        size: 1024 * 1024, // Default size, you may want to store actual size
+        createdAt: file.createdAt.toISOString(),
+      })),
     };
   } catch (error) {
     console.error('Error getting user storage:', error);
-    return { success: false, error: 'Failed to get storage info', data: null };
+    return {
+      storageUsed: 0,
+      storageLimit: 0,
+      files: [],
+    };
   }
 }
 
@@ -100,3 +120,41 @@ export const updateStorageUsage = action
       );
     }
   });
+
+// Delete user file
+export async function deleteUserFile(fileId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error('Not authenticated');
+  }
+
+  try {
+    // Check if the file belongs to the user
+    const file = await prisma.questionMedia.findFirst({
+      where: {
+        id: fileId,
+        question: {
+          quiz: {
+            createdById: session.user.id,
+          },
+        },
+      },
+    });
+
+    if (!file) {
+      throw new Error('File not found or access denied');
+    }
+
+    // Delete the file record
+    await prisma.questionMedia.delete({
+      where: { id: fileId },
+    });
+
+    // TODO: Also delete from MinIO storage
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    throw new Error('Failed to delete file');
+  }
+}

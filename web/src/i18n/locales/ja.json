@@ -864,6 +864,7 @@
       "templates": "テンプレート",
       "analytics": "レポート・分析",
       "members": "メンバー管理",
+      "media": "メディアライブラリ",
       "settings": "設定",
       "help": "ヘルプ",
       "documentation": "ドキュメント",
@@ -1564,6 +1565,59 @@
       "deleteDescription": "このメディアを削除してもよろしいですか？この操作は取り消せません。",
       "cancel": "キャンセル",
       "delete": "削除"
+    }
+  },
+  "media": {
+    "title": "メディアライブラリ",
+    "description": "アップロードしたすべてのメディアファイルを一元管理",
+    "searchPlaceholder": "ファイルを検索...",
+    "filters": {
+      "all": "すべてのファイル",
+      "images": "画像",
+      "videos": "動画"
+    },
+    "actions": {
+      "upload": "アップロード",
+      "download": "ダウンロード",
+      "delete": "削除",
+      "edit": "編集",
+      "select": "選択",
+      "cancelSelect": "選択をキャンセル",
+      "selectAll": "すべて選択"
+    },
+    "upload": {
+      "title": "メディアをアップロード",
+      "description": "メディアライブラリに画像や動画を追加"
+    },
+    "storage": {
+      "title": "ストレージ使用状況",
+      "usage": "{total}中{used}使用"
+    },
+    "empty": {
+      "title": "メディアファイルがありません",
+      "description": "最初のファイルをアップロードして始めましょう"
+    },
+    "errors": {
+      "fetchFailed": "メディアファイルの読み込みに失敗しました",
+      "deleteFailed": "ファイルの削除に失敗しました"
+    },
+    "messages": {
+      "deleteSuccess": "{count}個のファイルを削除しました",
+      "editSuccess": "画像を編集しました"
+    },
+    "editor": {
+      "title": "画像を編集",
+      "description": "画像の切り抜きと回転ができます",
+      "rotateLeft": "左に回転",
+      "rotateRight": "右に回転",
+      "crop": "切り抜き",
+      "cropActive": "切り抜き中",
+      "applyCrop": "切り抜きを適用",
+      "rotation": "回転",
+      "download": "ダウンロード",
+      "cancel": "キャンセル",
+      "save": "保存",
+      "saving": "保存中..."
     }
   }
 }

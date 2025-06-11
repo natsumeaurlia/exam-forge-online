@@ -18,6 +18,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Image,
 } from 'lucide-react';
 import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,11 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       href: `/${lng}/dashboard/templates`,
       icon: FileText,
       label: t('navigation.templates'),
+    },
+    {
+      href: `/${lng}/dashboard/media`,
+      icon: Image,
+      label: t('navigation.media'),
     },
     {
       href: `/${lng}/dashboard/members`,

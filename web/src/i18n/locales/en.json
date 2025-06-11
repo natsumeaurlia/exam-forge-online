@@ -865,6 +865,7 @@
       "templates": "Templates",
       "analytics": "Reports & Analytics",
       "members": "Member Management",
+      "media": "Media Library",
       "settings": "Settings",
       "help": "Help",
       "documentation": "Documentation",
@@ -1565,6 +1566,59 @@
       "deleteDescription": "Are you sure you want to delete this media? This action cannot be undone.",
       "cancel": "Cancel",
       "delete": "Delete"
+    }
+  },
+  "media": {
+    "title": "Media Library",
+    "description": "Manage all your uploaded media files in one place",
+    "searchPlaceholder": "Search files...",
+    "filters": {
+      "all": "All files",
+      "images": "Images",
+      "videos": "Videos"
+    },
+    "actions": {
+      "upload": "Upload",
+      "download": "Download",
+      "delete": "Delete",
+      "edit": "Edit",
+      "select": "Select",
+      "cancelSelect": "Cancel Selection",
+      "selectAll": "Select all"
+    },
+    "upload": {
+      "title": "Upload Media",
+      "description": "Add images and videos to your media library"
+    },
+    "storage": {
+      "title": "Storage Usage",
+      "usage": "{used} of {total} used"
+    },
+    "empty": {
+      "title": "No media files",
+      "description": "Upload your first file to get started"
+    },
+    "errors": {
+      "fetchFailed": "Failed to load media files",
+      "deleteFailed": "Failed to delete files"
+    },
+    "messages": {
+      "deleteSuccess": "{count, plural, one {# file} other {# files}} deleted successfully",
+      "editSuccess": "Image edited successfully"
+    },
+    "editor": {
+      "title": "Edit Image",
+      "description": "Crop and rotate your image",
+      "rotateLeft": "Rotate Left",
+      "rotateRight": "Rotate Right",
+      "crop": "Crop",
+      "cropActive": "Cropping",
+      "applyCrop": "Apply Crop",
+      "rotation": "Rotation",
+      "download": "Download",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
     }
   }
 }

@@ -293,10 +293,10 @@ export function MediaUpload({
         <div
           {...getRootProps()}
           className={cn(
-            'cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors',
+            'relative cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all duration-200',
             isDragActive
-              ? 'border-primary bg-primary/5'
-              : 'border-border hover:border-primary/50',
+              ? 'border-primary bg-primary/10 scale-[1.02] shadow-lg'
+              : 'border-border hover:border-primary/50 hover:bg-muted/50',
             isUploading && 'cursor-not-allowed opacity-50'
           )}
         >
@@ -309,10 +309,23 @@ export function MediaUpload({
             </div>
           ) : (
             <>
-              <Upload className="text-muted-foreground mx-auto mb-4 h-10 w-10" />
-              <p className="text-muted-foreground mb-2 text-sm">
-                {isDragActive ? t('dropFiles') : t('dragDropOrClick')}
-              </p>
+              {isDragActive ? (
+                <>
+                  <div className="bg-primary/20 mx-auto mb-4 flex h-16 w-16 animate-pulse items-center justify-center rounded-full">
+                    <Upload className="text-primary h-8 w-8" />
+                  </div>
+                  <p className="text-primary mb-2 text-sm font-medium">
+                    {t('dropFiles')}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Upload className="text-muted-foreground mx-auto mb-4 h-10 w-10" />
+                  <p className="text-muted-foreground mb-2 text-sm">
+                    {t('dragDropOrClick')}
+                  </p>
+                </>
+              )}
               <p className="text-muted-foreground text-xs">
                 {t('maxSize', { size: formatFileSize(maxSize) })}
               </p>

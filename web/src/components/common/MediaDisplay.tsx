@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,10 +12,19 @@ import {
   X,
   AlertCircle,
   Loader2,
+  Subtitles,
+  Gauge,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import dynamic from 'next/dynamic';
 import type { MediaType } from '@prisma/client';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Slider } from '@/components/ui/slider';
 
 const ReactPlayer = dynamic(() => import('react-player/lazy'), {
   ssr: false,
@@ -32,6 +41,15 @@ export interface MediaItem {
   type: MediaType;
   name?: string;
   alt?: string;
+  subtitles?: SubtitleTrack[];
+}
+
+export interface SubtitleTrack {
+  kind: 'subtitles' | 'captions';
+  src: string;
+  srcLang: string;
+  label: string;
+  default?: boolean;
 }
 
 interface MediaDisplayProps {
@@ -72,6 +90,9 @@ export function MediaDisplay({
     {}
   );
   const [errorStates, setErrorStates] = useState<Record<string, boolean>>({});
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [showSubtitles, setShowSubtitles] = useState(true);
+  const playerRef = useRef<any>(null);
 
   const currentMedia = mediaArray[currentIndex];
   const hasMultiple = mediaArray.length > 1;
@@ -137,15 +158,77 @@ export function MediaDisplay({
       return (
         <div className="relative h-full w-full">
           <ReactPlayer
+            ref={playerRef}
             url={mediaItem.url}
             width="100%"
             height="100%"
             controls
             light
+            playbackRate={playbackRate}
             onError={() => handleMediaError(mediaItem)}
             onReady={() => handleMediaLoad(mediaItem.id)}
             onClick={() => onMediaClick?.(mediaItem, index)}
+            config={{
+              file: {
+                attributes: {
+                  controlsList: 'nodownload',
+                },
+                tracks:
+                  showSubtitles && mediaItem.subtitles
+                    ? mediaItem.subtitles.map(track => ({
+                        kind: track.kind,
+                        src: track.src,
+                        srcLang: track.srcLang,
+                        label: track.label,
+                        default: track.default,
+                      }))
+                    : [],
+              },
+            }}
           />
+          {/* Video Controls Overlay */}
+          <div className="absolute right-4 bottom-4 flex gap-2">
+            {/* Playback Speed Control */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-1 bg-black/50 text-white hover:bg-black/70"
+                >
+                  <Gauge className="h-4 w-4" />
+                  {playbackRate}x
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {[0.5, 0.75, 1, 1.25, 1.5, 2].map(rate => (
+                  <DropdownMenuItem
+                    key={rate}
+                    onClick={() => setPlaybackRate(rate)}
+                    className={playbackRate === rate ? 'bg-accent' : ''}
+                  >
+                    {rate}x
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Subtitles Toggle */}
+            {mediaItem.subtitles && mediaItem.subtitles.length > 0 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowSubtitles(!showSubtitles)}
+                className={cn(
+                  'gap-1 bg-black/50 text-white hover:bg-black/70',
+                  showSubtitles && 'bg-primary/50 hover:bg-primary/70'
+                )}
+              >
+                <Subtitles className="h-4 w-4" />
+                {showSubtitles ? 'ON' : 'OFF'}
+              </Button>
+            )}
+          </div>
         </div>
       );
     }
