@@ -550,6 +550,7 @@ enum FeatureType {
 enum MediaType {
   IMAGE
   VIDEO
+  AUDIO
 }
 
 enum TeamRole {
