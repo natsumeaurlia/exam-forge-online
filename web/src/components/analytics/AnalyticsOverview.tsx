@@ -21,6 +21,14 @@ interface AnalyticsOverviewProps {
 export function AnalyticsOverview({ data, lng }: AnalyticsOverviewProps) {
   const t = useTranslations('dashboard.quizzes.analytics');
 
+  if (!data || data.totalResponses === 0) {
+    return (
+      <div className="flex h-64 items-center justify-center text-gray-500">
+        {t('noDataAvailable')}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

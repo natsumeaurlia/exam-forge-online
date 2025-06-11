@@ -51,27 +51,38 @@ export async function getQuizAnalytics(
       where.completedAt = { gte: subDays(new Date(), 7) };
     }
 
-    const responses = await prisma.quizResponse.findMany({
-      where,
-      select: {
-        score: true,
-        totalPoints: true,
-        isPassed: true,
-        startedAt: true,
-        completedAt: true,
-      },
-    });
+    // Use aggregation for better performance
+    const [aggregated, passedCount, responses] = await Promise.all([
+      prisma.quizResponse.aggregate({
+        where,
+        _count: true,
+        _avg: {
+          score: true,
+        },
+      }),
+      prisma.quizResponse.count({
+        where: {
+          ...where,
+          isPassed: true,
+        },
+      }),
+      // Only fetch necessary data for time calculation and trend
+      prisma.quizResponse.findMany({
+        where,
+        select: {
+          score: true,
+          startedAt: true,
+          completedAt: true,
+        },
+      }),
+    ]);
 
-    const totalResponses = responses.length;
-    const averageScore =
-      totalResponses === 0
-        ? 0
-        : responses.reduce((sum, r) => sum + (r.score ?? 0), 0) /
-          totalResponses;
+    const totalResponses = aggregated._count;
+    const averageScore = aggregated._avg.score ?? 0;
     const passRate =
-      totalResponses === 0
-        ? 0
-        : (responses.filter(r => r.isPassed).length / totalResponses) * 100;
+      totalResponses === 0 ? 0 : (passedCount / totalResponses) * 100;
+
+    // Calculate average time
     const averageTime =
       totalResponses === 0
         ? 0

@@ -12,6 +12,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAnalyticsStore } from '@/stores/useAnalyticsStore';
+import { exportAnalyticsToCSV } from '@/lib/actions/export';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { useUserPlan } from '@/hooks/use-user-plan';
 
 interface AnalyticsHeaderProps {
   quizId: string;
@@ -21,6 +25,44 @@ interface AnalyticsHeaderProps {
 export function AnalyticsHeader({ quizId, lng }: AnalyticsHeaderProps) {
   const t = useTranslations('dashboard.quizzes.analytics');
   const { range, setRange } = useAnalyticsStore();
+  const [isExporting, setIsExporting] = useState(false);
+  const userPlan = useUserPlan();
+
+  const handleExport = async () => {
+    if (userPlan.planStatus === 'FREE') {
+      toast.error(t('exportRequiresPro'));
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const result = await exportAnalyticsToCSV(quizId, range, lng);
+
+      if (result.success && result.data) {
+        // Create download link
+        const blob = new Blob([result.data.content], {
+          type: result.data.mimeType,
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = result.data.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success(t('exportSuccess'));
+      } else {
+        toast.error(result.error || t('exportFailed'));
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error(t('exportFailed'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -43,9 +85,9 @@ export function AnalyticsHeader({ quizId, lng }: AnalyticsHeaderProps) {
             <SelectItem value="7d">{t('filter7d')}</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleExport} disabled={isExporting}>
           <Download className="mr-2 h-4 w-4" />
-          {t('export')}
+          {isExporting ? t('exporting') : t('export')}
         </Button>
       </div>
     </div>

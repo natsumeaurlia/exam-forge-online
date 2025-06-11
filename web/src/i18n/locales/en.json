@@ -997,9 +997,14 @@
         "avgTime": "Average Time",
         "back": "Back to Quiz",
         "export": "Export",
+        "exporting": "Exporting...",
+        "exportSuccess": "Analytics exported successfully",
+        "exportFailed": "Failed to export analytics",
+        "exportRequiresPro": "Export feature requires Pro plan",
         "filterAll": "All Time",
         "filter30d": "Last 30 Days",
-        "filter7d": "Last 7 Days"
+        "filter7d": "Last 7 Days",
+        "noDataAvailable": "No data available for the selected period"
       }
     }
   },

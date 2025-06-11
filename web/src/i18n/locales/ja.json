@@ -996,9 +996,14 @@
         "avgTime": "平均回答時間",
         "back": "クイズ詳細に戻る",
         "export": "エクスポート",
+        "exporting": "エクスポート中...",
+        "exportSuccess": "分析データをエクスポートしました",
+        "exportFailed": "エクスポートに失敗しました",
+        "exportRequiresPro": "エクスポート機能はプロプランが必要です",
         "filterAll": "全期間",
         "filter30d": "直近30日",
-        "filter7d": "直近7日"
+        "filter7d": "直近7日",
+        "noDataAvailable": "選択した期間のデータがありません"
       }
     }
   },
