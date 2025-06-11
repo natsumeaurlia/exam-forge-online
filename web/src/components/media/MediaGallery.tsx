@@ -35,12 +35,14 @@ import {
   FileText,
   Filter,
   Check,
+  Edit2,
 } from 'lucide-react';
 import { MediaUpload } from '@/components/common/MediaUpload';
 import { MediaDisplay } from '@/components/common/MediaDisplay';
 import { getUserStorage, deleteUserFile } from '@/lib/actions/storage';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { ImageEditor } from './ImageEditor';
 
 interface MediaFile {
   id: string;
@@ -68,6 +70,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [storageUsage, setStorageUsage] = useState({ used: 0, total: 0 });
   const [selectMode, setSelectMode] = useState(false);
+  const [editingImage, setEditingImage] = useState<MediaFile | null>(null);
 
   const fetchUserMedia = useCallback(async () => {
     try {
@@ -360,11 +363,12 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
                 <MediaDisplay
                   media={[
                     {
+                      id: file.id,
                       url: file.url,
                       type: file.type === 'image' ? 'IMAGE' : 'VIDEO',
                     },
                   ]}
-                  displayMode="single"
+                  mode="single"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -390,6 +394,12 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
+                      {file.type === 'image' && (
+                        <DropdownMenuItem onClick={() => setEditingImage(file)}>
+                          <Edit2 className="mr-2 h-4 w-4" />
+                          {t('actions.edit')}
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => handleDownload([file])}>
                         <Download className="mr-2 h-4 w-4" />
                         {t('actions.download')}
@@ -436,8 +446,8 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
               <div className="h-12 w-12 flex-shrink-0">
                 {file.type === 'image' ? (
                   <MediaDisplay
-                    media={[{ url: file.url, type: 'IMAGE' }]}
-                    displayMode="single"
+                    media={[{ id: file.id, url: file.url, type: 'IMAGE' }]}
+                    mode="single"
                     className="h-full w-full rounded object-cover"
                   />
                 ) : (
@@ -460,6 +470,12 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    {file.type === 'image' && (
+                      <DropdownMenuItem onClick={() => setEditingImage(file)}>
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        {t('actions.edit')}
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => handleDownload([file])}>
                       <Download className="mr-2 h-4 w-4" />
                       {t('actions.download')}
@@ -477,6 +493,21 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Image Editor Dialog */}
+      {editingImage && (
+        <ImageEditor
+          imageUrl={editingImage.url}
+          imageName={editingImage.filename}
+          open={!!editingImage}
+          onOpenChange={open => !open && setEditingImage(null)}
+          onSave={async (blob, url) => {
+            // TODO: Implement save functionality
+            toast.success(t('messages.editSuccess'));
+            await fetchUserMedia();
+          }}
+        />
       )}
     </div>
   );

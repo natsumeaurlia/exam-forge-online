@@ -1581,6 +1581,7 @@
       "upload": "Upload",
       "download": "Download",
       "delete": "Delete",
+      "edit": "Edit",
       "select": "Select",
       "cancelSelect": "Cancel Selection",
       "selectAll": "Select all"
@@ -1602,7 +1603,22 @@
       "deleteFailed": "Failed to delete files"
     },
     "messages": {
-      "deleteSuccess": "{count, plural, one {# file} other {# files}} deleted successfully"
+      "deleteSuccess": "{count, plural, one {# file} other {# files}} deleted successfully",
+      "editSuccess": "Image edited successfully"
+    },
+    "editor": {
+      "title": "Edit Image",
+      "description": "Crop and rotate your image",
+      "rotateLeft": "Rotate Left",
+      "rotateRight": "Rotate Right",
+      "crop": "Crop",
+      "cropActive": "Cropping",
+      "applyCrop": "Apply Crop",
+      "rotation": "Rotation",
+      "download": "Download",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
     }
   }
 }
