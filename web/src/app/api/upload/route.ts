@@ -74,7 +74,22 @@ export async function POST(request: NextRequest) {
       'video/ogg',
       'video/quicktime',
     ];
-    const allowedTypes = [...allowedImageTypes, ...allowedVideoTypes];
+    const allowedAudioTypes = [
+      'audio/mpeg',
+      'audio/mp3',
+      'audio/wav',
+      'audio/wave',
+      'audio/x-wav',
+      'audio/ogg',
+      'audio/webm',
+      'audio/m4a',
+      'audio/x-m4a',
+    ];
+    const allowedTypes = [
+      ...allowedImageTypes,
+      ...allowedVideoTypes,
+      ...allowedAudioTypes,
+    ];
 
     let totalSize = 0;
     const uploadedMedia: QuestionMedia[] = [];
@@ -83,7 +98,7 @@ export async function POST(request: NextRequest) {
       if (!allowedTypes.includes(file.type)) {
         return NextResponse.json(
           {
-            error: `Invalid file type: ${file.name}. Only images (JPEG, PNG, GIF, WebP) and videos (MP4, WebM, OGG, MOV) are allowed.`,
+            error: `Invalid file type: ${file.name}. Only images (JPEG, PNG, GIF, WebP), videos (MP4, WebM, OGG, MOV), and audio files (MP3, WAV, OGG, M4A) are allowed.`,
           },
           { status: 400 }
         );
@@ -92,13 +107,19 @@ export async function POST(request: NextRequest) {
       // Validate individual file size
       const maxImageSize = 10 * 1024 * 1024; // 10MB for images
       const maxVideoSize = 500 * 1024 * 1024; // 500MB for videos
+      const maxAudioSize = 50 * 1024 * 1024; // 50MB for audio
       const isVideo = allowedVideoTypes.includes(file.type);
-      const maxSize = isVideo ? maxVideoSize : maxImageSize;
+      const isAudio = allowedAudioTypes.includes(file.type);
+      const maxSize = isVideo
+        ? maxVideoSize
+        : isAudio
+          ? maxAudioSize
+          : maxImageSize;
 
       if (file.size > maxSize) {
         return NextResponse.json(
           {
-            error: `File size exceeds limit for ${file.name} (max ${isVideo ? '500MB' : '10MB'})`,
+            error: `File size exceeds limit for ${file.name} (max ${isVideo ? '500MB' : isAudio ? '50MB' : '10MB'})`,
           },
           { status: 400 }
         );
@@ -132,7 +153,9 @@ export async function POST(request: NextRequest) {
         // Determine media type
         const mediaType = allowedVideoTypes.includes(file.type)
           ? 'VIDEO'
-          : 'IMAGE';
+          : allowedAudioTypes.includes(file.type)
+            ? 'AUDIO'
+            : 'IMAGE';
 
         // Create database record
         const media = await prisma.questionMedia.create({
