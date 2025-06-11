@@ -9,7 +9,10 @@ interface Props {
 }
 
 export const SessionProvider = ({ children }: Props) => {
-  const mockAuth = process.env.NEXT_PUBLIC_MOCK_AUTH === 'true';
+  // Mock authentication is disabled in production
+  const mockAuth =
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NEXT_PUBLIC_MOCK_AUTH === 'true';
 
   const mockSession: Session | null = mockAuth
     ? {
@@ -24,6 +27,9 @@ export const SessionProvider = ({ children }: Props) => {
     : null;
 
   if (mockAuth && mockSession) {
+    console.warn(
+      '⚠️ Mock authentication is enabled. This should only be used in development.'
+    );
     return (
       <NextAuthSessionProvider session={mockSession}>
         {children}
