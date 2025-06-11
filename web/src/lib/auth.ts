@@ -62,6 +62,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
+    error: '/auth/error',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -77,23 +78,51 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // サインイン後は常にダッシュボードにリダイレクト
-      if (url.includes('/auth/')) {
-        // URLから言語パラメータを抽出（例: /ja/auth/signin から ja を取得）
-        const langMatch = url.match(/\/([a-z]{2})\/auth/);
-        const lng = langMatch ? langMatch[1] : 'ja';
-        return `${baseUrl}/${lng}/dashboard`;
+      // callbackUrlから言語情報を保持
+      let locale = 'ja';
+
+      // URLから言語パラメータを抽出
+      const urlObj = new URL(url, baseUrl);
+      const pathname = urlObj.pathname;
+      const langMatch = pathname.match(/^\/([a-z]{2})(\/|$)/);
+
+      if (langMatch) {
+        locale = langMatch[1];
       }
+
+      // callbackUrlがある場合はそれを優先
+      const callbackUrl = urlObj.searchParams.get('callbackUrl');
+      if (callbackUrl) {
+        // callbackUrlが相対URLの場合
+        if (callbackUrl.startsWith('/')) {
+          return callbackUrl;
+        }
+        // callbackUrlが同じドメインの場合
+        try {
+          const callbackUrlObj = new URL(callbackUrl, baseUrl);
+          if (callbackUrlObj.origin === baseUrl) {
+            return callbackUrl;
+          }
+        } catch {}
+      }
+
+      // サインイン後は言語を保持してダッシュボードにリダイレクト
+      if (pathname.includes('/auth/')) {
+        return `${baseUrl}/${locale}/dashboard`;
+      }
+
       // 相対URLの場合はbaseUrlを追加
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
+
       // 同じドメインの場合はそのまま
-      if (new URL(url).origin === baseUrl) {
+      if (urlObj.origin === baseUrl) {
         return url;
       }
-      // その他の場合はbaseUrlにリダイレクト
-      return baseUrl;
+
+      // その他の場合は言語を保持してbaseUrlにリダイレクト
+      return `${baseUrl}/${locale}`;
     },
   },
 };

@@ -746,6 +746,24 @@
           "description": "Analyze test-taker performance and response trends in detail"
         }
       }
+    },
+    "error": {
+      "title": "Authentication Error",
+      "configuration": "There is a problem with the authentication configuration. Please contact the administrator.",
+      "accessDenied": "Access denied.",
+      "verification": "Failed to verify authentication information.",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "oauthSignin": "Failed to sign in with external service.",
+      "oauthCallback": "Failed to process response from external service.",
+      "oauthCreateAccount": "Failed to create account with external service.",
+      "emailCreateAccount": "Failed to create email account.",
+      "callback": "Authentication processing failed.",
+      "oauthAccountNotLinked": "This account is registered with a different authentication method.",
+      "emailSignin": "Email sign in failed.",
+      "credentialsSignin": "Incorrect email address or password.",
+      "default": "An error occurred during authentication.",
+      "tryAgain": "Try signing in again",
+      "backToHome": "Back to home"
     }
   },
   "faq": {
