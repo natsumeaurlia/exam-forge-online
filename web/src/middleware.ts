@@ -15,6 +15,9 @@ const publicPaths = [
   '/legal',
 ];
 
+// API routes that don't require authentication
+const publicApiPaths = ['/api/auth', '/api/stripe/webhook'];
+
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware({
   locales,
@@ -51,8 +54,35 @@ export default function middleware(request: NextRequest) {
     return pathname === fullPath || pathname === path;
   });
 
+  // Check if this is a public API path
+  const isPublicApiPath = publicApiPaths.some(path =>
+    pathname.startsWith(path)
+  );
+
+  // Handle API routes
+  if (pathname.startsWith('/api')) {
+    // Public API paths don't require authentication
+    if (isPublicApiPath) {
+      return NextResponse.next();
+    }
+
+    // Protected API paths require authentication
+    const token =
+      request.cookies.get('next-auth.session-token')?.value ||
+      request.cookies.get('__Secure-next-auth.session-token')?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.next();
+  }
+
   // For public paths, use only i18n middleware
-  if (isPublicPath || pathname.startsWith('/api')) {
+  if (isPublicPath) {
     return intlMiddleware(request);
   }
 
@@ -73,7 +103,12 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  // Exclude API routes, Next.js internals, and static files
-  matcher: ['/', '/(ja|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+  // Match internationalized pathnames and API routes
+  // Exclude Next.js internals and static files
+  matcher: [
+    '/',
+    '/(ja|en)/:path*',
+    '/api/:path*',
+    '/((?!_next|_vercel|.*\\..*).*)',
+  ],
 };
