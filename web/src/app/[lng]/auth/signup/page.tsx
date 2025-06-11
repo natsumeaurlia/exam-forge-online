@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import { signupAction } from '@/lib/actions/auth';
+import { useAction } from 'next-safe-action/hooks';
 
 interface SignUpPageProps {
   params: Promise<{
@@ -63,11 +65,37 @@ export default function SignUpPage({ params }: SignUpPageProps) {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<
     Partial<Record<keyof SignupFormData, string>>
   >({});
-  const [serverError, setServerError] = useState('');
+
+  // ServerActionを使用
+  const {
+    execute: signup,
+    isExecuting,
+    result,
+  } = useAction(signupAction, {
+    onSuccess: async data => {
+      if (data.success) {
+        // Auto sign in after successful signup
+        const signInResult = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          callbackUrl: `/${resolvedParams.lng}/dashboard`,
+          redirect: false,
+        });
+
+        if (signInResult?.ok) {
+          router.push(`/${resolvedParams.lng}/dashboard`);
+        } else {
+          setErrors({ email: '自動ログインに失敗しました' });
+        }
+      }
+    },
+    onError: error => {
+      setErrors({ email: error.serverError || 'エラーが発生しました' });
+    },
+  });
 
   const validateForm = (): boolean => {
     try {
@@ -95,46 +123,12 @@ export default function SignUpPage({ params }: SignUpPageProps) {
       return;
     }
 
-    setIsLoading(true);
-    setServerError('');
-
-    try {
-      // Create user account via API
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'アカウントの作成に失敗しました');
-      }
-
-      // Auto sign in after successful signup
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        callbackUrl: `/${resolvedParams.lng}/dashboard`,
-        redirect: false,
-      });
-
-      if (result?.ok) {
-        router.push(`/${resolvedParams.lng}/dashboard`);
-      } else {
-        throw new Error('自動ログインに失敗しました');
-      }
-    } catch (error) {
-      setServerError(
-        error instanceof Error ? error.message : 'エラーが発生しました'
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    // ServerActionを実行
+    signup({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+    });
   };
 
   const handleSocialSignUp = (provider: 'google' | 'github') => {
@@ -171,10 +165,10 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             </div>
 
             {/* Server Error Alert */}
-            {serverError && (
+            {result?.serverError && (
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{serverError}</AlertDescription>
+                <AlertDescription>{result.serverError}</AlertDescription>
               </Alert>
             )}
 
@@ -185,7 +179,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 variant="outline"
                 className="w-full"
                 onClick={() => handleSocialSignUp('google')}
-                disabled={isLoading}
+                disabled={isExecuting}
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -213,7 +207,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 variant="outline"
                 className="w-full"
                 onClick={() => handleSocialSignUp('github')}
-                disabled={isLoading}
+                disabled={isExecuting}
               >
                 <svg
                   className="mr-2 h-5 w-5"
@@ -254,7 +248,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   className={errors.name ? 'border-red-500' : ''}
-                  disabled={isLoading}
+                  disabled={isExecuting}
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-500">{errors.name}</p>
@@ -271,7 +265,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   className={errors.email ? 'border-red-500' : ''}
-                  disabled={isLoading}
+                  disabled={isExecuting}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-500">{errors.email}</p>
@@ -289,7 +283,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                       setFormData({ ...formData, password: e.target.value })
                     }
                     className={errors.password ? 'border-red-500' : ''}
-                    disabled={isLoading}
+                    disabled={isExecuting}
                   />
                   <button
                     type="button"
@@ -366,7 +360,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                       })
                     }
                     className={errors.confirmPassword ? 'border-red-500' : ''}
-                    disabled={isLoading}
+                    disabled={isExecuting}
                   />
                   <button
                     type="button"
@@ -397,7 +391,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                       agreeToTerms: checked as boolean,
                     })
                   }
-                  disabled={isLoading}
+                  disabled={isExecuting}
                 />
                 <label
                   htmlFor="terms"
@@ -426,9 +420,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               <Button
                 type="submit"
                 className="bg-examforge-blue hover:bg-examforge-blue-dark w-full"
-                disabled={isLoading}
+                disabled={isExecuting}
               >
-                {isLoading ? (
+                {isExecuting ? (
                   <span className="flex items-center">
                     <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     {t('creatingAccount')}
