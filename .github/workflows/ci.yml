@@ -101,8 +101,7 @@ jobs:
         run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: TypeScript type checking
-        run: echo "TypeScript check temporarily skipped for PR #146"
-        # run: pnpm exec tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Format check
         run: pnpm exec prettier --check .
