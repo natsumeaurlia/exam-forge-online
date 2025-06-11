@@ -124,7 +124,13 @@ export default function SignUpPage({ params }: SignUpPageProps) {
       });
 
       if (result?.ok) {
-        router.push(`/${resolvedParams.lng}/dashboard`);
+        // Wait for session to be established before redirecting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        router.refresh();
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // Use window.location for more reliable redirect
+        window.location.href = `/${resolvedParams.lng}/dashboard`;
       } else {
         throw new Error('自動ログインに失敗しました');
       }
