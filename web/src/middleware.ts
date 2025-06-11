@@ -56,19 +56,8 @@ export default function middleware(request: NextRequest) {
     return intlMiddleware(request);
   }
 
-  // For protected paths, check authentication first
-  // If not authenticated, redirect to the locale-specific signin page
-  const token =
-    request.cookies.get('next-auth.session-token')?.value ||
-    request.cookies.get('__Secure-next-auth.session-token')?.value;
-
-  if (!token && pathname.includes('/dashboard')) {
-    const signinUrl = new URL(`/${locale}/auth/signin`, request.url);
-    signinUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(signinUrl);
-  }
-
-  // Otherwise, use the combined auth + i18n middleware
+  // For protected paths, use the combined auth + i18n middleware
+  // The authMiddleware will handle the authentication check
   return authMiddleware(request as any);
 }
 

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle the event with idempotency
-    await ensureIdempotent(event.id, async () => {
+    await ensureIdempotent(event.id, event.type, async () => {
       switch (event.type) {
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
