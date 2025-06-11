@@ -692,6 +692,8 @@
       "signupLink": "Create account",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "errorGeneric": "An authentication error occurred. Please try again.",
       "welcome": {
         "title": "Welcome back!",
         "subtitle": "Resume efficient quiz and exam management with ExamForge.",
