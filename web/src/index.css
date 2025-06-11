@@ -122,7 +122,7 @@
     perspective: 1000px;
   }
 
-  /* Quiz Editor responsive improvements */
+  /* Essential custom styles for Quiz Editor */
   .quiz-editor-mobile-toolbar {
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
@@ -139,37 +139,6 @@
   .quiz-editor-mobile-toolbar::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 2px;
-  }
-
-  /* Touch optimization for drag and drop */
-  @media (pointer: coarse) {
-    .touch-drag-handle {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
-
-  /* Responsive font scaling */
-  @media (max-width: 768px) {
-    .quiz-editor-mobile-font {
-      font-size: 0.9rem;
-    }
-    
-    .quiz-editor-mobile-text-sm {
-      font-size: 0.8rem;
-    }
-  }
-
-  /* Smooth transitions for responsive changes */
-  .quiz-editor-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    .quiz-editor-transition {
-      transition: none;
-    }
   }
 
   /* Respect reduced motion preference */

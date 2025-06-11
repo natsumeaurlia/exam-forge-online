@@ -9,6 +9,7 @@ import { QuizSettingsPanel } from './QuizSettingsPanel';
 import { QuizEditorProFeatures } from './QuizEditorProFeatures';
 import { useQuizEditorStore } from '@/stores/useQuizEditorStore';
 import { useUserPlan } from '@/components/providers/UserPlanProvider';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import type {
   Quiz,
   Question,
@@ -56,6 +58,11 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
     useQuizEditorStore();
   const { isPro, isPremium } = useUserPlan();
 
+  // Media queries for responsive design
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+
   // Zustandストアを初期化
   React.useEffect(() => {
     initializeQuiz(quiz);
@@ -64,26 +71,71 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
   const hasPaidPlan = isPro || isPremium;
 
   // Mobile: Hide question list when editing a question
-  const isEditingOnMobile = currentQuestionIndex !== null;
+  const isEditingOnMobile = isMobile && currentQuestionIndex !== null;
 
   const handleBackToList = () => {
     setCurrentQuestion(null);
     setShowMobileQuestionList(true);
   };
 
+  // Determine layout classes based on screen size
+  const containerClasses = cn(
+    'flex flex-1 overflow-hidden transition-all duration-300 ease-in-out',
+    isMobile && 'flex-col',
+    isTablet && 'flex-row',
+    isDesktop && 'flex-row'
+  );
+
+  const questionListClasses = cn(
+    'overflow-y-auto border-r bg-gray-50',
+    isMobile && 'border-r-0 border-b',
+    (isTablet || isDesktop) && 'w-80'
+  );
+
+  const mainContentClasses = cn(
+    'flex-1 overflow-y-auto',
+    isMobile && 'p-4',
+    (isTablet || isDesktop) && 'p-6'
+  );
+
+  const settingsPanelClasses = cn(
+    'w-80 border-l bg-gray-50 p-6',
+    !isDesktop && 'hidden'
+  );
+
   return (
     <div className="flex h-full flex-col">
       <QuizEditorHeader quizId={quiz.id} lng={lng} />
 
-      {/* Mobile Layout (up to md/768px) */}
-      <div
-        className="quiz-editor-transition flex flex-1 overflow-hidden md:hidden"
-        data-testid="mobile-layout"
-      >
-        <div className="flex-1 overflow-y-auto">
+      {/* Single Responsive Layout */}
+      <div className={containerClasses} data-testid={isMobile ? 'mobile-layout' : isTablet ? 'tablet-layout' : 'desktop-layout'}>
+        {/* Question List Panel */}
+        {(!isMobile || (!isEditingOnMobile && showMobileQuestionList)) && (
+          <div className={questionListClasses}>
+            {isMobile && (
+              <div className="border-b bg-white p-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMobileQuestionList(!showMobileQuestionList)}
+                  className="gap-2"
+                >
+                  <List className="h-4 w-4" />
+                  {showMobileQuestionList ? 'Hide' : 'Show'} Questions
+                </Button>
+              </div>
+            )}
+            <div className="p-4">
+              <QuestionList />
+            </div>
+          </div>
+        )}
+
+        {/* Main Content Panel */}
+        <div className={mainContentClasses}>
           {/* Mobile: Back button when editing */}
           {isEditingOnMobile && (
-            <div className="border-b bg-white p-4">
+            <div className="mb-4 border-b bg-white p-4 -m-4 mb-4">
               <Button
                 variant="ghost"
                 size="sm"
@@ -96,89 +148,24 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
             </div>
           )}
 
-          {/* Mobile: Question list toggle */}
-          {!isEditingOnMobile && (
-            <div className="border-b bg-white p-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  setShowMobileQuestionList(!showMobileQuestionList)
-                }
-                className="gap-2"
-              >
-                <List className="h-4 w-4" />
-                {showMobileQuestionList ? 'Hide' : 'Show'} Questions
-              </Button>
-            </div>
-          )}
-
-          <div className="space-y-4 p-4">
-            {/* Always show metadata and toolbar */}
-            <QuizMetadataForm />
-            {hasPaidPlan && <QuizEditorProFeatures lng={lng} />}
-            <QuestionTypeToolbar />
-
-            {/* Mobile: Show question list only when not editing and list is visible */}
-            {!isEditingOnMobile && showMobileQuestionList && <QuestionList />}
-          </div>
-        </div>
-      </div>
-
-      {/* Tablet Layout (md to lg/768px-1024px) */}
-      <div
-        className="quiz-editor-transition hidden flex-1 overflow-hidden md:flex lg:hidden"
-        data-testid="tablet-layout"
-      >
-        {/* Left Panel: Question List */}
-        <div className="w-80 overflow-y-auto border-r bg-gray-50">
-          <div className="p-4">
-            <QuestionList />
-          </div>
-        </div>
-
-        {/* Right Panel: Main Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="mx-auto max-w-3xl space-y-6">
-            <QuizMetadataForm />
-            {hasPaidPlan && <QuizEditorProFeatures lng={lng} />}
-            <QuestionTypeToolbar />
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Layout (lg+/1024px+) */}
-      <div
-        className="quiz-editor-transition hidden flex-1 overflow-hidden lg:flex"
-        data-testid="desktop-layout"
-      >
-        {/* Left Panel: Question List */}
-        <div className="w-80 overflow-y-auto border-r bg-gray-50">
-          <div className="p-4">
-            <QuestionList />
-          </div>
-        </div>
-
-        {/* Center Panel: Main Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="mx-auto max-w-3xl space-y-6">
+          <div className={cn('space-y-6', isTablet || isDesktop ? 'mx-auto max-w-3xl' : '')}>
             <QuizMetadataForm />
             {hasPaidPlan && <QuizEditorProFeatures lng={lng} />}
             <QuestionTypeToolbar />
           </div>
         </div>
 
-        {/* Right Panel: Settings */}
-        {showSettings && (
-          <div className="w-80 border-l bg-gray-50 p-6">
+        {/* Settings Panel (Desktop Only) */}
+        {showSettings && isDesktop && (
+          <div className={settingsPanelClasses}>
             <QuizSettingsPanel />
           </div>
         )}
       </div>
 
       {/* Settings Modal for Mobile/Tablet */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto lg:hidden">
+      <Dialog open={showSettings && !isDesktop} onOpenChange={setShowSettings}>
+        <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Quiz Settings</DialogTitle>
           </DialogHeader>
