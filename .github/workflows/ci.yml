@@ -34,6 +34,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.2
 
       - name: Cache node modules
         id: cache-deps
@@ -42,13 +44,17 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-
+            ${{ runner.os }}-pnpm-v2-
 
       - name: Install dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
+
+      - name: Install dependencies (force if needed)
+        if: steps.cache-deps.outputs.cache-hit == 'true'
+        run: pnpm install --prefer-offline
 
       - name: Generate Prisma client
         run: pnpm exec dotenv -e ../.env -- prisma generate
@@ -57,7 +63,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
 
   # 型チェックとリント（軽量なので並列実行）
   lint-and-typecheck:
@@ -74,6 +80,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.2
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -81,13 +89,16 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
           path: node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
+
+      - name: Generate Prisma client
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: TypeScript type checking
         run: pnpm exec tsc --noEmit
@@ -128,6 +139,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.2
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -135,13 +148,16 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
           path: node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
+
+      - name: Generate Prisma client
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: Setup environment variables
         run: |
@@ -172,6 +188,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.2
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -179,13 +197,16 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
           path: node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
+
+      - name: Generate Prisma client
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: Setup environment variables
         run: |
@@ -232,6 +253,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.2
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -239,13 +262,16 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
         with:
           path: node_modules/.prisma
-          key: ${{ runner.os }}-prisma-${{ hashFiles('prisma/schema.prisma') }}
+          key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
+
+      - name: Generate Prisma client
+        run: pnpm exec dotenv -e ../.env -- prisma generate
 
       - name: Setup environment variables
         run: |
