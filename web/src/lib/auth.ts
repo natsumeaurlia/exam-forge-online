@@ -5,18 +5,34 @@ import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
+import './auth-config-validator';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID || '',
-      clientSecret: process.env.GITHUB_SECRET || '',
-    }),
+// Helper function to create providers based on available environment variables
+function createAuthProviders() {
+  const providers: any[] = [];
+
+  // Add Google provider only if both credentials are available
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      })
+    );
+  }
+
+  // Add GitHub provider only if both credentials are available
+  if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+    providers.push(
+      GitHubProvider({
+        clientId: process.env.GITHUB_ID,
+        clientSecret: process.env.GITHUB_SECRET,
+      })
+    );
+  }
+
+  // Always add credentials provider
+  providers.push(
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -55,8 +71,15 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
         };
       },
-    }),
-  ],
+    })
+  );
+
+  return providers;
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  providers: createAuthProviders(),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -64,7 +87,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error',
+    error: '/auth/error', // Note: This will be redirected with locale in middleware
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -131,4 +154,15 @@ export const authOptions: NextAuthOptions = {
 
 export function auth() {
   return getServerSession(authOptions);
+}
+
+// Helper function to check which OAuth providers are available
+export function getAvailableProviders() {
+  return {
+    google: !!(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ),
+    github: !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET),
+    credentials: true, // Always available
+  };
 }
