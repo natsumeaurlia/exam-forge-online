@@ -122,6 +122,25 @@
     perspective: 1000px;
   }
 
+  /* Essential custom styles for Quiz Editor */
+  .quiz-editor-mobile-toolbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  
+  .quiz-editor-mobile-toolbar::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .quiz-editor-mobile-toolbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .quiz-editor-mobile-toolbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 2px;
+  }
+
   /* Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
     .respect-motion-preference {

@@ -112,7 +112,7 @@ export function QuestionTypeToolbar() {
           {t('addQuestion')}
         </h3>
         <TooltipProvider>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="quiz-editor-mobile-toolbar grid grid-cols-2 gap-2 sm:grid-cols-3 md:flex md:gap-3 md:overflow-x-auto md:pb-2 lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:pb-0">
             {questionTypes.map(
               ({ type, label, icon: Icon, description, isPro }) => {
                 const isLocked = isPro && !hasPaidPlan;
@@ -125,7 +125,7 @@ export function QuestionTypeToolbar() {
                         size="sm"
                         onClick={() => !isLocked && handleAddQuestion(type)}
                         disabled={isLocked}
-                        className={`flex h-auto flex-col items-center gap-1 py-3 ${
+                        className={`flex h-auto flex-col items-center gap-1 py-3 md:min-w-[100px] md:flex-shrink-0 ${
                           isLocked ? 'cursor-not-allowed opacity-60' : ''
                         }`}
                       >
@@ -161,7 +161,7 @@ export function QuestionTypeToolbar() {
                   variant="outline"
                   size="sm"
                   disabled
-                  className="flex h-auto flex-col items-center gap-1 py-3"
+                  className="flex h-auto flex-col items-center gap-1 py-3 md:min-w-[100px] md:flex-shrink-0"
                 >
                   <Database className="h-5 w-5" />
                   <span className="text-xs">{t('questionBank')}</span>
