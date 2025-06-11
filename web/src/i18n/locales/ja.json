@@ -383,7 +383,7 @@
     "toggle": {
       "monthly": "月額",
       "annually": "年額",
-      "discount": "約17%割引"
+      "discount": "17%お得"
     },
     "plans": {
       "features": {
@@ -453,16 +453,7 @@
         "coursemanagement": "コース管理",
         "whitelabel": "ホワイトラベル",
         "apiAccess": "API アクセス",
-        "allbusiness": "ビジネスプランのすべての機能",
-        "aiquiz": "AI自動問題生成",
-        "aiimprovement": "AI品質改善",
-        "aigrading": "AI自動採点",
-        "lmsmode": "LMSモード",
-        "pagebuilder": "ページビルダー",
-        "customdomain": "独自ドメイン",
-        "userauth": "ユーザー認証",
-        "billing": "課金機能",
-        "coursemanagement": "コース管理"
+        "allbusiness": "ビジネスプランのすべての機能"
       },
       "free": {
         "name": "フリープラン",
@@ -489,11 +480,6 @@
       }
     },
     "guarantee": "プロプランとプレミアムプランには14日間の無料トライアル付き。不明点はお問い合わせください。",
-    "toggle": {
-      "monthly": "月額",
-      "annually": "年額",
-      "discount": "17%お得"
-    },
     "viewDetails": "プランを詳しく見る",
     "cta": "今すぐ無料で使ってみる"
   },
@@ -1000,6 +986,25 @@
       "subscription": {
         "nextBilling": "次回請求日"
       }
+    },
+    "quizzes": {
+      "analytics": {
+        "title": "クイズ分析",
+        "totalResponses": "総回答数",
+        "avgScore": "平均スコア",
+        "completionRate": "合格率",
+        "avgTime": "平均回答時間",
+        "back": "クイズ詳細に戻る",
+        "export": "エクスポート",
+        "exporting": "エクスポート中...",
+        "exportSuccess": "分析データをエクスポートしました",
+        "exportFailed": "エクスポートに失敗しました",
+        "exportRequiresPro": "エクスポート機能はプロプランが必要です",
+        "filterAll": "全期間",
+        "filter30d": "直近30日",
+        "filter7d": "直近7日",
+        "noDataAvailable": "選択した期間のデータがありません"
+      }
     }
   },
   "plans": {
@@ -1424,7 +1429,6 @@
         },
         "proFeatureRequired": "Pro機能が必要です"
       },
-      "passwordPlaceholder": "パスワードを入力",
       "questionMedia": {
         "title": "問題メディア",
         "proBadge": "PRO",

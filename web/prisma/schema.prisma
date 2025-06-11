@@ -52,6 +52,8 @@ model User {
   TeamInvitation         TeamInvitation[]
   teamMembers            TeamMember[]
   storage                UserStorage?
+  createdBankQuestions   BankQuestion[]
+  createdCertificateTemplates CertificateTemplate[]
 
   @@index([stripeCustomerId])
 }
@@ -73,6 +75,7 @@ model Team {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   creatorId    String
+  lmsConfiguration Json?       // LMS mode configuration
   invoices     Invoice[]
   quizzes      Quiz[]
   subscription Subscription?
@@ -81,6 +84,10 @@ model Team {
   members      TeamMember[]
   teamSettings TeamSettings?
   usageRecords UsageRecord[]
+  categories   Category[]
+  bankQuestions BankQuestion[]
+  certificateTemplates CertificateTemplate[]
+  tags         Tag[]
 
   @@index([creatorId])
 }
@@ -153,12 +160,16 @@ model Quiz {
   updatedAt              DateTime       @updatedAt
   teamId                 String
   createdById            String
+  aiMetadata             Json?          // AI generation metadata
+  difficultyLevel        QuestionDifficulty?
   questions              Question[]
   createdBy              User           @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Restrict)
   team                   Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
   responses              QuizResponse[]
   tags                   QuizTag[]
   sections               Section[]
+  certificateTemplates   QuizCertificateTemplate[]
+  quizBankQuestions      QuizBankQuestion[]
 
   @@index([teamId])
   @@index([createdById])
@@ -194,6 +205,8 @@ model Question {
   correctAnswer   Json?
   gradingCriteria String?
   isRequired      Boolean            @default(false)
+  difficultyLevel QuestionDifficulty?
+  sectionTimeLimit Int?              @db.SmallInt // Time limit in seconds for this question
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   quizId          String
@@ -203,6 +216,7 @@ model Question {
   media           QuestionMedia[]
   options         QuestionOption[]
   responses       QuestionResponse[]
+  quizBankQuestion QuizBankQuestion?
 
   @@index([quizId])
   @@index([sectionId])
@@ -226,11 +240,17 @@ model QuestionOption {
 
 model Tag {
   id        String    @id @default(cuid())
-  name      String    @unique
+  name      String
   color     String?
+  teamId    String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   quizzes   QuizTag[]
+  bankQuestions BankQuestionTag[]
+  
+  @@unique([teamId, name])
+  @@index([teamId])
 }
 
 model QuizTag {
@@ -259,6 +279,7 @@ model QuizResponse {
   responses   QuestionResponse[]
   quiz        Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
   user        User?              @relation(fields: [userId], references: [id])
+  certificates Certificate[]
 
   @@index([quizId])
   @@index([userId])
@@ -550,6 +571,7 @@ enum FeatureType {
 enum MediaType {
   IMAGE
   VIDEO
+  AUDIO
 }
 
 enum TeamRole {
@@ -564,4 +586,224 @@ enum TeamInvitationStatus {
   ACCEPTED
   REJECTED
   EXPIRED
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+enum CertificateStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  IN_PROGRESS
+  COMPLETED
+  DROPPED
+}
+
+// ============================================
+// Question Bank Models
+// ============================================
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  teamId      String
+  parentId    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  team                 Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  parent               Category?              @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children             Category[]             @relation("CategoryHierarchy")
+  bankQuestionCategories BankQuestionCategory[]
+  
+  @@index([teamId])
+  @@index([parentId])
+}
+
+model BankQuestion {
+  id            String              @id @default(cuid())
+  teamId        String
+  type          QuestionType
+  text          String
+  points        Int                 @default(1)
+  hint          String?
+  explanation   String?
+  difficulty    QuestionDifficulty @default(MEDIUM)
+  aiGenerated   Boolean             @default(false)
+  aiMetadata    Json?
+  createdById   String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  team                   Team                     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy              User                     @relation(fields: [createdById], references: [id])
+  options                BankQuestionOption[]
+  media                  BankQuestionMedia[]
+  tags                   BankQuestionTag[]
+  categories             BankQuestionCategory[]
+  quizBankQuestions      QuizBankQuestion[]
+  
+  @@index([teamId])
+  @@index([type])
+  @@index([difficulty])
+  @@index([createdById])
+}
+
+model BankQuestionOption {
+  id               String       @id @default(cuid())
+  bankQuestionId   String
+  text             String
+  isCorrect        Boolean      @default(false)
+  order            Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  bankQuestion     BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  
+  @@index([bankQuestionId])
+}
+
+model BankQuestionMedia {
+  id               String       @id @default(cuid())
+  bankQuestionId   String
+  url              String
+  type             MediaType
+  fileName         String
+  fileSize         Int
+  mimeType         String
+  order            Int          @default(0)
+  createdAt        DateTime     @default(now())
+  
+  bankQuestion     BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  
+  @@index([bankQuestionId])
+}
+
+model BankQuestionTag {
+  id               String       @id @default(cuid())
+  bankQuestionId   String
+  tagId            String
+  createdAt        DateTime     @default(now())
+  
+  bankQuestion     BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  tag              Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([bankQuestionId, tagId])
+  @@index([bankQuestionId])
+  @@index([tagId])
+}
+
+model BankQuestionCategory {
+  id               String       @id @default(cuid())
+  bankQuestionId   String
+  categoryId       String
+  createdAt        DateTime     @default(now())
+  
+  bankQuestion     BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  category         Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@unique([bankQuestionId, categoryId])
+  @@index([bankQuestionId])
+  @@index([categoryId])
+}
+
+model QuizBankQuestion {
+  id               String       @id @default(cuid())
+  quizId           String
+  bankQuestionId   String
+  questionId       String
+  importedAt       DateTime     @default(now())
+  
+  quiz             Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  bankQuestion     BankQuestion @relation(fields: [bankQuestionId], references: [id])
+  question         Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@unique([questionId])
+  @@index([quizId])
+  @@index([bankQuestionId])
+}
+
+// ============================================
+// Certificate Models
+// ============================================
+
+model CertificateTemplate {
+  id                String              @id @default(cuid())
+  teamId            String
+  name              String
+  description       String?
+  design            Json                // Stores design configuration
+  backgroundImage   String?
+  logoImage         String?
+  signatureImage    String?
+  isActive          Boolean             @default(true)
+  createdById       String
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  team              Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdBy         User                @relation(fields: [createdById], references: [id])
+  certificates      Certificate[]
+  quizTemplates     QuizCertificateTemplate[]
+  
+  @@index([teamId])
+  @@index([createdById])
+}
+
+model Certificate {
+  id                String              @id @default(cuid())
+  templateId        String
+  quizResponseId    String
+  recipientName     String
+  recipientEmail    String
+  issueDate         DateTime            @default(now())
+  expiryDate        DateTime?
+  validationCode    String              @unique
+  qrCode            String?
+  pdfUrl            String?
+  status            CertificateStatus   @default(ACTIVE)
+  metadata          Json?               // Additional certificate data
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  template          CertificateTemplate @relation(fields: [templateId], references: [id])
+  quizResponse      QuizResponse        @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
+  
+  @@index([templateId])
+  @@index([quizResponseId])
+  @@index([validationCode])
+  @@index([recipientEmail])
+}
+
+model QuizCertificateTemplate {
+  id                String              @id @default(cuid())
+  quizId            String
+  templateId        String
+  minScorePercent   Int                 // Minimum score percentage required
+  validityDays      Int?                // Certificate validity in days
+  createdAt         DateTime            @default(now())
+  
+  quiz              Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  template          CertificateTemplate @relation(fields: [templateId], references: [id])
+  
+  @@unique([quizId, templateId])
+  @@index([quizId])
+  @@index([templateId])
 }
