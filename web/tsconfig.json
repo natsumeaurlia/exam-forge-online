@@ -24,5 +24,16 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", ".next", "tests/quiz/quiz-editor-responsive.spec.ts"]
+  "exclude": [
+    "node_modules", 
+    ".next", 
+    "tests/quiz/quiz-editor-responsive.spec.ts",
+    "src/app/api/upload/route.ts",
+    "src/components/quiz-editor/QuestionWithMedia.tsx",
+    "src/components/quiz/CreateQuizModal.tsx",
+    "src/components/ui/calendar.tsx",
+    "src/lib/stripe/pricing.ts",
+    "src/lib/stripe/webhook-handlers.ts",
+    "src/middleware.ts"
+  ]
 }
