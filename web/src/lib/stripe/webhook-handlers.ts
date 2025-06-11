@@ -21,6 +21,7 @@ setInterval(
 
 export async function ensureIdempotent(
   eventId: string,
+  eventType: string,
   handler: () => Promise<void>
 ): Promise<void> {
   // Check if we've already processed this event
@@ -31,12 +32,12 @@ export async function ensureIdempotent(
 
   // Check database for processed events
   const existingEvent = await prisma.stripeEvent.findUnique({
-    where: { eventId },
+    where: { stripeEventId: eventId },
   });
 
-  if (existingEvent) {
+  if (existingEvent && existingEvent.processed) {
     console.log(`Event ${eventId} found in database, skipping`);
-    processedEvents.set(eventId, existingEvent.processedAt);
+    processedEvents.set(eventId, existingEvent.processedAt || new Date());
     return;
   }
 
@@ -45,15 +46,39 @@ export async function ensureIdempotent(
     await handler();
 
     // Mark as processed
-    await prisma.stripeEvent.create({
-      data: {
-        eventId,
+    await prisma.stripeEvent.upsert({
+      where: { stripeEventId: eventId },
+      update: {
+        processed: true,
+        processedAt: new Date(),
+        error: null,
+      },
+      create: {
+        stripeEventId: eventId,
+        type: eventType,
+        processed: true,
         processedAt: new Date(),
       },
     });
     processedEvents.set(eventId, new Date());
   } catch (error) {
     console.error(`Error processing event ${eventId}:`, error);
+
+    // Record the error in the database
+    await prisma.stripeEvent.upsert({
+      where: { stripeEventId: eventId },
+      update: {
+        processed: false,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      create: {
+        stripeEventId: eventId,
+        type: eventType,
+        processed: false,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    });
+
     throw error;
   }
 }
@@ -181,10 +206,10 @@ export async function handleSubscriptionUpdate(
     await prisma.usageRecord.create({
       data: {
         teamId: dbSubscription.teamId,
-        subscriptionId: dbSubscription.id,
         resourceType: 'MEMBER',
-        quantity: teamMemberCount,
-        recordedAt: new Date(),
+        count: teamMemberCount,
+        periodStart: new Date(subscription.current_period_start * 1000),
+        periodEnd: new Date(subscription.current_period_end * 1000),
       },
     });
   }
@@ -267,13 +292,6 @@ export async function handleInvoicePaid(
         : new Date(),
       invoicePdf: invoice.invoice_pdf || null,
       hostedInvoiceUrl: invoice.hosted_invoice_url || null,
-      metadata: {
-        lines: invoice.lines.data.map(line => ({
-          description: line.description,
-          amount: line.amount,
-          quantity: line.quantity,
-        })),
-      },
     },
   });
 
@@ -323,7 +341,7 @@ export async function handleInvoicePaymentFailed(
       stripeInvoiceId: invoice.id,
       stripeCustomerId: invoice.customer as string,
       invoiceNumber: invoice.number || invoice.id,
-      status: 'PAYMENT_FAILED',
+      status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
       tax: invoice.tax || 0,
       total: invoice.total,
