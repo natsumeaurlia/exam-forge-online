@@ -43,10 +43,10 @@ export function QuestionWithMedia({
   useEffect(() => {
     if (hasPaidPlan) {
       getUserStorage().then(result => {
-        if (result) {
+        if (result.success && result.data) {
           setStorageInfo({
-            used: result.storageUsed,
-            max: result.storageLimit,
+            used: result.data.storageUsed,
+            max: result.data.storageLimit,
           });
         }
       });
