@@ -7,6 +7,7 @@ import { DashboardProvider } from '@/hooks/use-dashboard';
 import { UserPlanProvider } from '@/components/providers/UserPlanProvider';
 import { useSidebarStore } from '@/stores/useSidebarStore';
 import { cn } from '@/lib/utils';
+import { useSessionMonitor } from '@/hooks/use-session-monitor';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
   const { isOpen: isSidebarOpen } = useSidebarStore();
+  useSessionMonitor();
 
   return (
     <UserPlanProvider>

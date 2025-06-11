@@ -31,6 +31,7 @@ interface CreateQuizModalProps {
 export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
   const router = useRouter();
   const t = useTranslations('quizManagement.createModal');
+  const { handleError } = useActionError();
 
   const form = useForm<CreateQuizFormData>({
     resolver: zodResolver(createQuizFormSchema),
@@ -55,7 +56,16 @@ export function CreateQuizModal({ isOpen, onClose }: CreateQuizModalProps) {
           });
         });
       } else {
-        toast.error(error.serverError || t('createError'));
+        const errorMessage = error.serverError || t('createError');
+        // Check if this is an authentication error
+        if (
+          errorMessage.includes('INVALID_USER:') ||
+          errorMessage.includes('認証が必要です')
+        ) {
+          handleError(new Error(errorMessage));
+        } else {
+          toast.error(errorMessage);
+        }
       }
     },
   });

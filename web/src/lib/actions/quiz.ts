@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { handleActionError } from './utils';
 import {
   createQuizSchema,
   updateQuizSchema,
@@ -28,14 +29,14 @@ async function getAuthenticatedUser() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    throw new Error('認証が必要です');
+    throw new Error('INVALID_USER:認証が必要です');
   }
 
   return session.user.id;
 }
 
 // Helper function to get user's active team
-async function getUserActiveTeam(userId: string) {
+async function getUserActiveTeam(userId: string): Promise<string> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -55,7 +56,14 @@ async function getUserActiveTeam(userId: string) {
     },
   });
 
-  if (!user || user.teamMembers.length === 0) {
+  if (!user) {
+    // User not found - this shouldn't happen if authentication is working
+    throw new Error(
+      'INVALID_USER:ユーザー情報が見つかりません。再度ログインしてください。'
+    );
+  }
+
+  if (user.teamMembers.length === 0) {
     console.log(
       'Creating new team for user:',
       userId,
@@ -84,7 +92,7 @@ async function getUserActiveTeam(userId: string) {
 
         if (!userCheck) {
           throw new Error(
-            `セッションのユーザーIDが無効です。ブラウザのCookieをクリアして再ログインしてください。`
+            'INVALID_USER:セッションのユーザーIDが無効です。ブラウザのCookieをクリアして再ログインしてください。'
           );
         }
 

@@ -692,6 +692,8 @@
       "signupLink": "Create account",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "errorGeneric": "An authentication error occurred. Please try again.",
       "welcome": {
         "title": "Welcome back!",
         "subtitle": "Resume efficient quiz and exam management with ExamForge.",
@@ -746,6 +748,24 @@
           "description": "Analyze test-taker performance and response trends in detail"
         }
       }
+    },
+    "error": {
+      "title": "Authentication Error",
+      "configuration": "There is a problem with the authentication configuration. Please contact the administrator.",
+      "accessDenied": "Access denied.",
+      "verification": "Failed to verify authentication information.",
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "oauthSignin": "Failed to sign in with external service.",
+      "oauthCallback": "Failed to process response from external service.",
+      "oauthCreateAccount": "Failed to create account with external service.",
+      "emailCreateAccount": "Failed to create email account.",
+      "callback": "Authentication processing failed.",
+      "oauthAccountNotLinked": "This account is registered with a different authentication method.",
+      "emailSignin": "Email sign in failed.",
+      "credentialsSignin": "Incorrect email address or password.",
+      "default": "An error occurred during authentication.",
+      "tryAgain": "Try signing in again",
+      "backToHome": "Back to home"
     }
   },
   "faq": {
@@ -845,6 +865,7 @@
       "templates": "Templates",
       "analytics": "Reports & Analytics",
       "members": "Member Management",
+      "media": "Media Library",
       "settings": "Settings",
       "help": "Help",
       "documentation": "Documentation",
@@ -1545,6 +1566,59 @@
       "deleteDescription": "Are you sure you want to delete this media? This action cannot be undone.",
       "cancel": "Cancel",
       "delete": "Delete"
+    }
+  },
+  "media": {
+    "title": "Media Library",
+    "description": "Manage all your uploaded media files in one place",
+    "searchPlaceholder": "Search files...",
+    "filters": {
+      "all": "All files",
+      "images": "Images",
+      "videos": "Videos"
+    },
+    "actions": {
+      "upload": "Upload",
+      "download": "Download",
+      "delete": "Delete",
+      "edit": "Edit",
+      "select": "Select",
+      "cancelSelect": "Cancel Selection",
+      "selectAll": "Select all"
+    },
+    "upload": {
+      "title": "Upload Media",
+      "description": "Add images and videos to your media library"
+    },
+    "storage": {
+      "title": "Storage Usage",
+      "usage": "{used} of {total} used"
+    },
+    "empty": {
+      "title": "No media files",
+      "description": "Upload your first file to get started"
+    },
+    "errors": {
+      "fetchFailed": "Failed to load media files",
+      "deleteFailed": "Failed to delete files"
+    },
+    "messages": {
+      "deleteSuccess": "{count, plural, one {# file} other {# files}} deleted successfully",
+      "editSuccess": "Image edited successfully"
+    },
+    "editor": {
+      "title": "Edit Image",
+      "description": "Crop and rotate your image",
+      "rotateLeft": "Rotate Left",
+      "rotateRight": "Rotate Right",
+      "crop": "Crop",
+      "cropActive": "Cropping",
+      "applyCrop": "Apply Crop",
+      "rotation": "Rotation",
+      "download": "Download",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
     }
   }
 }

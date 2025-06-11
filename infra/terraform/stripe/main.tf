@@ -81,7 +81,7 @@ resource "stripe_price" "pro_monthly" {
 resource "stripe_price" "pro_yearly" {
   product     = stripe_product.pro_plan.id
   currency    = var.currency
-  unit_amount = 29760 # ¥29,760 per user per year
+  unit_amount = 29760 # ¥29,760 per user per year (17% discount)
   
   recurring = {
     interval       = "year"
@@ -91,6 +91,41 @@ resource "stripe_price" "pro_yearly" {
   metadata = {
     environment   = var.environment
     billing_cycle = "YEARLY"
+    discount_percentage = "17"
+  }
+}
+
+# Prices for Premium Plan
+resource "stripe_price" "premium_monthly" {
+  product     = stripe_product.premium_plan.id
+  currency    = var.currency
+  unit_amount = 4980 # ¥4,980 per user per month
+  
+  recurring = {
+    interval       = "month"
+    interval_count = 1
+  }
+  
+  metadata = {
+    environment   = var.environment
+    billing_cycle = "MONTHLY"
+  }
+}
+
+resource "stripe_price" "premium_yearly" {
+  product     = stripe_product.premium_plan.id
+  currency    = var.currency
+  unit_amount = 49680 # ¥49,680 per user per year (17% discount)
+  
+  recurring = {
+    interval       = "year"
+    interval_count = 1
+  }
+  
+  metadata = {
+    environment   = var.environment
+    billing_cycle = "YEARLY"
+    discount_percentage = "17"
   }
 }
 
@@ -155,6 +190,10 @@ resource "stripe_portal_configuration" "exam_forge_portal" {
         {
           product = stripe_product.pro_plan.id
           prices  = [stripe_price.pro_monthly.id, stripe_price.pro_yearly.id]
+        },
+        {
+          product = stripe_product.premium_plan.id
+          prices  = [stripe_price.premium_monthly.id, stripe_price.premium_yearly.id]
         }
       ]
       
@@ -186,6 +225,14 @@ output "pro_monthly_price_id" {
 
 output "pro_yearly_price_id" {
   value = stripe_price.pro_yearly.id
+}
+
+output "premium_monthly_price_id" {
+  value = stripe_price.premium_monthly.id
+}
+
+output "premium_yearly_price_id" {
+  value = stripe_price.premium_yearly.id
 }
 
 output "webhook_endpoint_id" {

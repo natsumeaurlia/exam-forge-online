@@ -2,9 +2,15 @@
 
 import { signIn, getProviders, type ClientSafeProvider } from 'next-auth/react';
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +41,9 @@ export default function SignInPage({ params }: SignInPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error');
+  const messageParam = searchParams.get('message');
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -256,6 +265,19 @@ export default function SignInPage({ params }: SignInPageProps) {
                 )}
               </Button>
             </form>
+
+            {/* Error Alert */}
+            {(errorParam || messageParam) && (
+              <Alert variant="destructive" className="mt-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {messageParam ||
+                    (errorParam === 'SessionExpired'
+                      ? t('sessionExpired')
+                      : t('errorGeneric'))}
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Test Credentials Info */}
             <Alert className="mt-6">
