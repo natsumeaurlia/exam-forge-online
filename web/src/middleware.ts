@@ -99,7 +99,7 @@ export default function middleware(request: NextRequest) {
   }
 
   // Otherwise, use the combined auth + i18n middleware
-  return authMiddleware(request as any);
+  return authMiddleware(request);
 }
 
 export const config = {

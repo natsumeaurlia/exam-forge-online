@@ -17,11 +17,10 @@ async function getPublicQuiz(id: string) {
   const quiz = await prisma.quiz.findUnique({
     where: {
       id,
-      isPublished: true,
+      status: 'PUBLISHED',
     },
     include: {
       questions: {
-        where: { isActive: true },
         orderBy: { order: 'asc' },
         include: {
           options: {
@@ -32,6 +31,7 @@ async function getPublicQuiz(id: string) {
       },
       team: {
         select: {
+          id: true,
           name: true,
         },
       },
@@ -50,7 +50,7 @@ export default async function QuizTakingPage({ params }: QuizTakingPageProps) {
   }
 
   // Check if quiz requires authentication
-  if (quiz.sharingMode === 'TEAM_ONLY') {
+  if ((quiz.sharingMode as string) === 'TEAM_ONLY' && quiz.team) {
     if (!session?.user) {
       // Redirect to login if not authenticated
       redirect(
@@ -78,7 +78,7 @@ export default async function QuizTakingPage({ params }: QuizTakingPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <QuizTakingClient
-        quiz={quiz}
+        quiz={quiz as any}
         lng={params.lng}
         requiresPassword={requiresPassword}
       />

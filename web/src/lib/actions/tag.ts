@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getActiveTeam } from './utils';
 import {
   createTagSchema,
   updateTagSchema,
@@ -30,13 +31,15 @@ async function getAuthenticatedUser() {
 export const createTag = action
   .schema(createTagSchema)
   .action(async ({ parsedInput: data }) => {
-    await getAuthenticatedUser();
+    const user = await getAuthenticatedUser();
+    const { teamId } = await getActiveTeam(user.id);
 
     try {
       const tag = await prisma.tag.create({
         data: {
           name: data.name,
           color: data.color,
+          teamId,
         },
       });
 
