@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Check user storage
     const storageResult = await getUserStorage();
-    if (!storageResult.success || !storageResult.data) {
+    if (!storageResult) {
       return NextResponse.json(
         { error: 'Failed to check storage' },
         { status: 500 }
@@ -129,13 +129,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if total size would exceed user's storage limit
-    if (
-      storageResult.data.usedBytes + totalSize >
-      storageResult.data.maxBytes
-    ) {
+    if (storageResult.storageUsed + totalSize > storageResult.storageLimit) {
       return NextResponse.json(
         {
-          error: `Storage limit exceeded. You have ${storageResult.data.maxGB - storageResult.data.usedGB} GB remaining.`,
+          error: `Storage limit exceeded. You have ${storageResult.storageLimit - storageResult.storageUsed} GB remaining.`,
         },
         { status: 400 }
       );
@@ -178,8 +175,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         media: uploadedMedia,
-        storageUsed: storageResult.data.usedBytes + totalSize,
-        storageMax: storageResult.data.maxBytes,
+        storageUsed: storageResult.storageUsed + totalSize,
+        storageMax: storageResult.storageLimit,
       });
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files

@@ -10,7 +10,7 @@ const EVENT_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 setInterval(
   () => {
     const now = Date.now();
-    for (const [eventId, timestamp] of processedEvents.entries()) {
+    for (const [eventId, timestamp] of Array.from(processedEvents.entries())) {
       if (now - timestamp.getTime() > EVENT_EXPIRY_MS) {
         processedEvents.delete(eventId);
       }
@@ -96,7 +96,7 @@ export async function handleCheckoutSessionCompleted(
   }
 
   // Retrieve the subscription with retry logic
-  let subscription: Stripe.Subscription;
+  let subscription: Stripe.Subscription | null = null;
   let retries = 3;
 
   while (retries > 0) {
@@ -111,6 +111,10 @@ export async function handleCheckoutSessionCompleted(
       if (retries === 0) throw error;
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
     }
+  }
+
+  if (!subscription) {
+    throw new Error('Failed to retrieve subscription after retries');
   }
 
   // Get team member count for pricing
@@ -132,37 +136,52 @@ export async function handleCheckoutSessionCompleted(
     where: { teamId },
     create: {
       teamId,
-      stripeSubscriptionId: subscription!.id,
-      stripeCustomerId: subscription!.customer as string,
-      stripePriceId: subscription!.items.data[0].price.id,
-      stripeProductId: subscription!.items.data[0].price.product as string,
-      status: mapStripeStatus(subscription!.status),
+      stripeSubscriptionId: (subscription as any).id,
+      stripeCustomerId: (subscription as any).customer as string,
+      stripePriceId: (subscription as any).items.data[0].price.id,
+      stripeProductId: (subscription as any).items.data[0].price
+        .product as string,
+      status: mapStripeStatus((subscription as any).status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember: subscription!.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date(subscription!.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription!.current_period_end * 1000),
+      pricePerMember:
+        (subscription as any).items.data[0].price.unit_amount || 0,
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
       planId: plan.id,
     },
     update: {
-      stripeSubscriptionId: subscription!.id,
-      stripePriceId: subscription!.items.data[0].price.id,
-      stripeProductId: subscription!.items.data[0].price.product as string,
-      status: mapStripeStatus(subscription!.status),
+      stripeSubscriptionId: (subscription as any).id,
+      stripePriceId: (subscription as any).items.data[0].price.id,
+      stripeProductId: (subscription as any).items.data[0].price
+        .product as string,
+      status: mapStripeStatus((subscription as any).status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember: subscription!.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date(subscription!.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription!.current_period_end * 1000),
+      pricePerMember:
+        (subscription as any).items.data[0].price.unit_amount || 0,
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
       planId: plan.id,
     },
   });
 
   // Update subscription quantity based on team members
-  if (subscription!.items.data[0].quantity !== teamMemberCount) {
-    await stripe.subscriptionItems.update(subscription!.items.data[0].id, {
-      quantity: teamMemberCount,
-    });
+  if ((subscription as any).items.data[0].quantity !== teamMemberCount) {
+    await stripe.subscriptionItems.update(
+      (subscription as any).items.data[0].id,
+      {
+        quantity: teamMemberCount,
+      }
+    );
   }
 }
 
@@ -192,8 +211,12 @@ export async function handleSubscriptionUpdate(
     data: {
       status: mapStripeStatus(subscription.status),
       memberCount: teamMemberCount,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(
+        (subscription as any).current_period_start * 1000
+      ),
+      currentPeriodEnd: new Date(
+        (subscription as any).current_period_end * 1000
+      ),
       canceledAt: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000)
         : null,
@@ -277,12 +300,12 @@ export async function handleInvoicePaid(
   await prisma.invoice.create({
     data: {
       teamId: subscription.teamId,
-      stripeInvoiceId: invoice.id,
-      stripeCustomerId: invoice.customer as string,
-      invoiceNumber: invoice.number || invoice.id,
+      stripeInvoiceId: invoice.id || '',
+      stripeCustomerId: (invoice.customer as string) || '',
+      invoiceNumber: invoice.number || invoice.id || '',
       status: 'PAID',
       subtotal: invoice.subtotal,
-      tax: invoice.tax || 0,
+      tax: (invoice as any).tax || 0,
       total: invoice.total,
       amountPaid: invoice.amount_paid,
       amountDue: 0,
@@ -343,7 +366,7 @@ export async function handleInvoicePaymentFailed(
       invoiceNumber: invoice.number || invoice.id,
       status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
-      tax: invoice.tax || 0,
+      tax: (invoice as any).tax || 0,
       total: invoice.total,
       amountPaid: 0,
       amountDue: invoice.amount_due,
