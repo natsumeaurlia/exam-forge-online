@@ -129,7 +129,7 @@ export function QuizTakingClient({
     setEndTime(new Date());
 
     try {
-      const response = await submitQuizResponse({
+      const result = await submitQuizResponse({
         quizId: quiz.id,
         answers: Object.values(answers),
         participantName: participantInfo.name || undefined,
@@ -138,11 +138,15 @@ export function QuizTakingClient({
         completedAt: new Date(),
       });
 
-      if (response.success && response.data) {
-        setResponseId(response.data.id);
+      if (result?.data?.success && result.data.data) {
+        setResponseId(result.data.data.id);
         setCurrentStep('results');
+      } else if (result?.serverError) {
+        setError(result.serverError);
+      } else if (result?.validationErrors) {
+        setError(t('submitError'));
       } else {
-        setError(response.error || t('submitError'));
+        setError(t('submitError'));
       }
     } catch (err) {
       setError(t('submitError'));

@@ -41,9 +41,9 @@ export function QuizResults({
   useEffect(() => {
     async function fetchResults() {
       try {
-        const { data } = await getQuizResponse(responseId);
-        if (data) {
-          setResponseData(data);
+        const result = await getQuizResponse({ responseId });
+        if (result?.data?.success && result.data.data) {
+          setResponseData(result.data.data);
         }
       } catch (error) {
         console.error('Failed to fetch results:', error);

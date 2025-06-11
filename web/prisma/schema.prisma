@@ -156,6 +156,9 @@ model Quiz {
   shuffleOptions         Boolean        @default(false)
   maxAttempts            Int?           @db.SmallInt
   publishedAt            DateTime?
+  isPublished            Boolean        @default(false)
+  totalResponses         Int            @default(0)
+  averageScore           Float          @default(0)
   createdAt              DateTime       @default(now())
   updatedAt              DateTime       @updatedAt
   teamId                 String
@@ -205,6 +208,7 @@ model Question {
   correctAnswer   Json?
   gradingCriteria String?
   isRequired      Boolean            @default(false)
+  isActive        Boolean            @default(true)
   difficultyLevel QuestionDifficulty?
   sectionTimeLimit Int?              @db.SmallInt // Time limit in seconds for this question
   createdAt       DateTime           @default(now())
@@ -266,20 +270,23 @@ model QuizTag {
 }
 
 model QuizResponse {
-  id          String             @id @default(cuid())
-  score       Int?               @db.SmallInt
-  totalPoints Int                @db.SmallInt
-  isPassed    Boolean?
-  startedAt   DateTime           @default(now())
-  completedAt DateTime?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  quizId      String
-  userId      String?
-  responses   QuestionResponse[]
-  quiz        Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user        User?              @relation(fields: [userId], references: [id])
-  certificates Certificate[]
+  id               String             @id @default(cuid())
+  score            Int?               @db.SmallInt
+  totalPoints      Int                @db.SmallInt
+  isPassed         Boolean?
+  participantName  String?
+  participantEmail String?
+  timeTaken        Int?               // in seconds
+  startedAt        DateTime           @default(now())
+  completedAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  quizId           String
+  userId           String?
+  answers          QuestionResponse[]
+  quiz             Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user             User?              @relation(fields: [userId], references: [id])
+  certificates     Certificate[]
 
   @@index([quizId])
   @@index([userId])
@@ -485,6 +492,7 @@ enum ScoringType {
 enum SharingMode {
   URL
   PASSWORD
+  TEAM_ONLY
 }
 
 enum QuestionType {

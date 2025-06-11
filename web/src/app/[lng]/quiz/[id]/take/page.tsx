@@ -1,8 +1,10 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import { QuizTakingClient } from '@/components/quiz-taking/QuizTakingClient';
 import { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 interface QuizTakingPageProps {
   params: {
@@ -40,10 +42,34 @@ async function getPublicQuiz(id: string) {
 }
 
 export default async function QuizTakingPage({ params }: QuizTakingPageProps) {
+  const session = await getServerSession(authOptions);
   const quiz = await getPublicQuiz(params.id);
 
   if (!quiz) {
     notFound();
+  }
+
+  // Check if quiz requires authentication
+  if (quiz.sharingMode === 'TEAM_ONLY') {
+    if (!session?.user) {
+      // Redirect to login if not authenticated
+      redirect(
+        `/${params.lng}/auth/signin?callbackUrl=/quiz/${params.id}/take`
+      );
+    }
+
+    // Check if user is a team member
+    const isMember = await prisma.teamMember.findFirst({
+      where: {
+        teamId: quiz.team.id,
+        userId: session.user.id,
+      },
+    });
+
+    if (!isMember) {
+      // User is not authorized to take this quiz
+      notFound();
+    }
   }
 
   // Check if quiz requires password
