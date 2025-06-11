@@ -691,6 +691,8 @@
       "signupLink": "アカウントを作成",
       "rememberMe": "ログイン状態を保持",
       "forgotPassword": "パスワードをお忘れですか？",
+      "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
+      "errorGeneric": "認証エラーが発生しました。再度お試しください。",
       "welcome": {
         "title": "おかえりなさい！",
         "subtitle": "ExamForgeで効率的なクイズ・試験管理を再開しましょう。",
@@ -745,6 +747,24 @@
           "description": "受験者の成績や回答傾向を詳しく分析できます"
         }
       }
+    },
+    "error": {
+      "title": "認証エラー",
+      "configuration": "認証設定に問題があります。管理者にお問い合わせください。",
+      "accessDenied": "アクセスが拒否されました。",
+      "verification": "認証情報の検証に失敗しました。",
+      "sessionExpired": "セッションの有効期限が切れました。再度サインインしてください。",
+      "oauthSignin": "外部サービスでのサインインに失敗しました。",
+      "oauthCallback": "外部サービスからの応答処理に失敗しました。",
+      "oauthCreateAccount": "外部サービスのアカウント作成に失敗しました。",
+      "emailCreateAccount": "メールアカウントの作成に失敗しました。",
+      "callback": "認証処理に失敗しました。",
+      "oauthAccountNotLinked": "このアカウントは別の認証方法で登録されています。",
+      "emailSignin": "メールサインインに失敗しました。",
+      "credentialsSignin": "メールアドレスまたはパスワードが正しくありません。",
+      "default": "認証中にエラーが発生しました。",
+      "tryAgain": "もう一度サインイン",
+      "backToHome": "ホームに戻る"
     }
   },
   "faq": {
