@@ -2,13 +2,21 @@
 
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const submitResponseSchema = z.object({
   quizId: z.string(),
   answers: z.array(
     z.object({
       questionId: z.string(),
-      answer: z.any(),
+      answer: z.union([
+        z.string(),
+        z.number(),
+        z.boolean(),
+        z.array(z.string()),
+        z.record(z.string()),
+      ]),
     })
   ),
   participantName: z.string().optional(),
@@ -21,6 +29,8 @@ export async function submitQuizResponse(
   data: z.infer<typeof submitResponseSchema>
 ) {
   try {
+    const session = await getServerSession(authOptions);
+
     const {
       quizId,
       answers,
@@ -44,6 +54,18 @@ export async function submitQuizResponse(
 
     if (!quiz) {
       return { success: false, error: 'Quiz not found' };
+    }
+
+    // Check if quiz is published
+    if (quiz.status !== 'PUBLISHED') {
+      return { success: false, error: 'Quiz is not published' };
+    }
+
+    // For non-public quizzes, require authentication
+    if (!quiz.sharingMode || quiz.sharingMode !== 'URL') {
+      if (!session?.user?.id) {
+        return { success: false, error: 'Authentication required' };
+      }
     }
 
     // Calculate score
@@ -74,14 +96,26 @@ export async function submitQuizResponse(
           break;
 
         case 'TRUE_FALSE':
-          isCorrect = question.correctAnswer === answer.answer.toString();
+          const trueFalseAnswer =
+            typeof answer.answer === 'boolean'
+              ? answer.answer.toString()
+              : answer.answer?.toString().toLowerCase();
+          isCorrect = question.correctAnswer?.toLowerCase() === trueFalseAnswer;
           break;
 
         case 'SHORT_ANSWER':
-          // Simple string comparison, could be improved with fuzzy matching
+          // Normalize strings for comparison (handle full/half-width characters)
+          const normalizeString = (str: string) => {
+            return str
+              ?.toLowerCase()
+              .trim()
+              .replace(/[Ａ-Ｚａ-ｚ０-９]/g, s =>
+                String.fromCharCode(s.charCodeAt(0) - 0xfee0)
+              );
+          };
           isCorrect =
-            question.correctAnswer?.toLowerCase().trim() ===
-            answer.answer?.toLowerCase().trim();
+            normalizeString(question.correctAnswer || '') ===
+            normalizeString(answer.answer?.toString() || '');
           break;
 
         case 'NUMERIC':
@@ -131,50 +165,53 @@ export async function submitQuizResponse(
       });
     }
 
-    const score = (correctAnswers / quiz.questions.length) * 100;
+    const score = Math.round((correctAnswers / quiz.questions.length) * 100);
     const passed = quiz.passingScore ? score >= quiz.passingScore : true;
 
-    // Create response record
-    const response = await prisma.quizResponse.create({
-      data: {
-        quizId,
-        participantName,
-        participantEmail,
-        answers: {
-          create: responseAnswers,
+    // Use transaction to ensure data consistency
+    const response = await prisma.$transaction(async tx => {
+      // Create response record
+      const quizResponse = await tx.quizResponse.create({
+        data: {
+          quizId,
+          userId: session?.user?.id || null,
+          participantName,
+          participantEmail,
+          responses: {
+            create: responseAnswers.map(ra => ({
+              questionId: ra.questionId,
+              answer: ra.answer,
+              isCorrect: ra.isCorrect,
+            })),
+          },
+          score,
+          isPassed: passed,
+          totalPoints: quiz.questions.length,
+          timeTaken: Math.floor(
+            (completedAt.getTime() - startedAt.getTime()) / 1000
+          ),
+          startedAt,
+          completedAt,
         },
-        score,
-        passed,
-        startedAt,
-        completedAt,
-        timeTaken: Math.floor(
-          (completedAt.getTime() - startedAt.getTime()) / 1000
-        ),
-      },
-      include: {
-        answers: true,
-      },
-    });
+        include: {
+          responses: true,
+        },
+      });
 
-    // Update quiz statistics
-    await prisma.quiz.update({
-      where: { id: quizId },
-      data: {
-        totalResponses: { increment: 1 },
-        averageScore: {
-          set: await calculateAverageScore(quizId),
-        },
-      },
+      // Note: Quiz statistics would be updated in a separate background job
+      // or calculated on-demand to avoid performance issues
+
+      return quizResponse;
     });
 
     return {
       success: true,
       data: {
         id: response.id,
-        score: response.score,
+        score: response.score || 0,
         totalQuestions: quiz.questions.length,
         correctAnswers,
-        passed: response.passed,
+        passed: response.isPassed || false,
       },
     };
   } catch (error) {
@@ -183,9 +220,14 @@ export async function submitQuizResponse(
   }
 }
 
+// This function would be called from a background job or calculated on-demand
+// to avoid performance issues during response submission
 async function calculateAverageScore(quizId: string): Promise<number> {
   const result = await prisma.quizResponse.aggregate({
-    where: { quizId },
+    where: {
+      quizId,
+      completedAt: { not: null },
+    },
     _avg: { score: true },
   });
   return result._avg.score || 0;
@@ -193,11 +235,17 @@ async function calculateAverageScore(quizId: string): Promise<number> {
 
 export async function getQuizResponse(responseId: string) {
   try {
+    const session = await getServerSession(authOptions);
+
     const response = await prisma.quizResponse.findUnique({
       where: { id: responseId },
       include: {
-        quiz: true,
-        answers: {
+        quiz: {
+          include: {
+            questions: true,
+          },
+        },
+        responses: {
           include: {
             question: {
               include: {
@@ -213,15 +261,30 @@ export async function getQuizResponse(responseId: string) {
       return { success: false, error: 'Response not found' };
     }
 
+    // Check permissions: Only the respondent or team members can view
+    if (response.userId && response.userId !== session?.user?.id) {
+      // Check if user is a team member
+      const teamMember = await prisma.teamMember.findFirst({
+        where: {
+          teamId: response.quiz.teamId,
+          userId: session?.user?.id || '',
+        },
+      });
+
+      if (!teamMember) {
+        return { success: false, error: 'Unauthorized' };
+      }
+    }
+
     return {
       success: true,
       data: {
         id: response.id,
-        score: response.score,
+        score: response.score || 0,
         totalQuestions: response.quiz.questions?.length || 0,
-        correctAnswers: response.answers.filter(a => a.isCorrect).length,
-        passed: response.passed,
-        answers: response.answers,
+        correctAnswers: response.responses.filter(a => a.isCorrect).length,
+        passed: response.isPassed || false,
+        answers: response.responses,
         quiz: response.quiz,
       },
     };
