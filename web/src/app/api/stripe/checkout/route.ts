@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getPriceIds } from '@/lib/stripe/pricing';
 
 // Initialize Stripe only if the API key is available
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { teamId, planType, billingCycle, memberCount } = body;
+    const { teamId, planType, billingCycle } = body;
 
     // Validate team ownership
     const teamMember = await prisma.teamMember.findUnique({
@@ -59,11 +60,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
-    // Determine price based on billing cycle
-    const priceId =
-      billingCycle === 'YEARLY'
-        ? process.env[`STRIPE_${planType}_YEARLY_PRICE_ID`]
-        : process.env[`STRIPE_${planType}_MONTHLY_PRICE_ID`];
+    // Get current team member count
+    const memberCount = await prisma.teamMember.count({
+      where: { teamId },
+    });
+
+    // Get price IDs from configuration
+    const priceIds = getPriceIds();
+    const planKey = planType.toLowerCase() as 'pro' | 'premium';
+    const cycleKey = billingCycle.toLowerCase() as 'monthly' | 'yearly';
+
+    const priceId = priceIds[planKey]?.[cycleKey];
 
     if (!priceId) {
       return NextResponse.json(
@@ -105,7 +112,7 @@ export async function POST(request: NextRequest) {
       line_items: [
         {
           price: priceId,
-          quantity: memberCount || 1,
+          quantity: memberCount,
         },
       ],
       mode: 'subscription',
