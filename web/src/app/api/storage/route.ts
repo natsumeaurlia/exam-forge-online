@@ -14,26 +14,28 @@ export async function GET(request: NextRequest) {
     // Get user storage information
     const storageResult = await getUserStorage();
 
-    if (!storageResult) {
+    if (!storageResult.success || !storageResult.data) {
       return NextResponse.json(
-        { error: 'Failed to get storage info' },
+        { error: storageResult.error || 'Failed to get storage info' },
         { status: 500 }
       );
     }
 
     // Calculate additional properties
-    const storageUsedGB = storageResult.storageUsed / (1024 * 1024 * 1024);
-    const storageLimitGB = storageResult.storageLimit / (1024 * 1024 * 1024);
+    const storageUsedGB = storageResult.data.storageUsed / (1024 * 1024 * 1024);
+    const storageLimitGB =
+      storageResult.data.storageLimit / (1024 * 1024 * 1024);
     const percentageUsed =
-      (storageResult.storageUsed / storageResult.storageLimit) * 100;
+      (storageResult.data.storageUsed / storageResult.data.storageLimit) * 100;
 
     // Return storage info with the expected structure
     return NextResponse.json({
-      storageUsed: storageResult.storageUsed,
-      storageLimit: storageResult.storageLimit,
+      storageUsed: storageResult.data.storageUsed,
+      storageLimit: storageResult.data.storageLimit,
       storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
       storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
       percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+      files: storageResult.data.files,
     });
   } catch (error) {
     console.error('Storage API error:', error);

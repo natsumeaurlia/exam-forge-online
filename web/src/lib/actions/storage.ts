@@ -14,9 +14,17 @@ export async function getUserStorage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
-      storageUsed: 0,
-      storageLimit: 0,
-      files: [],
+      success: true,
+      data: {
+        usedBytes: 0,
+        maxBytes: 0,
+        usedGB: 0,
+        maxGB: 0,
+        storageUsed: 0,
+        storageLimit: 0,
+        files: [],
+      },
+      error: null,
     };
   }
 
@@ -51,24 +59,38 @@ export async function getUserStorage() {
     });
 
     // Convert BigInt to number for JSON serialization
+    const usedBytes = Number(storage.usedBytes);
+    const maxBytes = Number(storage.maxBytes);
+    const usedGB = usedBytes / 1024 ** 3;
+    const maxGB = maxBytes / 1024 ** 3;
+
     return {
-      storageUsed: Number(storage.usedBytes),
-      storageLimit: Number(storage.maxBytes),
-      files: files.map(file => ({
-        id: file.id,
-        url: file.url,
-        contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
-        filename: file.url.split('/').pop() || 'unknown',
-        size: 1024 * 1024, // Default size, you may want to store actual size
-        createdAt: file.createdAt.toISOString(),
-      })),
+      success: true,
+      data: {
+        usedBytes,
+        maxBytes,
+        usedGB,
+        maxGB,
+        storageUsed: usedBytes,
+        storageLimit: maxBytes,
+        files: files.map(file => ({
+          id: file.id,
+          url: file.url,
+          contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
+          filename: file.url.split('/').pop() || 'unknown',
+          size: 1024 * 1024, // Default size, you may want to store actual size
+          createdAt: file.createdAt.toISOString(),
+        })),
+      },
+      error: null,
     };
   } catch (error) {
     console.error('Error getting user storage:', error);
     return {
-      storageUsed: 0,
-      storageLimit: 0,
-      files: [],
+      success: false,
+      data: null,
+      error:
+        error instanceof Error ? error.message : 'Failed to get storage info',
     };
   }
 }
