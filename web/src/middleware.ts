@@ -1,5 +1,6 @@
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 const locales = ['en', 'ja'];
 const publicPaths = [
@@ -37,13 +38,28 @@ export default async function middleware(request: NextRequest) {
     return intlMiddleware(request);
   }
 
-  // For protected paths, check for authentication tokens directly
-  const sessionToken =
-    request.cookies.get('next-auth.session-token')?.value ||
-    request.cookies.get('__Secure-next-auth.session-token')?.value;
+  // 🔒 SECURITY: 適切なJWT検証でSession Token Bypass脆弱性を修正
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
 
-  if (!sessionToken) {
-    // Create a proper redirect URL with locale
+    // トークンが存在せず、期限切れでないかチェック
+    if (
+      !token ||
+      (token.exp &&
+        typeof token.exp === 'number' &&
+        token.exp < Math.floor(Date.now() / 1000))
+    ) {
+      // Create a proper redirect URL with locale
+      const signInUrl = new URL(`/${locale}/auth/signin`, request.url);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  } catch (error) {
+    // JWTデコードエラーの場合も認証なしとして処理
+    console.warn('JWT validation error:', error);
     const signInUrl = new URL(`/${locale}/auth/signin`, request.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
