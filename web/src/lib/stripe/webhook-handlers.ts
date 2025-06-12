@@ -231,8 +231,10 @@ export async function handleSubscriptionUpdate(
         teamId: dbSubscription.teamId,
         resourceType: 'MEMBER',
         count: teamMemberCount,
-        periodStart: new Date(subscription.current_period_start * 1000),
-        periodEnd: new Date(subscription.current_period_end * 1000),
+        periodStart: new Date(
+          (subscription as any).current_period_start * 1000
+        ),
+        periodEnd: new Date((subscription as any).current_period_end * 1000),
       },
     });
   }
@@ -361,9 +363,9 @@ export async function handleInvoicePaymentFailed(
   await prisma.invoice.create({
     data: {
       teamId: subscription.teamId,
-      stripeInvoiceId: invoice.id,
-      stripeCustomerId: invoice.customer as string,
-      invoiceNumber: invoice.number || invoice.id,
+      stripeInvoiceId: invoice.id || '',
+      stripeCustomerId: (invoice.customer as string) || '',
+      invoiceNumber: invoice.number || invoice.id || '',
       status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
