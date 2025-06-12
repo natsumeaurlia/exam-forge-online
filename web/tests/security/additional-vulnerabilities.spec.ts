@@ -61,7 +61,9 @@ test.describe('🚨 Additional Critical Security Vulnerabilities Tests', () => {
         await expect(page.locator('h1, h2')).toBeVisible();
 
         // Verify no JavaScript execution
-        const alertCount = await page.evaluate(() => window.alertCount || 0);
+        const alertCount = await page.evaluate(
+          () => (window as any).alertCount || 0
+        );
         expect(alertCount).toBe(0);
       }
     });
