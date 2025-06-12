@@ -30,13 +30,24 @@ async function getAuthenticatedUser() {
 export const createTag = action
   .schema(createTagSchema)
   .action(async ({ parsedInput: data }) => {
-    await getAuthenticatedUser();
+    const userId = await getAuthenticatedUser();
 
     try {
+      // ユーザーのデフォルトチーム（最初のチーム）を取得
+      const userTeam = await prisma.teamMember.findFirst({
+        where: { userId },
+        include: { team: true },
+      });
+
+      if (!userTeam) {
+        throw new Error('チームが見つかりません');
+      }
+
       const tag = await prisma.tag.create({
         data: {
           name: data.name,
           color: data.color,
+          teamId: userTeam.teamId,
         },
       });
 
@@ -167,10 +178,21 @@ export const removeTagFromQuiz = action
 
 // タグ一覧取得
 export const getTags = action.schema(getTagsSchema).action(async () => {
-  await getAuthenticatedUser();
+  const userId = await getAuthenticatedUser();
 
   try {
+    // ユーザーのチーム一覧を取得
+    const userTeams = await prisma.teamMember.findMany({
+      where: { userId },
+      select: { teamId: true },
+    });
+
+    const teamIds = userTeams.map(tm => tm.teamId);
+
     const tags = await prisma.tag.findMany({
+      where: {
+        teamId: { in: teamIds },
+      },
       include: {
         _count: {
           select: {

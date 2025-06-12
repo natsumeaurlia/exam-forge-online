@@ -111,7 +111,9 @@ export const validateMediaUpload = action
 
     // Check if file size would exceed user's storage limit
     if (storageResult.data.usedBytes + fileSize > storageResult.data.maxBytes) {
-      const remainingGB = storageResult.data.maxGB - storageResult.data.usedGB;
+      const maxGB = storageResult.data.maxBytes / (1024 * 1024 * 1024);
+      const usedGB = storageResult.data.usedBytes / (1024 * 1024 * 1024);
+      const remainingGB = maxGB - usedGB;
       throw new Error(
         `ストレージ容量が不足しています。残り容量: ${remainingGB.toFixed(2)} GB`
       );

@@ -45,8 +45,8 @@ export function QuestionWithMedia({
       getUserStorage().then(result => {
         if (result.success && result.data) {
           setStorageInfo({
-            used: result.data.usedBytes,
-            max: result.data.maxBytes,
+            used: result.data.storageUsed,
+            max: result.data.storageLimit,
           });
         }
       });
