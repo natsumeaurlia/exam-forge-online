@@ -220,7 +220,7 @@ export function QuestionList() {
         prev => new Set(Array.from(prev).concat(currentQuestionIndex))
       );
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, expandedQuestions]);
 
   if (!questions || questions.length === 0) {
     return (
