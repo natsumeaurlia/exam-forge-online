@@ -21,7 +21,7 @@ test.describe.skip('Quiz Taking', () => {
     await page.goto(`/ja/quiz/${publicQuizId}/take`);
 
     // Check if password field exists
-    const passwordField = page.locator('input[type="password"]');
+    const passwordField = page.locator('#password');
     if (await passwordField.isVisible()) {
       // Try incorrect password
       await passwordField.fill('wrong-password');
