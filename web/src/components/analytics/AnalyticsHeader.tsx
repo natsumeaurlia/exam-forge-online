@@ -29,7 +29,7 @@ export function AnalyticsHeader({ quizId, lng }: AnalyticsHeaderProps) {
   const userPlan = useUserPlan();
 
   const handleExport = async () => {
-    if (userPlan.planStatus === 'FREE') {
+    if (userPlan.isFree) {
       toast.error(t('exportRequiresPro'));
       return;
     }
