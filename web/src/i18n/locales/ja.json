@@ -866,6 +866,7 @@
       "members": "メンバー管理",
       "media": "メディアライブラリ",
       "settings": "設定",
+      "teamSettings": "チーム設定",
       "help": "ヘルプ",
       "documentation": "ドキュメント",
       "expand": "サイドバーを展開",
@@ -1618,6 +1619,145 @@
       "cancel": "キャンセル",
       "save": "保存",
       "saving": "保存中..."
+    }
+  },
+  "team": {
+    "title": "チーム管理",
+    "description": "チームとメンバーを管理します",
+    "selectTeam": "チームを選択",
+    "noDescription": "説明がありません",
+    "membersCount": "{count} メンバー",
+    "quizzesCount": "{count} クイズ",
+    "teamId": "チームID",
+    "viewMembers": "メンバーを表示",
+    "viewSettings": "設定を表示",
+    "tabs": {
+      "members": "メンバー",
+      "settings": "設定",
+      "permissions": "権限"
+    },
+    "permissions": {
+      "description": "各役割の権限について",
+      "owner": "オーナー",
+      "ownerDescription": "すべての権限を持ちます",
+      "admin": "管理者",
+      "adminDescription": "メンバー管理とクイズ編集が可能",
+      "member": "メンバー",
+      "memberDescription": "クイズの作成と編集が可能",
+      "viewer": "閲覧者",
+      "viewerDescription": "クイズの閲覧のみ可能"
+    },
+    "noTeams": {
+      "title": "チームがありません",
+      "description": "チームを作成して始めましょう",
+      "createTeam": "チームを作成"
+    },
+    "members": {
+      "title": "チームメンバー",
+      "description": "{teamName}のメンバーを管理",
+      "inviteMember": "メンバーを招待",
+      "inviteDialogTitle": "新しいメンバーを招待",
+      "inviteDialogDescription": "メールアドレスと役割を指定して、チームに新しいメンバーを招待します。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "member@example.com",
+      "roleLabel": "役割",
+      "inviteButton": "招待を送信",
+      "inviteSuccess": "招待を送信しました",
+      "inviteError": "招待の送信に失敗しました",
+      "removeConfirm": "このメンバーをチームから削除してもよろしいですか？",
+      "removeSuccess": "メンバーを削除しました",
+      "removeError": "メンバーの削除に失敗しました",
+      "roleUpdateSuccess": "役割を更新しました",
+      "roleUpdateError": "役割の更新に失敗しました",
+      "limitReachedTitle": "メンバー数の上限に達しました",
+      "limitReachedDescription": "現在のプランでは最大{max}人までメンバーを追加できます。",
+      "membersList": "メンバー一覧",
+      "membersCount": "{count} / {max} メンバー",
+      "memberColumn": "メンバー",
+      "roleColumn": "役割",
+      "joinedColumn": "参加日",
+      "you": "あなた",
+      "actions": "アクション",
+      "makeAdmin": "管理者にする",
+      "makeMember": "メンバーにする",
+      "makeViewer": "閲覧者にする",
+      "remove": "削除",
+      "roles": {
+        "owner": "オーナー",
+        "admin": "管理者",
+        "member": "メンバー",
+        "viewer": "閲覧者"
+      }
+    },
+    "settings": {
+      "title": "チーム設定",
+      "description": "チームの基本情報と設定を管理します",
+      "updateSuccess": "設定を更新しました",
+      "updateError": "設定の更新に失敗しました",
+      "tabs": {
+        "general": "一般",
+        "billing": "請求",
+        "security": "セキュリティ"
+      },
+      "general": {
+        "title": "基本情報",
+        "description": "チームの基本情報を設定します",
+        "teamName": "チーム名",
+        "teamSlug": "チームID",
+        "slugHelp": "URLで使用される一意の識別子です",
+        "teamDescription": "チームの説明",
+        "descriptionPlaceholder": "チームの目的や活動内容を入力",
+        "teamLogo": "チームロゴ",
+        "logoHelp": "推奨サイズ: 200x200px",
+        "saveChanges": "変更を保存"
+      },
+      "info": {
+        "title": "チーム情報",
+        "created": "作成日",
+        "teamId": "チームID",
+        "members": "メンバー数",
+        "quizzes": "クイズ数"
+      },
+      "billing": {
+        "title": "サブスクリプション",
+        "description": "現在のプランと請求情報",
+        "price": "{price} {currency} / {interval}",
+        "interval": {
+          "month": "月",
+          "year": "年"
+        },
+        "status": {
+          "active": "アクティブ",
+          "trialing": "トライアル中",
+          "past_due": "支払い遅延",
+          "canceled": "キャンセル済み"
+        },
+        "limits": "利用制限",
+        "maxMembers": "最大メンバー数",
+        "maxQuizzes": "最大クイズ数",
+        "nextBilling": "次回請求日: {date}",
+        "manageSubscription": "サブスクリプション管理",
+        "noPlan": "現在プランに加入していません",
+        "upgradePlan": "プランをアップグレード"
+      },
+      "security": {
+        "title": "セキュリティ設定",
+        "description": "チームのセキュリティとアクセス制御を管理",
+        "twoFactor": "二要素認証",
+        "twoFactorDescription": "チームメンバーに二要素認証を要求",
+        "apiKeys": "APIキー",
+        "apiKeysDescription": "外部連携用のAPIキーを管理",
+        "auditLogs": "監査ログ",
+        "auditLogsDescription": "チームの全アクティビティを記録",
+        "comingSoon": "近日公開",
+        "enterpriseOnly": "エンタープライズ限定"
+      },
+      "danger": {
+        "title": "危険な操作",
+        "description": "これらの操作は取り消すことができません",
+        "deleteTeam": "チームを削除",
+        "deleteWarning": "チームを削除すると、すべてのデータが永久に失われます"
+      }
     }
   }
 }
