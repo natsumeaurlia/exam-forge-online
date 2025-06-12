@@ -108,7 +108,16 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
       <QuizEditorHeader quizId={quiz.id} lng={lng} />
 
       {/* Single Responsive Layout */}
-      <div className={containerClasses} data-testid={isMobile ? 'mobile-layout' : isTablet ? 'tablet-layout' : 'desktop-layout'}>
+      <div
+        className={containerClasses}
+        data-testid={
+          isMobile
+            ? 'mobile-layout'
+            : isTablet
+              ? 'tablet-layout'
+              : 'desktop-layout'
+        }
+      >
         {/* Question List Panel */}
         {(!isMobile || (!isEditingOnMobile && showMobileQuestionList)) && (
           <div className={questionListClasses}>
@@ -117,7 +126,9 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowMobileQuestionList(!showMobileQuestionList)}
+                  onClick={() =>
+                    setShowMobileQuestionList(!showMobileQuestionList)
+                  }
                   className="gap-2"
                 >
                   <List className="h-4 w-4" />
@@ -135,7 +146,7 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
         <div className={mainContentClasses}>
           {/* Mobile: Back button when editing */}
           {isEditingOnMobile && (
-            <div className="mb-4 border-b bg-white p-4 -m-4 mb-4">
+            <div className="-m-4 mb-4 border-b bg-white p-4">
               <Button
                 variant="ghost"
                 size="sm"
@@ -148,7 +159,12 @@ export function QuizEditor({ quiz, lng }: QuizEditorProps) {
             </div>
           )}
 
-          <div className={cn('space-y-6', isTablet || isDesktop ? 'mx-auto max-w-3xl' : '')}>
+          <div
+            className={cn(
+              'space-y-6',
+              isTablet || isDesktop ? 'mx-auto max-w-3xl' : ''
+            )}
+          >
             <QuizMetadataForm />
             {hasPaidPlan && <QuizEditorProFeatures lng={lng} />}
             <QuestionTypeToolbar />

@@ -16,12 +16,11 @@ const publicPaths = [
   '/legal',
 ] as const;
 
-// SECURITY: API routes that require authentication
-const protectedApiPaths = [
-  '/api/upload',
-  '/api/storage',
-  '/api/stripe/checkout',
-  '/api/stripe/portal',
+// SECURITY FIX: Switch to secure-by-default - all API routes require auth unless explicitly excluded
+const publicApiPaths = [
+  '/api/auth/',
+  '/api/stripe/webhook',
+  '/api/certificates/verify/',
 ] as const;
 
 // Create the internationalization middleware
@@ -56,13 +55,12 @@ export default async function middleware(request: NextRequest) {
     return pathname === fullPath || pathname === path;
   });
 
-  // Check if this is a public API path (auth and webhook endpoints)
-  const isPublicApiPath =
-    pathname.startsWith('/api/auth/') ||
-    pathname.startsWith('/api/stripe/webhook') ||
-    pathname.startsWith('/api/certificates/verify/');
+  // SECURITY FIX: Secure-by-default - check if API route is explicitly public
+  const isPublicApiPath = publicApiPaths.some(path =>
+    pathname.startsWith(path)
+  );
 
-  // For public paths and public API routes, use only i18n middleware
+  // For public paths and explicitly public API routes, use only i18n middleware
   if (isPublicPath || (pathname.startsWith('/api') && isPublicApiPath)) {
     return intlMiddleware(request);
   }
@@ -99,7 +97,15 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  // Exclude API routes, Next.js internals, and static files
-  matcher: ['/', '/(ja|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+  // Match internationalized pathnames and protected API routes
+  // Exclude Next.js internals and static files
+  matcher: [
+    '/',
+    '/(ja|en)/:path*',
+    '/api/upload/:path*',
+    '/api/storage/:path*',
+    '/api/stripe/checkout/:path*',
+    '/api/stripe/portal/:path*',
+    '/((?!_next|_vercel|.*\\..*).*)',
+  ],
 };
