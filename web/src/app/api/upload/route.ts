@@ -157,6 +157,35 @@ export async function POST(request: NextRequest) {
             ? 'AUDIO'
             : 'IMAGE';
 
+        // 🔒 SECURITY: 質問の所有権検証（Authorization Bypass脆弱性修正）
+        const question = await prisma.question.findFirst({
+          where: {
+            id: questionId,
+            quiz: {
+              OR: [
+                { createdById: session.user.id }, // 作成者
+                {
+                  team: {
+                    members: {
+                      some: {
+                        userId: session.user.id,
+                        role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                      },
+                    },
+                  },
+                }, // チームメンバー
+              ],
+            },
+          },
+        });
+
+        if (!question) {
+          return NextResponse.json(
+            { error: 'Question not found or unauthorized' },
+            { status: 403 }
+          );
+        }
+
         // Create database record
         const media = await prisma.questionMedia.create({
           data: {
@@ -216,13 +245,25 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get media record and verify ownership
+    // 🔒 SECURITY: チームベース削除権限検証（Authorization Flaw修正）
     const media = await prisma.questionMedia.findFirst({
       where: {
         id: mediaId,
         question: {
           quiz: {
-            createdById: session.user.id,
+            OR: [
+              { createdById: session.user.id }, // 作成者
+              {
+                team: {
+                  members: {
+                    some: {
+                      userId: session.user.id,
+                      role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                    },
+                  },
+                },
+              }, // チームメンバー
+            ],
           },
         },
       },
