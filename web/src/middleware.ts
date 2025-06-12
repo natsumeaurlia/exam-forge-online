@@ -37,32 +37,23 @@ const authMiddleware = withAuth(
   },
   {
     callbacks: {
-      authorized({ token }) {
-        return token != null;
-      },
-    },
-    pages: {
-      signIn: '/auth/signin',
+      authorized: ({ token }) => token != null,
     },
   }
 );
 
-export default function middleware(request: NextRequest) {
-  // Extract locale from path
+export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const pathSegments = pathname.split('/');
-  const locale = locales.includes(pathSegments[1]) ? pathSegments[1] : 'ja';
+  const locale = locales.includes(pathSegments[1] as 'en' | 'ja')
+    ? (pathSegments[1] as 'en' | 'ja')
+    : 'ja';
 
   // Check if this is a public path (doesn't require authentication)
   const isPublicPath = publicPaths.some(path => {
     const fullPath = `/${locale}${path === '/' ? '' : path}`;
     return pathname === fullPath || pathname === path;
   });
-
-  // SECURITY FIX: Check if API route requires authentication
-  const isProtectedApiPath = protectedApiPaths.some(path =>
-    pathname.startsWith(path)
-  );
 
   // Check if this is a public API path (auth and webhook endpoints)
   const isPublicApiPath =
@@ -77,7 +68,6 @@ export default function middleware(request: NextRequest) {
 
   // For protected paths, use the combined auth + i18n middleware
   // The authMiddleware will handle the authentication check
-  // SECURITY FIX: Remove unsafe type casting for type safety
   return authMiddleware(request);
 }
 
