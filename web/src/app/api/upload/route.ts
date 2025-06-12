@@ -50,6 +50,32 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll('files') as File[];
     const questionId = formData.get('questionId') as string;
 
+    // SECURITY FIX: Verify user has access to the question/quiz
+    if (questionId) {
+      const questionAccess = await prisma.question.findFirst({
+        where: {
+          id: questionId,
+          quiz: {
+            team: {
+              members: {
+                some: {
+                  userId: session.user.id,
+                  role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!questionAccess) {
+        return NextResponse.json(
+          { error: 'Unauthorized: Access denied to this question' },
+          { status: 403 }
+        );
+      }
+    }
+
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
