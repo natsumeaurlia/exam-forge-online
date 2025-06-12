@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     if (!storageResult.success || !storageResult.data) {
       return NextResponse.json(
-        { error: 'Failed to get storage info' },
+        { error: storageResult.error || 'Failed to get storage info' },
         { status: 500 }
       );
     }
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
       storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
       storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
       percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+      files: storageResult.data.files,
     });
   } catch (error) {
     console.error('Storage API error:', error);
