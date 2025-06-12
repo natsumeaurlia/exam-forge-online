@@ -2,7 +2,7 @@ import { withAuth } from 'next-auth/middleware';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 
-const locales = ['en', 'ja'];
+const locales = ['en', 'ja'] as const;
 const publicPaths = [
   '/',
   '/auth/signin',
@@ -13,7 +13,15 @@ const publicPaths = [
   '/terms',
   '/privacy',
   '/legal',
-];
+] as const;
+
+// SECURITY: API routes that require authentication
+const protectedApiPaths = [
+  '/api/upload',
+  '/api/storage',
+  '/api/stripe/checkout',
+  '/api/stripe/portal',
+] as const;
 
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware({
@@ -51,14 +59,20 @@ export default function middleware(request: NextRequest) {
     return pathname === fullPath || pathname === path;
   });
 
-  // For public paths, use only i18n middleware
-  if (isPublicPath || pathname.startsWith('/api')) {
+  // SECURITY FIX: Check if API route requires authentication
+  const isProtectedApiPath = protectedApiPaths.some(path =>
+    pathname.startsWith(path)
+  );
+
+  // For public paths and public API routes, use only i18n middleware
+  if (isPublicPath || (pathname.startsWith('/api') && !isProtectedApiPath)) {
     return intlMiddleware(request);
   }
 
   // For protected paths, use the combined auth + i18n middleware
   // The authMiddleware will handle the authentication check
-  return authMiddleware(request as any);
+  // SECURITY FIX: Remove unsafe type casting for type safety
+  return authMiddleware(request);
 }
 
 export const config = {

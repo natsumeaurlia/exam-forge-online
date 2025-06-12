@@ -115,20 +115,30 @@ export const authOptions: NextAuthOptions = {
         locale = langMatch[1];
       }
 
-      // callbackUrlがある場合はそれを優先
+      // callbackUrlがある場合はそれを優先（セキュリティ強化）
       const callbackUrl = urlObj.searchParams.get('callbackUrl');
       if (callbackUrl) {
-        // callbackUrlが相対URLの場合
-        if (callbackUrl.startsWith('/')) {
-          return callbackUrl;
-        }
-        // callbackUrlが同じドメインの場合
+        // SECURITY: Open redirect攻撃を防ぐため厳格な検証
         try {
-          const callbackUrlObj = new URL(callbackUrl, baseUrl);
-          if (callbackUrlObj.origin === baseUrl) {
+          // callbackUrlが相対URLの場合（//evil.com形式の攻撃を防ぐ）
+          if (callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
+            // 相対パスのみ許可（プロトコル相対URLを拒否）
             return callbackUrl;
           }
-        } catch {}
+
+          // callbackUrlが絶対URLの場合、同じドメインかつ同じプロトコルを厳密に検証
+          const callbackUrlObj = new URL(callbackUrl);
+          const baseUrlObj = new URL(baseUrl);
+
+          if (
+            callbackUrlObj.origin === baseUrlObj.origin &&
+            callbackUrlObj.protocol === baseUrlObj.protocol
+          ) {
+            return callbackUrl;
+          }
+        } catch {
+          // 不正なURL形式の場合はデフォルトにフォールバック
+        }
       }
 
       // サインイン後は言語を保持してダッシュボードにリダイレクト
