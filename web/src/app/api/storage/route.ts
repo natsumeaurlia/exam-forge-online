@@ -14,29 +14,46 @@ export async function GET(request: NextRequest) {
     // Get user storage information
     const storageResult = await getUserStorage();
 
-    if (!storageResult) {
+    if (!storageResult.success || !storageResult.data) {
       return NextResponse.json(
-        { error: 'Failed to get storage info' },
+        { error: storageResult.error || 'Failed to get storage info' },
         { status: 500 }
       );
     }
 
-    // Calculate additional properties using the new data structure
-    const storageUsedGB = storageResult.data!.usedBytes / (1024 * 1024 * 1024);
-    const storageLimitGB = storageResult.data!.maxBytes / (1024 * 1024 * 1024);
+<<<<<<< HEAD
+    // Calculate additional properties
+    const storageUsedGB = storageResult.data.storageUsed / (1024 * 1024 * 1024);
+    const storageLimitGB =
+      storageResult.data.storageLimit / (1024 * 1024 * 1024);
     const percentageUsed =
-      (storageResult.data!.usedBytes / storageResult.data!.maxBytes) * 100;
+      (storageResult.data.storageUsed / storageResult.data.storageLimit) * 100;
 
     // Return storage info with the expected structure
     return NextResponse.json({
-      success: true,
-      data: {
-        storageUsed: storageResult.data!.usedBytes,
-        storageLimit: storageResult.data!.maxBytes,
-        storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
-        storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
-        percentageUsed: parseFloat(percentageUsed.toFixed(2)),
-      },
+      storageUsed: storageResult.data.storageUsed,
+      storageLimit: storageResult.data.storageLimit,
+      storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
+      storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
+      percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+      files: storageResult.data.files,
+=======
+    // Calculate additional properties
+    const storageUsedGB = storageResult.data.storageUsed / (1024 * 1024 * 1024);
+    const storageLimitGB =
+      storageResult.data.storageLimit / (1024 * 1024 * 1024);
+    const percentageUsed =
+      (storageResult.data.storageUsed / storageResult.data.storageLimit) * 100;
+
+    // Return storage info with the expected structure
+    return NextResponse.json({
+      storageUsed: storageResult.data.storageUsed,
+      storageLimit: storageResult.data.storageLimit,
+      storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
+      storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
+      percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+      files: storageResult.data.files,
+>>>>>>> main
     });
   } catch (error) {
     console.error('Storage API error:', error);

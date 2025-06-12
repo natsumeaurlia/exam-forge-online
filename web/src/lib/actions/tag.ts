@@ -26,34 +26,6 @@ async function getAuthenticatedUser() {
   return session.user.id;
 }
 
-// Helper function to get user's active team (copied from quiz.ts)
-async function getUserActiveTeam(userId: string): Promise<string> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      teamMembers: {
-        where: {
-          role: {
-            in: ['OWNER', 'ADMIN', 'MEMBER'],
-          },
-        },
-        include: {
-          team: true,
-        },
-        orderBy: {
-          joinedAt: 'asc',
-        },
-      },
-    },
-  });
-
-  if (!user || user.teamMembers.length === 0) {
-    throw new Error('ユーザーのチームが見つかりません');
-  }
-
-  return user.teamMembers[0].team.id;
-}
-
 // タグ作成
 export const createTag = action
   .schema(createTagSchema)
@@ -61,13 +33,21 @@ export const createTag = action
     const userId = await getAuthenticatedUser();
 
     try {
-      const teamId = await getUserActiveTeam(userId);
+      // ユーザーのデフォルトチーム（最初のチーム）を取得
+      const userTeam = await prisma.teamMember.findFirst({
+        where: { userId },
+        include: { team: true },
+      });
+
+      if (!userTeam) {
+        throw new Error('チームが見つかりません');
+      }
 
       const tag = await prisma.tag.create({
         data: {
           name: data.name,
           color: data.color,
-          teamId,
+          teamId: userTeam.teamId,
         },
       });
 
@@ -198,10 +178,21 @@ export const removeTagFromQuiz = action
 
 // タグ一覧取得
 export const getTags = action.schema(getTagsSchema).action(async () => {
-  await getAuthenticatedUser();
+  const userId = await getAuthenticatedUser();
 
   try {
+    // ユーザーのチーム一覧を取得
+    const userTeams = await prisma.teamMember.findMany({
+      where: { userId },
+      select: { teamId: true },
+    });
+
+    const teamIds = userTeams.map(tm => tm.teamId);
+
     const tags = await prisma.tag.findMany({
+      where: {
+        teamId: { in: teamIds },
+      },
       include: {
         _count: {
           select: {

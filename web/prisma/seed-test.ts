@@ -148,14 +148,14 @@ export async function seedTestData(prisma: PrismaClient) {
         prisma.tag.upsert({
           where: {
             teamId_name: {
-              teamId: testTeam!.id,
+              teamId: testTeam.id,
               name: tag.name,
             },
           },
           update: {},
           create: {
             ...tag,
-            teamId: testTeam!.id,
+            teamId: testTeam.id,
           },
         })
       )

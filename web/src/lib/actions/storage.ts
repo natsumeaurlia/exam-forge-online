@@ -14,9 +14,17 @@ export async function getUserStorage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
-      success: false,
-      error: 'Not authenticated',
-      data: null,
+      success: true,
+      data: {
+        usedBytes: 0,
+        maxBytes: 0,
+        usedGB: 0,
+        maxGB: 0,
+        storageUsed: 0,
+        storageLimit: 0,
+        files: [],
+      },
+      error: null,
     };
   }
 
@@ -53,13 +61,16 @@ export async function getUserStorage() {
     // Convert BigInt to number for JSON serialization
     const usedBytes = Number(storage.usedBytes);
     const maxBytes = Number(storage.maxBytes);
+    const usedGB = usedBytes / 1024 ** 3;
+    const maxGB = maxBytes / 1024 ** 3;
+
     return {
       success: true,
       data: {
-        usedBytes: usedBytes,
-        maxBytes: maxBytes,
-        usedGB: usedBytes / 1024 ** 3,
-        maxGB: maxBytes / 1024 ** 3,
+        usedBytes,
+        maxBytes,
+        usedGB,
+        maxGB,
         storageUsed: usedBytes,
         storageLimit: maxBytes,
         files: files.map(file => ({
@@ -78,7 +89,8 @@ export async function getUserStorage() {
     return {
       success: false,
       data: null,
-      error: 'Failed to get storage information',
+      error:
+        error instanceof Error ? error.message : 'Failed to get storage info',
     };
   }
 }

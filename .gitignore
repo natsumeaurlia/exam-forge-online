@@ -39,3 +39,7 @@ playwright-report
 
 .turbo
 .claude
+
+**/tests/**/*.png
+**/tests/**/*.jpeg
+**/tests/**/*.jpg

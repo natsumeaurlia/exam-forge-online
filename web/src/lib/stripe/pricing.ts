@@ -56,13 +56,15 @@ export async function syncSubscriptionQuantity(
     });
 
     if (dbSubscription) {
+      // Track usage for the subscription
+      // Note: Updated to match current schema
       await prisma.usageRecord.create({
         data: {
           teamId,
           resourceType: 'MEMBER',
           count: memberCount,
           periodStart: new Date(),
-          periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         },
       });
     }

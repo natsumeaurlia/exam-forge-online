@@ -138,7 +138,6 @@ export async function POST(request: NextRequest) {
         (1024 * 1024 * 1024);
       return NextResponse.json(
         {
-          success: false,
           error: `Storage limit exceeded. You have ${remainingGB.toFixed(2)} GB remaining.`,
         },
         { status: 400 }
@@ -181,12 +180,9 @@ export async function POST(request: NextRequest) {
       await updateStorageUsage({ bytesChange: totalSize });
 
       return NextResponse.json({
-        success: true,
-        data: {
-          media: uploadedMedia,
-          storageUsed: storageResult.data.storageUsed + totalSize,
-          storageMax: storageResult.data.storageLimit,
-        },
+        media: uploadedMedia,
+        storageUsed: storageResult.data.storageUsed + totalSize,
+        storageMax: storageResult.data.storageLimit,
       });
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files

@@ -1,8 +1,8 @@
 import { withAuth } from 'next-auth/middleware';
 import createIntlMiddleware from 'next-intl/middleware';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
-const locales = ['en', 'ja'];
+const locales = ['en', 'ja'] as const;
 const publicPaths = [
   '/',
   '/auth/signin',
@@ -13,7 +13,15 @@ const publicPaths = [
   '/terms',
   '/privacy',
   '/legal',
-];
+] as const;
+
+// SECURITY: API routes that require authentication
+const protectedApiPaths = [
+  '/api/upload',
+  '/api/storage',
+  '/api/stripe/checkout',
+  '/api/stripe/portal',
+] as const;
 
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware({
@@ -29,21 +37,17 @@ const authMiddleware = withAuth(
   },
   {
     callbacks: {
-      authorized({ token }) {
-        return token != null;
-      },
-    },
-    pages: {
-      signIn: '/auth/signin',
+      authorized: ({ token }) => token != null,
     },
   }
 );
 
-export default function middleware(request: NextRequest) {
-  // Extract locale from path
+export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const pathSegments = pathname.split('/');
-  const locale = locales.includes(pathSegments[1]) ? pathSegments[1] : 'ja';
+  const locale = locales.includes(pathSegments[1] as 'en' | 'ja')
+    ? (pathSegments[1] as 'en' | 'ja')
+    : 'ja';
 
   // Check if this is a public quiz route
   const isPublicQuizRoute = pathname.match(/^\/(?:en|ja)?\/quiz\/[^\/]+$/);
@@ -54,14 +58,20 @@ export default function middleware(request: NextRequest) {
     return pathname === fullPath || pathname === path;
   });
 
-  // For public paths and public quiz routes, use only i18n middleware
-  if (isPublicPath || isPublicQuizRoute || pathname.startsWith('/api')) {
+  // Check if this is a public API path (auth and webhook endpoints)
+  const isPublicApiPath =
+    pathname.startsWith('/api/auth/') ||
+    pathname.startsWith('/api/stripe/webhook') ||
+    pathname.startsWith('/api/certificates/verify/');
+
+  // For public paths, public quiz routes, and public API routes, use only i18n middleware
+  if (isPublicPath || isPublicQuizRoute || (pathname.startsWith('/api') && isPublicApiPath)) {
     return intlMiddleware(request);
   }
 
   // For protected paths, use the combined auth + i18n middleware
   // The authMiddleware will handle the authentication check
-  return authMiddleware(request as any, {} as any);
+  return authMiddleware(request, undefined as any);
 }
 
 export const config = {

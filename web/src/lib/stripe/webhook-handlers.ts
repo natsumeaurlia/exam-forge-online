@@ -96,7 +96,7 @@ export async function handleCheckoutSessionCompleted(
   }
 
   // Retrieve the subscription with retry logic
-  let subscription: Stripe.Subscription | undefined;
+  let subscription: Stripe.Subscription | null = null;
   let retries = 3;
 
   while (retries > 0) {
@@ -136,15 +136,16 @@ export async function handleCheckoutSessionCompleted(
     where: { teamId },
     create: {
       teamId,
-      stripeSubscriptionId: subscription.id,
-      stripeCustomerId: (subscription.customer as string) || '',
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId:
-        (subscription.items.data[0].price.product as string) || '',
-      status: mapStripeStatus(subscription.status),
+      stripeSubscriptionId: (subscription as any).id,
+      stripeCustomerId: (subscription as any).customer as string,
+      stripePriceId: (subscription as any).items.data[0].price.id,
+      stripeProductId: (subscription as any).items.data[0].price
+        .product as string,
+      status: mapStripeStatus((subscription as any).status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember: subscription.items.data[0].price.unit_amount || 0,
+      pricePerMember:
+        (subscription as any).items.data[0].price.unit_amount || 0,
       currentPeriodStart: new Date(
         (subscription as any).current_period_start * 1000
       ),
@@ -154,14 +155,15 @@ export async function handleCheckoutSessionCompleted(
       planId: plan.id,
     },
     update: {
-      stripeSubscriptionId: subscription.id,
-      stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId:
-        (subscription.items.data[0].price.product as string) || '',
-      status: mapStripeStatus(subscription.status),
+      stripeSubscriptionId: (subscription as any).id,
+      stripePriceId: (subscription as any).items.data[0].price.id,
+      stripeProductId: (subscription as any).items.data[0].price
+        .product as string,
+      status: mapStripeStatus((subscription as any).status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember: subscription.items.data[0].price.unit_amount || 0,
+      pricePerMember:
+        (subscription as any).items.data[0].price.unit_amount || 0,
       currentPeriodStart: new Date(
         (subscription as any).current_period_start * 1000
       ),
@@ -173,10 +175,13 @@ export async function handleCheckoutSessionCompleted(
   });
 
   // Update subscription quantity based on team members
-  if (subscription.items.data[0].quantity !== teamMemberCount) {
-    await stripe.subscriptionItems.update(subscription.items.data[0].id, {
-      quantity: teamMemberCount,
-    });
+  if ((subscription as any).items.data[0].quantity !== teamMemberCount) {
+    await stripe.subscriptionItems.update(
+      (subscription as any).items.data[0].id,
+      {
+        quantity: teamMemberCount,
+      }
+    );
   }
 }
 
@@ -299,7 +304,7 @@ export async function handleInvoicePaid(
       teamId: subscription.teamId,
       stripeInvoiceId: invoice.id || '',
       stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: (invoice.number as string) || invoice.id || '',
+      invoiceNumber: invoice.number || invoice.id || '',
       status: 'PAID',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
@@ -360,8 +365,8 @@ export async function handleInvoicePaymentFailed(
       teamId: subscription.teamId,
       stripeInvoiceId: invoice.id || '',
       stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: (invoice.number as string) || invoice.id || '',
-      status: 'PAYMENT_FAILED' as any,
+      invoiceNumber: invoice.number || invoice.id || '',
+      status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
       total: invoice.total,

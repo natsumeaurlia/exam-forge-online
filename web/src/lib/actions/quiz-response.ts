@@ -1,227 +1,70 @@
 'use server';
 
+import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
-import { action } from '@/lib/actions/utils';
 import { revalidatePath } from 'next/cache';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
+// Safe Action クライアントを作成
+const action = createSafeActionClient();
+
+// 認証済みユーザー取得（quiz.tsから同じパターンを使用）
+async function getAuthenticatedUser() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error('認証が必要です');
+  }
+
+  return session.user.id;
+}
+
+// 回答スキーマ（各問題タイプに応じた検証）
+const answerSchema = z.union([
+  z.boolean(), // TRUE_FALSE
+  z.string(), // MULTIPLE_CHOICE, SHORT_ANSWER
+  z.array(z.string()), // CHECKBOX, SORTING
+  z.record(z.string()), // FILL_IN_BLANK, MATCHING
+  z.number(), // NUMERIC
+  z.object({
+    // DIAGRAM
+    x: z.number(),
+    y: z.number(),
+    label: z.string(),
+  }),
+]);
+
+// クイズ回答提出スキーマ
 const submitQuizResponseSchema = z.object({
   quizId: z.string(),
-  answers: z.array(
+  responses: z.array(
     z.object({
       questionId: z.string(),
-      answer: z.any(),
+      answer: answerSchema,
+      timeSpent: z.number().optional(),
     })
   ),
-  duration: z.number(),
-  isAnonymous: z.boolean().optional(),
-  participantName: z.string().optional(),
-  participantEmail: z.string().email().optional(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
 });
 
-export const submitQuizResponse = action(
-  submitQuizResponseSchema,
-  async data => {
-    const session = await auth();
-    const userId = session?.user?.id;
+// クイズ回答の提出
+export const submitQuizResponse = action
+  .schema(submitQuizResponseSchema)
+  .action(async ({ parsedInput: data }) => {
+    const userId = await getAuthenticatedUser();
 
-    // If not anonymous, user must be authenticated
-    if (!data.isAnonymous && !userId) {
-      throw new Error('Authentication required');
-    }
-
-    // Check rate limit for anonymous submissions
-    if (data.isAnonymous) {
-      const { checkRateLimit, RATE_LIMITS } = await import(
-        '@/lib/security/rate-limit'
-      );
-      const rateLimitResult = await checkRateLimit({
-        identifier: `quiz-submission:${data.quizId}`,
-        ...RATE_LIMITS.publicQuizSubmission,
-      });
-
-      if (!rateLimitResult.allowed) {
-        throw new Error('Too many quiz submissions. Please try again later.');
-      }
-    }
-
-    // Fetch quiz with questions
-    const quiz = await prisma.quiz.findUnique({
-      where: { id: data.quizId },
-      include: {
-        questions: {
-          include: {
-            options: true,
+    try {
+      // トランザクションで回答を保存
+      const result = await prisma.$transaction(async tx => {
+        // 1. クイズの存在確認とアクセス権チェック
+        const quiz = await tx.quiz.findFirst({
+          where: {
+            id: data.quizId,
+            status: 'PUBLISHED',
           },
-        },
-      },
-    });
-
-    if (!quiz || quiz.status !== 'PUBLISHED') {
-      throw new Error('Quiz not found or not published');
-    }
-
-    // Check if quiz allows anonymous responses
-    if (data.isAnonymous && quiz.sharingMode === 'NONE') {
-      throw new Error('This quiz does not allow anonymous responses');
-    }
-
-    // Calculate score
-    let totalScore = 0;
-    let correctAnswers = 0;
-    const answerResults = [];
-
-    for (const answer of data.answers) {
-      const question = quiz.questions.find(q => q.id === answer.questionId);
-      if (!question) continue;
-
-      let isCorrect = false;
-      let points = 0;
-
-      switch (question.type) {
-        case 'MULTIPLE_CHOICE':
-          const selectedOption = question.options.find(
-            opt => opt.id === answer.answer
-          );
-          isCorrect = selectedOption?.isCorrect || false;
-          break;
-
-        case 'CHECKBOX':
-          const correctOptions = question.options
-            .filter(opt => opt.isCorrect)
-            .map(opt => opt.id);
-          const selectedOptions = answer.answer as string[];
-          isCorrect =
-            correctOptions.length === selectedOptions.length &&
-            correctOptions.every(id => selectedOptions.includes(id));
-          break;
-
-        case 'TRUE_FALSE':
-          isCorrect = String(answer.answer) === String(question.correctAnswer);
-          break;
-
-        case 'SHORT_ANSWER':
-        case 'LONG_ANSWER':
-          // For text answers, do simple comparison (can be enhanced later)
-          isCorrect =
-            answer.answer?.toLowerCase().trim() ===
-            question.correctAnswer?.toLowerCase().trim();
-          break;
-
-        case 'NUMERIC':
-          const numAnswer = parseFloat(answer.answer);
-          const correctNum = parseFloat(question.correctAnswer || '0');
-          const tolerance = parseFloat(question.tolerance || '0');
-          isCorrect = Math.abs(numAnswer - correctNum) <= tolerance;
-          break;
-
-        case 'FILL_IN_BLANK':
-          // Simple implementation - all blanks must match
-          const blanks = question.correctAnswer?.split('|') || [];
-          const userBlanks = answer.answer as string[];
-          isCorrect =
-            blanks.length === userBlanks.length &&
-            blanks.every(
-              (blank, i) =>
-                blank.toLowerCase().trim() ===
-                userBlanks[i]?.toLowerCase().trim()
-            );
-          break;
-
-        case 'MATCHING':
-          const correctMatches = JSON.parse(question.correctAnswer || '{}');
-          const userMatches = answer.answer as Record<string, string>;
-          isCorrect = Object.keys(correctMatches).every(
-            key => correctMatches[key] === userMatches[key]
-          );
-          break;
-
-        case 'SORTING':
-          const correctOrder = JSON.parse(question.correctAnswer || '[]');
-          const userOrder = answer.answer as string[];
-          isCorrect =
-            JSON.stringify(correctOrder) === JSON.stringify(userOrder);
-          break;
-      }
-
-      if (isCorrect) {
-        points = question.points || 0;
-        totalScore += points;
-        correctAnswers++;
-      }
-
-      answerResults.push({
-        questionId: question.id,
-        isCorrect,
-        points,
-      });
-    }
-
-    const totalPoints = quiz.questions.reduce(
-      (sum, q) => sum + (q.points || 0),
-      0
-    );
-    const percentage =
-      totalPoints > 0 ? Math.round((totalScore / totalPoints) * 100) : 0;
-    const passed = quiz.passingScore
-      ? percentage >= quiz.passingScore
-      : undefined;
-
-    // Create quiz response
-    const response = await prisma.quizResponse.create({
-      data: {
-        quizId: data.quizId,
-        userId,
-        score: totalScore,
-        duration: data.duration,
-        completedAt: new Date(),
-        participantName: data.participantName,
-        participantEmail: data.participantEmail,
-        answers: {
-          create: data.answers.map(answer => ({
-            questionId: answer.questionId,
-            answer: JSON.stringify(answer.answer),
-          })),
-        },
-      },
-      include: {
-        answers: true,
-      },
-    });
-
-    // Revalidate quiz analytics if needed
-    revalidatePath(`/dashboard/quizzes/${data.quizId}/analytics`);
-
-    return {
-      id: response.id,
-      score: totalScore,
-      totalPoints,
-      percentage,
-      duration: data.duration,
-      correctAnswers,
-      totalQuestions: quiz.questions.length,
-      passingScore: quiz.passingScore,
-      passed,
-      answers: quiz.showCorrectAnswers ? answerResults : undefined,
-    };
-  }
-);
-
-// Get quiz response details
-const getQuizResponseSchema = z.object({
-  responseId: z.string(),
-});
-
-export const getQuizResponse = action(
-  getQuizResponseSchema,
-  async ({ responseId }) => {
-    const session = await auth();
-
-    const response = await prisma.quizResponse.findUnique({
-      where: { id: responseId },
-      include: {
-        quiz: {
           include: {
             questions: {
               include: {
@@ -229,36 +72,180 @@ export const getQuizResponse = action(
               },
             },
           },
-        },
-        answers: true,
-        user: {
-          select: {
-            name: true,
-            email: true,
+        });
+
+        if (!quiz) {
+          throw new Error('クイズが見つからないか、公開されていません');
+        }
+
+        // 2. 回答回数制限チェック
+        if (quiz.maxAttempts) {
+          const attemptCount = await tx.quizResponse.count({
+            where: {
+              quizId: data.quizId,
+              userId,
+            },
+          });
+
+          if (attemptCount >= quiz.maxAttempts) {
+            throw new Error('回答回数の上限に達しています');
+          }
+        }
+
+        // 3. QuizResponseを作成
+        const quizResponse = await tx.quizResponse.create({
+          data: {
+            quizId: data.quizId,
+            userId,
+            startedAt: new Date(data.startedAt),
+            completedAt: new Date(data.completedAt),
+            score: 0, // 後で計算
+            totalPoints: 0, // 後で計算
           },
-        },
-      },
-    });
+        });
 
-    if (!response) {
-      throw new Error('Response not found');
-    }
+        // 4. 各質問への回答を保存し、スコアを計算
+        let totalScore = 0;
+        let totalPoints = 0;
 
-    // Check access permissions
-    if (response.userId && response.userId !== session?.user?.id) {
-      // Check if user is a team member
-      const teamMember = await prisma.teamMember.findFirst({
-        where: {
-          userId: session?.user?.id,
-          teamId: response.quiz.teamId,
-        },
+        for (const response of data.responses) {
+          const question = quiz.questions.find(
+            q => q.id === response.questionId
+          );
+          if (!question) continue;
+
+          totalPoints += question.points;
+
+          // 正解判定
+          const isCorrect = checkAnswer(question, response.answer);
+          if (isCorrect) {
+            totalScore += question.points;
+          }
+
+          // QuestionResponseを作成
+          await tx.questionResponse.create({
+            data: {
+              quizResponseId: quizResponse.id,
+              questionId: response.questionId,
+              answer: response.answer,
+              isCorrect,
+              score: isCorrect ? question.points : 0,
+              // timeSpent: response.timeSpent || 0, // Prismaスキーマに存在しないため除外
+            },
+          });
+        }
+
+        // 5. QuizResponseのスコアを更新
+        const updatedResponse = await tx.quizResponse.update({
+          where: { id: quizResponse.id },
+          data: {
+            score: totalScore,
+            totalPoints,
+            isPassed: quiz.passingScore
+              ? (totalScore / totalPoints) * 100 >= quiz.passingScore
+              : true,
+          },
+          // includeは不要（デフォルトで全フィールドが取得される）
+        });
+
+        return updatedResponse;
       });
 
-      if (!teamMember) {
-        throw new Error('Access denied');
-      }
+      revalidatePath(`/quiz/${data.quizId}/results`);
+      return { data: result };
+    } catch (error) {
+      console.error('Quiz submission error:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'クイズの提出に失敗しました'
+      );
     }
+  });
 
-    return response;
+// 正解判定ヘルパー関数
+function checkAnswer(question: any, answer: any): boolean {
+  if (!question.correctAnswer) return false;
+
+  switch (question.type) {
+    case 'TRUE_FALSE':
+      return answer === question.correctAnswer;
+
+    case 'MULTIPLE_CHOICE':
+      return answer === question.correctAnswer;
+
+    case 'CHECKBOX':
+      if (!Array.isArray(answer) || !Array.isArray(question.correctAnswer)) {
+        return false;
+      }
+      return (
+        JSON.stringify(answer.sort()) ===
+        JSON.stringify(question.correctAnswer.sort())
+      );
+
+    case 'NUMERIC':
+      return Number(answer) === Number(question.correctAnswer);
+
+    case 'SHORT_ANSWER':
+      // 大文字小文字を無視して比較
+      return (
+        String(answer).toLowerCase().trim() ===
+        String(question.correctAnswer).toLowerCase().trim()
+      );
+
+    case 'SORTING':
+      return JSON.stringify(answer) === JSON.stringify(question.correctAnswer);
+
+    case 'FILL_IN_BLANK':
+    case 'MATCHING':
+      return JSON.stringify(answer) === JSON.stringify(question.correctAnswer);
+
+    case 'DIAGRAM':
+      const correct = question.correctAnswer as any;
+      return (
+        answer.x === correct.x &&
+        answer.y === correct.y &&
+        answer.label === correct.label
+      );
+
+    default:
+      return false;
   }
-);
+}
+
+// クイズ回答履歴の取得
+export const getQuizResponses = action
+  .schema(
+    z.object({
+      quizId: z.string().optional(),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async ({ parsedInput: data }) => {
+    const userId = await getAuthenticatedUser();
+
+    try {
+      const responses = await prisma.quizResponse.findMany({
+        where: {
+          userId,
+          ...(data.quizId && { quizId: data.quizId }),
+        },
+        include: {
+          quiz: {
+            select: {
+              id: true,
+              title: true,
+              passingScore: true,
+            },
+          },
+          // questions: true, // QuizResponseにはquestionsの直接リレーションはない
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: data.limit,
+      });
+
+      return { data: responses };
+    } catch (error) {
+      throw new Error('回答履歴の取得に失敗しました');
+    }
+  });
