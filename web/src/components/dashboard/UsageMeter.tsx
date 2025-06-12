@@ -1,211 +1,127 @@
-'use client';
-
 import React from 'react';
-import { useTranslations } from 'next-intl';
-import { ArrowUp, Crown, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-
-interface UsageItem {
-  key: string;
-  current: number;
-  limit: number;
-  unit: string;
-  color: string;
-}
+import { ArrowUpRight } from 'lucide-react';
+import { getUsageData } from '@/lib/actions/analytics';
 
 interface UsageMeterProps {
   lng: string;
 }
 
-export function UsageMeter({ lng }: UsageMeterProps) {
-  const t = useTranslations('dashboard.usage');
+export async function UsageMeter({ lng }: UsageMeterProps) {
+  const t = await getTranslations('dashboard.usage');
 
-  // モックデータ - 実際のプロジェクトではAPIから取得
-  const currentPlan = 'free'; // 'free' | 'pro' | 'premium'
+  // Fetch real data from database
+  const result = await getUsageData();
 
-  const usageData: UsageItem[] = [
+  if (!result.success || !result.data) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="py-4 text-center text-gray-500">{t('noData')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { data } = result;
+
+  const usageItems = [
     {
-      key: 'quizzes',
-      current: 3,
-      limit: 5,
-      unit: t('units.items'),
-      color: 'bg-blue-500',
+      label: t('quizzes'),
+      current: data.usage.quizzes.current,
+      limit: data.usage.quizzes.limit,
+      unit: '',
     },
     {
-      key: 'participants',
-      current: 247,
-      limit: 300,
-      unit: t('units.peoplePerMonth'),
-      color: 'bg-green-500',
+      label: t('participants'),
+      current: data.usage.participants.current,
+      limit: data.usage.participants.limit,
+      unit: '',
     },
     {
-      key: 'storage',
-      current: 45,
-      limit: 100,
-      unit: t('units.mb'),
-      color: 'bg-purple-500',
+      label: t('storage'),
+      current: Math.round(data.usage.storage.current),
+      limit: data.usage.storage.limit,
+      unit: 'MB',
     },
     {
-      key: 'members',
-      current: 2,
-      limit: 3,
-      unit: t('units.people'),
-      color: 'bg-orange-500',
+      label: t('members'),
+      current: data.usage.members.current,
+      limit: data.usage.members.limit,
+      unit: '',
     },
   ];
 
   const getUsagePercentage = (current: number, limit: number) => {
+    if (limit === -1) return 0; // Unlimited
     return Math.min((current / limit) * 100, 100);
   };
 
-  const getUsageStatus = (percentage: number) => {
-    if (percentage >= 90)
-      return {
-        color: 'text-red-600',
-        bg: 'bg-red-100',
-        label: t('status.nearLimit'),
-      };
-    if (percentage >= 70)
-      return {
-        color: 'text-yellow-600',
-        bg: 'bg-yellow-100',
-        label: t('status.warning'),
-      };
-    return {
-      color: 'text-green-600',
-      bg: 'bg-green-100',
-      label: t('status.normal'),
-    };
-  };
-
-  const getPlanName = (plan: string) => {
-    switch (plan) {
-      case 'free':
-        return t('plans.free');
-      case 'pro':
-        return t('plans.pro');
-      case 'premium':
-        return t('plans.premium');
-      default:
-        return plan;
-    }
-  };
-
-  const getUsageLabel = (key: string) => {
-    switch (key) {
-      case 'quizzes':
-        return t('metrics.quizzes');
-      case 'participants':
-        return t('metrics.participants');
-      case 'storage':
-        return t('metrics.storage');
-      case 'members':
-        return t('metrics.members');
-      default:
-        return key;
-    }
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 90) return 'bg-red-500';
+    if (percentage >= 75) return 'bg-yellow-500';
+    return 'bg-blue-500';
   };
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{t('title')}</span>
-          <Badge variant="outline" className="flex items-center space-x-1">
-            <Crown className="h-3 w-3" />
-            <span>{getPlanName(currentPlan)}</span>
-          </Badge>
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
+          <p className="mt-1 text-sm text-gray-500">
+            {t('currentPlan')}:{' '}
+            <span className="font-medium capitalize">{data.currentPlan}</span>
+          </p>
+        </div>
+        {data.currentPlan === 'free' && (
+          <Button asChild size="sm">
+            <Link href={`/${lng}/plans`}>
+              {t('upgrade')}
+              <ArrowUpRight className="ml-1 h-3 w-3" />
+            </Link>
+          </Button>
+        )}
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* 使用状況一覧 */}
+      <CardContent>
         <div className="space-y-4">
-          {usageData.map(item => {
+          {usageItems.map(item => {
             const percentage = getUsagePercentage(item.current, item.limit);
-            const status = getUsageStatus(percentage);
+            const isUnlimited = item.limit === -1;
 
             return (
-              <div key={item.key} className="space-y-2">
+              <div key={item.label} className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium text-gray-700">
-                    {getUsageLabel(item.key)}
+                    {item.label}
                   </span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-600">
-                      {item.current.toLocaleString()} /{' '}
-                      {item.limit.toLocaleString()} {item.unit}
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className={`${status.bg} ${status.color} text-xs`}
-                    >
-                      {status.label}
-                    </Badge>
-                  </div>
+                  <span className="text-gray-500">
+                    {item.current}
+                    {item.unit && ` ${item.unit}`}
+                    {!isUnlimited && (
+                      <>
+                        {' / '}
+                        {item.limit}
+                        {item.unit && ` ${item.unit}`}
+                      </>
+                    )}
+                    {isUnlimited && ` / ${t('unlimited')}`}
+                  </span>
                 </div>
-
-                <div className="relative">
-                  <Progress value={percentage} className="h-2" />
+                <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
-                    className={`absolute top-0 left-0 h-2 rounded-full transition-all duration-500 ${item.color}`}
-                    style={{ width: `${percentage}%` }}
+                    className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(percentage)}`}
+                    style={{ width: `${isUnlimited ? 0 : percentage}%` }}
                   />
-                </div>
-
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>
-                    {t('percentUsed', { percent: percentage.toFixed(1) })}
-                  </span>
-                  <span>
-                    {t('remaining', {
-                      amount: (item.limit - item.current).toLocaleString(),
-                      unit: item.unit,
-                    })}
-                  </span>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        {/* プラン情報とアップグレード */}
-        <div className="border-t pt-4">
-          <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-blue-600" />
-                <span className="font-semibold text-blue-900">
-                  {t('upgradePrompt')}
-                </span>
-              </div>
-            </div>
-
-            <p className="mb-4 text-sm text-blue-700">
-              {t('upgradeDescription')}
-            </p>
-
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-blue-600">
-                <span className="font-semibold">{t('priceFrom')}</span>
-                <span className="ml-1">{t('from')}</span>
-              </div>
-
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                <ArrowUp className="mr-1 h-4 w-4" />
-                {t('upgrade')}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* 使用量の詳細リンク */}
-        <div className="text-center">
-          <button className="text-sm text-gray-600 underline hover:text-gray-800">
-            {t('showDetails')}
-          </button>
         </div>
       </CardContent>
     </Card>

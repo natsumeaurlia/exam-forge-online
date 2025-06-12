@@ -177,8 +177,11 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           correctAnswer: getDefaultCorrectAnswer(type),
           gradingCriteria: null,
           isRequired: false,
+          isActive: true,
           quizId: quiz.id,
           sectionId: null,
+          difficultyLevel: null,
+          sectionTimeLimit: null,
           createdAt: new Date(),
           updatedAt: new Date(),
           options:

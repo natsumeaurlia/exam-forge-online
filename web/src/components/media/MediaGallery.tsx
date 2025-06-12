@@ -76,13 +76,18 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
     try {
       setLoading(true);
       const storage = await getUserStorage();
+
+      if (!storage.success || !storage.data) {
+        throw new Error(storage.error || 'Failed to get storage info');
+      }
+
       setStorageUsage({
-        used: storage.storageUsed,
-        total: storage.storageLimit,
+        used: storage.data.storageUsed,
+        total: storage.data.storageLimit,
       });
 
       // Transform storage files to MediaFile format
-      const mediaFiles: MediaFile[] = storage.files.map(file => ({
+      const mediaFiles: MediaFile[] = storage.data.files.map(file => ({
         id: file.id,
         url: file.url,
         type: file.contentType.startsWith('video/') ? 'video' : 'image',

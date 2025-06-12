@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { SessionProvider } from '@/components/providers/SessionProvider';
-import { AuthErrorBoundary } from '@/components/providers/AuthErrorBoundary';
+// import { AuthErrorBoundary } from '@/components/providers/AuthErrorBoundary';
 import { languages, type Language } from '@/i18n/settings';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -56,7 +56,8 @@ export default async function RootLayout({ children, params }: LayoutProps) {
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>
-            <AuthErrorBoundary>{children}</AuthErrorBoundary>
+            {/* AuthErrorBoundary removed - authentication is handled by middleware */}
+            {children}
           </SessionProvider>
           <Toaster />
         </NextIntlClientProvider>

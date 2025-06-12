@@ -1,0 +1,390 @@
+'use server';
+
+import { createSafeActionClient } from 'next-safe-action';
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+// Safe Action クライアントを作成
+const action = createSafeActionClient();
+
+// 認証済みユーザー取得（quiz.tsから同じパターンを使用）
+async function getAuthenticatedUser() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    throw new Error('認証が必要です');
+  }
+
+  return session.user.id;
+}
+
+// 回答スキーマ（各問題タイプに応じた検証）
+const answerSchema = z.union([
+  z.boolean(), // TRUE_FALSE
+  z.string(), // MULTIPLE_CHOICE, SHORT_ANSWER
+  z.array(z.string()), // CHECKBOX, SORTING
+  z.record(z.string()), // FILL_IN_BLANK, MATCHING
+  z.number(), // NUMERIC
+  z.object({
+    // DIAGRAM
+    x: z.number(),
+    y: z.number(),
+    label: z.string(),
+  }),
+]);
+
+// クイズ回答提出スキーマ
+const submitQuizResponseSchema = z.object({
+  quizId: z.string(),
+  responses: z.array(
+    z.object({
+      questionId: z.string(),
+      answer: answerSchema,
+      timeSpent: z.number().optional(),
+    })
+  ),
+  participantName: z.string().optional(),
+  participantEmail: z.string().email().optional(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+});
+
+// クイズ回答の提出
+export const submitQuizResponse = action
+  .schema(submitQuizResponseSchema)
+  .action(async ({ parsedInput: data }) => {
+    try {
+      const session = await getServerSession(authOptions);
+      const userId = session?.user?.id;
+
+      // トランザクションで回答を保存
+      const result = await prisma.$transaction(async tx => {
+        // 1. クイズの存在確認とアクセス権チェック
+        const quiz = await tx.quiz.findFirst({
+          where: {
+            id: data.quizId,
+            status: 'PUBLISHED',
+          },
+          include: {
+            questions: {
+              include: {
+                options: true,
+              },
+            },
+          },
+        });
+
+        if (!quiz) {
+          throw new Error('クイズが見つからないか、公開されていません');
+        }
+
+        // For non-public quizzes, require authentication
+        if (!quiz.sharingMode || quiz.sharingMode !== 'URL') {
+          if (!userId) {
+            throw new Error('認証が必要です');
+          }
+        }
+
+        // 2. 回答回数制限チェック
+        if (quiz.maxAttempts && userId) {
+          const attemptCount = await tx.quizResponse.count({
+            where: {
+              quizId: data.quizId,
+              userId,
+            },
+          });
+
+          if (attemptCount >= quiz.maxAttempts) {
+            throw new Error('回答回数の上限に達しています');
+          }
+        }
+
+        // 3. QuizResponseを作成
+        const quizResponse = await tx.quizResponse.create({
+          data: {
+            quizId: data.quizId,
+            userId: userId || null,
+            participantName: data.participantName,
+            participantEmail: data.participantEmail,
+            startedAt: new Date(data.startedAt),
+            completedAt: new Date(data.completedAt),
+            score: 0, // 後で計算
+            totalPoints: 0, // 後で計算
+          },
+        });
+
+        // 4. 各質問への回答を保存し、スコアを計算
+        let totalScore = 0;
+        let totalPoints = 0;
+        let correctAnswers = 0;
+
+        for (const response of data.responses) {
+          const question = quiz.questions.find(
+            q => q.id === response.questionId
+          );
+          if (!question) continue;
+
+          totalPoints += question.points;
+
+          // 正解判定
+          const isCorrect = checkAnswer(question, response.answer);
+          if (isCorrect) {
+            totalScore += question.points;
+            correctAnswers++;
+          }
+
+          // QuestionResponseを作成
+          await tx.questionResponse.create({
+            data: {
+              quizResponseId: quizResponse.id,
+              questionId: response.questionId,
+              answer: JSON.stringify(response.answer),
+              isCorrect,
+              score: isCorrect ? question.points : 0,
+            },
+          });
+        }
+
+        // 5. QuizResponseのスコアを更新
+        const scorePercentage =
+          totalPoints > 0 ? Math.round((totalScore / totalPoints) * 100) : 0;
+        const updatedResponse = await tx.quizResponse.update({
+          where: { id: quizResponse.id },
+          data: {
+            score: scorePercentage,
+            totalPoints,
+            isPassed: quiz.passingScore
+              ? scorePercentage >= quiz.passingScore
+              : true,
+            timeTaken: Math.floor(
+              (new Date(data.completedAt).getTime() -
+                new Date(data.startedAt).getTime()) /
+                1000
+            ),
+          },
+        });
+
+        return {
+          id: updatedResponse.id,
+          score: updatedResponse.score || 0,
+          totalQuestions: quiz.questions.length,
+          correctAnswers,
+          passed: updatedResponse.isPassed || false,
+        };
+      });
+
+      revalidatePath(`/quiz/${data.quizId}/results`);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Quiz submission error:', error);
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'クイズの提出に失敗しました',
+      };
+    }
+  });
+
+// 正解判定ヘルパー関数
+function checkAnswer(question: any, answer: any): boolean {
+  if (!question.correctAnswer) return false;
+
+  switch (question.type) {
+    case 'TRUE_FALSE':
+      const trueFalseAnswer =
+        typeof answer === 'boolean'
+          ? answer.toString()
+          : answer?.toString().toLowerCase();
+      return question.correctAnswer?.toLowerCase() === trueFalseAnswer;
+
+    case 'MULTIPLE_CHOICE':
+      const correctOption = question.options.find((opt: any) => opt.isCorrect);
+      return correctOption?.id === answer;
+
+    case 'CHECKBOX':
+      const correctOptions = question.options
+        .filter((opt: any) => opt.isCorrect)
+        .map((opt: any) => opt.id);
+      const selectedOptions = answer || [];
+      return (
+        correctOptions.length === selectedOptions.length &&
+        correctOptions.every((id: string) => selectedOptions.includes(id))
+      );
+
+    case 'NUMERIC':
+      const correctNum = parseFloat(question.correctAnswer || '0');
+      const answerNum = parseFloat(answer || '0');
+      const tolerance = 0.01;
+      return Math.abs(correctNum - answerNum) < tolerance;
+
+    case 'SHORT_ANSWER':
+      // Normalize strings for comparison (handle full/half-width characters)
+      const normalizeString = (str: string) => {
+        return str
+          ?.toLowerCase()
+          .trim()
+          .replace(/[Ａ-Ｚａ-ｚ０-９]/g, s =>
+            String.fromCharCode(s.charCodeAt(0) - 0xfee0)
+          );
+      };
+      return (
+        normalizeString(question.correctAnswer || '') ===
+        normalizeString(answer?.toString() || '')
+      );
+
+    case 'SORTING':
+      const correctOrder = JSON.parse(question.correctAnswer || '[]');
+      const answerOrder = answer || [];
+      return (
+        correctOrder.length === answerOrder.length &&
+        correctOrder.every(
+          (item: string, index: number) => item === answerOrder[index]
+        )
+      );
+
+    case 'FILL_IN_BLANK':
+      const correctBlanks = JSON.parse(question.correctAnswer || '[]');
+      const answerBlanks = answer || [];
+      return (
+        correctBlanks.length === answerBlanks.length &&
+        correctBlanks.every(
+          (blank: string, index: number) =>
+            blank.toLowerCase().trim() ===
+            answerBlanks[index]?.toLowerCase().trim()
+        )
+      );
+
+    case 'MATCHING':
+      const correctMatches = JSON.parse(question.correctAnswer || '{}');
+      const answerMatches = answer || {};
+      return Object.keys(correctMatches).every(
+        key => correctMatches[key] === answerMatches[key]
+      );
+
+    case 'DIAGRAM':
+      const correct = question.correctAnswer as any;
+      return (
+        answer.x === correct.x &&
+        answer.y === correct.y &&
+        answer.label === correct.label
+      );
+
+    default:
+      return false;
+  }
+}
+
+// This function would be called from a background job or calculated on-demand
+// to avoid performance issues during response submission
+async function calculateAverageScore(quizId: string): Promise<number> {
+  const result = await prisma.quizResponse.aggregate({
+    where: {
+      quizId,
+      completedAt: { not: null },
+    },
+    _avg: { score: true },
+  });
+  return result._avg.score || 0;
+}
+
+export async function getQuizResponse(responseId: string) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    const response = await prisma.quizResponse.findUnique({
+      where: { id: responseId },
+      include: {
+        quiz: {
+          include: {
+            questions: true,
+          },
+        },
+        responses: {
+          include: {
+            question: {
+              include: {
+                options: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!response) {
+      return { success: false, error: 'Response not found' };
+    }
+
+    // Check permissions: Only the respondent or team members can view
+    if (response.userId && response.userId !== session?.user?.id) {
+      // Check if user is a team member
+      const teamMember = await prisma.teamMember.findFirst({
+        where: {
+          teamId: response.quiz.teamId,
+          userId: session?.user?.id || '',
+        },
+      });
+
+      if (!teamMember) {
+        return { success: false, error: 'Unauthorized' };
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: response.id,
+        score: response.score || 0,
+        totalQuestions: response.quiz.questions?.length || 0,
+        correctAnswers: response.responses.filter(a => a.isCorrect).length,
+        passed: response.isPassed || false,
+        answers: response.responses,
+        quiz: response.quiz,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching quiz response:', error);
+    return { success: false, error: 'Failed to fetch response' };
+  }
+}
+
+// クイズ回答履歴の取得
+export const getQuizResponses = action
+  .schema(
+    z.object({
+      quizId: z.string().optional(),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async ({ parsedInput: data }) => {
+    const userId = await getAuthenticatedUser();
+
+    try {
+      const responses = await prisma.quizResponse.findMany({
+        where: {
+          userId,
+          ...(data.quizId && { quizId: data.quizId }),
+        },
+        include: {
+          quiz: {
+            select: {
+              id: true,
+              title: true,
+              passingScore: true,
+            },
+          },
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        take: data.limit,
+      });
+
+      return { data: responses };
+    } catch (error) {
+      throw new Error('回答履歴の取得に失敗しました');
+    }
+  });

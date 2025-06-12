@@ -5,18 +5,34 @@ import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
+import './auth-config-validator';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID || '',
-      clientSecret: process.env.GITHUB_SECRET || '',
-    }),
+// Helper function to create providers based on available environment variables
+function createAuthProviders() {
+  const providers: any[] = [];
+
+  // Add Google provider only if both credentials are available
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      })
+    );
+  }
+
+  // Add GitHub provider only if both credentials are available
+  if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+    providers.push(
+      GitHubProvider({
+        clientId: process.env.GITHUB_ID,
+        clientSecret: process.env.GITHUB_SECRET,
+      })
+    );
+  }
+
+  // Always add credentials provider
+  providers.push(
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -55,8 +71,15 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
         };
       },
-    }),
-  ],
+    })
+  );
+
+  return providers;
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  providers: createAuthProviders(),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -64,7 +87,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error',
+    error: '/auth/error', // Note: This will be redirected with locale in middleware
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -92,20 +115,66 @@ export const authOptions: NextAuthOptions = {
         locale = langMatch[1];
       }
 
-      // callbackUrlがある場合はそれを優先
+      // callbackUrlがある場合はそれを優先（セキュリティ強化）
       const callbackUrl = urlObj.searchParams.get('callbackUrl');
       if (callbackUrl) {
-        // callbackUrlが相対URLの場合
-        if (callbackUrl.startsWith('/')) {
-          return callbackUrl;
-        }
-        // callbackUrlが同じドメインの場合
+        // SECURITY: Open redirect攻撃を防ぐため厳格な検証
         try {
-          const callbackUrlObj = new URL(callbackUrl, baseUrl);
-          if (callbackUrlObj.origin === baseUrl) {
-            return callbackUrl;
+          // SECURITY FIX: URL decode and sanitize to prevent encoding bypasses
+          const decodedUrl = decodeURIComponent(callbackUrl);
+
+          // SECURITY FIX: Block dangerous schemes and patterns
+          const dangerousPatterns = [
+            'javascript:',
+            'data:',
+            'vbscript:',
+            'file:',
+            'about:',
+            '<script',
+            'onload=',
+            'onerror=',
+            '\\',
+            '../',
+          ];
+
+          if (
+            dangerousPatterns.some(pattern =>
+              decodedUrl.toLowerCase().includes(pattern.toLowerCase())
+            )
+          ) {
+            // Reject dangerous patterns
+            throw new Error('Dangerous URL pattern detected');
           }
-        } catch {}
+
+          // callbackUrlが相対URLの場合（//evil.com形式の攻撃を防ぐ）
+          if (decodedUrl.startsWith('/') && !decodedUrl.startsWith('//')) {
+            // SECURITY FIX: Additional path traversal protection
+            const normalizedPath = decodedUrl.replace(/\/+/g, '/'); // Normalize multiple slashes
+            if (
+              normalizedPath.includes('/../') ||
+              normalizedPath.includes('..\\')
+            ) {
+              throw new Error('Path traversal attempt detected');
+            }
+            // 相対パスのみ許可（プロトコル相対URLを拒否）
+            return normalizedPath;
+          }
+
+          // callbackUrlが絶対URLの場合、同じドメインかつ同じプロトコルを厳密に検証
+          const callbackUrlObj = new URL(decodedUrl);
+          const baseUrlObj = new URL(baseUrl);
+
+          if (
+            callbackUrlObj.origin === baseUrlObj.origin &&
+            callbackUrlObj.protocol === baseUrlObj.protocol &&
+            !callbackUrlObj.pathname.includes('/../') // Additional path traversal check
+          ) {
+            return decodedUrl;
+          }
+        } catch {
+          // 不正なURL形式の場合はデフォルトにフォールバック
+          console.warn('Blocked potential open redirect attempt:', callbackUrl);
+        }
       }
 
       // サインイン後は言語を保持してダッシュボードにリダイレクト
@@ -131,4 +200,25 @@ export const authOptions: NextAuthOptions = {
 
 export function auth() {
   return getServerSession(authOptions);
+}
+
+// SECURITY FIX: Server-side only function to check OAuth providers
+// This should only be used server-side and never exposed to client
+function getAvailableProvidersInternal() {
+  return {
+    google: !!(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ),
+    github: !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET),
+    credentials: true, // Always available
+  };
+}
+
+// SECURITY: Safe client-side provider check (no configuration details exposed)
+export function getEnabledProviders() {
+  // Only expose provider names that are actually configured
+  const providers = getAvailableProvidersInternal();
+  return Object.keys(providers).filter(
+    key => providers[key as keyof typeof providers]
+  );
 }

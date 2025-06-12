@@ -50,6 +50,32 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll('files') as File[];
     const questionId = formData.get('questionId') as string;
 
+    // SECURITY FIX: Verify user has access to the question/quiz
+    if (questionId) {
+      const questionAccess = await prisma.question.findFirst({
+        where: {
+          id: questionId,
+          quiz: {
+            team: {
+              members: {
+                some: {
+                  userId: session.user.id,
+                  role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!questionAccess) {
+        return NextResponse.json(
+          { error: 'Unauthorized: Access denied to this question' },
+          { status: 403 }
+        );
+      }
+    }
+
     if (!files || files.length === 0) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
@@ -130,12 +156,12 @@ export async function POST(request: NextRequest) {
 
     // Check if total size would exceed user's storage limit
     if (
-      storageResult.data.usedBytes + totalSize >
-      storageResult.data.maxBytes
+      storageResult.data.storageUsed + totalSize >
+      storageResult.data.storageLimit
     ) {
       return NextResponse.json(
         {
-          error: `Storage limit exceeded. You have ${storageResult.data.maxGB - storageResult.data.usedGB} GB remaining.`,
+          error: `Storage limit exceeded. You have ${storageResult.data.storageLimit - storageResult.data.storageUsed} GB remaining.`,
         },
         { status: 400 }
       );
@@ -156,6 +182,35 @@ export async function POST(request: NextRequest) {
           : allowedAudioTypes.includes(file.type)
             ? 'AUDIO'
             : 'IMAGE';
+
+        // 🔒 SECURITY: 質問の所有権検証（Authorization Bypass脆弱性修正）
+        const question = await prisma.question.findFirst({
+          where: {
+            id: questionId,
+            quiz: {
+              OR: [
+                { createdById: session.user.id }, // 作成者
+                {
+                  team: {
+                    members: {
+                      some: {
+                        userId: session.user.id,
+                        role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                      },
+                    },
+                  },
+                }, // チームメンバー
+              ],
+            },
+          },
+        });
+
+        if (!question) {
+          return NextResponse.json(
+            { error: 'Question not found or unauthorized' },
+            { status: 403 }
+          );
+        }
 
         // Create database record
         const media = await prisma.questionMedia.create({
@@ -178,8 +233,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         media: uploadedMedia,
-        storageUsed: storageResult.data.usedBytes + totalSize,
-        storageMax: storageResult.data.maxBytes,
+        storageUsed: storageResult.data.storageUsed + totalSize,
+        storageMax: storageResult.data.storageLimit,
       });
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files
@@ -216,13 +271,25 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get media record and verify ownership
+    // 🔒 SECURITY: チームベース削除権限検証（Authorization Flaw修正）
     const media = await prisma.questionMedia.findFirst({
       where: {
         id: mediaId,
         question: {
           quiz: {
-            createdById: session.user.id,
+            OR: [
+              { createdById: session.user.id }, // 作成者
+              {
+                team: {
+                  members: {
+                    some: {
+                      userId: session.user.id,
+                      role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                    },
+                  },
+                },
+              }, // チームメンバー
+            ],
           },
         },
       },
