@@ -130,12 +130,12 @@ export async function POST(request: NextRequest) {
 
     // Check if total size would exceed user's storage limit
     if (
-      storageResult.data.usedBytes + totalSize >
-      storageResult.data.maxBytes
+      storageResult.data.storageUsed + totalSize >
+      storageResult.data.storageLimit
     ) {
       return NextResponse.json(
         {
-          error: `Storage limit exceeded. You have ${storageResult.data.maxGB - storageResult.data.usedGB} GB remaining.`,
+          error: `Storage limit exceeded. You have ${storageResult.data.storageLimit - storageResult.data.storageUsed} GB remaining.`,
         },
         { status: 400 }
       );
@@ -178,8 +178,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         media: uploadedMedia,
-        storageUsed: storageResult.data.usedBytes + totalSize,
-        storageMax: storageResult.data.maxBytes,
+        storageUsed: storageResult.data.storageUsed + totalSize,
+        storageMax: storageResult.data.storageLimit,
       });
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files

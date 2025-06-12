@@ -15,7 +15,7 @@ on:
 
 defaults:
   run:
-    working-directory: web
+    working-directory: ./web
 
 jobs:
   # 依存関係のインストールとキャッシュを共有する基盤ジョブ
@@ -35,7 +35,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: 8.15.3
 
       - name: Cache node modules
         id: cache-deps
@@ -81,7 +81,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: 8.15.3
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -140,7 +140,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: 8.15.3
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -189,7 +189,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: 8.15.3
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -254,7 +254,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: 8.15.3
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -306,6 +306,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, database, build, e2e-tests]
     if: always()
+    defaults:
+      run:
+        working-directory: .
     steps:
       - name: Check all jobs success
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

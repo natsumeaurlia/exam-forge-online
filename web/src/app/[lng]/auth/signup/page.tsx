@@ -85,25 +85,27 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     isExecuting,
     result,
   } = useAction(signupAction, {
-    onSuccess: async data => {
-      if (data.success) {
-        // Auto sign in after successful signup
-        const signInResult = await signIn('credentials', {
-          email: formData.email,
-          password: formData.password,
-          callbackUrl: `/${resolvedParams.lng}/dashboard`,
-          redirect: false,
-        });
+    onSuccess: async () => {
+      // Auto sign in after successful signup
+      const signInResult = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        callbackUrl: `/${resolvedParams.lng}/dashboard`,
+        redirect: false,
+      });
 
-        if (signInResult?.ok) {
-          router.push(`/${resolvedParams.lng}/dashboard`);
-        } else {
-          setErrors({ email: '自動ログインに失敗しました' });
-        }
+      if (signInResult?.ok) {
+        router.push(`/${resolvedParams.lng}/dashboard`);
+      } else {
+        setErrors({ email: '自動ログインに失敗しました' });
       }
     },
     onError: error => {
-      setErrors({ email: error.serverError || 'エラーが発生しました' });
+      if (error.error?.serverError) {
+        setErrors({ email: error.error.serverError });
+      } else {
+        setErrors({ email: 'エラーが発生しました' });
+      }
     },
   });
 

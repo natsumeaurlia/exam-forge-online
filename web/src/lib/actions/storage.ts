@@ -14,9 +14,9 @@ export async function getUserStorage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return {
-      storageUsed: 0,
-      storageLimit: 0,
-      files: [],
+      success: false,
+      data: null,
+      error: 'Not authenticated',
     };
   }
 
@@ -52,23 +52,29 @@ export async function getUserStorage() {
 
     // Convert BigInt to number for JSON serialization
     return {
-      storageUsed: Number(storage.usedBytes),
-      storageLimit: Number(storage.maxBytes),
-      files: files.map(file => ({
-        id: file.id,
-        url: file.url,
-        contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
-        filename: file.url.split('/').pop() || 'unknown',
-        size: 1024 * 1024, // Default size, you may want to store actual size
-        createdAt: file.createdAt.toISOString(),
-      })),
+      success: true,
+      data: {
+        usedBytes: Number(storage.usedBytes),
+        maxBytes: Number(storage.maxBytes),
+        storageUsed: Number(storage.usedBytes),
+        storageLimit: Number(storage.maxBytes),
+        files: files.map(file => ({
+          id: file.id,
+          url: file.url,
+          contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
+          filename: file.url.split('/').pop() || 'unknown',
+          size: 1024 * 1024, // Default size, you may want to store actual size
+          createdAt: file.createdAt.toISOString(),
+        })),
+      },
     };
   } catch (error) {
     console.error('Error getting user storage:', error);
     return {
-      storageUsed: 0,
-      storageLimit: 0,
-      files: [],
+      success: false,
+      data: null,
+      error:
+        error instanceof Error ? error.message : 'Failed to get user storage',
     };
   }
 }

@@ -146,9 +146,17 @@ export async function seedTestData(prisma: PrismaClient) {
     const tags = await Promise.all(
       tagData.map(tag =>
         prisma.tag.upsert({
-          where: { name: tag.name },
+          where: {
+            teamId_name: {
+              teamId: testTeam.id,
+              name: tag.name,
+            },
+          },
           update: {},
-          create: tag,
+          create: {
+            ...tag,
+            teamId: testTeam.id,
+          },
         })
       )
     );
