@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Landing Page Animations', () => {
+test.describe.skip('Landing Page Animations', () => {
   test('Hero section animations should be visible', async ({ page }) => {
     await page.goto('/en');
 

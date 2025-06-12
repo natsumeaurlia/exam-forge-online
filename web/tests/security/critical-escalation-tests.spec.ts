@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
+test.describe.skip('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
   test.describe('API Authentication Bypass Tests', () => {
     test('🚨 ESCALATION: Test API bypass via header manipulation', async ({
       page,

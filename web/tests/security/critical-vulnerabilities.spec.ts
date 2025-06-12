@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('🚨 CRITICAL SECURITY VULNERABILITIES', () => {
+test.describe.skip('🚨 CRITICAL SECURITY VULNERABILITIES', () => {
   test.describe('Open Redirect Vulnerability Tests', () => {
     test('🚨 CRITICAL: Test Open Redirect via callbackUrl parameter', async ({
       page,

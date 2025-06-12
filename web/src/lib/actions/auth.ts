@@ -8,12 +8,6 @@ import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 
-export type AuthError = {
-  type: 'UNAUTHENTICATED' | 'SESSION_EXPIRED' | 'INVALID_USER';
-  message: string;
-  redirectUrl?: string;
-};
-
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
 
@@ -25,18 +19,14 @@ const signupSchema = z.object({
 });
 
 export async function validateSession(): Promise<
-  { success: true; userId: string } | { success: false; error: AuthError }
+  { success: true; userId: string } | { success: false; error: string }
 > {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
     return {
       success: false,
-      error: {
-        type: 'UNAUTHENTICATED',
-        message: 'ログインが必要です',
-        redirectUrl: '/auth/signin',
-      },
+      error: 'ログインが必要です',
     };
   }
 
@@ -49,11 +39,7 @@ export async function validateSession(): Promise<
   if (!user) {
     return {
       success: false,
-      error: {
-        type: 'INVALID_USER',
-        message: 'ユーザー情報が見つかりません。再度ログインしてください。',
-        redirectUrl: '/auth/signin',
-      },
+      error: 'ユーザー情報が見つかりません。再度ログインしてください。',
     };
   }
 
@@ -64,25 +50,16 @@ export async function requireAuth(locale: string = 'ja') {
   const validation = await validateSession();
 
   if (!validation.success) {
-    const redirectUrl = `/${locale}${validation.error.redirectUrl}`;
+    const redirectUrl = `/${locale}/auth/signin`;
     redirect(redirectUrl);
   }
 
   return validation.userId;
 }
 
-export async function handleAuthError(error: AuthError, locale: string = 'ja') {
-  if (error.redirectUrl) {
-    const redirectUrl = `/${locale}${error.redirectUrl}`;
-    redirect(redirectUrl);
-  }
-
-  throw new Error(error.message);
-}
-
 // ユーザー登録ServerAction
 export const signupAction = action
-  .schema(signupSchema)
+  .inputSchema(signupSchema)
   .action(async ({ parsedInput: { name, email, password } }) => {
     try {
       // 🔒 SECURITY: トランザクションでRace Condition脆弱性を修正

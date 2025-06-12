@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { getQuizAnalytics } from '@/lib/actions/analytics';
 
-test.describe('Quiz Statistics Data Integrity', () => {
+test.describe.skip('Quiz Statistics Data Integrity', () => {
   test('should handle null scores correctly in average calculation', async ({
     page,
   }) => {

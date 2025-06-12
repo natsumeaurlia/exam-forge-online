@@ -15,11 +15,13 @@ export default async function QuizPreviewPage({
 }: QuizPreviewPageProps) {
   const t = await getTranslations('quiz.preview');
 
-  const { data: quiz, error } = await getQuizWithQuestionsById(params.id);
+  const result = await getQuizWithQuestionsById({ quizId: params.id });
 
-  if (error || !quiz) {
+  if (!result || !result.data || !result.data.data) {
     notFound();
   }
+
+  const quiz = result.data.data;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -30,9 +32,11 @@ export default async function QuizPreviewPage({
 
 export async function generateMetadata({ params }: QuizPreviewPageProps) {
   const t = await getTranslations('quiz.preview');
-  const { data: quiz } = await getQuizWithQuestionsById(params.id);
+  const result = await getQuizWithQuestionsById({ quizId: params.id });
 
   return {
-    title: quiz ? `${t('title')} - ${quiz.title}` : t('title'),
+    title: result?.data?.data
+      ? `${t('title')} - ${result.data.data.title}`
+      : t('title'),
   };
 }

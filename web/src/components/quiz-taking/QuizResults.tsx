@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle, Clock, Award } from 'lucide-react';
+import { useAction } from 'next-safe-action/hooks';
 import { getQuizResponse } from '@/lib/actions/quiz-response';
 import type { Quiz } from '@prisma/client';
 
@@ -36,25 +37,26 @@ export function QuizResults({
   const [responseData, setResponseData] = useState<QuizResponseData | null>(
     null
   );
-  const [loading, setLoading] = useState(true);
+
+  const { execute: executeGetQuizResponse, isExecuting } = useAction(
+    getQuizResponse,
+    {
+      onSuccess: ({ data }) => {
+        if (data && data.data) {
+          setResponseData(data.data);
+        }
+      },
+      onError: ({ error }) => {
+        console.error('Failed to fetch results:', error);
+      },
+    }
+  );
 
   useEffect(() => {
-    async function fetchResults() {
-      try {
-        const { data } = await getQuizResponse(responseId);
-        if (data) {
-          setResponseData(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch results:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchResults();
-  }, [responseId]);
+    executeGetQuizResponse({ responseId });
+  }, [responseId, executeGetQuizResponse]);
 
-  if (loading) {
+  if (isExecuting) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <Card className="p-8 text-center">

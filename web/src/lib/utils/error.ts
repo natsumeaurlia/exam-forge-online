@@ -2,10 +2,6 @@
 
 import { redirect } from 'next/navigation';
 
-export type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string; requiresAuth?: boolean };
-
 export function handleActionError(
   error: unknown,
   locale: string = 'ja'

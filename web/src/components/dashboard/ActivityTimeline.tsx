@@ -22,9 +22,9 @@ export async function ActivityTimeline({ lng }: ActivityTimelineProps) {
   const t = await getTranslations('dashboard.activity');
 
   // Fetch real data from database
-  const result = await getRecentActivities(8);
+  const result = await getRecentActivities({ limit: 8 });
 
-  if (!result.success || !result.data || result.data.length === 0) {
+  if (!result || !result.data || result.data.length === 0) {
     return (
       <Card className="col-span-full lg:col-span-5">
         <CardHeader>
