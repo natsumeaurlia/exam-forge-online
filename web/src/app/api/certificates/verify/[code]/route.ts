@@ -19,7 +19,10 @@ export async function POST(
       return NextResponse.json({ success: false }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      certificate: result.certificate,
+    });
   } catch (error) {
     console.error('Certificate verification error:', error);
     return NextResponse.json({ success: false }, { status: 500 });

@@ -1531,6 +1531,12 @@
           "viewDetails": "詳細を見る",
           "viewFullReport": "完全レポートを見る"
         }
+      },
+      "certificateVerify": {
+        "title": "証明書検証",
+        "valid": "{date}に{quiz}で{name}さんに発行された証明書です",
+        "expires": "有効期限: {date}",
+        "invalid": "証明書が見つからないか、期限切れです"
       }
     }
   },

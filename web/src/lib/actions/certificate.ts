@@ -7,7 +7,7 @@ import { z } from 'zod';
 const action = createSafeActionClient();
 
 const verifyCertificateSchema = z.object({
-  code: z.string(),
+  code: z.string().regex(/^[A-Z0-9]{10,30}$/),
   ip: z.string().optional(),
   userAgent: z.string().optional(),
 });
@@ -24,9 +24,25 @@ export const verifyCertificate = action
           not: 'REVOKED',
         },
       },
+      include: {
+        quizResponse: {
+          select: {
+            quiz: {
+              select: { title: true },
+            },
+          },
+        },
+      },
     });
 
     if (!certificate) {
+      return { success: false };
+    }
+
+    if (
+      certificate.expiryDate &&
+      certificate.expiryDate.getTime() < Date.now()
+    ) {
       return { success: false };
     }
 
@@ -38,5 +54,13 @@ export const verifyCertificate = action
       },
     });
 
-    return { success: true, certificateId: certificate.id };
+    return {
+      success: true,
+      certificate: {
+        recipientName: certificate.recipientName,
+        issueDate: certificate.issueDate,
+        expiryDate: certificate.expiryDate,
+        quizTitle: certificate.quizResponse.quiz.title,
+      },
+    };
   });

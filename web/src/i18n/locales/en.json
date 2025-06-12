@@ -1533,6 +1533,12 @@
           "viewFullReport": "View Full Report"
         }
       }
+    },
+    "certificateVerify": {
+      "title": "Certificate Verification",
+      "valid": "Certificate for {name} - {quiz} issued on {date}",
+      "expires": "Expires on {date}",
+      "invalid": "Certificate not found or expired"
     }
   },
   "ui": {
