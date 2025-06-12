@@ -64,8 +64,14 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith(path)
   );
 
+  // Check if this is a public API path (auth and webhook endpoints)
+  const isPublicApiPath =
+    pathname.startsWith('/api/auth/') ||
+    pathname.startsWith('/api/stripe/webhook') ||
+    pathname.startsWith('/api/certificates/verify/');
+
   // For public paths and public API routes, use only i18n middleware
-  if (isPublicPath || (pathname.startsWith('/api') && !isProtectedApiPath)) {
+  if (isPublicPath || (pathname.startsWith('/api') && isPublicApiPath)) {
     return intlMiddleware(request);
   }
 
