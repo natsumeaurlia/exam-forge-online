@@ -16,7 +16,11 @@ const publicPaths = [
 ] as const;
 
 // SECURITY FIX: Switch to secure-by-default - all API routes require auth unless explicitly excluded
-const publicApiPaths = ['/api/auth/', '/api/stripe/webhook'] as const;
+const publicApiPaths = [
+  '/api/auth/',
+  '/api/stripe/webhook',
+  '/api/certificates/verify/',
+] as const;
 
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware({
@@ -32,21 +36,17 @@ const authMiddleware = withAuth(
   },
   {
     callbacks: {
-      authorized({ token }) {
-        return token != null;
-      },
-    },
-    pages: {
-      signIn: '/auth/signin',
+      authorized: ({ token }) => token != null,
     },
   }
 );
 
-export default function middleware(request: NextRequest) {
-  // Extract locale from path
+export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const pathSegments = pathname.split('/');
-  const locale = locales.includes(pathSegments[1]) ? pathSegments[1] : 'ja';
+  const locale = locales.includes(pathSegments[1] as 'en' | 'ja')
+    ? (pathSegments[1] as 'en' | 'ja')
+    : 'ja';
 
   // Check if this is a public path (doesn't require authentication)
   const isPublicPath = publicPaths.some(path => {
@@ -67,7 +67,7 @@ export default function middleware(request: NextRequest) {
   // For protected paths, use the combined auth + i18n middleware
   // The authMiddleware will handle the authentication check
   // SECURITY FIX: Remove unsafe type casting for type safety
-  return authMiddleware(request);
+  return authMiddleware(request, undefined as any);
 }
 
 export const config = {
