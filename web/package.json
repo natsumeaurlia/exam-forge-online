@@ -207,5 +207,5 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "packageManager": "pnpm@8.15.3"
+  "packageManager": "pnpm@9.12.3"
 }
