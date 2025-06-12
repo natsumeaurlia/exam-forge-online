@@ -242,3 +242,242 @@ export const createMediaRecord = action
       media,
     };
   });
+
+/**
+ * Upload media files - replaces /api/upload POST endpoint
+ * Note: This action handles the database operations and storage tracking.
+ * The actual file upload to MinIO should be handled separately.
+ */
+export const uploadMedia = action
+  .schema(
+    z.object({
+      files: z.array(
+        z.object({
+          buffer: z.instanceof(Buffer),
+          fileName: z.string(),
+          mimeType: z.string(),
+          size: z.number(),
+        })
+      ),
+      questionId: z.string().min(1, 'Question ID is required'),
+    })
+  )
+  .action(async ({ parsedInput: { files, questionId } }) => {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
+
+    // Check if user has Pro plan
+    const userPlanResult = await getUserPlan();
+    if (!userPlanResult.success || !userPlanResult.data) {
+      throw new Error('Failed to get user plan');
+    }
+
+    const hasPaidPlan =
+      userPlanResult.data.planType === 'PRO' ||
+      userPlanResult.data.planType === 'PREMIUM';
+
+    if (!hasPaidPlan) {
+      throw new Error('Media upload requires Pro plan');
+    }
+
+    // Check user storage
+    const storageResult = await getUserStorage();
+    if (!storageResult.success || !storageResult.data) {
+      throw new Error('Failed to check storage');
+    }
+
+    // SECURITY FIX: Verify user has access to the question/quiz
+    const questionAccess = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        quiz: {
+          team: {
+            members: {
+              some: {
+                userId: session.user.id,
+                role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!questionAccess) {
+      throw new Error('Unauthorized: Access denied to this question');
+    }
+
+    // Validate file types and calculate total size
+    const allowedImageTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+    const allowedVideoTypes = [
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/quicktime',
+    ];
+    const allowedAudioTypes = [
+      'audio/mpeg',
+      'audio/mp3',
+      'audio/wav',
+      'audio/wave',
+      'audio/x-wav',
+      'audio/ogg',
+      'audio/webm',
+      'audio/m4a',
+      'audio/x-m4a',
+    ];
+    const allowedTypes = [
+      ...allowedImageTypes,
+      ...allowedVideoTypes,
+      ...allowedAudioTypes,
+    ];
+
+    let totalSize = 0;
+    const uploadedMedia = [];
+
+    for (const file of files) {
+      if (!allowedTypes.includes(file.mimeType)) {
+        throw new Error(
+          `Invalid file type: ${file.fileName}. Only images (JPEG, PNG, GIF, WebP), videos (MP4, WebM, OGG, MOV), and audio files (MP3, WAV, OGG, M4A) are allowed.`
+        );
+      }
+
+      // Validate individual file size
+      const maxImageSize = 10 * 1024 * 1024; // 10MB for images
+      const maxVideoSize = 500 * 1024 * 1024; // 500MB for videos
+      const maxAudioSize = 50 * 1024 * 1024; // 50MB for audio
+      const isVideo = allowedVideoTypes.includes(file.mimeType);
+      const isAudio = allowedAudioTypes.includes(file.mimeType);
+      const maxSize = isVideo
+        ? maxVideoSize
+        : isAudio
+          ? maxAudioSize
+          : maxImageSize;
+
+      if (file.size > maxSize) {
+        throw new Error(
+          `File size exceeds limit for ${file.fileName} (max ${isVideo ? '500MB' : isAudio ? '50MB' : '10MB'})`
+        );
+      }
+
+      totalSize += file.size;
+    }
+
+    // Check if total size would exceed user's storage limit
+    if (
+      storageResult.data.storageUsed + totalSize >
+      storageResult.data.storageLimit
+    ) {
+      throw new Error(
+        `Storage limit exceeded. You have ${storageResult.data.storageLimit - storageResult.data.storageUsed} bytes remaining.`
+      );
+    }
+
+    // Upload files and create database records
+    try {
+      const { uploadFile } = await import('@/lib/minio');
+
+      for (const file of files) {
+        // Upload to MinIO
+        const url = await uploadFile(file.buffer, file.fileName, file.mimeType);
+
+        // Determine media type
+        const mediaType = allowedVideoTypes.includes(file.mimeType)
+          ? 'VIDEO'
+          : allowedAudioTypes.includes(file.mimeType)
+            ? 'AUDIO'
+            : 'IMAGE';
+
+        // Create database record
+        const media = await prisma.questionMedia.create({
+          data: {
+            questionId,
+            url,
+            type: mediaType,
+            fileName: file.fileName,
+            fileSize: file.size,
+            mimeType: file.mimeType,
+            order: uploadedMedia.length,
+          },
+        });
+
+        uploadedMedia.push(media);
+      }
+
+      // Update user storage usage
+      await updateStorageUsage({ bytesChange: totalSize });
+
+      return {
+        media: uploadedMedia,
+        storageUsed: storageResult.data.storageUsed + totalSize,
+        storageMax: storageResult.data.storageLimit,
+      };
+    } catch (error) {
+      // If any upload fails, we should ideally clean up already uploaded files
+      console.error('Upload error:', error);
+      throw new Error('Failed to upload files');
+    }
+  });
+
+/**
+ * Delete media - replaces /api/upload DELETE endpoint
+ */
+export const deleteMediaById = action
+  .schema(
+    z.object({
+      mediaId: z.string().min(1, 'Media ID is required'),
+    })
+  )
+  .action(async ({ parsedInput: { mediaId } }) => {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
+
+    // SECURITY: チームベース削除権限検証
+    const media = await prisma.questionMedia.findFirst({
+      where: {
+        id: mediaId,
+        question: {
+          quiz: {
+            OR: [
+              { createdById: session.user.id }, // 作成者
+              {
+                team: {
+                  members: {
+                    some: {
+                      userId: session.user.id,
+                      role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                    },
+                  },
+                },
+              }, // チームメンバー
+            ],
+          },
+        },
+      },
+    });
+
+    if (!media) {
+      throw new Error('Media not found or unauthorized');
+    }
+
+    // Delete from database
+    await prisma.questionMedia.delete({
+      where: { id: mediaId },
+    });
+
+    // Update storage usage (negative value to decrease)
+    await updateStorageUsage({ bytesChange: -media.fileSize });
+
+    // TODO: Delete from MinIO (implement deleteFile in minio.ts)
+
+    return { success: true };
+  });

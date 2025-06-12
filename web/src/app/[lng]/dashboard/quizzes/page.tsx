@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { QuizListHeader } from '@/components/quiz/QuizListHeader';
 import { QuizListContent } from '@/components/quiz/QuizListContent';
 import { QuizListSkeleton } from '@/components/quiz/QuizListSkeleton';
+import { AuthErrorBoundary } from '@/components/auth/AuthErrorBoundary';
 
 interface QuizListPageProps {
   params: Promise<{ lng: string }>;
@@ -31,11 +32,13 @@ export default async function QuizListPage({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <QuizListHeader />
-      <Suspense fallback={<QuizListSkeleton />}>
-        <QuizListContent searchParams={searchParams} />
-      </Suspense>
-    </div>
+    <AuthErrorBoundary>
+      <div className="container mx-auto px-4 py-8">
+        <QuizListHeader />
+        <Suspense fallback={<QuizListSkeleton />}>
+          <QuizListContent searchParams={searchParams} />
+        </Suspense>
+      </div>
+    </AuthErrorBoundary>
   );
 }

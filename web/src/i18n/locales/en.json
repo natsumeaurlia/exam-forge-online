@@ -67,13 +67,7 @@
       "nextButton": "Next"
     }
   },
-  "quiz": {
-    "selector": {
-      "title": "Select Quiz Type",
-      "description": "Choose the type of quiz you want to create. You can select the format that best suits your purpose.",
-      "selectButton": "Select this type",
-      "proOnlyButton": "Available in Pro plan"
-    },
+  "features": {
     "types": {
       "simple-quiz": {
         "title": "Simple Quiz",
@@ -884,17 +878,23 @@
       "totalQuizzes": "Total Quizzes",
       "monthlyParticipants": "Monthly Participants",
       "averageScore": "Average Score",
-      "activeQuizzes": "Active Quizzes"
+      "activeQuizzes": "Active Quizzes",
+      "noData": "No data available"
     },
     "recentQuizzes": {
       "title": "Recent Quizzes",
       "created": "Created",
-      "status": "Status",
       "edit": "Edit",
       "preview": "Preview",
       "viewAll": "View All",
+      "questions": "questions",
       "questionsCount": "Questions: {count}",
       "participantsCount": "Participants: {count}",
+      "status": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
       "statusBadge": {
         "published": "Published",
         "draft": "Draft",
@@ -905,7 +905,8 @@
         "share": "Share",
         "export": "Export",
         "delete": "Delete"
-      }
+      },
+      "noQuizzes": "No quizzes found"
     },
     "activity": {
       "title": "Activity",
@@ -942,13 +943,21 @@
       "metadata": {
         "score": "Score: {score}%",
         "participants": "Participants: {participants}"
-      }
+      },
+      "noActivity": "No recent activity"
     },
     "usage": {
       "title": "Usage",
+      "noData": "No usage data available",
+      "quizzes": "Quizzes",
+      "participants": "Monthly Participants", 
+      "storage": "Storage",
+      "members": "Members",
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade",
+      "unlimited": "Unlimited",
       "quizLimit": "Quiz Limit",
       "participantLimit": "Participant Limit",
-      "upgrade": "Upgrade",
       "units": {
         "items": "items",
         "peoplePerMonth": "people/month",

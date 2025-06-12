@@ -180,3 +180,41 @@ export async function deleteUserFile(fileId: string) {
     throw new Error('Failed to delete file');
   }
 }
+
+// Get user storage information with detailed calculations
+// This replaces the /api/storage endpoint
+export async function getUserStorageWithDetails() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Get user storage information
+    const storageResult = await getUserStorage();
+
+    if (!storageResult.success || !storageResult.data) {
+      throw new Error(storageResult.error || 'Failed to get storage info');
+    }
+
+    // Calculate additional properties
+    const storageUsedGB = storageResult.data.storageUsed / (1024 * 1024 * 1024);
+    const storageLimitGB =
+      storageResult.data.storageLimit / (1024 * 1024 * 1024);
+    const percentageUsed =
+      (storageResult.data.storageUsed / storageResult.data.storageLimit) * 100;
+
+    // Return storage info with the expected structure
+    return {
+      storageUsed: storageResult.data.storageUsed,
+      storageLimit: storageResult.data.storageLimit,
+      storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
+      storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
+      percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+      files: storageResult.data.files,
+    };
+  } catch (error) {
+    console.error('Storage API error:', error);
+    throw new Error('Failed to get storage info');
+  }
+}

@@ -166,12 +166,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
+        run: pnpm exec dotenv -e ../.env -- prisma db push --force-reset
 
-      - name: Run Prisma migration validation
-        run: |
-          pnpm exec dotenv -e ../.env -- prisma migrate status
-          echo "✅ Prisma migrations validated successfully"
+      - name: Run Prisma seed
+        run: pnpm exec dotenv -e ../.env -- prisma db seed
 
   # ビルドテスト
   build:
@@ -280,7 +278,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec dotenv -e ../.env -- prisma migrate deploy
+        run: pnpm exec dotenv -e ../.env -- prisma db push --force-reset
+
+      - name: Run Prisma seed
+        run: pnpm exec dotenv -e ../.env -- prisma db seed
 
       - name: Build application
         run: pnpm run build

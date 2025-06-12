@@ -1,9 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+'use server';
+
+import { createSafeActionClient } from 'next-safe-action';
+import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getPriceIds } from '@/lib/stripe/pricing';
+import Stripe from 'stripe';
 
 // Initialize Stripe only if the API key is available
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
@@ -13,23 +16,31 @@ const stripe = stripeApiKey
     })
   : null;
 
-export async function POST(request: NextRequest) {
-  // Check if Stripe is properly configured
-  if (!stripe) {
-    return NextResponse.json(
-      { error: 'Payment system is not configured' },
-      { status: 500 }
-    );
-  }
+// Create safe action client
+const action = createSafeActionClient();
 
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+// Schema for creating checkout session
+const createCheckoutSessionSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  planType: z.enum(['PRO', 'PREMIUM']),
+  billingCycle: z.enum(['MONTHLY', 'YEARLY']),
+});
+
+/**
+ * Create Stripe checkout session - replaces /api/stripe/checkout
+ */
+export const createCheckoutSession = action
+  .schema(createCheckoutSessionSchema)
+  .action(async ({ parsedInput: { teamId, planType, billingCycle } }) => {
+    // Check if Stripe is properly configured
+    if (!stripe) {
+      throw new Error('Payment system is not configured');
     }
 
-    const body = await request.json();
-    const { teamId, planType, billingCycle } = body;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
 
     // Validate team ownership
     const teamMember = await prisma.teamMember.findUnique({
@@ -45,10 +56,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!teamMember || !['OWNER', 'ADMIN'].includes(teamMember.role)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
+      throw new Error('Insufficient permissions');
     }
 
     // Get plan and price information
@@ -57,7 +65,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!plan) {
-      return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
+      throw new Error('Invalid plan');
     }
 
     // Get current team member count
@@ -73,10 +81,7 @@ export async function POST(request: NextRequest) {
     const priceId = priceIds[planKey]?.[cycleKey];
 
     if (!priceId) {
-      return NextResponse.json(
-        { error: 'Price not configured' },
-        { status: 500 }
-      );
+      throw new Error('Price not configured');
     }
 
     // Get user's Stripe customer ID
@@ -141,15 +146,63 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    return {
       sessionId: checkoutSession.id,
       url: checkoutSession.url,
+    };
+  });
+
+// Schema for creating portal session
+const createPortalSessionSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+});
+
+/**
+ * Create Stripe customer portal session - replaces /api/stripe/portal
+ */
+export const createPortalSession = action
+  .schema(createPortalSessionSchema)
+  .action(async ({ parsedInput: { teamId } }) => {
+    // Check if Stripe is properly configured
+    if (!stripe) {
+      throw new Error('Payment system is not configured');
+    }
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
+
+    // Validate team ownership
+    const teamMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId: session.user.id,
+        },
+      },
+      include: {
+        team: {
+          include: {
+            subscription: true,
+          },
+        },
+      },
     });
-  } catch (error) {
-    console.error('Checkout session error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
-    );
-  }
-}
+
+    if (!teamMember || !['OWNER', 'ADMIN'].includes(teamMember.role)) {
+      throw new Error('Insufficient permissions');
+    }
+
+    if (!teamMember.team.subscription?.stripeCustomerId) {
+      throw new Error('No active subscription');
+    }
+
+    // Create portal session
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: teamMember.team.subscription.stripeCustomerId,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    });
+
+    return { url: portalSession.url };
+  });
