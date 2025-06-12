@@ -12,12 +12,17 @@ import { QuizStartScreen } from './QuizStartScreen';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizResults } from './QuizResults';
 import { submitQuizResponse } from '@/lib/actions/quiz-response';
-import type { Quiz, Question, QuestionOption, Media } from '@prisma/client';
+import type {
+  Quiz,
+  Question,
+  QuestionOption,
+  QuestionMedia,
+} from '@prisma/client';
 
 interface QuizWithRelations extends Quiz {
   questions: (Question & {
     options: QuestionOption[];
-    media: Media[];
+    media: QuestionMedia[];
   })[];
   team: {
     name: string;
@@ -131,18 +136,31 @@ export function QuizTakingClient({
     try {
       const response = await submitQuizResponse({
         quizId: quiz.id,
-        answers: Object.values(answers),
+        responses: Object.values(answers).map(a => ({
+          questionId: a.questionId,
+          answer: a.answer,
+        })),
         participantName: participantInfo.name || undefined,
         participantEmail: participantInfo.email || undefined,
-        startedAt: startTime!,
-        completedAt: new Date(),
+        startedAt: startTime!.toISOString(),
+        completedAt: new Date().toISOString(),
       });
 
-      if (response.success && response.data) {
-        setResponseId(response.data.id);
-        setCurrentStep('results');
+      if (response && 'data' in response && response.data) {
+        if (
+          'success' in response.data &&
+          response.data.success &&
+          response.data.data
+        ) {
+          setResponseId(response.data.data.id);
+          setCurrentStep('results');
+        } else if ('error' in response.data) {
+          setError(response.data.error || t('submitError'));
+        }
+      } else if (response && 'serverError' in response) {
+        setError(response.serverError || t('submitError'));
       } else {
-        setError(response.error || t('submitError'));
+        setError(t('submitError'));
       }
     } catch (err) {
       setError(t('submitError'));
@@ -245,7 +263,7 @@ export function QuizTakingClient({
             <Button
               onClick={handleNext}
               disabled={
-                !isAnswered(currentQuestion.id) && currentQuestion.required
+                !isAnswered(currentQuestion.id) && currentQuestion.isRequired
               }
             >
               {t('next')}
@@ -255,7 +273,7 @@ export function QuizTakingClient({
               onClick={handleSubmit}
               disabled={
                 submitting ||
-                (!isAnswered(currentQuestion.id) && currentQuestion.required)
+                (!isAnswered(currentQuestion.id) && currentQuestion.isRequired)
               }
               className="bg-green-600 hover:bg-green-700"
             >

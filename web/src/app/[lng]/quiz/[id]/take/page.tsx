@@ -15,12 +15,10 @@ async function getPublicQuiz(id: string) {
   const quiz = await prisma.quiz.findUnique({
     where: {
       id,
-      isPublic: true,
       status: 'PUBLISHED',
     },
     include: {
       questions: {
-        where: { isActive: true },
         orderBy: { order: 'asc' },
         include: {
           options: {

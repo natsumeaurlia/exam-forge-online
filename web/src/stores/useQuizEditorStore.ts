@@ -177,10 +177,13 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           correctAnswer: getDefaultCorrectAnswer(type),
           gradingCriteria: null,
           isRequired: false,
-          quizId: quiz.id,
-          sectionId: null,
+          isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
+          difficultyLevel: null,
+          sectionTimeLimit: null,
+          quizId: quiz.id,
+          sectionId: null,
           options:
             type === 'MULTIPLE_CHOICE' || type === 'CHECKBOX'
               ? [

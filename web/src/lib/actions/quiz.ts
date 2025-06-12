@@ -72,17 +72,7 @@ async function getUserActiveTeam(userId: string): Promise<string> {
     );
 
     try {
-      // Generate a unique slug
-      let teamSlug = `team-${userId.substring(0, 8)}`;
-      let slugSuffix = 0;
-
-      // Check if slug already exists and make it unique
-      while (await prisma.team.findUnique({ where: { slug: teamSlug } })) {
-        slugSuffix++;
-        teamSlug = `team-${userId.substring(0, 8)}-${slugSuffix}`;
-      }
-
-      // Use transaction to ensure atomicity
+      // Use transaction to ensure atomicity and handle race conditions
       const newTeam = await prisma.$transaction(async tx => {
         // Double-check user exists in the transaction
         const userCheck = await tx.user.findUnique({
@@ -94,6 +84,28 @@ async function getUserActiveTeam(userId: string): Promise<string> {
           throw new Error(
             'INVALID_USER:セッションのユーザーIDが無効です。ブラウザのCookieをクリアして再ログインしてください。'
           );
+        }
+
+        // Generate a unique slug within the transaction to prevent race conditions
+        // Use timestamp and random string to minimize collision probability
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 6);
+        let teamSlug = `team-${userId.substring(0, 8)}-${timestamp}-${randomStr}`;
+
+        // Additional safety check: ensure slug is truly unique
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        while (await tx.team.findUnique({ where: { slug: teamSlug } })) {
+          attempts++;
+          if (attempts >= maxAttempts) {
+            throw new Error(
+              'Failed to generate unique team slug after multiple attempts'
+            );
+          }
+          // Generate new random component
+          const newRandomStr = Math.random().toString(36).substring(2, 6);
+          teamSlug = `team-${userId.substring(0, 8)}-${timestamp}-${newRandomStr}-${attempts}`;
         }
 
         // Create the team

@@ -162,7 +162,7 @@ export function QuizResults({
 
         {/* Actions */}
         <div className="flex justify-center gap-4">
-          {quiz.showCorrectAnswers && (
+          {quiz.showAnswersAfterSubmit && (
             <Button variant="outline" asChild>
               <a href={`/${lng}/quiz/${quiz.id}/review/${responseId}`}>
                 {t('reviewAnswers')}

@@ -8,12 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { MediaDisplay } from '@/components/common/MediaDisplay';
-import type { Question, QuestionOption, Media } from '@prisma/client';
+import type { Question, QuestionOption, QuestionMedia } from '@prisma/client';
 
 interface QuestionDisplayProps {
   question: Question & {
     options: QuestionOption[];
-    media: Media[];
+    media: QuestionMedia[];
   };
   answer: any;
   onAnswer: (answer: any) => void;
@@ -34,7 +34,9 @@ export function QuestionDisplay({
         <div>
           <h2 className="mb-2 text-xl font-semibold">
             {question.text}
-            {question.required && <span className="ml-1 text-red-500">*</span>}
+            {question.isRequired && (
+              <span className="ml-1 text-red-500">*</span>
+            )}
           </h2>
           {question.explanation && (
             <p className="text-sm text-gray-600">{question.explanation}</p>
@@ -43,11 +45,14 @@ export function QuestionDisplay({
 
         {/* Media Display */}
         {question.media.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {question.media.map(media => (
-              <MediaDisplay key={media.id} media={media} />
-            ))}
-          </div>
+          <MediaDisplay
+            media={question.media.map(m => ({
+              id: m.id,
+              url: m.url,
+              type: m.type,
+            }))}
+            mode="gallery"
+          />
         )}
       </div>
     );
@@ -173,7 +178,15 @@ export function QuestionDisplay({
         );
 
       case 'MATCHING':
-        const pairs = JSON.parse(question.metadata || '{}').pairs || [];
+        // For MATCHING questions, we need to store pairs in options
+        // Split options into left and right pairs based on order
+        const halfLength = Math.ceil(question.options.length / 2);
+        const leftOptions = question.options.slice(0, halfLength);
+        const rightOptions = question.options.slice(halfLength);
+        const pairs = leftOptions.map((opt, index) => ({
+          left: opt.text,
+          right: rightOptions[index]?.text || '',
+        }));
         const matches = answer || {};
 
         return (
@@ -212,7 +225,8 @@ export function QuestionDisplay({
         );
 
       case 'SORTING':
-        const items = JSON.parse(question.metadata || '{}').items || [];
+        // For SORTING questions, use options as items to sort
+        const items = question.options.map(opt => opt.text);
         const sortedItems = answer || [...items];
 
         return (

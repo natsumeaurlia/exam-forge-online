@@ -376,6 +376,22 @@ model Subscription {
   @@index([teamId])
 }
 
+model StripeEvent {
+  id                String   @id @default(cuid())
+  stripeEventId     String   @unique
+  type              String
+  processed         Boolean  @default(false)
+  processedAt       DateTime?
+  error             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([stripeEventId])
+  @@index([type])
+  @@index([processed])
+  @@index([createdAt])
+}
+
 model Invoice {
   id               String        @id @default(cuid())
   stripeInvoiceId  String        @unique

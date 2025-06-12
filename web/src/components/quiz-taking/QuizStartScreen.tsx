@@ -7,10 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Clock, FileQuestion, Lock } from 'lucide-react';
-import type { Quiz } from '@prisma/client';
+import type { Quiz, Question } from '@prisma/client';
 
 interface QuizStartScreenProps {
-  quiz: Quiz & { team: { name: string } };
+  quiz: Quiz & {
+    team: { name: string };
+    questions?: Question[];
+  };
   lng: string;
   requiresPassword: boolean;
   password: string;
@@ -153,7 +156,7 @@ export function QuizStartScreen({
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>{t('quizInfo')}</p>
           {quiz.allowMultipleAttempts && <p>{t('multipleAttemptsAllowed')}</p>}
-          {quiz.showCorrectAnswers && <p>{t('answersShownAfter')}</p>}
+          {quiz.showAnswersAfterSubmit && <p>{t('answersShownAfter')}</p>}
         </div>
       </Card>
     </div>
