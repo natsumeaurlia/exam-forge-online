@@ -1,6 +1,7 @@
 import { withAuth } from 'next-auth/middleware';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 const locales = ['en', 'ja'] as const;
 const publicPaths = [
@@ -15,12 +16,11 @@ const publicPaths = [
   '/legal',
 ] as const;
 
-// SECURITY: API routes that require authentication
-const protectedApiPaths = [
-  '/api/upload',
-  '/api/storage',
-  '/api/stripe/checkout',
-  '/api/stripe/portal',
+// SECURITY FIX: Switch to secure-by-default - all API routes require auth unless explicitly excluded
+const publicApiPaths = [
+  '/api/auth/',
+  '/api/stripe/webhook',
+  '/api/certificates/verify/',
 ] as const;
 
 // Create the internationalization middleware
@@ -55,24 +55,57 @@ export default async function middleware(request: NextRequest) {
     return pathname === fullPath || pathname === path;
   });
 
-  // Check if this is a public API path (auth and webhook endpoints)
-  const isPublicApiPath =
-    pathname.startsWith('/api/auth/') ||
-    pathname.startsWith('/api/stripe/webhook') ||
-    pathname.startsWith('/api/certificates/verify/');
+  // SECURITY FIX: Secure-by-default - check if API route is explicitly public
+  const isPublicApiPath = publicApiPaths.some(path =>
+    pathname.startsWith(path)
+  );
 
-  // For public paths and public API routes, use only i18n middleware
+  // For public paths and explicitly public API routes, use only i18n middleware
   if (isPublicPath || (pathname.startsWith('/api') && isPublicApiPath)) {
     return intlMiddleware(request);
   }
 
-  // For protected paths, use the combined auth + i18n middleware
-  // The authMiddleware will handle the authentication check
-  return authMiddleware(request as any, undefined as any);
+  // 🔒 SECURITY: 適切なJWT検証でSession Token Bypass脆弱性を修正
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    // トークンが存在せず、期限切れでないかチェック
+    if (
+      !token ||
+      (token.exp &&
+        typeof token.exp === 'number' &&
+        token.exp < Math.floor(Date.now() / 1000))
+    ) {
+      // Create a proper redirect URL with locale
+      const signInUrl = new URL(`/${locale}/auth/signin`, request.url);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  } catch (error) {
+    // JWTデコードエラーの場合も認証なしとして処理
+    console.warn('JWT validation error:', error);
+    const signInUrl = new URL(`/${locale}/auth/signin`, request.url);
+    signInUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  // For authenticated users, continue with i18n middleware
+  return intlMiddleware(request);
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  // Exclude API routes, Next.js internals, and static files
-  matcher: ['/', '/(ja|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+  // Match internationalized pathnames and protected API routes
+  // Exclude Next.js internals and static files
+  matcher: [
+    '/',
+    '/(ja|en)/:path*',
+    '/api/upload/:path*',
+    '/api/storage/:path*',
+    '/api/stripe/checkout/:path*',
+    '/api/stripe/portal/:path*',
+    '/((?!_next|_vercel|.*\\..*).*)',
+  ],
 };

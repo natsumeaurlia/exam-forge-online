@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useState, use, useEffect } from 'react';
-import { getAvailableProviders } from '@/lib/auth';
+import { getEnabledProviders } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -76,7 +76,12 @@ export default function SignUpPage({ params }: SignUpPageProps) {
   });
 
   useEffect(() => {
-    setAvailableProviders(getAvailableProviders());
+    const providers = getEnabledProviders();
+    setAvailableProviders({
+      google: providers.includes('google'),
+      github: providers.includes('github'),
+      credentials: providers.includes('credentials'),
+    });
   }, []);
 
   // ServerActionを使用

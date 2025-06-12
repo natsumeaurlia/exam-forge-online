@@ -120,24 +120,60 @@ export const authOptions: NextAuthOptions = {
       if (callbackUrl) {
         // SECURITY: Open redirect攻撃を防ぐため厳格な検証
         try {
+          // SECURITY FIX: URL decode and sanitize to prevent encoding bypasses
+          const decodedUrl = decodeURIComponent(callbackUrl);
+
+          // SECURITY FIX: Block dangerous schemes and patterns
+          const dangerousPatterns = [
+            'javascript:',
+            'data:',
+            'vbscript:',
+            'file:',
+            'about:',
+            '<script',
+            'onload=',
+            'onerror=',
+            '\\',
+            '../',
+          ];
+
+          if (
+            dangerousPatterns.some(pattern =>
+              decodedUrl.toLowerCase().includes(pattern.toLowerCase())
+            )
+          ) {
+            // Reject dangerous patterns
+            throw new Error('Dangerous URL pattern detected');
+          }
+
           // callbackUrlが相対URLの場合（//evil.com形式の攻撃を防ぐ）
-          if (callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
+          if (decodedUrl.startsWith('/') && !decodedUrl.startsWith('//')) {
+            // SECURITY FIX: Additional path traversal protection
+            const normalizedPath = decodedUrl.replace(/\/+/g, '/'); // Normalize multiple slashes
+            if (
+              normalizedPath.includes('/../') ||
+              normalizedPath.includes('..\\')
+            ) {
+              throw new Error('Path traversal attempt detected');
+            }
             // 相対パスのみ許可（プロトコル相対URLを拒否）
-            return callbackUrl;
+            return normalizedPath;
           }
 
           // callbackUrlが絶対URLの場合、同じドメインかつ同じプロトコルを厳密に検証
-          const callbackUrlObj = new URL(callbackUrl);
+          const callbackUrlObj = new URL(decodedUrl);
           const baseUrlObj = new URL(baseUrl);
 
           if (
             callbackUrlObj.origin === baseUrlObj.origin &&
-            callbackUrlObj.protocol === baseUrlObj.protocol
+            callbackUrlObj.protocol === baseUrlObj.protocol &&
+            !callbackUrlObj.pathname.includes('/../') // Additional path traversal check
           ) {
-            return callbackUrl;
+            return decodedUrl;
           }
         } catch {
           // 不正なURL形式の場合はデフォルトにフォールバック
+          console.warn('Blocked potential open redirect attempt:', callbackUrl);
         }
       }
 
@@ -166,8 +202,9 @@ export function auth() {
   return getServerSession(authOptions);
 }
 
-// Helper function to check which OAuth providers are available
-export function getAvailableProviders() {
+// SECURITY FIX: Server-side only function to check OAuth providers
+// This should only be used server-side and never exposed to client
+function getAvailableProvidersInternal() {
   return {
     google: !!(
       process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -175,4 +212,13 @@ export function getAvailableProviders() {
     github: !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET),
     credentials: true, // Always available
   };
+}
+
+// SECURITY: Safe client-side provider check (no configuration details exposed)
+export function getEnabledProviders() {
+  // Only expose provider names that are actually configured
+  const providers = getAvailableProvidersInternal();
+  return Object.keys(providers).filter(
+    key => providers[key as keyof typeof providers]
+  );
 }
