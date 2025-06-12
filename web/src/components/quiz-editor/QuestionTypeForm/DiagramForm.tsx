@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -140,10 +141,13 @@ export function DiagramForm({
                   className={`relative ${isAddingHotSpot ? 'cursor-crosshair' : ''}`}
                   onClick={handleImageClick}
                 >
-                  <img
+                  <Image
                     src={question.imageUrl}
                     alt="Diagram"
+                    width={800}
+                    height={600}
                     className="h-auto w-full"
+                    style={{ objectFit: 'contain' }}
                   />
 
                   {/* ホットスポットの表示 */}
