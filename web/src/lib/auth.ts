@@ -7,7 +7,6 @@ import CredentialsProvider, {
 } from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
-import './auth-config-validator';
 import { OAuthConfig } from 'next-auth/providers/oauth';
 import { EmailConfig } from 'next-auth/providers/email';
 

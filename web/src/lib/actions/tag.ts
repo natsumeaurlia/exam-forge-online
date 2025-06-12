@@ -1,7 +1,6 @@
 import { createSafeActionClient } from 'next-safe-action';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { getAuthenticatedUser } from '../utils/auth';
 import {
   createTagSchema,
   updateTagSchema,
@@ -10,17 +9,7 @@ import {
   removeTagFromQuizSchema,
   getTagsSchema,
 } from '@/types/quiz-schemas';
-import { authAction } from './auth';
-
-const actionClient = createSafeActionClient();
-
-async function getAuthenticatedUserId() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    throw new Error('認証が必要です');
-  }
-  return user.id;
-}
+import { authAction } from './auth-action';
 
 // タグ作成
 export const createTag = authAction

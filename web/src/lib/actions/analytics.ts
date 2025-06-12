@@ -1,21 +1,69 @@
+'use server';
+
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 
-export interface TrendPoint {
+// 内部型定義（エクスポートしない）
+interface TrendPoint {
   date: string;
   count: number;
   averageScore: number;
 }
 
-export interface QuizAnalytics {
+interface QuizAnalytics {
   totalResponses: number;
   averageScore: number;
   passRate: number;
   averageTime: number;
   trend: TrendPoint[];
+}
+
+interface DashboardStats {
+  totalQuizzes: number;
+  monthlyParticipants: number;
+  averageScore: number;
+  activeQuizzes: number;
+  percentageChanges: {
+    totalQuizzes: number;
+    monthlyParticipants: number;
+    averageScore: number;
+    activeQuizzes: number;
+  };
+}
+
+interface RecentActivity {
+  id: string;
+  type:
+    | 'quiz_completed'
+    | 'quiz_created'
+    | 'user_joined'
+    | 'quiz_edited'
+    | 'quiz_shared';
+  title: string;
+  timestamp: Date;
+  details?: string;
+}
+
+interface RecentQuiz {
+  id: string;
+  title: string;
+  status: 'draft' | 'published' | 'closed';
+  participants: number;
+  questions: number;
+  createdAt: Date;
+}
+
+interface UsageData {
+  currentPlan: 'free' | 'pro' | 'enterprise';
+  usage: {
+    quizzes: { current: number; limit: number };
+    participants: { current: number; limit: number };
+    storage: { current: number; limit: number }; // in MB
+    members: { current: number; limit: number };
+  };
 }
 
 // クイズ分析取得用のスキーマ
@@ -147,19 +195,6 @@ export const getQuizAnalytics = authAction
     }
   });
 
-export interface DashboardStats {
-  totalQuizzes: number;
-  monthlyParticipants: number;
-  averageScore: number;
-  activeQuizzes: number;
-  percentageChanges: {
-    totalQuizzes: number;
-    monthlyParticipants: number;
-    averageScore: number;
-    activeQuizzes: number;
-  };
-}
-
 // ダッシュボード統計取得用のスキーマ（パラメータなし）
 const getDashboardStatsSchema = z.object({});
 
@@ -283,19 +318,6 @@ export const getDashboardStats = authAction
       throw new Error('Failed to fetch dashboard stats');
     }
   });
-
-export interface RecentActivity {
-  id: string;
-  type:
-    | 'quiz_completed'
-    | 'quiz_created'
-    | 'user_joined'
-    | 'quiz_edited'
-    | 'quiz_shared';
-  title: string;
-  timestamp: Date;
-  details?: string;
-}
 
 // 最近のアクティビティ取得用のスキーマ
 const getRecentActivitiesSchema = z.object({
@@ -428,15 +450,6 @@ export const getRecentActivities = authAction
     }
   });
 
-export interface RecentQuiz {
-  id: string;
-  title: string;
-  status: 'draft' | 'published' | 'closed';
-  participants: number;
-  questions: number;
-  createdAt: Date;
-}
-
 // 最近のクイズ取得用のスキーマ
 const getRecentQuizzesSchema = z.object({
   limit: z.number().min(1).max(50).default(5),
@@ -488,16 +501,6 @@ export const getRecentQuizzes = authAction
       throw new Error('Failed to fetch recent quizzes');
     }
   });
-
-export interface UsageData {
-  currentPlan: 'free' | 'pro' | 'enterprise';
-  usage: {
-    quizzes: { current: number; limit: number };
-    participants: { current: number; limit: number };
-    storage: { current: number; limit: number }; // in MB
-    members: { current: number; limit: number };
-  };
-}
 
 // 使用量データ取得用のスキーマ（パラメータなし）
 const getUsageDataSchema = z.object({});

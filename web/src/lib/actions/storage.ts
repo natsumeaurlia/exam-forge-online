@@ -4,7 +4,7 @@ import { createSafeActionClient } from 'next-safe-action';
 import { authOptions } from '@/lib/auth';
 import { z } from 'zod';
 import { prisma } from '../prisma';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 import { getUserStorageData } from './helpers';
 
 // Get user storage information

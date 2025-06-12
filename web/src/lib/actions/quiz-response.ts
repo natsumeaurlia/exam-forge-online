@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([

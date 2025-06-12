@@ -9,7 +9,7 @@ import {
   updateUserStorageUsage,
 } from '@/lib/actions/helpers';
 import { prisma } from '@/lib/prisma';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();

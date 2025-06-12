@@ -42,8 +42,8 @@ export function QuizResults({
     getQuizResponse,
     {
       onSuccess: ({ data }) => {
-        if (data) {
-          setResponseData(data);
+        if (data && data.data) {
+          setResponseData(data.data);
         }
       },
       onError: ({ error }) => {
@@ -53,7 +53,7 @@ export function QuizResults({
   );
 
   useEffect(() => {
-    executeGetQuizResponse(responseId);
+    executeGetQuizResponse({ responseId });
   }, [responseId, executeGetQuizResponse]);
 
   if (isExecuting) {

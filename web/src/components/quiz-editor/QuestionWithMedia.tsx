@@ -57,7 +57,7 @@ export function QuestionWithMedia({
 
   useEffect(() => {
     if (hasPaidPlan) {
-      executeGetUserStorage();
+      executeGetUserStorage({});
     }
   }, [hasPaidPlan, executeGetUserStorage]);
 

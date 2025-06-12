@@ -104,7 +104,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
     useAction(deleteUserFile, {
       onSuccess: () => {
         // Refresh media after successful deletion
-        executeGetUserStorage();
+        executeGetUserStorage({});
       },
       onError: ({ error }) => {
         console.error('Failed to delete file:', error);
@@ -113,7 +113,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
     });
 
   const fetchUserMedia = useCallback(() => {
-    executeGetUserStorage();
+    executeGetUserStorage({});
   }, [executeGetUserStorage]);
 
   useEffect(() => {
@@ -123,7 +123,9 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
   const handleDelete = async (fileIds: string[]) => {
     try {
       // Execute delete actions for all files
-      await Promise.all(fileIds.map(id => executeDeleteUserFile(id)));
+      await Promise.all(
+        fileIds.map(id => executeDeleteUserFile({ fileId: id }))
+      );
       setSelectedFiles(new Set());
       toast.success(t('messages.deleteSuccess', { count: fileIds.length }));
     } catch (error) {

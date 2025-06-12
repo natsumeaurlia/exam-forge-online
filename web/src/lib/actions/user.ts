@@ -1,6 +1,6 @@
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
-import { authAction } from '@/lib/actions/auth';
+import { authAction } from '@/lib/actions/auth-action';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { FeatureType } from '@prisma/client';

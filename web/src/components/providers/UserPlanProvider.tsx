@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { useAction } from 'next-safe-action/hooks';
 import { getUserPlan } from '@/lib/actions/user';
 import type { Plan, Subscription, PlanType, FeatureType } from '@prisma/client';
@@ -51,13 +57,13 @@ export function UserPlanProvider({ children }: { children: React.ReactNode }) {
     }
   );
 
-  const fetchPlan = async () => {
+  const fetchPlan = useCallback(async () => {
     executeGetUserPlan({});
-  };
+  }, [executeGetUserPlan]);
 
   useEffect(() => {
     fetchPlan();
-  }, [executeGetUserPlan]);
+  }, [fetchPlan]);
 
   const isPro = data?.planType === 'PRO';
   const isPremium = data?.planType === 'PREMIUM';

@@ -19,7 +19,7 @@ import {
   checkSubdomainSchema,
 } from '@/types/quiz-schemas';
 import { QuizStatus, QuestionType } from '@prisma/client';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();

@@ -6,7 +6,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getPriceIds } from '@/lib/stripe/pricing';
 import Stripe from 'stripe';
-import { authAction } from './auth';
+import { authAction } from './auth-action';
 
 // Initialize Stripe only if the API key is available
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
