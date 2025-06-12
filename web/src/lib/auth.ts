@@ -173,6 +173,7 @@ export const authOptions: NextAuthOptions = {
           }
         } catch {
           // 不正なURL形式の場合はデフォルトにフォールバック
+          console.warn('Blocked potential open redirect attempt:', callbackUrl);
         }
       }
 

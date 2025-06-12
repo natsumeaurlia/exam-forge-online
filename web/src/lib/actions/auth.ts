@@ -85,26 +85,33 @@ export const signupAction = action
   .schema(signupSchema)
   .action(async ({ parsedInput: { name, email, password } }) => {
     try {
-      // Check if user already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser) {
-        throw new Error('このメールアドレスは既に登録されています');
-      }
-
-      // Hash password
+      // 🔒 SECURITY: トランザクションでRace Condition脆弱性を修正
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
-      const user = await prisma.user.create({
-        data: {
-          name,
-          email,
-          password: hashedPassword,
+      const user = await prisma.$transaction(
+        async tx => {
+          // トランザクション内で重複チェックとユーザー作成を原子的に実行
+          const existingUser = await tx.user.findUnique({
+            where: { email },
+          });
+
+          if (existingUser) {
+            throw new Error('このメールアドレスは既に登録されています');
+          }
+
+          // Create user (same transaction)
+          return await tx.user.create({
+            data: {
+              name,
+              email,
+              password: hashedPassword,
+            },
+          });
         },
-      });
+        {
+          isolationLevel: 'Serializable', // 最高レベルの分離でRace Condition防止
+        }
+      );
 
       return {
         success: true,
