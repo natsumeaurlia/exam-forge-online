@@ -45,14 +45,17 @@ export default function middleware(request: NextRequest) {
   const pathSegments = pathname.split('/');
   const locale = locales.includes(pathSegments[1]) ? pathSegments[1] : 'ja';
 
+  // Check if this is a public quiz route
+  const isPublicQuizRoute = pathname.match(/^\/(?:en|ja)?\/quiz\/[^\/]+$/);
+
   // Check if this is a public path (doesn't require authentication)
   const isPublicPath = publicPaths.some(path => {
     const fullPath = `/${locale}${path === '/' ? '' : path}`;
     return pathname === fullPath || pathname === path;
   });
 
-  // For public paths, use only i18n middleware
-  if (isPublicPath || pathname.startsWith('/api')) {
+  // For public paths and public quiz routes, use only i18n middleware
+  if (isPublicPath || isPublicQuizRoute || pathname.startsWith('/api')) {
     return intlMiddleware(request);
   }
 

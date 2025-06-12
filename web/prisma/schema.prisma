@@ -823,3 +823,12 @@ model QuizCertificateTemplate {
   @@index([quizId])
   @@index([templateId])
 }
+
+model RateLimitEntry {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+  
+  @@index([key])
+  @@index([createdAt])
+}
