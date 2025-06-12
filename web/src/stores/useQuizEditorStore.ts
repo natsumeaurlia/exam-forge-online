@@ -183,6 +183,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           sectionTimeLimit: null,
           quizId: quiz.id,
           sectionId: null,
+          isActive: true,
           options:
             type === 'MULTIPLE_CHOICE' || type === 'CHECKBOX'
               ? [

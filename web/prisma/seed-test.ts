@@ -297,16 +297,16 @@ export async function seedTestData(prisma: PrismaClient) {
             completedAt: new Date(
               Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
             ), // 過去30日以内
-            responses: {
-              create: quiz.questions.map(question => ({
-                question: {
-                  connect: { id: question.id },
-                },
-                answer: getRandomAnswer(question.type),
-                score: Math.random() > 0.3 ? question.points : 0,
-                isCorrect: Math.random() > 0.3,
-              })),
-            },
+            // responses: {
+            //   create: quiz.questions.map(question => ({
+            //     question: {
+            //       connect: { id: question.id },
+            //     },
+            //     answer: getRandomAnswer(question.type),
+            //     score: Math.random() > 0.3 ? question.points : 0,
+            //     isCorrect: Math.random() > 0.3,
+            //   })),
+            // },
           },
         });
       }

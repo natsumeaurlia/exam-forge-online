@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, X, Upload, Target, Info } from 'lucide-react';
+import Image from 'next/image';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface HotSpot {
@@ -140,9 +141,11 @@ export function DiagramForm({
                   className={`relative ${isAddingHotSpot ? 'cursor-crosshair' : ''}`}
                   onClick={handleImageClick}
                 >
-                  <img
+                  <Image
                     src={question.imageUrl}
                     alt="Diagram"
+                    width={800}
+                    height={600}
                     className="h-auto w-full"
                   />
 

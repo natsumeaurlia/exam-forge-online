@@ -96,7 +96,7 @@ export async function handleCheckoutSessionCompleted(
   }
 
   // Retrieve the subscription with retry logic
-  let subscription: Stripe.Subscription | null = null;
+  let subscription: Stripe.Subscription | undefined;
   let retries = 3;
 
   while (retries > 0) {
@@ -302,9 +302,9 @@ export async function handleInvoicePaid(
   await prisma.invoice.create({
     data: {
       teamId: subscription.teamId,
-      stripeInvoiceId: invoice.id || '',
-      stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: invoice.number || invoice.id || '',
+      stripeInvoiceId: String(invoice.id),
+      stripeCustomerId: String(invoice.customer),
+      invoiceNumber: invoice.number || String(invoice.id),
       status: 'PAID',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
@@ -363,9 +363,9 @@ export async function handleInvoicePaymentFailed(
   await prisma.invoice.create({
     data: {
       teamId: subscription.teamId,
-      stripeInvoiceId: invoice.id || '',
-      stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: invoice.number || invoice.id || '',
+      stripeInvoiceId: String(invoice.id),
+      stripeCustomerId: String(invoice.customer),
+      invoiceNumber: invoice.number || String(invoice.id),
       status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
