@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
 
 interface SignInPageProps {
   params: Promise<{
@@ -31,17 +32,13 @@ export default function SignInPage({ params }: SignInPageProps) {
     string,
     ClientSafeProvider
   > | null>(null);
-  // テスト用デフォルト値（開発環境のみ）
-  const [email, setEmail] = useState(
-    process.env.NODE_ENV === 'development' ? 'test@example.com' : ''
-  );
-  const [password, setPassword] = useState(
-    process.env.NODE_ENV === 'development' ? 'password' : ''
-  );
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
   const errorParam = searchParams.get('error');
   const messageParam = searchParams.get('message');
 
@@ -66,13 +63,21 @@ export default function SignInPage({ params }: SignInPageProps) {
       });
 
       if (result?.error) {
-        alert('ログインに失敗しました');
+        toast({
+          title: t('auth.signin.error.title'),
+          description: t('auth.signin.error.invalidCredentials'),
+          variant: 'destructive',
+        });
       } else if (result?.ok) {
         router.push(`/${resolvedParams.lng}/dashboard`);
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      alert('ログインエラーが発生しました');
+      toast({
+        title: t('auth.signin.error.title'),
+        description: t('auth.signin.error.general'),
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }
