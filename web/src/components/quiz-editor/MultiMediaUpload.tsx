@@ -68,6 +68,53 @@ export function MultiMediaUpload({
   const storagePercentage = (storageUsed / storageMax) * 100;
   const remainingStorage = storageMax - storageUsed;
 
+  const handleFiles = useCallback(
+    async (fileList: FileList) => {
+      const files = Array.from(fileList);
+
+      // Check total size
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      if (totalSize > remainingStorage) {
+        toast.error(
+          t('storageExceeded', {
+            remaining: formatFileSize(remainingStorage),
+          })
+        );
+        return;
+      }
+
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      try {
+        const formData = new FormData();
+        files.forEach(file => formData.append('files', file));
+        formData.append('questionId', questionId);
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Upload failed');
+        }
+
+        const result = await response.json();
+        onChange([...media, ...result.media]);
+        toast.success(t('uploadSuccess', { count: files.length }));
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast.error(error instanceof Error ? error.message : t('uploadError'));
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    },
+    [questionId, media, onChange, remainingStorage, t]
+  );
+
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -78,63 +125,22 @@ export function MultiMediaUpload({
     }
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      await handleFiles(e.dataTransfer.files);
-    }
-  }, []);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await handleFiles(e.dataTransfer.files);
+      }
+    },
+    [handleFiles]
+  );
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       await handleFiles(e.target.files);
-    }
-  };
-
-  const handleFiles = async (fileList: FileList) => {
-    const files = Array.from(fileList);
-
-    // Check total size
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > remainingStorage) {
-      toast.error(
-        t('storageExceeded', {
-          remaining: formatFileSize(remainingStorage),
-        })
-      );
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    try {
-      const formData = new FormData();
-      files.forEach(file => formData.append('files', file));
-      formData.append('questionId', questionId);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
-      }
-
-      const result = await response.json();
-      onChange([...media, ...result.media]);
-      toast.success(t('uploadSuccess', { count: files.length }));
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error instanceof Error ? error.message : t('uploadError'));
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
     }
   };
 

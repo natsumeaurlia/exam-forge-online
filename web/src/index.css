@@ -127,15 +127,15 @@
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
   }
-  
+
   .quiz-editor-mobile-toolbar::-webkit-scrollbar {
     height: 4px;
   }
-  
+
   .quiz-editor-mobile-toolbar::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .quiz-editor-mobile-toolbar::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 2px;
