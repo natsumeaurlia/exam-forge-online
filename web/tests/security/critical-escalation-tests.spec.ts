@@ -12,7 +12,7 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
       // Clear all authentication
       await page.context().clearCookies();
 
-      const bypassHeaders = [
+      const bypassHeaders: Record<string, string>[] = [
         { Authorization: 'Bearer fake-token' },
         { 'X-API-Key': 'admin-key-123' },
         { 'X-Auth-Token': 'bypass-token' },
@@ -56,7 +56,10 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
 
             expect([401, 403, 404, 405]).toContain(status);
           } catch (error) {
-            if (error.message.includes('API Authentication Bypass')) {
+            if (
+              error instanceof Error &&
+              error.message.includes('API Authentication Bypass')
+            ) {
               throw error;
             }
             console.log(`✅ PASS: ${endpoint} rejected bypass attempt`);
@@ -107,7 +110,10 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
 
             expect([401, 403, 404, 405]).toContain(status);
           } catch (error) {
-            if (error.message.includes('Bypass Vulnerability')) {
+            if (
+              error instanceof Error &&
+              error.message.includes('Bypass Vulnerability')
+            ) {
               throw error;
             }
             console.log(`✅ PASS: ${endpoint} rejected query bypass`);
@@ -137,7 +143,7 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
       for (const endpoint of endpoints) {
         for (const method of methods) {
           try {
-            let response;
+            let response: any;
 
             switch (method) {
               case 'GET':
@@ -163,9 +169,11 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
                   method: 'OPTIONS',
                 });
                 break;
+              default:
+                throw new Error(`Unsupported method: ${method}`);
             }
 
-            const status = response.status();
+            const status = response?.status();
             console.log(
               `🔍 Method Test: ${method} ${endpoint} -> Status: ${status}`
             );
@@ -184,7 +192,10 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
               expect([401, 403, 404, 405]).toContain(status);
             }
           } catch (error) {
-            if (error.message.includes('Bypass Vulnerability')) {
+            if (
+              error instanceof Error &&
+              error.message.includes('Bypass Vulnerability')
+            ) {
               throw error;
             }
             console.log(`✅ PASS: ${method} ${endpoint} properly secured`);
@@ -247,7 +258,10 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
             console.log(`✅ PASS: ${endpoint} does not expose OAuth secrets`);
           }
         } catch (error) {
-          if (error.message.includes('OAuth Secret Exposure')) {
+          if (
+            error instanceof Error &&
+            error.message.includes('OAuth Secret Exposure')
+          ) {
             throw error;
           }
           console.log(`✅ PASS: ${endpoint} not accessible or safe`);
@@ -335,7 +349,10 @@ test.describe('🚨 CRITICAL SECURITY ESCALATION TESTS', () => {
             }
           }
         } catch (error) {
-          if (error.message.includes('OAuth Redirect URI Vulnerability')) {
+          if (
+            error instanceof Error &&
+            error.message.includes('OAuth Redirect URI Vulnerability')
+          ) {
             throw error;
           }
           console.log(`✅ PASS: Malicious redirect URI rejected`);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useTransition } from 'react';
+import React, { useEffect, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
@@ -17,11 +17,11 @@ export function DashboardRefresher({
   const t = useTranslations('dashboard');
   const [isPending, startTransition] = useTransition();
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     startTransition(() => {
       router.refresh();
     });
-  };
+  }, [router]);
 
   // Auto-refresh functionality
   useEffect(() => {
@@ -32,7 +32,7 @@ export function DashboardRefresher({
 
       return () => clearInterval(interval);
     }
-  }, [autoRefreshInterval]);
+  }, [autoRefreshInterval, refresh]);
 
   return (
     <div className="flex items-center justify-end">
