@@ -68,7 +68,7 @@ export default async function middleware(request: NextRequest) {
 
   // For protected paths, use the combined auth + i18n middleware
   // The authMiddleware will handle the authentication check
-  return authMiddleware(request);
+  return authMiddleware(request, undefined as any);
 }
 
 export const config = {
