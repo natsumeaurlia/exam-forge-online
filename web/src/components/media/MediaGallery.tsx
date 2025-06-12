@@ -78,7 +78,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
       const storage = await getUserStorage();
 
       if (!storage.success || !storage.data) {
-        throw new Error('Failed to get storage data');
+        throw new Error(storage.error || 'Failed to get storage info');
       }
 
       setStorageUsage({
@@ -87,7 +87,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
       });
 
       // Transform storage files to MediaFile format
-      const mediaFiles: MediaFile[] = storage.data.files.map((file: any) => ({
+      const mediaFiles: MediaFile[] = storage.data.files.map(file => ({
         id: file.id,
         url: file.url,
         type: file.contentType.startsWith('video/') ? 'video' : 'image',
