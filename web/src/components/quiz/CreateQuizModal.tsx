@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAction } from 'next-safe-action/hooks';
 import { createQuiz } from '@/lib/actions/quiz';
+import { useActionError } from '@/hooks/use-action-error';
 import {
   Dialog,
   DialogContent,

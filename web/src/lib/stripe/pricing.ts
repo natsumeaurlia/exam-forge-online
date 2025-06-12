@@ -59,10 +59,10 @@ export async function syncSubscriptionQuantity(
       await prisma.usageRecord.create({
         data: {
           teamId,
-          subscriptionId: dbSubscription.id,
           resourceType: 'MEMBER',
-          quantity: memberCount,
-          recordedAt: new Date(),
+          count: memberCount,
+          periodStart: new Date(),
+          periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
         },
       });
     }

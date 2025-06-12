@@ -130,12 +130,16 @@ export async function POST(request: NextRequest) {
 
     // Check if total size would exceed user's storage limit
     if (
-      storageResult.data.usedBytes + totalSize >
-      storageResult.data.maxBytes
+      storageResult.data.storageUsed + totalSize >
+      storageResult.data.storageLimit
     ) {
+      const remainingGB =
+        (storageResult.data.storageLimit - storageResult.data.storageUsed) /
+        (1024 * 1024 * 1024);
       return NextResponse.json(
         {
-          error: `Storage limit exceeded. You have ${storageResult.data.maxGB - storageResult.data.usedGB} GB remaining.`,
+          success: false,
+          error: `Storage limit exceeded. You have ${remainingGB.toFixed(2)} GB remaining.`,
         },
         { status: 400 }
       );
@@ -177,22 +181,25 @@ export async function POST(request: NextRequest) {
       await updateStorageUsage({ bytesChange: totalSize });
 
       return NextResponse.json({
-        media: uploadedMedia,
-        storageUsed: storageResult.data.usedBytes + totalSize,
-        storageMax: storageResult.data.maxBytes,
+        success: true,
+        data: {
+          media: uploadedMedia,
+          storageUsed: storageResult.data.storageUsed + totalSize,
+          storageMax: storageResult.data.storageLimit,
+        },
       });
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files
       console.error('Upload error:', error);
       return NextResponse.json(
-        { error: 'Failed to upload files' },
+        { success: false, error: 'Failed to upload files' },
         { status: 500 }
       );
     }
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload files' },
+      { success: false, error: 'Failed to upload files' },
       { status: 500 }
     );
   }

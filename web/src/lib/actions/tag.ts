@@ -26,17 +26,48 @@ async function getAuthenticatedUser() {
   return session.user.id;
 }
 
+// Helper function to get user's active team (copied from quiz.ts)
+async function getUserActiveTeam(userId: string): Promise<string> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      teamMembers: {
+        where: {
+          role: {
+            in: ['OWNER', 'ADMIN', 'MEMBER'],
+          },
+        },
+        include: {
+          team: true,
+        },
+        orderBy: {
+          joinedAt: 'asc',
+        },
+      },
+    },
+  });
+
+  if (!user || user.teamMembers.length === 0) {
+    throw new Error('ユーザーのチームが見つかりません');
+  }
+
+  return user.teamMembers[0].team.id;
+}
+
 // タグ作成
 export const createTag = action
   .schema(createTagSchema)
   .action(async ({ parsedInput: data }) => {
-    await getAuthenticatedUser();
+    const userId = await getAuthenticatedUser();
 
     try {
+      const teamId = await getUserActiveTeam(userId);
+
       const tag = await prisma.tag.create({
         data: {
           name: data.name,
           color: data.color,
+          teamId,
         },
       });
 

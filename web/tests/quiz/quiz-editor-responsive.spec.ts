@@ -52,13 +52,13 @@ test.describe('Quiz Editor - Responsive Design', () => {
   test('Touch targets meet minimum 44px requirement', async ({ page }) => {
     // Set mobile viewport for touch testing
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     await page.goto('/ja/dashboard/quizzes/test-quiz/edit');
 
     // Check that touch targets (buttons) meet 44px minimum
     const touchTargets = page.locator('button');
     const count = await touchTargets.count();
-    
+
     for (let i = 0; i < count; i++) {
       const button = touchTargets.nth(i);
       const box = await button.boundingBox();
@@ -72,22 +72,21 @@ test.describe('Quiz Editor - Responsive Design', () => {
   test('Horizontal toolbar scrolling works on mobile', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 320, height: 568 }); // Small mobile screen
-    
+
     await page.goto('/ja/dashboard/quizzes/test-quiz/edit');
 
     // Check for horizontal scrollable toolbar
     const toolbar = page.locator('.quiz-editor-mobile-toolbar');
-    if (await toolbar.count() > 0) {
+    if ((await toolbar.count()) > 0) {
       const scrollWidth = await toolbar.evaluate(el => el.scrollWidth);
       const clientWidth = await toolbar.evaluate(el => el.clientWidth);
-      
+
       // If content overflows, it should be scrollable
       if (scrollWidth > clientWidth) {
         expect(scrollWidth).toBeGreaterThan(clientWidth);
       }
     }
   });
-});
 
   test('Touch targets are properly sized on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
