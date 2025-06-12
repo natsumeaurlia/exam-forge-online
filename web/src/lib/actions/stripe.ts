@@ -2,11 +2,11 @@
 
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getPriceIds } from '@/lib/stripe/pricing';
 import Stripe from 'stripe';
+import { authAction } from './auth';
 
 // Initialize Stripe only if the API key is available
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
@@ -15,9 +15,6 @@ const stripe = stripeApiKey
       apiVersion: '2025-05-28.basil',
     })
   : null;
-
-// Create safe action client
-const action = createSafeActionClient();
 
 // Schema for creating checkout session
 const createCheckoutSessionSchema = z.object({
@@ -29,17 +26,14 @@ const createCheckoutSessionSchema = z.object({
 /**
  * Create Stripe checkout session - replaces /api/stripe/checkout
  */
-export const createCheckoutSession = action
-  .schema(createCheckoutSessionSchema)
-  .action(async ({ parsedInput: { teamId, planType, billingCycle } }) => {
+export const createCheckoutSession = authAction
+  .inputSchema(createCheckoutSessionSchema)
+  .action(async ({ parsedInput: { teamId, planType, billingCycle }, ctx }) => {
+    const { userId } = ctx;
+
     // Check if Stripe is properly configured
     if (!stripe) {
       throw new Error('Payment system is not configured');
-    }
-
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
     }
 
     // Validate team ownership
@@ -47,7 +41,7 @@ export const createCheckoutSession = action
       where: {
         teamId_userId: {
           teamId,
-          userId: session.user.id,
+          userId,
         },
       },
       include: {
@@ -86,18 +80,18 @@ export const createCheckoutSession = action
 
     // Get user's Stripe customer ID
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { stripeCustomerId: true },
+      where: { id: userId },
+      select: { stripeCustomerId: true, email: true, name: true },
     });
 
     let stripeCustomerId = user?.stripeCustomerId || null;
 
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
-        email: session.user.email!,
-        name: session.user.name || undefined,
+        email: user?.email || '',
+        name: user?.name || undefined,
         metadata: {
-          userId: session.user.id,
+          userId,
           teamId,
         },
       });
@@ -105,7 +99,7 @@ export const createCheckoutSession = action
 
       // Update user with Stripe customer ID
       await prisma.user.update({
-        where: { id: session.user.id },
+        where: { id: userId },
         data: { stripeCustomerId },
       });
     }
@@ -160,17 +154,14 @@ const createPortalSessionSchema = z.object({
 /**
  * Create Stripe customer portal session - replaces /api/stripe/portal
  */
-export const createPortalSession = action
-  .schema(createPortalSessionSchema)
-  .action(async ({ parsedInput: { teamId } }) => {
+export const createPortalSession = authAction
+  .inputSchema(createPortalSessionSchema)
+  .action(async ({ parsedInput: { teamId }, ctx }) => {
+    const { userId } = ctx;
+
     // Check if Stripe is properly configured
     if (!stripe) {
       throw new Error('Payment system is not configured');
-    }
-
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
     }
 
     // Validate team ownership
@@ -178,7 +169,7 @@ export const createPortalSession = action
       where: {
         teamId_userId: {
           teamId,
-          userId: session.user.id,
+          userId,
         },
       },
       include: {

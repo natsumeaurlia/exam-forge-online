@@ -17,6 +17,15 @@ export type AuthError = {
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
 
+export const authAction = action.use(async ({ next }) => {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id && !session?.user?.email) {
+    // ユーザーが認証されていない場合、エラーをスロー
+    throw new Error('UNAUTHENTICATED:ログインが必要です');
+  }
+  return next({ ctx: { userId: session?.user?.id } });
+});
+
 // ユーザー登録用のスキーマ
 const signupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -82,7 +91,7 @@ export async function handleAuthError(error: AuthError, locale: string = 'ja') {
 
 // ユーザー登録ServerAction
 export const signupAction = action
-  .schema(signupSchema)
+  .inputSchema(signupSchema)
   .action(async ({ parsedInput: { name, email, password } }) => {
     try {
       // 🔒 SECURITY: トランザクションでRace Condition脆弱性を修正

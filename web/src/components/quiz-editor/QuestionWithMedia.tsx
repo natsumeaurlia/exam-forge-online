@@ -7,6 +7,7 @@ import { MultiMediaUpload } from './MultiMediaUpload';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Crown } from 'lucide-react';
+import { useAction } from 'next-safe-action/hooks';
 import { getUserStorage } from '@/lib/actions/storage';
 
 interface MediaItem {
@@ -40,18 +41,25 @@ export function QuestionWithMedia({
     max: number;
   } | null>(null);
 
+  const { execute: executeGetUserStorage } = useAction(getUserStorage, {
+    onSuccess: ({ data }) => {
+      if (data) {
+        setStorageInfo({
+          used: data.storageUsed,
+          max: data.storageLimit,
+        });
+      }
+    },
+    onError: ({ error }) => {
+      console.error('Failed to get storage info:', error);
+    },
+  });
+
   useEffect(() => {
     if (hasPaidPlan) {
-      getUserStorage().then(result => {
-        if (result.success && result.data) {
-          setStorageInfo({
-            used: result.data.storageUsed,
-            max: result.data.storageLimit,
-          });
-        }
-      });
+      executeGetUserStorage();
     }
-  }, [hasPaidPlan]);
+  }, [hasPaidPlan, executeGetUserStorage]);
 
   return (
     <div className="space-y-6">

@@ -2,11 +2,14 @@
 
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getUserPlan } from '@/lib/actions/user';
-import { getUserStorage, updateStorageUsage } from '@/lib/actions/storage';
+import {
+  getUserPlanData,
+  getUserStorageData,
+  updateUserStorageUsage,
+} from '@/lib/actions/helpers';
 import { prisma } from '@/lib/prisma';
+import { authAction } from './auth';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
@@ -27,24 +30,19 @@ const validateUploadSchema = z.object({
  * アップロード前の検証を行うServerAction
  * ファイルサイズ、プラン制限、ストレージ容量をチェック
  */
-export const validateMediaUpload = action
-  .schema(validateUploadSchema)
-  .action(async ({ parsedInput: { fileSize, fileType, questionId } }) => {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('認証が必要です');
-    }
+export const validateMediaUpload = authAction
+  .inputSchema(validateUploadSchema)
+  .action(async ({ parsedInput: { fileSize, fileType, questionId }, ctx }) => {
+    const { userId } = ctx;
 
     // Check if user has Pro plan
-    const userPlanResult = await getUserPlan();
-    if (!userPlanResult.success || !userPlanResult.data) {
+    const userPlanData = await getUserPlanData(userId);
+    if (!userPlanData) {
       throw new Error('ユーザープランの取得に失敗しました');
     }
 
     const hasPaidPlan =
-      userPlanResult.data.planType === 'PRO' ||
-      userPlanResult.data.planType === 'PREMIUM';
+      userPlanData.planType === 'PRO' || userPlanData.planType === 'PREMIUM';
 
     if (!hasPaidPlan) {
       throw new Error('メディアアップロードにはProプランが必要です');
@@ -104,15 +102,15 @@ export const validateMediaUpload = action
     }
 
     // Check user storage
-    const storageResult = await getUserStorage();
-    if (!storageResult.success || !storageResult.data) {
+    const storageData = await getUserStorageData(userId);
+    if (!storageData) {
       throw new Error('ストレージ情報の取得に失敗しました');
     }
 
     // Check if file size would exceed user's storage limit
-    if (storageResult.data.usedBytes + fileSize > storageResult.data.maxBytes) {
-      const maxGB = storageResult.data.maxBytes / (1024 * 1024 * 1024);
-      const usedGB = storageResult.data.usedBytes / (1024 * 1024 * 1024);
+    if (storageData.usedBytes + fileSize > storageData.maxBytes) {
+      const maxGB = storageData.maxBytes / (1024 * 1024 * 1024);
+      const usedGB = storageData.usedBytes / (1024 * 1024 * 1024);
       const remainingGB = maxGB - usedGB;
       throw new Error(
         `ストレージ容量が不足しています。残り容量: ${remainingGB.toFixed(2)} GB`
@@ -124,7 +122,7 @@ export const validateMediaUpload = action
       where: {
         id: questionId,
         quiz: {
-          createdById: session.user.id,
+          createdById: userId,
         },
       },
       select: { id: true },
@@ -137,21 +135,17 @@ export const validateMediaUpload = action
     return {
       success: true,
       mediaType: isVideo ? 'VIDEO' : isAudio ? 'AUDIO' : 'IMAGE',
-      remainingStorage:
-        storageResult.data.maxBytes - storageResult.data.usedBytes,
+      remainingStorage: storageData.maxBytes - storageData.usedBytes,
     };
   });
 
 /**
  * メディア削除用のServerAction
  */
-export const deleteMedia = action
-  .schema(deleteMediaSchema)
-  .action(async ({ parsedInput: { mediaId } }) => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('認証が必要です');
-    }
+export const deleteMedia = authAction
+  .inputSchema(deleteMediaSchema)
+  .action(async ({ parsedInput: { mediaId }, ctx }) => {
+    const { userId } = ctx;
 
     // Get media record and verify ownership
     const media = await prisma.questionMedia.findFirst({
@@ -159,7 +153,7 @@ export const deleteMedia = action
         id: mediaId,
         question: {
           quiz: {
-            createdById: session.user.id,
+            createdById: userId,
           },
         },
       },
@@ -175,7 +169,7 @@ export const deleteMedia = action
     });
 
     // Update storage usage (negative value to decrease)
-    await updateStorageUsage({ bytesChange: -media.fileSize });
+    await updateUserStorageUsage(userId, -media.fileSize);
 
     // TODO: Delete from MinIO (implement deleteFile in minio.ts)
 
@@ -198,20 +192,17 @@ const createMediaRecordSchema = z.object({
   order: z.number().min(0, 'Order must be non-negative'),
 });
 
-export const createMediaRecord = action
-  .schema(createMediaRecordSchema)
-  .action(async ({ parsedInput }) => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('認証が必要です');
-    }
+export const createMediaRecord = authAction
+  .inputSchema(createMediaRecordSchema)
+  .action(async ({ parsedInput, ctx }) => {
+    const { userId } = ctx;
 
     // Verify question ownership
     const question = await prisma.question.findFirst({
       where: {
         id: parsedInput.questionId,
         quiz: {
-          createdById: session.user.id,
+          createdById: userId,
         },
       },
       select: { id: true },
@@ -235,7 +226,7 @@ export const createMediaRecord = action
     });
 
     // Update user storage usage
-    await updateStorageUsage({ bytesChange: parsedInput.fileSize });
+    await updateUserStorageUsage(userId, parsedInput.fileSize);
 
     return {
       success: true,
@@ -248,8 +239,8 @@ export const createMediaRecord = action
  * Note: This action handles the database operations and storage tracking.
  * The actual file upload to MinIO should be handled separately.
  */
-export const uploadMedia = action
-  .schema(
+export const uploadMedia = authAction
+  .inputSchema(
     z.object({
       files: z.array(
         z.object({
@@ -262,29 +253,25 @@ export const uploadMedia = action
       questionId: z.string().min(1, 'Question ID is required'),
     })
   )
-  .action(async ({ parsedInput: { files, questionId } }) => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
-    }
+  .action(async ({ parsedInput: { files, questionId }, ctx }) => {
+    const { userId } = ctx;
 
     // Check if user has Pro plan
-    const userPlanResult = await getUserPlan();
-    if (!userPlanResult.success || !userPlanResult.data) {
+    const userPlanData = await getUserPlanData(userId);
+    if (!userPlanData) {
       throw new Error('Failed to get user plan');
     }
 
     const hasPaidPlan =
-      userPlanResult.data.planType === 'PRO' ||
-      userPlanResult.data.planType === 'PREMIUM';
+      userPlanData.planType === 'PRO' || userPlanData.planType === 'PREMIUM';
 
     if (!hasPaidPlan) {
       throw new Error('Media upload requires Pro plan');
     }
 
     // Check user storage
-    const storageResult = await getUserStorage();
-    if (!storageResult.success || !storageResult.data) {
+    const storageData = await getUserStorageData(userId);
+    if (!storageData) {
       throw new Error('Failed to check storage');
     }
 
@@ -296,7 +283,7 @@ export const uploadMedia = action
           team: {
             members: {
               some: {
-                userId: session.user.id,
+                userId: userId,
                 role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
               },
             },
@@ -371,12 +358,9 @@ export const uploadMedia = action
     }
 
     // Check if total size would exceed user's storage limit
-    if (
-      storageResult.data.storageUsed + totalSize >
-      storageResult.data.storageLimit
-    ) {
+    if (storageData.storageUsed + totalSize > storageData.storageLimit) {
       throw new Error(
-        `Storage limit exceeded. You have ${storageResult.data.storageLimit - storageResult.data.storageUsed} bytes remaining.`
+        `Storage limit exceeded. You have ${storageData.storageLimit - storageData.storageUsed} bytes remaining.`
       );
     }
 
@@ -396,7 +380,7 @@ export const uploadMedia = action
             : 'IMAGE';
 
         // Create database record
-        const media = await prisma.questionMedia.create({
+        const media: any = await prisma.questionMedia.create({
           data: {
             questionId,
             url,
@@ -412,12 +396,12 @@ export const uploadMedia = action
       }
 
       // Update user storage usage
-      await updateStorageUsage({ bytesChange: totalSize });
+      await updateUserStorageUsage(userId, totalSize);
 
       return {
         media: uploadedMedia,
-        storageUsed: storageResult.data.storageUsed + totalSize,
-        storageMax: storageResult.data.storageLimit,
+        storageUsed: storageData.storageUsed + totalSize,
+        storageMax: storageData.storageLimit,
       };
     } catch (error) {
       // If any upload fails, we should ideally clean up already uploaded files
@@ -429,17 +413,14 @@ export const uploadMedia = action
 /**
  * Delete media - replaces /api/upload DELETE endpoint
  */
-export const deleteMediaById = action
-  .schema(
+export const deleteMediaById = authAction
+  .inputSchema(
     z.object({
       mediaId: z.string().min(1, 'Media ID is required'),
     })
   )
-  .action(async ({ parsedInput: { mediaId } }) => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
-    }
+  .action(async ({ parsedInput: { mediaId }, ctx }) => {
+    const { userId } = ctx;
 
     // SECURITY: チームベース削除権限検証
     const media = await prisma.questionMedia.findFirst({
@@ -448,12 +429,12 @@ export const deleteMediaById = action
         question: {
           quiz: {
             OR: [
-              { createdById: session.user.id }, // 作成者
+              { createdById: userId }, // 作成者
               {
                 team: {
                   members: {
                     some: {
-                      userId: session.user.id,
+                      userId: userId,
                       role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
                     },
                   },
@@ -475,7 +456,7 @@ export const deleteMediaById = action
     });
 
     // Update storage usage (negative value to decrease)
-    await updateStorageUsage({ bytesChange: -media.fileSize });
+    await updateUserStorageUsage(userId, -media.fileSize);
 
     // TODO: Delete from MinIO (implement deleteFile in minio.ts)
 

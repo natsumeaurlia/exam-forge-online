@@ -4,22 +4,8 @@ import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-
-// Safe Action クライアントを作成
-const action = createSafeActionClient();
-
-// 認証済みユーザー取得（quiz.tsから同じパターンを使用）
-async function getAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error('認証が必要です');
-  }
-
-  return session.user.id;
-}
+import { authAction } from './auth';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -53,13 +39,11 @@ const submitQuizResponseSchema = z.object({
 });
 
 // クイズ回答の提出
-export const submitQuizResponse = action
-  .schema(submitQuizResponseSchema)
-  .action(async ({ parsedInput: data }) => {
+export const submitQuizResponse = authAction
+  .inputSchema(submitQuizResponseSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
     try {
-      const session = await getServerSession(authOptions);
-      const userId = session?.user?.id;
-
+      const { userId } = ctx;
       // トランザクションで回答を保存
       const result = await prisma.$transaction(async tx => {
         // 1. クイズの存在確認とアクセス権チェック
@@ -290,77 +274,79 @@ async function calculateAverageScore(quizId: string): Promise<number> {
   return result._avg.score || 0;
 }
 
-export async function getQuizResponse(responseId: string) {
-  try {
-    const session = await getServerSession(authOptions);
+export const getQuizResponse = authAction
+  .inputSchema(z.object({ responseId: z.string() }))
+  .action(async ({ parsedInput: { responseId }, ctx }) => {
+    try {
+      const { userId } = ctx;
 
-    const response = await prisma.quizResponse.findUnique({
-      where: { id: responseId },
-      include: {
-        quiz: {
-          include: {
-            questions: true,
+      const response = await prisma.quizResponse.findUnique({
+        where: { id: responseId },
+        include: {
+          quiz: {
+            include: {
+              questions: true,
+            },
           },
-        },
-        responses: {
-          include: {
-            question: {
-              include: {
-                options: true,
+          responses: {
+            include: {
+              question: {
+                include: {
+                  options: true,
+                },
               },
             },
           },
         },
-      },
-    });
-
-    if (!response) {
-      return { success: false, error: 'Response not found' };
-    }
-
-    // Check permissions: Only the respondent or team members can view
-    if (response.userId && response.userId !== session?.user?.id) {
-      // Check if user is a team member
-      const teamMember = await prisma.teamMember.findFirst({
-        where: {
-          teamId: response.quiz.teamId,
-          userId: session?.user?.id || '',
-        },
       });
 
-      if (!teamMember) {
-        return { success: false, error: 'Unauthorized' };
+      if (!response) {
+        return { success: false, error: 'Response not found' };
       }
-    }
 
-    return {
-      success: true,
-      data: {
-        id: response.id,
-        score: response.score || 0,
-        totalQuestions: response.quiz.questions?.length || 0,
-        correctAnswers: response.responses.filter(a => a.isCorrect).length,
-        passed: response.isPassed || false,
-        answers: response.responses,
-        quiz: response.quiz,
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching quiz response:', error);
-    return { success: false, error: 'Failed to fetch response' };
-  }
-}
+      // Check permissions: Only the respondent or team members can view
+      if (response.userId && response.userId !== userId) {
+        // Check if user is a team member
+        const teamMember = await prisma.teamMember.findFirst({
+          where: {
+            teamId: response.quiz.teamId,
+            userId,
+          },
+        });
+
+        if (!teamMember) {
+          return { success: false, error: 'Unauthorized' };
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          id: response.id,
+          score: response.score || 0,
+          totalQuestions: response.quiz.questions?.length || 0,
+          correctAnswers: response.responses.filter(a => a.isCorrect).length,
+          passed: response.isPassed || false,
+          answers: response.responses,
+          quiz: response.quiz,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching quiz response:', error);
+      return { success: false, error: 'Failed to fetch response' };
+    }
+  });
 
 // クイズ回答履歴の取得
-export const getQuizResponses = action
-  .schema(
+export const getQuizResponses = authAction
+  .inputSchema(
     z.object({
       quizId: z.string().optional(),
       limit: z.number().default(10),
     })
   )
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const responses = await prisma.quizResponse.findMany({
