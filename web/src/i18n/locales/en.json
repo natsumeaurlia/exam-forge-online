@@ -1621,5 +1621,58 @@
       "save": "Save",
       "saving": "Saving..."
     }
+  },
+  "quiz": {
+    "taking": {
+      "questionProgress": "Question {{current}} of {{total}}",
+      "timeRemaining": "Time remaining: {{minutes}} minutes",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "submitting": "Submitting...",
+      "participantInfoRequired": "Please enter participant information",
+      "submitError": "Failed to submit response",
+      "createdBy": "Created by {{teamName}}",
+      "questionCount": "{{count}} questions",
+      "timeLimit": "Time limit: {{minutes}} minutes",
+      "passwordRequired": "Password required",
+      "enterPassword": "Enter password",
+      "incorrectPassword": "Incorrect password",
+      "participantInfo": "Participant Information",
+      "name": "Name",
+      "enterName": "Enter your name",
+      "email": "Email",
+      "enterEmail": "Enter your email",
+      "instructions": "Instructions",
+      "startQuiz": "Start Quiz",
+      "quizInfo": "You cannot change your answers after submission",
+      "multipleAttemptsAllowed": "Multiple attempts allowed",
+      "answersShownAfter": "Answers will be shown after submission",
+      "true": "True",
+      "false": "False",
+      "typeYourAnswer": "Type your answer",
+      "enterNumber": "Enter a number",
+      "blank": "Blank",
+      "items": "Items",
+      "matches": "Matches",
+      "selectMatch": "Select match",
+      "unsupportedQuestionType": "Unsupported question type"
+    },
+    "results": {
+      "loadingResults": "Loading results...",
+      "errorLoadingResults": "Failed to load results",
+      "quizCompleted": "Quiz Completed!",
+      "scoreText": "{{correct}} out of {{total}} correct",
+      "passed": "Passed",
+      "failed": "Failed",
+      "passingScore": "Passing score: {{score}}%",
+      "timeSpent": "Time spent",
+      "accuracy": "Accuracy",
+      "certificateEarned": "Certificate earned!",
+      "downloadCertificate": "Download Certificate",
+      "reviewAnswers": "Review Answers",
+      "retakeQuiz": "Retake Quiz",
+      "backToHome": "Back to Home"
+    }
   }
 }

@@ -1619,5 +1619,58 @@
       "save": "保存",
       "saving": "保存中..."
     }
+  },
+  "quiz": {
+    "taking": {
+      "questionProgress": "質問 {{current}} / {{total}}",
+      "timeRemaining": "残り時間: {{minutes}}分",
+      "previous": "前へ",
+      "next": "次へ",
+      "submit": "提出",
+      "submitting": "提出中...",
+      "participantInfoRequired": "参加者情報を入力してください",
+      "submitError": "提出エラーが発生しました",
+      "createdBy": "作成者: {{teamName}}",
+      "questionCount": "{{count}}問",
+      "timeLimit": "制限時間: {{minutes}}分",
+      "passwordRequired": "パスワードが必要です",
+      "enterPassword": "パスワードを入力",
+      "incorrectPassword": "パスワードが正しくありません",
+      "participantInfo": "参加者情報",
+      "name": "名前",
+      "enterName": "名前を入力",
+      "email": "メールアドレス",
+      "enterEmail": "メールアドレスを入力",
+      "instructions": "受験上の注意",
+      "startQuiz": "クイズを開始",
+      "quizInfo": "提出後は回答を変更できません",
+      "multipleAttemptsAllowed": "複数回の受験が可能です",
+      "answersShownAfter": "提出後に正解が表示されます",
+      "true": "正しい",
+      "false": "誤り",
+      "typeYourAnswer": "回答を入力してください",
+      "enterNumber": "数値を入力",
+      "blank": "空欄",
+      "items": "項目",
+      "matches": "対応",
+      "selectMatch": "対応を選択",
+      "unsupportedQuestionType": "サポートされていない質問タイプです"
+    },
+    "results": {
+      "loadingResults": "結果を読み込んでいます...",
+      "errorLoadingResults": "結果の読み込みに失敗しました",
+      "quizCompleted": "クイズ完了！",
+      "scoreText": "{{correct}} / {{total}} 問正解",
+      "passed": "合格",
+      "failed": "不合格",
+      "passingScore": "合格点: {{score}}%",
+      "timeSpent": "所要時間",
+      "accuracy": "正答率",
+      "certificateEarned": "合格証明書を獲得しました！",
+      "downloadCertificate": "証明書をダウンロード",
+      "reviewAnswers": "回答を確認",
+      "retakeQuiz": "再受験",
+      "backToHome": "ホームに戻る"
+    }
   }
 }

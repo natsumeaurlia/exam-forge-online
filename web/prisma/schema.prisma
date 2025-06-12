@@ -162,6 +162,13 @@ model Quiz {
   createdById            String
   aiMetadata             Json?          // AI generation metadata
   difficultyLevel        QuestionDifficulty?
+  isPublic               Boolean        @default(false)
+  collectParticipantInfo Boolean        @default(false)
+  instructions           String?
+  totalResponses         Int            @default(0)
+  averageScore           Float          @default(0)
+  showAnswersAfterSubmit Boolean        @default(false)
+  allowMultipleAttempts  Boolean        @default(true)
   questions              Question[]
   createdBy              User           @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Restrict)
   team                   Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -177,6 +184,7 @@ model Quiz {
   @@index([publishedAt])
   @@index([subdomain])
   @@index([teamId, status])
+  @@index([isPublic])
 }
 
 model Section {
@@ -205,6 +213,7 @@ model Question {
   correctAnswer   Json?
   gradingCriteria String?
   isRequired      Boolean            @default(false)
+  isActive        Boolean            @default(true)
   difficultyLevel QuestionDifficulty?
   sectionTimeLimit Int?              @db.SmallInt // Time limit in seconds for this question
   createdAt       DateTime           @default(now())
@@ -266,26 +275,30 @@ model QuizTag {
 }
 
 model QuizResponse {
-  id          String             @id @default(cuid())
-  score       Int?               @db.SmallInt
-  totalPoints Int                @db.SmallInt
-  isPassed    Boolean?
-  startedAt   DateTime           @default(now())
-  completedAt DateTime?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  quizId      String
-  userId      String?
-  responses   QuestionResponse[]
-  quiz        Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  user        User?              @relation(fields: [userId], references: [id])
-  certificates Certificate[]
+  id               String             @id @default(cuid())
+  score            Int?               @db.SmallInt
+  totalPoints      Int                @db.SmallInt
+  isPassed         Boolean?
+  startedAt        DateTime           @default(now())
+  completedAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  quizId           String
+  userId           String?
+  participantName  String?            @db.VarChar(255)
+  participantEmail String?            @db.VarChar(255)
+  timeTaken        Int?               // Time taken in seconds
+  responses        QuestionResponse[]
+  quiz             Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user             User?              @relation(fields: [userId], references: [id])
+  certificates     Certificate[]
 
   @@index([quizId])
   @@index([userId])
   @@index([completedAt])
   @@index([quizId, completedAt])
   @@index([quizId, isPassed])
+  @@index([participantEmail])
 }
 
 model QuestionResponse {
