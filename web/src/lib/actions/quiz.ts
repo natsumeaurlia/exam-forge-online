@@ -2,11 +2,10 @@
 
 import { createSafeActionClient } from 'next-safe-action';
 import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { z } from 'zod';
+import { auth, authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { handleActionError } from './utils';
 import {
   createQuizSchema,
   updateQuizSchema,
@@ -20,20 +19,10 @@ import {
   checkSubdomainSchema,
 } from '@/types/quiz-schemas';
 import { QuizStatus, QuestionType } from '@prisma/client';
+import { authAction } from './auth-action';
 
 // Safe Action クライアントを作成
 const action = createSafeActionClient();
-
-// Helper function to get authenticated user
-async function getAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    throw new Error('INVALID_USER:認証が必要です');
-  }
-
-  return session.user.id;
-}
 
 // Helper function to get user's active team
 async function getUserActiveTeam(userId: string): Promise<string> {
@@ -159,10 +148,10 @@ async function getUserActiveTeam(userId: string): Promise<string> {
 }
 
 // クイズ作成
-export const createQuiz = action
-  .schema(createQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const createQuiz = authAction
+  .inputSchema(createQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const teamId = await getUserActiveTeam(userId);
@@ -192,11 +181,10 @@ export const createQuiz = action
   });
 
 // クイズ更新
-export const updateQuiz = action
-  .schema(updateQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
-
+export const updateQuiz = authAction
+  .inputSchema(updateQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
     try {
       // Get user's team to verify permissions
       const teamId = await getUserActiveTeam(userId);
@@ -244,10 +232,10 @@ export const updateQuiz = action
   });
 
 // クイズ削除
-export const deleteQuiz = action
-  .schema(deleteQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const deleteQuiz = authAction
+  .inputSchema(deleteQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -279,10 +267,10 @@ export const deleteQuiz = action
   });
 
 // クイズ公開
-export const publishQuiz = action
-  .schema(publishQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const publishQuiz = authAction
+  .inputSchema(publishQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -339,10 +327,10 @@ export const publishQuiz = action
   });
 
 // クイズ一覧取得
-export const getQuizzes = action
-  .schema(getQuizzesSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const getQuizzes = authAction
+  .inputSchema(getQuizzesSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const { page, limit, search, status, sortBy, sortOrder, tags } = data;
@@ -425,10 +413,10 @@ export const getQuizzes = action
   });
 
 // 問題追加
-export const addQuestion = action
-  .schema(addQuestionSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const addQuestion = authAction
+  .inputSchema(addQuestionSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -494,10 +482,10 @@ export const addQuestion = action
   });
 
 // 問題更新
-export const updateQuestion = action
-  .schema(updateQuestionSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const updateQuestion = authAction
+  .inputSchema(updateQuestionSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -561,10 +549,10 @@ export const updateQuestion = action
   });
 
 // 問題削除
-export const deleteQuestion = action
-  .schema(deleteQuestionSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const deleteQuestion = authAction
+  .inputSchema(deleteQuestionSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -598,10 +586,10 @@ export const deleteQuestion = action
   });
 
 // 問題順序変更
-export const reorderQuestions = action
-  .schema(reorderQuestionsSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const reorderQuestions = authAction
+  .inputSchema(reorderQuestionsSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // Get user's team to verify permissions
@@ -640,7 +628,7 @@ export const reorderQuestions = action
 
 // サブドメイン利用可能チェック
 export const checkSubdomainAvailability = action
-  .schema(checkSubdomainSchema)
+  .inputSchema(checkSubdomainSchema)
   .action(async ({ parsedInput: data }) => {
     try {
       const existingQuiz = await prisma.quiz.findFirst({
@@ -656,51 +644,12 @@ export const checkSubdomainAvailability = action
   });
 
 // クイズ詳細取得（編集用）
-export async function getQuizForEdit(quizId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new Error('認証が必要です');
-  }
+export const getQuizForEdit = authAction
+  .inputSchema(z.object({ quizId: z.string() }))
+  .action(async ({ parsedInput: { quizId }, ctx }) => {
+    const { userId } = ctx;
 
-  // Get user's team to verify permissions
-  const teamId = await getUserActiveTeam(session.user.id);
-
-  const quiz = await prisma.quiz.findFirst({
-    where: {
-      id: quizId,
-      teamId,
-    },
-    include: {
-      questions: {
-        include: {
-          options: {
-            orderBy: { order: 'asc' },
-          },
-        },
-        orderBy: { order: 'asc' },
-      },
-      sections: {
-        orderBy: { order: 'asc' },
-      },
-      tags: {
-        include: {
-          tag: true,
-        },
-      },
-    },
-  });
-
-  if (!quiz) {
-    throw new Error('クイズが見つからないか、編集権限がありません');
-  }
-
-  return quiz;
-}
-
-// Get quiz with questions for preview
-export async function getQuizWithQuestionsById(quizId: string) {
-  try {
-    const userId = await getAuthenticatedUser();
+    // Get user's team to verify permissions
     const teamId = await getUserActiveTeam(userId);
 
     const quiz = await prisma.quiz.findFirst({
@@ -714,8 +663,10 @@ export async function getQuizWithQuestionsById(quizId: string) {
             options: {
               orderBy: { order: 'asc' },
             },
-            media: true,
           },
+          orderBy: { order: 'asc' },
+        },
+        sections: {
           orderBy: { order: 'asc' },
         },
         tags: {
@@ -727,21 +678,59 @@ export async function getQuizWithQuestionsById(quizId: string) {
     });
 
     if (!quiz) {
-      return {
-        data: null,
-        error: 'クイズが見つからないか、アクセス権限がありません',
-      };
+      throw new Error('クイズが見つからないか、編集権限がありません');
     }
 
-    // Transform tags for easier use
-    const transformedQuiz = {
-      ...quiz,
-      tags: quiz.tags.map(quizTag => quizTag.tag),
-    };
+    return { quiz };
+  });
 
-    return { data: transformedQuiz, error: null };
-  } catch (error) {
-    console.error('Error fetching quiz:', error);
-    return { data: null, error: 'クイズの取得に失敗しました' };
-  }
-}
+// Get quiz with questions for preview
+export const getQuizWithQuestionsById = authAction
+  .inputSchema(z.object({ quizId: z.string() }))
+  .action(async ({ parsedInput: { quizId }, ctx }) => {
+    try {
+      const { userId } = ctx;
+      const teamId = await getUserActiveTeam(userId);
+
+      const quiz = await prisma.quiz.findFirst({
+        where: {
+          id: quizId,
+          teamId,
+        },
+        include: {
+          questions: {
+            include: {
+              options: {
+                orderBy: { order: 'asc' },
+              },
+              media: true,
+            },
+            orderBy: { order: 'asc' },
+          },
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      });
+
+      if (!quiz) {
+        return {
+          data: null,
+          error: 'クイズが見つからないか、アクセス権限がありません',
+        };
+      }
+
+      // Transform tags for easier use
+      const transformedQuiz = {
+        ...quiz,
+        tags: quiz.tags.map(quizTag => quizTag.tag),
+      };
+
+      return { data: transformedQuiz, error: null };
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
+      return { data: null, error: 'クイズの取得に失敗しました' };
+    }
+  });

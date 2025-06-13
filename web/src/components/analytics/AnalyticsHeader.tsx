@@ -12,9 +12,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAnalyticsStore } from '@/stores/useAnalyticsStore';
+import { useAction } from 'next-safe-action/hooks';
 import { exportAnalyticsToCSV } from '@/lib/actions/export';
 import { toast } from 'sonner';
-import { useState } from 'react';
 import { useUserPlan } from '@/hooks/use-user-plan';
 
 interface AnalyticsHeaderProps {
@@ -25,43 +25,46 @@ interface AnalyticsHeaderProps {
 export function AnalyticsHeader({ quizId, lng }: AnalyticsHeaderProps) {
   const t = useTranslations('dashboard.quizzes.analytics');
   const { range, setRange } = useAnalyticsStore();
-  const [isExporting, setIsExporting] = useState(false);
   const userPlan = useUserPlan();
 
-  const handleExport = async () => {
+  const { execute: executeExportAnalytics, isExecuting: isExporting } =
+    useAction(exportAnalyticsToCSV, {
+      onSuccess: ({ data }) => {
+        if (
+          data &&
+          'content' in data &&
+          'mimeType' in data &&
+          'filename' in data
+        ) {
+          // Create download link
+          const blob = new Blob([data.content], {
+            type: data.mimeType,
+          });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = data.filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          toast.success(t('exportSuccess'));
+        }
+      },
+      onError: ({ error }) => {
+        console.error('Export failed:', error);
+        toast.error(t('exportFailed'));
+      },
+    });
+
+  const handleExport = () => {
     if (userPlan.isFree) {
       toast.error(t('exportRequiresPro'));
       return;
     }
 
-    setIsExporting(true);
-    try {
-      const result = await exportAnalyticsToCSV(quizId, range, lng);
-
-      if (result.success && result.data) {
-        // Create download link
-        const blob = new Blob([result.data.content], {
-          type: result.data.mimeType,
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = result.data.filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        toast.success(t('exportSuccess'));
-      } else {
-        toast.error(result.error || t('exportFailed'));
-      }
-    } catch (error) {
-      console.error('Export failed:', error);
-      toast.error(t('exportFailed'));
-    } finally {
-      setIsExporting(false);
-    }
+    executeExportAnalytics({ quizId, range, language: lng });
   };
 
   return (

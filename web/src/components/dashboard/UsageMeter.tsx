@@ -14,9 +14,9 @@ export async function UsageMeter({ lng }: UsageMeterProps) {
   const t = await getTranslations('dashboard.usage');
 
   // Fetch real data from database
-  const result = await getUsageData();
+  const result = await getUsageData({});
 
-  if (!result.success || !result.data) {
+  if (!result || !result.data) {
     return (
       <Card>
         <CardHeader>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,7 +57,6 @@ export function QuizTakingClient({
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
@@ -68,6 +68,51 @@ export function QuizTakingClient({
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
+
+  const { execute: executeSubmit, isExecuting: submitting } = useAction(
+    submitQuizResponse,
+    {
+      onSuccess: ({ data }) => {
+        if (data && data.success && data.data) {
+          setResponseId(data.data.id);
+          setCurrentStep('results');
+          setError(null);
+        } else if (data && data.error) {
+          setError(data.error);
+        }
+      },
+      onError: ({ error }) => {
+        setError(error.serverError || t('submitError'));
+      },
+    }
+  );
+
+  const handleSubmit = useCallback(async () => {
+    if (submitting) return;
+
+    setEndTime(new Date());
+    setError(null);
+
+    executeSubmit({
+      quizId: quiz.id,
+      responses: Object.values(answers).map(a => ({
+        questionId: a.questionId,
+        answer: a.answer,
+      })),
+      participantName: participantInfo.name || undefined,
+      participantEmail: participantInfo.email || undefined,
+      startedAt: startTime!.toISOString(),
+      completedAt: new Date().toISOString(),
+    });
+  }, [
+    submitting,
+    executeSubmit,
+    quiz.id,
+    answers,
+    participantInfo.name,
+    participantInfo.email,
+    startTime,
+  ]);
 
   // Timer effect
   useEffect(() => {
@@ -83,7 +128,7 @@ export function QuizTakingClient({
 
       return () => clearInterval(timer);
     }
-  }, [currentStep, startTime, quiz.timeLimit]);
+  }, [currentStep, startTime, quiz.timeLimit, handleSubmit]);
 
   const handleStart = () => {
     if (requiresPassword && password !== quiz.password) {
@@ -124,48 +169,6 @@ export function QuizTakingClient({
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (submitting) return;
-
-    setSubmitting(true);
-    setEndTime(new Date());
-
-    try {
-      const response = await submitQuizResponse({
-        quizId: quiz.id,
-        responses: Object.values(answers).map(a => ({
-          questionId: a.questionId,
-          answer: a.answer,
-        })),
-        participantName: participantInfo.name || undefined,
-        participantEmail: participantInfo.email || undefined,
-        startedAt: startTime!.toISOString(),
-        completedAt: new Date().toISOString(),
-      });
-
-      if (response && 'data' in response && response.data) {
-        if (
-          'success' in response.data &&
-          response.data.success &&
-          response.data.data
-        ) {
-          setResponseId(response.data.data.id);
-          setCurrentStep('results');
-        } else if ('error' in response.data) {
-          setError(response.data.error || t('submitError'));
-        }
-      } else if (response && 'serverError' in response) {
-        setError(response.serverError || t('submitError'));
-      } else {
-        setError(t('submitError'));
-      }
-    } catch (err) {
-      setError(t('submitError'));
-    } finally {
-      setSubmitting(false);
     }
   };
 
