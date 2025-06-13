@@ -1507,6 +1507,12 @@
           "viewDetails": "\u8a73\u7d30\u3092\u898b\u308b",
           "viewFullReport": "\u5b8c\u5168\u30ec\u30dd\u30fc\u30c8\u3092\u898b\u308b"
         }
+      },
+      "certificateVerify": {
+        "title": "証明書検証",
+        "valid": "{date}に{quiz}で{name}さんに発行された証明書です",
+        "expires": "有効期限: {date}",
+        "invalid": "証明書が見つからないか、期限切れです"
       }
     }
   },

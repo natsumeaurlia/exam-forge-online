@@ -854,12 +854,25 @@ model Certificate {
   
   template          CertificateTemplate @relation(fields: [templateId], references: [id])
   quizResponse      QuizResponse        @relation(fields: [quizResponseId], references: [id], onDelete: Cascade)
+  verifications     CertificateVerification[]
   
   @@index([templateId])
   @@index([quizResponseId])
   @@index([validationCode])
   @@index([recipientEmail])
   @@map("certificates")
+}
+
+model CertificateVerification {
+  id            String      @id @default(cuid())
+  certificateId String
+  verifiedAt    DateTime    @default(now())
+  ipAddress     String?
+  userAgent     String?
+
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+
+  @@index([certificateId])
 }
 
 model QuizCertificateTemplate {
