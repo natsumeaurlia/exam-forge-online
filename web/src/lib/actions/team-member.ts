@@ -1,3 +1,5 @@
+'use server';
+
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import { authAction } from './auth-action';
