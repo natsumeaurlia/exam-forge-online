@@ -5,7 +5,7 @@ import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider, {
   CredentialsConfig,
 } from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 import { OAuthConfig } from 'next-auth/providers/oauth';
 import { EmailConfig } from 'next-auth/providers/email';
@@ -106,7 +106,7 @@ export const authOptions: NextAuthOptions = {
 
     session({ session, token }) {
       if (token.sub) {
-        session.user.id = token.sub;
+        (session.user as any).id = token.sub;
       }
 
       return session;
