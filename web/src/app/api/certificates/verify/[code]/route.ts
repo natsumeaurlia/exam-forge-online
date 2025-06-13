@@ -15,13 +15,13 @@ export async function POST(
       userAgent,
     });
 
-    if (!result.success) {
+    if (result.serverError || !result.data || !result.data.success) {
       return NextResponse.json({ success: false }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      certificate: result.certificate,
+      certificate: result.data.certificate,
     });
   } catch (error) {
     console.error('Certificate verification error:', error);

@@ -10,12 +10,17 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
   const t = await getTranslations('pages.certificateVerify');
   const result = await verifyCertificate({ code });
 
-  if (!result.success || !result.certificate) {
+  if (
+    result.serverError ||
+    !result.data ||
+    !result.data.success ||
+    !result.data.certificate
+  ) {
     return <div className="p-8 text-center text-red-600">{t('invalid')}</div>;
   }
 
   const { recipientName, issueDate, expiryDate, quizTitle } =
-    result.certificate;
+    result.data.certificate;
   const date = new Date(issueDate).toLocaleDateString(lng);
 
   return (
