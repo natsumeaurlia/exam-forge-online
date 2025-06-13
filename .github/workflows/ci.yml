@@ -54,7 +54,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm exec dotenv -e ../.env -- prisma generate
+        run: pnpm exec prisma generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
@@ -95,7 +95,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm exec dotenv -e ../.env -- prisma generate
+        run: pnpm exec prisma generate
 
       - name: TypeScript type checking
         run: pnpm exec tsc --noEmit
@@ -154,7 +154,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm exec dotenv -e ../.env -- prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -163,10 +163,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec dotenv -e ../.env -- prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec dotenv -e ../.env -- prisma db seed
+        run: pnpm exec prisma db seed
 
   # ビルドテスト
   build:
@@ -201,7 +201,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm exec dotenv -e ../.env -- prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -270,7 +270,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm exec dotenv -e ../.env -- prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -279,10 +279,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec dotenv -e ../.env -- prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec dotenv -e ../.env -- prisma db seed
+        run: pnpm exec prisma db seed
 
       - name: Build application
         run: pnpm run build
