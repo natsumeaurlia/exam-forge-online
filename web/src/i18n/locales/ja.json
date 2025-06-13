@@ -805,6 +805,7 @@
     "title": "ダッシュボード",
     "welcome": "おかえりなさい、{name}さん",
     "overview": "概要",
+    "refresh": "更新",
     "recentActivity": "最近のアクティビティ",
     "quickActions": {
       "title": "クイックアクション",
@@ -883,17 +884,23 @@
       "totalQuizzes": "総クイズ数",
       "monthlyParticipants": "月間受験者数",
       "averageScore": "平均スコア",
-      "activeQuizzes": "アクティブなクイズ"
+      "activeQuizzes": "アクティブなクイズ",
+      "noData": "データがありません"
     },
     "recentQuizzes": {
       "title": "最近のクイズ",
       "created": "作成日",
-      "status": "ステータス",
       "edit": "編集",
       "preview": "プレビュー",
       "viewAll": "すべて見る",
+      "questions": "問",
       "questionsCount": "問題数: {count}",
       "participantsCount": "受験者数: {count}",
+      "status": {
+        "published": "公開済み",
+        "draft": "下書き",
+        "archived": "アーカイブ"
+      },
       "statusBadge": {
         "published": "公開済み",
         "draft": "下書き",
@@ -904,7 +911,8 @@
         "share": "共有",
         "export": "エクスポート",
         "delete": "削除"
-      }
+      },
+      "noQuizzes": "クイズが見つかりません"
     },
     "activity": {
       "title": "アクティビティ",
@@ -941,42 +949,19 @@
       "metadata": {
         "score": "スコア: {score}%",
         "participants": "受験者数: {participants}"
-      }
+      },
+      "noActivity": "最近のアクティビティはありません"
     },
     "usage": {
       "title": "使用状況",
-      "quizLimit": "クイズ作成上限",
-      "participantLimit": "受験者数上限",
+      "quizzes": "クイズ数",
+      "participants": "月間受験者数",
+      "storage": "ストレージ",
+      "members": "メンバー数",
+      "currentPlan": "現在のプラン",
       "upgrade": "アップグレード",
-      "units": {
-        "items": "個",
-        "peoplePerMonth": "人/月",
-        "people": "人",
-        "mb": "MB"
-      },
-      "status": {
-        "nearLimit": "上限間近",
-        "warning": "警告",
-        "normal": "正常"
-      },
-      "plans": {
-        "free": "無料プラン",
-        "pro": "Proプラン",
-        "premium": "プレミアムプラン"
-      },
-      "metrics": {
-        "quizzes": "クイズ数",
-        "participants": "月間受験者数",
-        "storage": "ストレージ",
-        "members": "メンバー数"
-      },
-      "percentUsed": "{percent}%使用中",
-      "remaining": "残り: {amount} {unit}",
-      "upgradePrompt": "もっと多くの機能を使いたいですか？",
-      "upgradeDescription": "Proプランにアップグレードして、無制限のクイズ作成、高度な分析、AI自動生成などをご利用ください。",
-      "priceFrom": "月額2,980円",
-      "from": "から",
-      "showDetails": "詳細な使用状況を表示"
+      "unlimited": "無制限",
+      "noData": "データがありません"
     },
     "actions": {
       "title": "クイックアクション",

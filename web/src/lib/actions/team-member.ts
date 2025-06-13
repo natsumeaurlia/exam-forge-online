@@ -1,502 +1,496 @@
-'use server';
-
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { handleTeamMemberChange } from '@/lib/stripe/pricing';
+import { createSafeActionClient } from 'next-safe-action';
+import { z } from 'zod';
+import { authAction } from './auth-action';
+import { prisma } from '../prisma';
+import { handleTeamMemberChange } from '../stripe/pricing';
 import { revalidatePath } from 'next/cache';
 import { TeamRole } from '@prisma/client';
 
-interface AddTeamMemberParams {
-  teamId: string;
-  email: string;
-  role: TeamRole;
-}
+const addTeamMemberSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  email: z.string().email('Valid email is required'),
+  role: z.nativeEnum(TeamRole),
+});
 
-export async function addTeamMember({
-  teamId,
-  email,
-  role,
-}: AddTeamMemberParams) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+export const addTeamMember = authAction
+  .inputSchema(addTeamMemberSchema)
+  .action(async ({ parsedInput: { teamId, email, role }, ctx }) => {
+    const { userId } = ctx;
 
-  // Check if user has permission to add members
-  const requestingMember = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
-
-  if (
-    !requestingMember ||
-    !['OWNER', 'ADMIN'].includes(requestingMember.role)
-  ) {
-    throw new Error('Insufficient permissions');
-  }
-
-  // Find or create user
-  let user = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (!user) {
-    // Create invited user
-    user = await prisma.user.create({
-      data: {
-        email,
-        name: email.split('@')[0],
+    // Check if user has permission to add members
+    const requestingMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
+        },
       },
     });
-  }
 
-  // Check if user is already a member
-  const existingMember = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
+    if (
+      !requestingMember ||
+      !['OWNER', 'ADMIN'].includes(requestingMember.role)
+    ) {
+      throw new Error('Insufficient permissions');
+    }
+
+    // Find or create user
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      // Create invited user
+      user = await prisma.user.create({
+        data: {
+          email,
+          name: email.split('@')[0],
+        },
+      });
+    }
+
+    // Check if user is already a member
+    const existingMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId: user.id,
+        },
+      },
+    });
+
+    if (existingMember) {
+      throw new Error('User is already a team member');
+    }
+
+    // Add team member
+    const member = await prisma.teamMember.create({
+      data: {
         teamId,
         userId: user.id,
+        role,
       },
-    },
+    });
+
+    // Update subscription quantity
+    await handleTeamMemberChange(teamId, 'added');
+
+    revalidatePath('/dashboard/team');
+    return { success: true, member };
   });
 
-  if (existingMember) {
-    throw new Error('User is already a team member');
-  }
+const removeTeamMemberSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  userId: z.string().min(1, 'User ID is required'),
+});
 
-  // Add team member
-  const member = await prisma.teamMember.create({
-    data: {
-      teamId,
-      userId: user.id,
-      role,
-    },
-  });
+export const removeTeamMember = authAction
+  .inputSchema(removeTeamMemberSchema)
+  .action(async ({ parsedInput: { teamId, userId: targetUserId }, ctx }) => {
+    const { userId } = ctx;
 
-  // Update subscription quantity
-  await handleTeamMemberChange(teamId, 'added');
-
-  revalidatePath('/dashboard/team');
-  return { success: true, member };
-}
-
-interface RemoveTeamMemberParams {
-  teamId: string;
-  userId: string;
-}
-
-export async function removeTeamMember({
-  teamId,
-  userId,
-}: RemoveTeamMemberParams) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  // Check if user has permission
-  const requestingMember = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
+    // Check if user has permission
+    const requestingMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
+        },
       },
-    },
-  });
+    });
 
-  if (
-    !requestingMember ||
-    !['OWNER', 'ADMIN'].includes(requestingMember.role)
-  ) {
-    throw new Error('Insufficient permissions');
-  }
+    if (
+      !requestingMember ||
+      !['OWNER', 'ADMIN'].includes(requestingMember.role)
+    ) {
+      throw new Error('Insufficient permissions');
+    }
 
-  // Prevent owner from removing themselves
-  if (userId === session.user.id && requestingMember.role === 'OWNER') {
-    throw new Error('Owner cannot remove themselves');
-  }
+    // Prevent owner from removing themselves
+    if (targetUserId === userId && requestingMember.role === 'OWNER') {
+      throw new Error('Owner cannot remove themselves');
+    }
 
-  // Remove team member
-  await prisma.teamMember.delete({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId,
+    // Remove team member
+    await prisma.teamMember.delete({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId: targetUserId,
+        },
       },
-    },
+    });
+
+    // Update subscription quantity
+    await handleTeamMemberChange(teamId, 'removed');
+
+    revalidatePath('/dashboard/team');
+    return { success: true };
   });
 
-  // Update subscription quantity
-  await handleTeamMemberChange(teamId, 'removed');
+const updateTeamMemberRoleSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  userId: z.string().min(1, 'User ID is required'),
+  role: z.nativeEnum(TeamRole),
+});
 
-  revalidatePath('/dashboard/team');
-  return { success: true };
-}
+export const updateTeamMemberRole = authAction
+  .inputSchema(updateTeamMemberRoleSchema)
+  .action(
+    async ({ parsedInput: { teamId, userId: targetUserId, role }, ctx }) => {
+      const { userId } = ctx;
 
-interface UpdateTeamMemberRoleParams {
-  teamId: string;
-  userId: string;
-  role: TeamRole;
-}
+      // Only owners can change roles
+      const requestingMember = await prisma.teamMember.findUnique({
+        where: {
+          teamId_userId: {
+            teamId,
+            userId,
+          },
+        },
+      });
 
-export async function updateTeamMemberRole({
-  teamId,
-  userId,
-  role,
-}: UpdateTeamMemberRoleParams) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+      if (!requestingMember || requestingMember.role !== 'OWNER') {
+        throw new Error('Only owners can change member roles');
+      }
 
-  // Only owners can change roles
-  const requestingMember = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
+      // Update role
+      const member = await prisma.teamMember.update({
+        where: {
+          teamId_userId: {
+            teamId,
+            userId: targetUserId,
+          },
+        },
+        data: { role },
+      });
 
-  if (!requestingMember || requestingMember.role !== 'OWNER') {
-    throw new Error('Only owners can change member roles');
-  }
-
-  // Update role
-  const member = await prisma.teamMember.update({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId,
-      },
-    },
-    data: { role },
-  });
-
-  revalidatePath('/dashboard/team');
-  return { success: true, member };
-}
+      revalidatePath('/dashboard/team');
+      return { success: true, member };
+    }
+  );
 
 // Get team members
-export async function getTeamMembers(teamId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+const getTeamMembersSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+});
 
-  // Check if user is a member of this team
-  const requestingMember = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
+export const getTeamMembers = authAction
+  .inputSchema(getTeamMembersSchema)
+  .action(async ({ parsedInput: { teamId }, ctx }) => {
+    const { userId } = ctx;
 
-  if (!requestingMember) {
-    throw new Error('You are not a member of this team');
-  }
-
-  const members = await prisma.teamMember.findMany({
-    where: { teamId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
+    // Check if user is a member of this team
+    const requestingMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
         },
       },
-    },
-    orderBy: [
-      {
-        role: 'asc',
-      },
-      {
-        joinedAt: 'asc',
-      },
-    ],
-  });
+    });
 
-  return members;
-}
+    if (!requestingMember) {
+      throw new Error('You are not a member of this team');
+    }
+
+    const members = await prisma.teamMember.findMany({
+      where: { teamId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+      orderBy: [
+        {
+          role: 'asc',
+        },
+        {
+          joinedAt: 'asc',
+        },
+      ],
+    });
+
+    return { members };
+  });
 
 // Get user's teams
-export async function getUserTeams() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+const getUserTeamsSchema = z.object({});
 
-  const teams = await prisma.teamMember.findMany({
-    where: { userId: session.user.id },
-    include: {
-      team: {
-        include: {
-          _count: {
-            select: {
-              members: true,
-              quizzes: true,
+export const getUserTeams = authAction
+  .inputSchema(getUserTeamsSchema)
+  .action(async ({ ctx }) => {
+    const { userId } = ctx;
+
+    const teams = await prisma.teamMember.findMany({
+      where: { userId },
+      include: {
+        team: {
+          include: {
+            _count: {
+              select: {
+                members: true,
+                quizzes: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: {
-      joinedAt: 'asc',
-    },
-  });
+      orderBy: {
+        joinedAt: 'asc',
+      },
+    });
 
-  return teams.map(tm => ({
-    ...tm.team,
-    role: tm.role,
-    joinedAt: tm.joinedAt,
-  }));
-}
+    const result = teams.map(tm => ({
+      ...tm.team,
+      role: tm.role,
+      joinedAt: tm.joinedAt,
+    }));
+
+    return { teams: result };
+  });
 
 // Get team by ID
-export async function getTeamById(teamId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+const getTeamByIdSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+});
 
-  // Check if user is a member of this team
-  const member = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
+export const getTeamById = authAction
+  .inputSchema(getTeamByIdSchema)
+  .action(async ({ parsedInput: { teamId }, ctx }) => {
+    const { userId } = ctx;
 
-  if (!member) {
-    throw new Error('You are not a member of this team');
-  }
-
-  const team = await prisma.team.findUnique({
-    where: { id: teamId },
-    include: {
-      _count: {
-        select: {
-          members: true,
-          quizzes: true,
+    // Check if user is a member of this team
+    const member = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
         },
       },
-      subscription: {
-        include: {
-          plan: true,
+    });
+
+    if (!member) {
+      throw new Error('You are not a member of this team');
+    }
+
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      include: {
+        _count: {
+          select: {
+            members: true,
+            quizzes: true,
+          },
+        },
+        subscription: {
+          include: {
+            plan: true,
+          },
         },
       },
-    },
+    });
+
+    if (!team) {
+      throw new Error('Team not found');
+    }
+
+    return {
+      team: {
+        ...team,
+        currentUserRole: member.role,
+      },
+    };
   });
-
-  if (!team) {
-    throw new Error('Team not found');
-  }
-
-  return {
-    ...team,
-    currentUserRole: member.role,
-  };
-}
 
 // Update team details
-interface UpdateTeamParams {
-  teamId: string;
-  name?: string;
-  description?: string;
-  logo?: string;
-}
+const updateTeamSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  logo: z.string().optional(),
+});
 
-export async function updateTeam({
-  teamId,
-  name,
-  description,
-  logo,
-}: UpdateTeamParams) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+export const updateTeam = authAction
+  .inputSchema(updateTeamSchema)
+  .action(async ({ parsedInput: { teamId, name, description, logo }, ctx }) => {
+    const { userId } = ctx;
 
-  // Check if user has permission
-  const member = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
-
-  if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    throw new Error('Insufficient permissions');
-  }
-
-  const updateData: any = {};
-  if (name !== undefined) updateData.name = name;
-  if (description !== undefined) updateData.description = description;
-  if (logo !== undefined) updateData.logo = logo;
-
-  const team = await prisma.team.update({
-    where: { id: teamId },
-    data: updateData,
-  });
-
-  revalidatePath('/dashboard/team');
-  return { success: true, team };
-}
-
-// Create team invitation
-interface CreateInvitationParams {
-  teamId: string;
-  email: string;
-  role: TeamRole;
-}
-
-export async function createTeamInvitation({
-  teamId,
-  email,
-  role,
-}: CreateInvitationParams) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  // Check if user has permission
-  const member = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
-
-  if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    throw new Error('Insufficient permissions');
-  }
-
-  // Check if invitation already exists
-  const existingInvitation = await prisma.teamInvitation.findFirst({
-    where: {
-      teamId,
-      email,
-      status: 'PENDING',
-    },
-  });
-
-  if (existingInvitation) {
-    throw new Error('An invitation for this email already exists');
-  }
-
-  // Create invitation with 7 day expiry
-  const invitation = await prisma.teamInvitation.create({
-    data: {
-      teamId,
-      email,
-      role,
-      invitedById: session.user.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
-  });
-
-  // TODO: Send invitation email
-
-  return { success: true, invitation };
-}
-
-// Get pending invitations
-export async function getTeamInvitations(teamId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  // Check if user has permission
-  const member = await prisma.teamMember.findUnique({
-    where: {
-      teamId_userId: {
-        teamId,
-        userId: session.user.id,
-      },
-    },
-  });
-
-  if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    throw new Error('Insufficient permissions');
-  }
-
-  const invitations = await prisma.teamInvitation.findMany({
-    where: {
-      teamId,
-      status: 'PENDING',
-      expiresAt: {
-        gt: new Date(),
-      },
-    },
-    include: {
-      invitedBy: {
-        select: {
-          name: true,
-          email: true,
+    // Check if user has permission
+    const member = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    });
+
+    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
+      throw new Error('Insufficient permissions');
+    }
+
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (logo !== undefined) updateData.logo = logo;
+
+    const team = await prisma.team.update({
+      where: { id: teamId },
+      data: updateData,
+    });
+
+    revalidatePath('/dashboard/team');
+    return { success: true, team };
   });
 
-  return invitations;
-}
+// Create team invitation
+const createTeamInvitationSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+  email: z.string().email('Valid email is required'),
+  role: z.nativeEnum(TeamRole),
+});
+
+export const createTeamInvitation = authAction
+  .inputSchema(createTeamInvitationSchema)
+  .action(async ({ parsedInput: { teamId, email, role }, ctx }) => {
+    const { userId } = ctx;
+
+    // Check if user has permission
+    const member = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
+        },
+      },
+    });
+
+    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
+      throw new Error('Insufficient permissions');
+    }
+
+    // Check if invitation already exists
+    const existingInvitation = await prisma.teamInvitation.findFirst({
+      where: {
+        teamId,
+        email,
+        status: 'PENDING',
+      },
+    });
+
+    if (existingInvitation) {
+      throw new Error('An invitation for this email already exists');
+    }
+
+    // Create invitation with 7 day expiry
+    const invitation = await prisma.teamInvitation.create({
+      data: {
+        teamId,
+        email,
+        role,
+        invitedById: userId,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // TODO: Send invitation email
+
+    return { success: true, invitation };
+  });
+
+// Get pending invitations
+const getTeamInvitationsSchema = z.object({
+  teamId: z.string().min(1, 'Team ID is required'),
+});
+
+export const getTeamInvitations = authAction
+  .inputSchema(getTeamInvitationsSchema)
+  .action(async ({ parsedInput: { teamId }, ctx }) => {
+    const { userId } = ctx;
+
+    // Check if user has permission
+    const member = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId,
+          userId,
+        },
+      },
+    });
+
+    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
+      throw new Error('Insufficient permissions');
+    }
+
+    const invitations = await prisma.teamInvitation.findMany({
+      where: {
+        teamId,
+        status: 'PENDING',
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      include: {
+        invitedBy: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return { invitations };
+  });
 
 // Cancel invitation
-export async function cancelTeamInvitation(invitationId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+const cancelTeamInvitationSchema = z.object({
+  invitationId: z.string().min(1, 'Invitation ID is required'),
+});
 
-  const invitation = await prisma.teamInvitation.findUnique({
-    where: { id: invitationId },
-    include: {
-      team: {
-        include: {
-          members: {
-            where: {
-              userId: session.user.id,
+export const cancelTeamInvitation = authAction
+  .inputSchema(cancelTeamInvitationSchema)
+  .action(async ({ parsedInput: { invitationId }, ctx }) => {
+    const { userId } = ctx;
+
+    const invitation = await prisma.teamInvitation.findUnique({
+      where: { id: invitationId },
+      include: {
+        team: {
+          include: {
+            members: {
+              where: {
+                userId,
+              },
             },
           },
         },
       },
-    },
+    });
+
+    if (!invitation) {
+      throw new Error('Invitation not found');
+    }
+
+    const member = invitation.team.members[0];
+    if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
+      throw new Error('Insufficient permissions');
+    }
+
+    await prisma.teamInvitation.update({
+      where: { id: invitationId },
+      data: { status: 'EXPIRED' },
+    });
+
+    revalidatePath('/dashboard/team');
+    return { success: true };
   });
-
-  if (!invitation) {
-    throw new Error('Invitation not found');
-  }
-
-  const member = invitation.team.members[0];
-  if (!member || !['OWNER', 'ADMIN'].includes(member.role)) {
-    throw new Error('Insufficient permissions');
-  }
-
-  await prisma.teamInvitation.update({
-    where: { id: invitationId },
-    data: { status: 'EXPIRED' },
-  });
-
-  revalidatePath('/dashboard/team');
-  return { success: true };
-}

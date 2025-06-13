@@ -29,9 +29,9 @@ export async function StatsCard({ lng }: StatsCardProps) {
   const t = await getTranslations('dashboard.stats');
 
   // Fetch real data from database
-  const result = await getDashboardStats();
+  const result = await getDashboardStats({});
 
-  if (!result.success || !result.data) {
+  if (!result || !result.data) {
     // Return empty state or error message
     return (
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
