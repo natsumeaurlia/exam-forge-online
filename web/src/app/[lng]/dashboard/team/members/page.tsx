@@ -4,8 +4,8 @@ import {
   getTeamMembers,
   getTeamById,
   getUserTeams,
-} from '@/lib/actions/team-member';
-import { auth } from '@/lib/auth';
+} from '../../../../../lib/actions/team-member';
+import { auth } from '../../../../../lib/auth';
 import { redirect } from 'next/navigation';
 import TeamMembersClient from './client';
 
@@ -34,10 +34,12 @@ export default async function TeamMembersPage({
   }
 
   // Get user's teams
-  const teams = await getUserTeams();
-  if (teams.length === 0) {
+  const teamsResult = await getUserTeams({});
+  if (!teamsResult.data?.teams || teamsResult.data.teams.length === 0) {
     redirect(`/${lng}/dashboard`);
   }
+
+  const teams = teamsResult.data.teams;
 
   // Get team ID from searchParams or user's first team
   let teamId = searchParams.teamId || teams[0].id;
@@ -49,17 +51,21 @@ export default async function TeamMembersPage({
   }
 
   try {
-    const [team, members] = await Promise.all([
-      getTeamById(teamId),
-      getTeamMembers(teamId),
+    const [teamResult, membersResult] = await Promise.all([
+      getTeamById({ teamId }),
+      getTeamMembers({ teamId }),
     ]);
+
+    if (!teamResult.data?.team || !membersResult.data?.members) {
+      throw new Error('Failed to load team data');
+    }
 
     return (
       <TeamMembersClient
         lng={lng}
-        team={team}
-        members={members}
-        currentUserId={session.user.id}
+        team={teamResult.data.team}
+        members={membersResult.data.members}
+        currentUserId={(session.user as any).id}
         userTeams={teams}
       />
     );

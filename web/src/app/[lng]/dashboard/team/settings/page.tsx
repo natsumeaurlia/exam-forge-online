@@ -1,7 +1,10 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { getTeamById, getUserTeams } from '@/lib/actions/team-member';
-import { auth } from '@/lib/auth';
+import {
+  getTeamById,
+  getUserTeams,
+} from '../../../../../lib/actions/team-member';
+import { auth } from '../../../../../lib/auth';
 import { redirect } from 'next/navigation';
 import TeamSettingsClient from './client';
 
@@ -25,15 +28,17 @@ export default async function TeamSettingsPage({
   searchParams: { teamId?: string };
 }) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!(session?.user as any)?.id) {
     redirect(`/${lng}/auth/signin`);
   }
 
   // Get user's teams
-  const teams = await getUserTeams();
-  if (teams.length === 0) {
+  const teamsResult = await getUserTeams({});
+  if (!teamsResult.data?.teams || teamsResult.data.teams.length === 0) {
     redirect(`/${lng}/dashboard`);
   }
+
+  const teams = teamsResult.data.teams;
 
   // Get team ID from searchParams or user's first team
   let teamId = searchParams.teamId || teams[0].id;
@@ -45,7 +50,13 @@ export default async function TeamSettingsPage({
   }
 
   try {
-    const team = await getTeamById(teamId);
+    const teamResult = await getTeamById({ teamId });
+
+    if (!teamResult.data?.team) {
+      throw new Error('Failed to load team data');
+    }
+
+    const team = teamResult.data.team;
 
     // Only OWNER and ADMIN can access team settings
     if (!['OWNER', 'ADMIN'].includes(team.currentUserRole)) {
