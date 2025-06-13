@@ -38,7 +38,7 @@
       "termsOfService": "Terms of Service",
       "privacyPolicy": "Privacy Policy",
       "commercialTransactions": "Legal Information",
-      "copyright": "© 2025 ExamForge Inc. All rights reserved."
+      "copyright": "\u00a9 2025 ExamForge Inc. All rights reserved."
     }
   },
   "hero": {
@@ -235,8 +235,8 @@
     }
   },
   "usecases": {
-    "title": "ExamForge Works Across Various Scenarios",
-    "description": "From educational institutions to corporate training, we support a wide range of applications. Find the optimal use case for your needs.",
+    "title": "Create Professional Exams with Simple Operations",
+    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
     "tabs": {
       "education": {
         "title": "For Educational Institutions",
@@ -320,11 +320,7 @@
           "certificate": "Auto certificate generation"
         }
       }
-    }
-  },
-  "features": {
-    "title": "Create Professional Exams with Simple Operations",
-    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
+    },
     "list": {
       "builder": {
         "title": "Intuitive Quiz Builder",
@@ -773,7 +769,7 @@
       },
       "proUpgrade": {
         "question": "How do I upgrade to the Pro plan?",
-        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
+        "answer": "You can upgrade from your dashboard by going to Settings \u2192 Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
       },
       "dataSecurity": {
         "question": "How secure is my data?",
@@ -862,6 +858,7 @@
       "members": "Member Management",
       "media": "Media Library",
       "settings": "Settings",
+      "teamSettings": "Team Settings",
       "help": "Help",
       "documentation": "Documentation",
       "expand": "Expand sidebar",
@@ -1103,7 +1100,7 @@
       "title": "Ready to Get Started?",
       "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
       "button": "Start for Free",
-      "note": "No credit card required · Upgrade anytime"
+      "note": "No credit card required \u00b7 Upgrade anytime"
     }
   },
   "quizManagement": {
@@ -1439,8 +1436,8 @@
           "correctAnswer": "Correct Answer",
           "answerPlaceholder": "Correct numeric value",
           "tolerance": "Tolerance",
-          "tolerancePlaceholder": "± tolerance",
-          "toleranceHint": "Example: Setting 0.1 accepts answers within ±0.1 of the correct answer",
+          "tolerancePlaceholder": "\u00b1 tolerance",
+          "toleranceHint": "Example: Setting 0.1 accepts answers within \u00b10.1 of the correct answer",
           "allowRange": "Specify as Range",
           "minValue": "Minimum Value",
           "minPlaceholder": "Min value",
@@ -1470,8 +1467,8 @@
       "multiMediaUpload": {
         "title": "Media Attachments",
         "clickOrDrag": "Click or drag files to upload",
-        "supportedFormats": "Images: JPEG, PNG, GIF, WebP • Videos: MP4, WebM, OGG, MOV",
-        "sizeLimit": "Images: max 10MB • Videos: max 500MB",
+        "supportedFormats": "Images: JPEG, PNG, GIF, WebP \u2022 Videos: MP4, WebM, OGG, MOV",
+        "sizeLimit": "Images: max 10MB \u2022 Videos: max 500MB",
         "uploading": "Uploading...",
         "uploadSuccess": "{count, plural, one {# file} other {# files}} uploaded successfully",
         "uploadError": "Failed to upload files",
@@ -1629,6 +1626,145 @@
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving..."
+    }
+  },
+  "team": {
+    "title": "Team Management",
+    "description": "Manage your teams and members",
+    "selectTeam": "Select Team",
+    "noDescription": "No description",
+    "membersCount": "{count} members",
+    "quizzesCount": "{count} quizzes",
+    "teamId": "Team ID",
+    "viewMembers": "View Members",
+    "viewSettings": "View Settings",
+    "tabs": {
+      "members": "Members",
+      "settings": "Settings",
+      "permissions": "Permissions"
+    },
+    "permissions": {
+      "description": "About permissions for each role",
+      "owner": "Owner",
+      "ownerDescription": "Has all permissions",
+      "admin": "Admin",
+      "adminDescription": "Can manage members and edit quizzes",
+      "member": "Member",
+      "memberDescription": "Can create and edit quizzes",
+      "viewer": "Viewer",
+      "viewerDescription": "Can only view quizzes"
+    },
+    "noTeams": {
+      "title": "No Teams",
+      "description": "Create a team to get started",
+      "createTeam": "Create Team"
+    },
+    "members": {
+      "title": "Team Members",
+      "description": "Manage members of {teamName}",
+      "inviteMember": "Invite Member",
+      "inviteDialogTitle": "Invite New Member",
+      "inviteDialogDescription": "Enter an email address and role to invite a new member to your team.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "member@example.com",
+      "roleLabel": "Role",
+      "inviteButton": "Send Invitation",
+      "inviteSuccess": "Invitation sent successfully",
+      "inviteError": "Failed to send invitation",
+      "removeConfirm": "Are you sure you want to remove this member from the team?",
+      "removeSuccess": "Member removed successfully",
+      "removeError": "Failed to remove member",
+      "roleUpdateSuccess": "Role updated successfully",
+      "roleUpdateError": "Failed to update role",
+      "limitReachedTitle": "Member Limit Reached",
+      "limitReachedDescription": "Your current plan allows up to {max} members.",
+      "membersList": "Members List",
+      "membersCount": "{count} / {max} members",
+      "memberColumn": "Member",
+      "roleColumn": "Role",
+      "joinedColumn": "Joined",
+      "you": "You",
+      "actions": "Actions",
+      "makeAdmin": "Make Admin",
+      "makeMember": "Make Member",
+      "makeViewer": "Make Viewer",
+      "remove": "Remove",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member",
+        "viewer": "Viewer"
+      }
+    },
+    "settings": {
+      "title": "Team Settings",
+      "description": "Manage your team's basic information and settings",
+      "updateSuccess": "Settings updated successfully",
+      "updateError": "Failed to update settings",
+      "tabs": {
+        "general": "General",
+        "billing": "Billing",
+        "security": "Security"
+      },
+      "general": {
+        "title": "Basic Information",
+        "description": "Configure your team's basic information",
+        "teamName": "Team Name",
+        "teamSlug": "Team ID",
+        "slugHelp": "Unique identifier used in URLs",
+        "teamDescription": "Team Description",
+        "descriptionPlaceholder": "Enter your team's purpose or activities",
+        "teamLogo": "Team Logo",
+        "logoHelp": "Recommended size: 200x200px",
+        "saveChanges": "Save Changes"
+      },
+      "info": {
+        "title": "Team Information",
+        "created": "Created",
+        "teamId": "Team ID",
+        "members": "Members",
+        "quizzes": "Quizzes"
+      },
+      "billing": {
+        "title": "Subscription",
+        "description": "Current plan and billing information",
+        "price": "{price} {currency} / {interval}",
+        "interval": {
+          "month": "month",
+          "year": "year"
+        },
+        "status": {
+          "active": "Active",
+          "trialing": "Trial",
+          "past_due": "Past Due",
+          "canceled": "Canceled"
+        },
+        "limits": "Usage Limits",
+        "maxMembers": "Max Members",
+        "maxQuizzes": "Max Quizzes",
+        "nextBilling": "Next billing date: {date}",
+        "manageSubscription": "Manage Subscription",
+        "noPlan": "No active subscription",
+        "upgradePlan": "Upgrade Plan"
+      },
+      "security": {
+        "title": "Security Settings",
+        "description": "Manage your team's security and access control",
+        "twoFactor": "Two-Factor Authentication",
+        "twoFactorDescription": "Require two-factor authentication for team members",
+        "apiKeys": "API Keys",
+        "apiKeysDescription": "Manage API keys for external integrations",
+        "auditLogs": "Audit Logs",
+        "auditLogsDescription": "Track all team activities",
+        "comingSoon": "Coming Soon",
+        "enterpriseOnly": "Enterprise Only"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "description": "These actions cannot be undone",
+        "deleteTeam": "Delete Team",
+        "deleteWarning": "Deleting your team will permanently remove all data"
+      }
     }
   },
   "quiz": {
