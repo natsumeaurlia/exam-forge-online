@@ -38,7 +38,7 @@
       "termsOfService": "Terms of Service",
       "privacyPolicy": "Privacy Policy",
       "commercialTransactions": "Legal Information",
-      "copyright": "© 2025 ExamForge Inc. All rights reserved."
+      "copyright": "\u00a9 2025 ExamForge Inc. All rights reserved."
     }
   },
   "hero": {
@@ -235,8 +235,8 @@
     }
   },
   "usecases": {
-    "title": "ExamForge Works Across Various Scenarios",
-    "description": "From educational institutions to corporate training, we support a wide range of applications. Find the optimal use case for your needs.",
+    "title": "Create Professional Exams with Simple Operations",
+    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
     "tabs": {
       "education": {
         "title": "For Educational Institutions",
@@ -320,11 +320,7 @@
           "certificate": "Auto certificate generation"
         }
       }
-    }
-  },
-  "features": {
-    "title": "Create Professional Exams with Simple Operations",
-    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
+    },
     "list": {
       "builder": {
         "title": "Intuitive Quiz Builder",
@@ -773,7 +769,7 @@
       },
       "proUpgrade": {
         "question": "How do I upgrade to the Pro plan?",
-        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
+        "answer": "You can upgrade from your dashboard by going to Settings \u2192 Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
       },
       "dataSecurity": {
         "question": "How secure is my data?",
@@ -1104,7 +1100,7 @@
       "title": "Ready to Get Started?",
       "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
       "button": "Start for Free",
-      "note": "No credit card required · Upgrade anytime"
+      "note": "No credit card required \u00b7 Upgrade anytime"
     }
   },
   "quizManagement": {
@@ -1440,8 +1436,8 @@
           "correctAnswer": "Correct Answer",
           "answerPlaceholder": "Correct numeric value",
           "tolerance": "Tolerance",
-          "tolerancePlaceholder": "± tolerance",
-          "toleranceHint": "Example: Setting 0.1 accepts answers within ±0.1 of the correct answer",
+          "tolerancePlaceholder": "\u00b1 tolerance",
+          "toleranceHint": "Example: Setting 0.1 accepts answers within \u00b10.1 of the correct answer",
           "allowRange": "Specify as Range",
           "minValue": "Minimum Value",
           "minPlaceholder": "Min value",
@@ -1471,8 +1467,8 @@
       "multiMediaUpload": {
         "title": "Media Attachments",
         "clickOrDrag": "Click or drag files to upload",
-        "supportedFormats": "Images: JPEG, PNG, GIF, WebP • Videos: MP4, WebM, OGG, MOV",
-        "sizeLimit": "Images: max 10MB • Videos: max 500MB",
+        "supportedFormats": "Images: JPEG, PNG, GIF, WebP \u2022 Videos: MP4, WebM, OGG, MOV",
+        "sizeLimit": "Images: max 10MB \u2022 Videos: max 500MB",
         "uploading": "Uploading...",
         "uploadSuccess": "{count, plural, one {# file} other {# files}} uploaded successfully",
         "uploadError": "Failed to upload files",
@@ -1769,6 +1765,7 @@
         "deleteTeam": "Delete Team",
         "deleteWarning": "Deleting your team will permanently remove all data"
       }
+    }
   },
   "quiz": {
     "taking": {

@@ -306,9 +306,6 @@ jobs:
       - name: Run Prisma seed
         run: pnpm exec prisma db seed
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
 
