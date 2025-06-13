@@ -17,6 +17,11 @@ defaults:
   run:
     working-directory: ./web
 
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9.12.3'
+
+
 jobs:
   # 依存関係のインストールとキャッシュを共有する基盤ジョブ
   setup:
@@ -30,12 +35,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Cache node modules
         id: cache-deps
@@ -44,6 +49,7 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
+            /tmp/.pnpm-store
             /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
@@ -73,12 +79,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -86,7 +92,11 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
+            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -132,12 +142,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -145,7 +155,11 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
+            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -179,12 +193,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -192,7 +206,11 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
+            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -248,12 +266,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.12.3
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
@@ -261,7 +279,11 @@ jobs:
           path: |
             ~/.pnpm-store
             node_modules
+            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
