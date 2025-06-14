@@ -34,7 +34,7 @@ export default async function TeamSettingsPage({
 
   // Get user's teams
   const teamsResult = await getUserTeams({});
-  if (!teamsResult.data?.teams || teamsResult.data.teams.length === 0) {
+  if (!teamsResult?.data?.teams || teamsResult.data.teams.length === 0) {
     redirect(`/${lng}/dashboard`);
   }
 
@@ -52,7 +52,7 @@ export default async function TeamSettingsPage({
   try {
     const teamResult = await getTeamById({ teamId });
 
-    if (!teamResult.data?.team) {
+    if (!teamResult?.data?.team) {
       throw new Error('Failed to load team data');
     }
 
@@ -63,7 +63,9 @@ export default async function TeamSettingsPage({
       redirect(`/${lng}/dashboard`);
     }
 
-    return <TeamSettingsClient lng={lng} team={team} userTeams={teams} />;
+    return (
+      <TeamSettingsClient lng={lng} team={team as any} userTeams={teams} />
+    );
   } catch (error) {
     console.error('Error loading team settings:', error);
     redirect(`/${lng}/dashboard`);

@@ -40,7 +40,7 @@ const submitQuizResponseSchema = z.object({
 
 // クイズ回答の提出
 export const submitQuizResponse = authAction
-  .inputSchema(submitQuizResponseSchema)
+  .schema(submitQuizResponseSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     try {
       const { userId } = ctx;
@@ -275,7 +275,7 @@ async function calculateAverageScore(quizId: string): Promise<number> {
 }
 
 export const getQuizResponse = authAction
-  .inputSchema(z.object({ responseId: z.string() }))
+  .schema(z.object({ responseId: z.string() }))
   .action(async ({ parsedInput: { responseId }, ctx }) => {
     try {
       const { userId } = ctx;
@@ -339,7 +339,7 @@ export const getQuizResponse = authAction
 
 // クイズ回答履歴の取得
 export const getQuizResponses = authAction
-  .inputSchema(
+  .schema(
     z.object({
       quizId: z.string().optional(),
       limit: z.number().default(10),
