@@ -54,11 +54,15 @@ export function validateCsrfToken(
 /**
  * 機密データマスキング
  */
-export function maskSensitiveData(data: any): any {
+export function maskSensitiveData<T extends Record<string, unknown>>(
+  data: T
+): T;
+export function maskSensitiveData(data: unknown): unknown;
+export function maskSensitiveData(data: unknown): unknown {
   const sensitiveFields = ['password', 'token', 'secret', 'key', 'apiKey'];
 
-  if (typeof data === 'object' && data !== null) {
-    const masked = { ...data };
+  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    const masked = { ...data } as Record<string, unknown>;
     for (const field of sensitiveFields) {
       if (field in masked) {
         masked[field] = '***MASKED***';

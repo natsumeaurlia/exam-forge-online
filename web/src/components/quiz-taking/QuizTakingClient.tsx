@@ -13,6 +13,7 @@ import { QuizStartScreen } from './QuizStartScreen';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizResults } from './QuizResults';
 import { submitQuizResponse } from '@/lib/actions/quiz-response';
+import { QuizAnswer } from '@/types/quiz-answers';
 import type {
   Quiz,
   Question,
@@ -38,7 +39,7 @@ interface QuizTakingClientProps {
 
 interface Answer {
   questionId: string;
-  answer: any;
+  answer: QuizAnswer;
   isCorrect?: boolean;
 }
 
@@ -148,7 +149,7 @@ export function QuizTakingClient({
     setError(null);
   };
 
-  const handleAnswer = (answer: any) => {
+  const handleAnswer = (answer: QuizAnswer) => {
     setAnswers({
       ...answers,
       [currentQuestion.id]: {

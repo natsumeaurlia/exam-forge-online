@@ -6,6 +6,11 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/lib/auth';
 import { authAction } from './auth-action';
+import {
+  QuizAnswer,
+  QuestionWithDetails,
+  validateAnswerFormat,
+} from '@/types/quiz-answers';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -173,7 +178,10 @@ export const submitQuizResponse = authAction
   });
 
 // 正解判定ヘルパー関数
-function checkAnswer(question: any, answer: any): boolean {
+function checkAnswer(
+  question: QuestionWithDetails,
+  answer: QuizAnswer
+): boolean {
   if (!question.correctAnswer) return false;
 
   switch (question.type) {
@@ -185,13 +193,13 @@ function checkAnswer(question: any, answer: any): boolean {
       return question.correctAnswer?.toLowerCase() === trueFalseAnswer;
 
     case 'MULTIPLE_CHOICE':
-      const correctOption = question.options.find((opt: any) => opt.isCorrect);
+      const correctOption = question.options.find(opt => opt.isCorrect);
       return correctOption?.id === answer;
 
     case 'CHECKBOX':
       const correctOptions = question.options
-        .filter((opt: any) => opt.isCorrect)
-        .map((opt: any) => opt.id);
+        .filter(opt => opt.isCorrect)
+        .map(opt => opt.id);
       const selectedOptions = answer || [];
       return (
         correctOptions.length === selectedOptions.length &&
@@ -249,11 +257,16 @@ function checkAnswer(question: any, answer: any): boolean {
       );
 
     case 'DIAGRAM':
-      const correct = question.correctAnswer as any;
+      const correct = question.correctAnswer as {
+        x: number;
+        y: number;
+        label: string;
+      };
+      const diagramAnswer = answer as { x: number; y: number; label: string };
       return (
-        answer.x === correct.x &&
-        answer.y === correct.y &&
-        answer.label === correct.label
+        diagramAnswer.x === correct.x &&
+        diagramAnswer.y === correct.y &&
+        diagramAnswer.label === correct.label
       );
 
     default:

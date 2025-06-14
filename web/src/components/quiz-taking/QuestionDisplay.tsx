@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { MediaDisplay } from '@/components/common/MediaDisplay';
+import { QuizAnswer } from '@/types/quiz-answers';
 import type { Question, QuestionOption, QuestionMedia } from '@prisma/client';
 
 interface QuestionDisplayProps {
@@ -15,8 +16,8 @@ interface QuestionDisplayProps {
     options: QuestionOption[];
     media: QuestionMedia[];
   };
-  answer: any;
-  onAnswer: (answer: any) => void;
+  answer: QuizAnswer | undefined;
+  onAnswer: (answer: QuizAnswer) => void;
   lng: string;
 }
 
@@ -79,7 +80,7 @@ export function QuestionDisplay({
         );
 
       case 'CHECKBOX':
-        const selectedOptions = answer || [];
+        const selectedOptions = (answer as string[]) || [];
         return (
           <div className="space-y-3">
             {question.options.map(option => (
@@ -153,7 +154,7 @@ export function QuestionDisplay({
       case 'FILL_IN_BLANK':
         // Parse question text for blanks
         const parts = question.text.split(/___+/);
-        const blanks = answer || [];
+        const blanks = (answer as string[]) || [];
 
         return (
           <div className="space-y-4">
@@ -187,13 +188,13 @@ export function QuestionDisplay({
           left: opt.text,
           right: rightOptions[index]?.text || '',
         }));
-        const matches = answer || {};
+        const matches = (answer as Record<string, string>) || {};
 
         return (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <h4 className="font-medium">{t('items')}</h4>
-              {pairs.map((pair: any, index: number) => (
+              {pairs.map((pair, index: number) => (
                 <div key={index} className="rounded bg-gray-100 p-2">
                   {pair.left}
                 </div>
@@ -201,7 +202,7 @@ export function QuestionDisplay({
             </div>
             <div className="space-y-2">
               <h4 className="font-medium">{t('matches')}</h4>
-              {pairs.map((pair: any, index: number) => (
+              {pairs.map((pair, index: number) => (
                 <select
                   key={index}
                   value={matches[index] || ''}
@@ -213,7 +214,7 @@ export function QuestionDisplay({
                   className="w-full rounded border p-2"
                 >
                   <option value="">{t('selectMatch')}</option>
-                  {pairs.map((p: any, i: number) => (
+                  {pairs.map((p, i: number) => (
                     <option key={i} value={i}>
                       {p.right}
                     </option>
@@ -227,7 +228,7 @@ export function QuestionDisplay({
       case 'SORTING':
         // For SORTING questions, use options as items to sort
         const items = question.options.map(opt => opt.text);
-        const sortedItems = answer || [...items];
+        const sortedItems = (answer as string[]) || [...items];
 
         return (
           <div className="space-y-2">
