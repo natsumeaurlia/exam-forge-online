@@ -1,8 +1,9 @@
 'use server';
 
 import { Resend } from 'resend';
-import { render } from '@react-email/render';
+import { renderToStaticMarkup } from 'react-dom/server';
 import PasswordResetEmail from '@/components/emails/PasswordResetEmail';
+import { createElement } from 'react';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,8 +29,8 @@ export async function sendPasswordResetEmail({
       };
     }
 
-    const emailHtml = await render(
-      PasswordResetEmail({
+    const emailHtml = renderToStaticMarkup(
+      createElement(PasswordResetEmail, {
         userName,
         resetUrl,
         expiresAt,
