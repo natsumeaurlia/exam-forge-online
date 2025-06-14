@@ -1,14 +1,42 @@
 import { test, expect } from '@playwright/test';
 import { getQuizAnalytics } from '@/lib/actions/analytics';
+import {
+  getTestDataFactory,
+  cleanupTestData,
+} from '../fixtures/test-data-factory';
 
-test.describe.skip('Quiz Statistics Data Integrity', () => {
+test.describe('Quiz Statistics Data Integrity', () => {
+  let testQuizId: string;
+  let factory = getTestDataFactory();
+
+  test.beforeAll(async () => {
+    // Create test quiz with responses for analytics
+    const { quiz } = await factory.createQuiz({
+      title: 'Analytics Test Quiz',
+      status: 'PUBLISHED',
+      questionCount: 5,
+    });
+    testQuizId = quiz.id;
+
+    // Create some responses for analytics
+    for (let i = 0; i < 10; i++) {
+      await factory.createResponse({
+        quizId: quiz.id,
+        score: Math.floor(Math.random() * 100),
+      });
+    }
+  });
+
+  test.afterAll(async () => {
+    await cleanupTestData();
+  });
   test('should handle null scores correctly in average calculation', async ({
     page,
   }) => {
     // This test simulates the issue where null scores cause incorrect average calculations
 
     // Navigate to a quiz analytics page
-    await page.goto('/ja/dashboard/quizzes/test-quiz-id/analytics');
+    await page.goto('/ja/dashboard/quizzes/${testQuizId}/analytics');
 
     // Check that the average score is calculated correctly
     const averageScoreElement = await page.locator(
@@ -29,7 +57,7 @@ test.describe.skip('Quiz Statistics Data Integrity', () => {
     // Test that analytics data is fetched within a transaction
     // This ensures data consistency even during concurrent updates
 
-    await page.goto('/ja/dashboard/quizzes/test-quiz-id/analytics');
+    await page.goto('/ja/dashboard/quizzes/${testQuizId}/analytics');
 
     // Get initial values
     const totalResponses1 = await page
@@ -61,7 +89,7 @@ test.describe.skip('Quiz Statistics Data Integrity', () => {
   }) => {
     // Test that incomplete responses (null scores) don't affect the average
 
-    await page.goto('/ja/dashboard/quizzes/test-quiz-id/analytics');
+    await page.goto('/ja/dashboard/quizzes/${testQuizId}/analytics');
 
     // Check that pass rate and average score are consistent
     const passRate = await page
