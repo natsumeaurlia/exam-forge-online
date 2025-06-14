@@ -15,7 +15,8 @@ import {
   AlertCircle,
   Download,
 } from 'lucide-react';
-import { getUserPlan } from '@/lib/actions/user';
+import { getUserPlanData } from '@/lib/actions/helpers';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 
 interface SubscriptionPageProps {
@@ -39,9 +40,21 @@ export default async function SubscriptionPage({
   const t = await getTranslations('subscription');
 
   // Get current user plan and subscription data
-  const userPlanResult = await getUserPlan();
+  const session = await auth();
+  if (!session?.user?.id) {
+    return (
+      <div className="container mx-auto space-y-8 px-4 py-8">
+        <div className="text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
+          <h1 className="mt-4 text-2xl font-bold">認証が必要です</h1>
+        </div>
+      </div>
+    );
+  }
 
-  if (!userPlanResult.success || !userPlanResult.data) {
+  const userPlanData = await getUserPlanData(session.user.id);
+
+  if (!userPlanData) {
     return (
       <div className="container mx-auto space-y-8 px-4 py-8">
         <div className="text-center">
@@ -61,7 +74,8 @@ export default async function SubscriptionPage({
     );
   }
 
-  const { plan, subscription, features, team } = userPlanResult.data;
+  const { plan, subscription, features } = userPlanData;
+  const planType = userPlanData.planType;
 
   const getPlanBadgeVariant = (planType: string) => {
     switch (planType) {
@@ -139,10 +153,10 @@ export default async function SubscriptionPage({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Badge
-                    variant={getPlanBadgeVariant(plan.type)}
+                    variant={getPlanBadgeVariant(plan?.type || 'FREE')}
                     className="px-4 py-2 text-lg"
                   >
-                    {plan.name}
+                    {plan?.name || 'Free Plan'}
                   </Badge>
                   <Badge variant={statusBadge.variant}>
                     {statusBadge.label}
@@ -195,13 +209,15 @@ export default async function SubscriptionPage({
                   {t('features.title', { default: 'プラン機能' })}
                 </h4>
                 <div className="grid gap-2 md:grid-cols-2">
-                  {features.map(feature => (
+                  {features.map((feature, index) => (
                     <div
-                      key={feature.id}
+                      key={typeof feature === 'string' ? feature : index}
                       className="flex items-center space-x-2"
                     >
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">{feature.name}</span>
+                      <span className="text-sm">
+                        {typeof feature === 'string' ? feature : feature}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -211,7 +227,7 @@ export default async function SubscriptionPage({
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                {plan.type === 'FREE' ? (
+                {plan?.type === 'FREE' ? (
                   <Link href={`/${lng}/plans`}>
                     <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                       <Crown className="mr-2 h-4 w-4" />
@@ -230,7 +246,11 @@ export default async function SubscriptionPage({
                     </Button>
                     {subscription && (
                       <form action="/api/stripe/portal" method="POST">
-                        <input type="hidden" name="teamId" value={team?.id} />
+                        <input
+                          type="hidden"
+                          name="userId"
+                          value={session.user.id}
+                        />
                         <Button variant="outline">
                           <ExternalLink className="mr-2 h-4 w-4" />
                           {t('actions.manageSubscription', {
@@ -332,7 +352,7 @@ export default async function SubscriptionPage({
       </div>
 
       {/* Usage Information */}
-      {plan.type !== 'FREE' && (
+      {plan?.type !== 'FREE' && (
         <Card>
           <CardHeader>
             <CardTitle>{t('usage.title', { default: '使用状況' })}</CardTitle>
@@ -343,13 +363,11 @@ export default async function SubscriptionPage({
                 <p className="text-sm font-medium text-gray-500">
                   {t('usage.quizzes', { default: '作成したクイズ数' })}
                 </p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {team?._count?.quizzes || 0}
-                </p>
+                <p className="text-2xl font-bold text-blue-600">0</p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxQuizzes === null
+                  {plan?.maxQuizzes === null
                     ? t('usage.unlimited', { default: '無制限' })
-                    : `${plan.maxQuizzes} ${t('usage.quizzesLimit', { default: 'クイズまで' })}`}
+                    : `${plan?.maxQuizzes || 0} ${t('usage.quizzesLimit', { default: 'クイズまで' })}`}
                 </p>
               </div>
               <div>
@@ -360,22 +378,20 @@ export default async function SubscriptionPage({
                   {subscription?.memberCount || 1}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxMembers === null
+                  {plan?.maxMembers === null
                     ? t('usage.unlimited', { default: '無制限' })
-                    : `${plan.maxMembers} ${t('usage.membersLimit', { default: '人まで' })}`}
+                    : `${plan?.maxMembers || 0} ${t('usage.membersLimit', { default: '人まで' })}`}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">
                   {t('usage.storage', { default: 'ストレージ使用量' })}
                 </p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {((team?._count?.quizzes || 0) * 15).toFixed(1)} MB
-                </p>
+                <p className="text-2xl font-bold text-purple-600">0.0 MB</p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxStorageMB === null
+                  {plan?.maxStorageMB === null
                     ? t('usage.unlimited', { default: '無制限' })
-                    : `${plan.maxStorageMB} MB ${t('usage.storageLimit', { default: 'まで' })}`}
+                    : `${plan?.maxStorageMB || 0} MB ${t('usage.storageLimit', { default: 'まで' })}`}
                 </p>
               </div>
             </div>
