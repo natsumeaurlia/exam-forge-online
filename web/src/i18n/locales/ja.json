@@ -2062,5 +2062,183 @@
         "deleteWarning": "チームを削除すると、すべてのデータが完全に削除されます"
       }
     }
+  },
+  "settings": {
+    "title": "設定",
+    "description": "アカウントやチームの設定を管理します",
+    "tabs": {
+      "profile": "プロフィール",
+      "team": "チーム",
+      "subscription": "サブスクリプション",
+      "notifications": "通知",
+      "security": "セキュリティ"
+    },
+    "profile": {
+      "title": "プロフィール設定",
+      "description": "アカウント情報と個人設定を管理します",
+      "comingSoon": "プロフィール設定は近日公開予定です"
+    },
+    "team": {
+      "title": "チーム設定",
+      "description": "チームメンバーと権限を管理します",
+      "comingSoon": "チーム設定は近日公開予定です"
+    },
+    "notifications": {
+      "title": "通知設定",
+      "description": "メール通知とアラートの設定を管理します",
+      "comingSoon": "通知設定は近日公開予定です"
+    },
+    "security": {
+      "title": "セキュリティ設定",
+      "description": "パスワードとセキュリティオプションを管理します",
+      "comingSoon": "セキュリティ設定は近日公開予定です"
+    },
+    "subscription": {
+      "title": "サブスクリプション管理",
+      "description": "プランと請求情報を管理します",
+      "errorLoading": "サブスクリプション情報の読み込みに失敗しました",
+      "error": "エラー",
+      "billingPortalError": "請求ポータルを開くことができませんでした",
+      "retry": "再試行",
+      "noSubscription": "現在、有効なサブスクリプションはありません。",
+      "currentPlan": "現在のプラン",
+      "currentPlanDescription": "現在のサブスクリプションプランの詳細",
+      "cancelingAtPeriodEnd": "期間終了時にキャンセル予定",
+      "members": "メンバー",
+      "currentPeriod": "現在の契約期間",
+      "teamMembers": "チームメンバー",
+      "activeMembers": "人のアクティブメンバー",
+      "trialEnds": "トライアル終了日: {date}",
+      "cancelationNotice": "サブスクリプションは {date} にキャンセルされます",
+      "changePlan": "プランを変更",
+      "manageBilling": "請求管理",
+      "cancelSubscription": "サブスクリプションをキャンセル",
+      "upgradePlan": "プランをアップグレード",
+      "reactivate": "再有効化",
+      "plans": {
+        "free": "フリープラン",
+        "pro": "プロプラン",
+        "premium": "プレミアムプラン"
+      },
+      "billingCycle": {
+        "monthly": "月",
+        "yearly": "年"
+      },
+      "status": {
+        "active": "アクティブ",
+        "canceled": "キャンセル済み",
+        "trialing": "トライアル中",
+        "past_due": "支払い遅延",
+        "unpaid": "未払い"
+      }
+    },
+    "planChange": {
+      "title": "プランを変更",
+      "description": "ニーズに最適なプランを選択してください",
+      "error": "エラー",
+      "errorDescription": "プランの変更に失敗しました。もう一度お試しください。",
+      "success": "成功",
+      "downgradedToFree": "フリープランにダウングレードしました。",
+      "monthly": "月額",
+      "yearly": "年額",
+      "save17Percent": "17%お得",
+      "recommended": "おすすめ",
+      "current": "現在のプラン",
+      "downgrade": "ダウングレード",
+      "upgrade": "アップグレード",
+      "cancel": "キャンセル",
+      "free": "無料",
+      "year": "年",
+      "month": "月",
+      "saveAmount": "{amount}の節約",
+      "members": "メンバー",
+      "downgradeWarning": "ダウングレードすると、一部の機能が利用できなくなります。",
+      "upgradeInfo": "アップグレードすると、より多くの機能をご利用いただけます。",
+      "plans": {
+        "free": {
+          "name": "フリープラン",
+          "description": "個人利用や小規模プロジェクトに最適",
+          "features": {
+            "quizzes": "最大5つのクイズ作成",
+            "questions": "クイズあたり最大20問",
+            "responses": "月間100回答まで",
+            "basicSupport": "基本的なサポート"
+          }
+        },
+        "pro": {
+          "name": "プロプラン",
+          "description": "チームやビジネスでの利用に最適",
+          "features": {
+            "unlimitedQuizzes": "無制限のクイズ作成",
+            "advancedQuestions": "高度な問題タイプ",
+            "analytics": "詳細な分析機能",
+            "teamMembers": "チームメンバー管理",
+            "prioritySupport": "優先サポート"
+          }
+        },
+        "premium": {
+          "name": "プレミアムプラン",
+          "description": "エンタープライズ向けの高度な機能",
+          "features": {
+            "allPro": "プロプランの全機能",
+            "aiGeneration": "AI問題生成",
+            "lmsMode": "LMSモード",
+            "customBranding": "カスタムブランディング",
+            "dedicatedSupport": "専任サポート"
+          }
+        }
+      }
+    },
+    "cancelSubscription": {
+      "title": "サブスクリプションをキャンセル",
+      "description": "サブスクリプションのキャンセルについて、以下のオプションから選択してください。",
+      "success": "キャンセル完了",
+      "canceledImmediately": "サブスクリプションは即座にキャンセルされました。",
+      "canceledAtPeriodEnd": "サブスクリプションは {date} にキャンセルされます。それまでは引き続きご利用いただけます。",
+      "error": "エラー",
+      "errorDescription": "サブスクリプションのキャンセルに失敗しました。もう一度お試しください。",
+      "whenToCancel": "いつキャンセルしますか？",
+      "atPeriodEnd": "契約期間終了時",
+      "atPeriodEndDescription": "{date} まで引き続きご利用いただけます",
+      "immediately": "今すぐ",
+      "immediatelyDescription": "即座にアクセスを失います",
+      "reasonLabel": "キャンセルの理由",
+      "feedbackLabel": "フィードバック",
+      "optional": "任意",
+      "feedbackPlaceholder": "サービスを改善するために、フィードバックをお聞かせください...",
+      "immediateWarning": "警告: 即座にキャンセルすると、すぐにプロ機能へのアクセスを失います。",
+      "periodEndWarning": "サブスクリプションは {date} にキャンセルされます。それまでは引き続きプロ機能をご利用いただけます。",
+      "keepSubscription": "サブスクリプションを継続",
+      "cancelNow": "今すぐキャンセル",
+      "cancelAtPeriodEnd": "期間終了時にキャンセル",
+      "reasons": {
+        "tooExpensive": "料金が高すぎる",
+        "notUsing": "十分に活用できていない",
+        "missingFeatures": "必要な機能がない",
+        "foundAlternative": "他のサービスに切り替える",
+        "technicalIssues": "技術的な問題",
+        "other": "その他"
+      }
+    },
+    "paymentHistory": {
+      "title": "支払い履歴",
+      "description": "過去の請求書と支払い履歴",
+      "noInvoices": "請求書はありません。",
+      "errorLoading": "支払い履歴の読み込みに失敗しました",
+      "retry": "再試行",
+      "invoice": "請求書",
+      "download": "ダウンロード",
+      "view": "表示",
+      "downloadSuccess": "ダウンロード成功",
+      "downloadSuccessDescription": "請求書をダウンロードしました。",
+      "downloadError": "ダウンロードエラー",
+      "downloadErrorDescription": "請求書のダウンロードに失敗しました。",
+      "status": {
+        "paid": "支払い済み",
+        "open": "未払い",
+        "void": "無効",
+        "uncollectible": "回収不能"
+      }
+    }
   }
 }

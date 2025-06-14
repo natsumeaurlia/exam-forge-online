@@ -2164,5 +2164,183 @@
         "deleteWarning": "Deleting your team will permanently remove all data"
       }
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and team settings",
+    "tabs": {
+      "profile": "Profile",
+      "team": "Team",
+      "subscription": "Subscription",
+      "notifications": "Notifications",
+      "security": "Security"
+    },
+    "profile": {
+      "title": "Profile Settings",
+      "description": "Manage your account information and personal preferences",
+      "comingSoon": "Profile settings coming soon"
+    },
+    "team": {
+      "title": "Team Settings",
+      "description": "Manage team members and permissions",
+      "comingSoon": "Team settings coming soon"
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "description": "Manage email notifications and alerts",
+      "comingSoon": "Notification settings coming soon"
+    },
+    "security": {
+      "title": "Security Settings",
+      "description": "Manage passwords and security options",
+      "comingSoon": "Security settings coming soon"
+    },
+    "subscription": {
+      "title": "Subscription Management",
+      "description": "Manage your plan and billing information",
+      "errorLoading": "Failed to load subscription information",
+      "error": "Error",
+      "billingPortalError": "Failed to open billing portal",
+      "retry": "Retry",
+      "noSubscription": "You don't have an active subscription.",
+      "currentPlan": "Current Plan",
+      "currentPlanDescription": "Details of your current subscription plan",
+      "cancelingAtPeriodEnd": "Canceling at period end",
+      "members": "members",
+      "currentPeriod": "Current billing period",
+      "teamMembers": "Team Members",
+      "activeMembers": "active members",
+      "trialEnds": "Trial ends on {date}",
+      "cancelationNotice": "Your subscription will be canceled on {date}",
+      "changePlan": "Change Plan",
+      "manageBilling": "Manage Billing",
+      "cancelSubscription": "Cancel Subscription",
+      "upgradePlan": "Upgrade Plan",
+      "reactivate": "Reactivate",
+      "plans": {
+        "free": "Free Plan",
+        "pro": "Pro Plan",
+        "premium": "Premium Plan"
+      },
+      "billingCycle": {
+        "monthly": "monthly",
+        "yearly": "yearly"
+      },
+      "status": {
+        "active": "Active",
+        "canceled": "Canceled",
+        "trialing": "Trialing",
+        "past_due": "Past Due",
+        "unpaid": "Unpaid"
+      }
+    },
+    "planChange": {
+      "title": "Change Plan",
+      "description": "Select the plan that best fits your needs",
+      "error": "Error",
+      "errorDescription": "Failed to change plan. Please try again.",
+      "success": "Success",
+      "downgradedToFree": "Successfully downgraded to Free plan.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save17Percent": "Save 17%",
+      "recommended": "Recommended",
+      "current": "Current Plan",
+      "downgrade": "Downgrade",
+      "upgrade": "Upgrade",
+      "cancel": "Cancel",
+      "free": "Free",
+      "year": "year",
+      "month": "month",
+      "saveAmount": "Save {amount}",
+      "members": "members",
+      "downgradeWarning": "Downgrading will limit access to some features.",
+      "upgradeInfo": "Upgrading will give you access to more features.",
+      "plans": {
+        "free": {
+          "name": "Free Plan",
+          "description": "Perfect for personal use and small projects",
+          "features": {
+            "quizzes": "Up to 5 quizzes",
+            "questions": "Up to 20 questions per quiz",
+            "responses": "Up to 100 responses per month",
+            "basicSupport": "Basic support"
+          }
+        },
+        "pro": {
+          "name": "Pro Plan",
+          "description": "Ideal for teams and businesses",
+          "features": {
+            "unlimitedQuizzes": "Unlimited quiz creation",
+            "advancedQuestions": "Advanced question types",
+            "analytics": "Detailed analytics",
+            "teamMembers": "Team member management",
+            "prioritySupport": "Priority support"
+          }
+        },
+        "premium": {
+          "name": "Premium Plan",
+          "description": "Advanced features for enterprise",
+          "features": {
+            "allPro": "All Pro features",
+            "aiGeneration": "AI question generation",
+            "lmsMode": "LMS mode",
+            "customBranding": "Custom branding",
+            "dedicatedSupport": "Dedicated support"
+          }
+        }
+      }
+    },
+    "cancelSubscription": {
+      "title": "Cancel Subscription",
+      "description": "Please choose from the following options for canceling your subscription.",
+      "success": "Cancellation Complete",
+      "canceledImmediately": "Your subscription has been canceled immediately.",
+      "canceledAtPeriodEnd": "Your subscription will be canceled on {date}. You can continue to use the service until then.",
+      "error": "Error",
+      "errorDescription": "Failed to cancel subscription. Please try again.",
+      "whenToCancel": "When would you like to cancel?",
+      "atPeriodEnd": "At the end of billing period",
+      "atPeriodEndDescription": "Continue using until {date}",
+      "immediately": "Immediately",
+      "immediatelyDescription": "Lose access immediately",
+      "reasonLabel": "Reason for cancellation",
+      "feedbackLabel": "Feedback",
+      "optional": "Optional",
+      "feedbackPlaceholder": "Please share your feedback to help us improve...",
+      "immediateWarning": "Warning: Immediate cancellation means you'll lose access to Pro features right away.",
+      "periodEndWarning": "Your subscription will be canceled on {date}. You can continue to use Pro features until then.",
+      "keepSubscription": "Keep Subscription",
+      "cancelNow": "Cancel Now",
+      "cancelAtPeriodEnd": "Cancel at Period End",
+      "reasons": {
+        "tooExpensive": "Too expensive",
+        "notUsing": "Not using enough",
+        "missingFeatures": "Missing required features",
+        "foundAlternative": "Switching to another service",
+        "technicalIssues": "Technical issues",
+        "other": "Other"
+      }
+    },
+    "paymentHistory": {
+      "title": "Payment History",
+      "description": "Past invoices and payment history",
+      "noInvoices": "No invoices available.",
+      "errorLoading": "Failed to load payment history",
+      "retry": "Retry",
+      "invoice": "Invoice",
+      "download": "Download",
+      "view": "View",
+      "downloadSuccess": "Download Success",
+      "downloadSuccessDescription": "Invoice downloaded successfully.",
+      "downloadError": "Download Error",
+      "downloadErrorDescription": "Failed to download invoice.",
+      "status": {
+        "paid": "Paid",
+        "open": "Open",
+        "void": "Void",
+        "uncollectible": "Uncollectible"
+      }
+    }
   }
 }
