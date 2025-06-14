@@ -2403,5 +2403,28 @@
         "weeklyDigestDescription": "Weekly summary of your activity"
       }
     }
+  },
+  "quiz": {
+    "errors": {
+      "networkOffline": "Offline",
+      "networkOfflineDescription": "Please check your internet connection",
+      "retry": "Retry",
+      "retrySuccess": "Retry successful",
+      "retryFailed": "Retry failed",
+      "retryFailedDescription": "Please try again in a moment",
+      "retryingMessage": "Retrying...",
+      "retrying": "Retrying",
+      "retryAttempts": "Retry: {current}/{max}",
+      "online": "Online",
+      "offline": "Offline",
+      "hideDetails": "Hide Details",
+      "showDetails": "Show Details",
+      "dismiss": "Dismiss",
+      "errorType": "Error Type",
+      "errorCode": "Error Code",
+      "technicalDetails": "Technical Details",
+      "timestamp": "Timestamp",
+      "recommendedAction": "Recommended Action"
+    }
   }
 }
