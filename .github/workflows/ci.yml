@@ -10,12 +10,12 @@ on:
       - 'web/prisma/**'
       - 'web/package.json'
       - 'web/tsconfig.json'
-      - 'web/pnpm-lock.yaml'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/**'
 
 defaults:
   run:
-    working-directory: ./web
+    working-directory: .
 
 env:
   NODE_VERSION: '20'
@@ -51,7 +51,7 @@ jobs:
             node_modules
             /tmp/.pnpm-store
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-v2-
 
@@ -93,7 +93,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -108,13 +108,13 @@ jobs:
         run: pnpm --filter web exec prisma generate
 
       - name: TypeScript type checking
-        run: pnpm exec tsc --noEmit
+        run: pnpm --filter web exec tsc --noEmit
 
       - name: Format check
-        run: pnpm exec prettier --check .
+        run: cd web && pnpm exec prettier --check .
 
       - name: Lint
-        run: pnpm run lint
+        run: pnpm --filter web run lint
 
   # データベースとPrismaのテスト
   database:
@@ -156,7 +156,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -177,10 +177,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset
+        run: pnpm --filter web exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec prisma db seed
+        run: pnpm --filter web exec prisma db seed
 
   # ビルドテスト
   build:
@@ -207,7 +207,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -228,12 +228,12 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Build application
-        run: pnpm run build
+        run: pnpm --filter web run build
 
       - name: Cache build output
         uses: actions/cache@v4
         with:
-          path: .next
+          path: web/.next
           key: ${{ runner.os }}-build-${{ github.sha }}
 
   # E2Eテスト（Playwright）
@@ -280,7 +280,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -301,10 +301,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset
+        run: pnpm --filter web exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec prisma db seed
+        run: pnpm --filter web exec prisma db seed
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
@@ -320,7 +320,7 @@ jobs:
         if: always()
         with:
           name: playwright-report-${{ matrix.shard }}
-          path: playwright-report/
+          path: web/playwright-report/
           retention-days: 30
 
   # すべてのジョブが成功したことを確認する集約ジョブ

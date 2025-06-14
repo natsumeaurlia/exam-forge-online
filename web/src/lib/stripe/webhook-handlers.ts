@@ -148,7 +148,7 @@ export async function handleCheckoutSessionCompleted(
       stripeSubscriptionId: subscription.id,
       stripeCustomerId: subscription.customer as string,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId: subscription.items.data[0].price.product,
+      stripeProductId: subscription.items.data[0].price.product as string,
       status: mapStripeStatus(subscription.status),
       billingCycle: typedBillingCycle,
       memberCount: teamMemberCount,
@@ -164,7 +164,7 @@ export async function handleCheckoutSessionCompleted(
     update: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId: subscription.items.data[0].price.product,
+      stripeProductId: subscription.items.data[0].price.product as string,
       status: mapStripeStatus(subscription.status),
       billingCycle: typedBillingCycle,
       memberCount: teamMemberCount,

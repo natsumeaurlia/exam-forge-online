@@ -801,6 +801,18 @@
         }
       }
     },
+    "forgotPassword": {
+      "title": "パスワードをお忘れですか？",
+      "subtitle": "ご登録のメールアドレスにパスワードリセット用のリンクをお送りします。",
+      "description": "パスワードリセット"
+    },
+    "resetPassword": {
+      "title": "パスワードリセット",
+      "subtitle": "新しいパスワードを設定してください。",
+      "description": "新しいパスワードの設定",
+      "invalidToken": "無効なトークン",
+      "tokenMissing": "パスワードリセット用のトークンが見つかりません。"
+    },
     "error": {
       "title": "認証エラー",
       "configuration": "認証設定に問題があります。管理者にお問い合わせください。",
@@ -1073,6 +1085,51 @@
     "weeklyCompletionRate": "週間完了率",
     "newParticipants": "新規参加者",
     "defaultUser": "ユーザー",
+    "analytics": {
+      "teamAnalytics": "チーム全体分析",
+      "teamAnalyticsDescription": "チーム全体のクイズ統計と詳細分析",
+      "errorTitle": "エラーが発生しました",
+      "errorMessage": "分析データの取得に失敗しました",
+      "trendsAndInsights": "トレンドと洞察",
+      "quizRankings": "クイズランキング",
+      "totalQuizzes": "総クイズ数",
+      "totalParticipants": "総参加者数",
+      "totalResponses": "総回答数",
+      "averageScore": "平均スコア",
+      "overallPassRate": "全体合格率",
+      "totalQuestions": "総問題数",
+      "noDataAvailable": "データがありません",
+      "responseTrends": "回答トレンド",
+      "intervalDaily": "日次",
+      "intervalWeekly": "週次",
+      "intervalMonthly": "月次",
+      "responseCount": "回答数",
+      "quizStatusDistribution": "クイズステータス分布",
+      "monthlyResponseVolume": "月次回答数",
+      "published": "公開済み",
+      "draft": "下書き",
+      "archived": "アーカイブ",
+      "popularQuizzes": "人気クイズ",
+      "highScoreQuizzes": "高得点クイズ",
+      "challengingQuizzes": "難易度の高いクイズ",
+      "responses": "回答",
+      "avgScore": "平均スコア",
+      "topPerformer": "トップパフォーマー",
+      "noQuizzesAvailable": "利用可能なクイズがありません",
+      "topPerformers": "トップパフォーマー",
+      "noPerformersData": "パフォーマーデータがありません",
+      "quizzesCompleted": "クイズ完了",
+      "backToDashboard": "ダッシュボードに戻る",
+      "filter7d": "過去7日",
+      "filter30d": "過去30日",
+      "filter90d": "過去90日",
+      "filterAll": "全期間",
+      "export": "エクスポート",
+      "exporting": "エクスポート中...",
+      "exportSuccess": "エクスポートが完了しました",
+      "exportFailed": "エクスポートに失敗しました",
+      "exportRequiresPro": "エクスポート機能にはプロプランが必要です"
+    },
     "navigation": {
       "menu": "メニュー",
       "dashboard": "ダッシュボード",
@@ -2118,6 +2175,64 @@
         "description": "これらの操作は取り消せません",
         "deleteTeam": "チームを削除",
         "deleteWarning": "チームを削除すると、すべてのデータが完全に削除されます"
+      }
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "description": "あなたの通知を管理しましょう",
+    "openNotifications": "通知を開く",
+    "markAsRead": "既読にする",
+    "markAllAsRead": "すべて既読にする",
+    "delete": "削除",
+    "viewAll": "すべて表示",
+    "empty": "通知はありません",
+    "types": {
+      "quiz_completed": "クイズ完了",
+      "quiz_shared": "クイズ共有",
+      "team_invitation": "チーム招待",
+      "team_member_joined": "メンバー参加",
+      "subscription_updated": "サブスクリプション更新",
+      "payment_failed": "支払い失敗",
+      "system_update": "システム更新",
+      "certificate_issued": "証明書発行",
+      "quiz_published": "クイズ公開",
+      "quiz_response_received": "回答受信",
+      "storage_limit_warning": "容量警告",
+      "plan_limit_warning": "プラン制限警告"
+    },
+    "preferences": {
+      "title": "通知設定",
+      "description": "通知の配信方法とカテゴリを設定します",
+      "save": "保存",
+      "saving": "保存中...",
+      "saveSuccess": "通知設定を保存しました",
+      "saveError": "設定の保存に失敗しました",
+      "loadError": "設定の読み込みに失敗しました",
+      "delivery": {
+        "title": "配信方法",
+        "email": "メール通知",
+        "emailDescription": "重要な通知をメールで受信する",
+        "inApp": "アプリ内通知",
+        "inAppDescription": "アプリ内でリアルタイムに通知を受信する"
+      },
+      "categories": {
+        "title": "通知カテゴリ",
+        "quizCompletion": "クイズ完了通知",
+        "quizCompletionDescription": "受験者がクイズを完了した際の通知",
+        "teamInvitation": "チーム招待",
+        "teamInvitationDescription": "チームに招待された際の通知",
+        "quizShared": "クイズ共有",
+        "quizSharedDescription": "クイズが共有された際の通知",
+        "systemUpdates": "システム更新",
+        "systemUpdatesDescription": "システムの更新やメンテナンス情報"
+      },
+      "marketing": {
+        "title": "マーケティング",
+        "emails": "マーケティングメール",
+        "emailsDescription": "新機能や特別なオファーに関するメール",
+        "weeklyDigest": "週次レポート",
+        "weeklyDigestDescription": "週次の活動レポートをメールで受信"
       }
     }
   }

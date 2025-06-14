@@ -63,6 +63,9 @@ model User {
   createdBankQuestions   BankQuestion[]
   createdCertificateTemplates CertificateTemplate[]
   createdQuizTemplates   QuizTemplate[]   @relation("TemplateCreator")
+  passwordResetTokens    PasswordResetToken[]
+  notifications          Notification[] @relation("UserNotifications")
+  notificationPreferences NotificationPreference? @relation("UserNotificationPreferences")
 
   @@index([stripeCustomerId])
   @@map("users")
@@ -100,6 +103,7 @@ model Team {
   certificateTemplates CertificateTemplate[]
   quizTemplates QuizTemplate[]
   tags         Tag[]
+  notifications Notification[] @relation("TeamNotifications")
 
   @@index([creatorId])
   @@map("teams")
@@ -141,6 +145,23 @@ model TeamInvitation {
   @@index([token])
   @@index([status])
   @@map("team_invitations")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model TeamSettings {
@@ -941,4 +962,71 @@ model TemplateTag {
   @@index([templateId])
   @@index([tagId])
   @@map("template_tags")
+}
+
+// ============================================
+// Notification System Models
+// ============================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String           @db.VarChar(255)
+  message   String
+  isRead    Boolean          @default(false) @map("is_read")
+  userId    String           @map("user_id")
+  teamId    String?          @map("team_id")
+  entityId  String?          @map("entity_id") // Reference to related entity (quiz, team, etc.)
+  entityType String?         @map("entity_type") // Type of related entity
+  metadata  Json?            // Additional notification data
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  readAt    DateTime?        @map("read_at")
+  
+  user      User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  team      Team?            @relation("TeamNotifications", fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([teamId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id                    String             @id @default(cuid())
+  userId                String             @map("user_id")
+  emailNotifications    Boolean            @default(true) @map("email_notifications")
+  inAppNotifications    Boolean            @default(true) @map("in_app_notifications")
+  quizCompletion        Boolean            @default(true) @map("quiz_completion")
+  teamInvitation        Boolean            @default(true) @map("team_invitation")
+  quizShared            Boolean            @default(true) @map("quiz_shared")
+  systemUpdates         Boolean            @default(true) @map("system_updates")
+  marketingEmails       Boolean            @default(false) @map("marketing_emails")
+  weeklyDigest          Boolean            @default(true) @map("weekly_digest")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+  
+  user                  User               @relation("UserNotificationPreferences", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId])
+  @@index([userId])
+  @@map("notification_preferences")
+}
+
+enum NotificationType {
+  QUIZ_COMPLETED
+  QUIZ_SHARED
+  TEAM_INVITATION
+  TEAM_MEMBER_JOINED
+  SUBSCRIPTION_UPDATED
+  PAYMENT_FAILED
+  SYSTEM_UPDATE
+  CERTIFICATE_ISSUED
+  QUIZ_PUBLISHED
+  QUIZ_RESPONSE_RECEIVED
+  STORAGE_LIMIT_WARNING
+  PLAN_LIMIT_WARNING
 }

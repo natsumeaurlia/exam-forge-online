@@ -149,7 +149,7 @@ async function getUserActiveTeam(userId: string): Promise<string> {
 
 // クイズ作成
 export const createQuiz = authAction
-  .inputSchema(createQuizSchema)
+  .schema(createQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -182,7 +182,7 @@ export const createQuiz = authAction
 
 // クイズ更新
 export const updateQuiz = authAction
-  .inputSchema(updateQuizSchema)
+  .schema(updateQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
     try {
@@ -233,7 +233,7 @@ export const updateQuiz = authAction
 
 // クイズ削除
 export const deleteQuiz = authAction
-  .inputSchema(deleteQuizSchema)
+  .schema(deleteQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -268,7 +268,7 @@ export const deleteQuiz = authAction
 
 // クイズ公開
 export const publishQuiz = authAction
-  .inputSchema(publishQuizSchema)
+  .schema(publishQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -328,7 +328,7 @@ export const publishQuiz = authAction
 
 // クイズ一覧取得
 export const getQuizzes = authAction
-  .inputSchema(getQuizzesSchema)
+  .schema(getQuizzesSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -414,7 +414,7 @@ export const getQuizzes = authAction
 
 // 問題追加
 export const addQuestion = authAction
-  .inputSchema(addQuestionSchema)
+  .schema(addQuestionSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -483,7 +483,7 @@ export const addQuestion = authAction
 
 // 問題更新
 export const updateQuestion = authAction
-  .inputSchema(updateQuestionSchema)
+  .schema(updateQuestionSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -550,7 +550,7 @@ export const updateQuestion = authAction
 
 // 問題削除
 export const deleteQuestion = authAction
-  .inputSchema(deleteQuestionSchema)
+  .schema(deleteQuestionSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -587,7 +587,7 @@ export const deleteQuestion = authAction
 
 // 問題順序変更
 export const reorderQuestions = authAction
-  .inputSchema(reorderQuestionsSchema)
+  .schema(reorderQuestionsSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -628,7 +628,7 @@ export const reorderQuestions = authAction
 
 // サブドメイン利用可能チェック
 export const checkSubdomainAvailability = action
-  .inputSchema(checkSubdomainSchema)
+  .schema(checkSubdomainSchema)
   .action(async ({ parsedInput: data }) => {
     try {
       const existingQuiz = await prisma.quiz.findFirst({
@@ -645,7 +645,7 @@ export const checkSubdomainAvailability = action
 
 // クイズ詳細取得（編集用）
 export const getQuizForEdit = authAction
-  .inputSchema(z.object({ quizId: z.string() }))
+  .schema(z.object({ quizId: z.string() }))
   .action(async ({ parsedInput: { quizId }, ctx }) => {
     const { userId } = ctx;
 
@@ -686,7 +686,7 @@ export const getQuizForEdit = authAction
 
 // Get quiz with questions for preview
 export const getQuizWithQuestionsById = authAction
-  .inputSchema(z.object({ quizId: z.string() }))
+  .schema(z.object({ quizId: z.string() }))
   .action(async ({ parsedInput: { quizId }, ctx }) => {
     try {
       const { userId } = ctx;
