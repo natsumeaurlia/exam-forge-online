@@ -62,6 +62,8 @@ model User {
   storage                UserStorage?
   createdBankQuestions   BankQuestion[]
   createdCertificateTemplates CertificateTemplate[]
+  notifications          Notification[]
+  notificationSettings   NotificationSettings[]
 
   @@index([stripeCustomerId])
   @@map("users")
@@ -98,6 +100,8 @@ model Team {
   bankQuestions BankQuestion[]
   certificateTemplates CertificateTemplate[]
   tags         Tag[]
+  notifications Notification[]
+  notificationSettings NotificationSettings[]
 
   @@index([creatorId])
   @@map("teams")
@@ -675,6 +679,32 @@ enum EnrollmentStatus {
   DROPPED
 }
 
+enum NotificationType {
+  QUIZ_COMPLETED
+  QUIZ_PUBLISHED
+  TEAM_MEMBER_JOINED
+  TEAM_MEMBER_LEFT
+  SUBSCRIPTION_CREATED
+  SUBSCRIPTION_UPDATED
+  SUBSCRIPTION_CANCELED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  USAGE_LIMIT_WARNING
+  USAGE_LIMIT_EXCEEDED
+  CERTIFICATE_ISSUED
+  SYSTEM_MAINTENANCE
+  SYSTEM_UPDATE
+  MARKETING
+  CUSTOM
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+  SMS
+}
+
 // ============================================
 // Question Bank Models
 // ============================================
@@ -890,4 +920,92 @@ model QuizCertificateTemplate {
   @@index([quizId])
   @@index([templateId])
   @@map("quiz_certificate_templates")
+}
+
+// ============================================
+// Notification System Models
+// ============================================
+
+model Notification {
+  id          String             @id @default(cuid())
+  type        NotificationType
+  title       String             @db.VarChar(200)
+  message     String?
+  data        Json?              // Additional notification data
+  isRead      Boolean            @default(false) @map("is_read")
+  readAt      DateTime?          @map("read_at")
+  expiresAt   DateTime?          @map("expires_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  
+  // Recipients
+  userId      String?            @map("user_id")
+  teamId      String?            @map("team_id")
+  
+  // Relations
+  user        User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([teamId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@map("notifications")
+}
+
+model NotificationSettings {
+  id                    String               @id @default(cuid())
+  userId                String               @map("user_id")
+  teamId                String?              @map("team_id")
+  
+  // Email notification preferences
+  emailEnabled          Boolean              @default(true) @map("email_enabled")
+  emailQuizCompleted    Boolean              @default(true) @map("email_quiz_completed")
+  emailNewTeamMember    Boolean              @default(true) @map("email_new_team_member")
+  emailSubscription     Boolean              @default(true) @map("email_subscription")
+  emailSystemUpdates    Boolean              @default(true) @map("email_system_updates")
+  emailMarketing        Boolean              @default(false) @map("email_marketing")
+  
+  // In-app notification preferences
+  inAppEnabled          Boolean              @default(true) @map("in_app_enabled")
+  inAppQuizCompleted    Boolean              @default(true) @map("in_app_quiz_completed")
+  inAppNewTeamMember    Boolean              @default(true) @map("in_app_new_team_member")
+  inAppSubscription     Boolean              @default(true) @map("in_app_subscription")
+  inAppSystemUpdates    Boolean              @default(true) @map("in_app_system_updates")
+  
+  // Push notification preferences (future)
+  pushEnabled           Boolean              @default(false) @map("push_enabled")
+  pushQuizCompleted     Boolean              @default(false) @map("push_quiz_completed")
+  pushNewTeamMember     Boolean              @default(false) @map("push_new_team_member")
+  
+  createdAt             DateTime             @default(now()) @map("created_at")
+  updatedAt             DateTime             @updatedAt @map("updated_at")
+  
+  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team                  Team?                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+  @@map("notification_settings")
+}
+
+model NotificationTemplate {
+  id              String                    @id @default(cuid())
+  type            NotificationType
+  channel         NotificationChannel
+  subject         String?                   @db.VarChar(200) // For email templates
+  content         String                    // Template content with placeholders
+  isActive        Boolean                   @default(true) @map("is_active")
+  locale          String                    @default("ja") @db.VarChar(5)
+  createdAt       DateTime                  @default(now()) @map("created_at")
+  updatedAt       DateTime                  @updatedAt @map("updated_at")
+  
+  @@unique([type, channel, locale])
+  @@index([type])
+  @@index([channel])
+  @@index([isActive])
+  @@map("notification_templates")
 }

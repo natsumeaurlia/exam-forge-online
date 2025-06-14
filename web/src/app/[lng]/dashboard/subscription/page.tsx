@@ -1,4 +1,6 @@
 import React from 'react';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +17,7 @@ import {
   AlertCircle,
   Download,
 } from 'lucide-react';
+import { authOptions } from '@/lib/auth';
 import { getUserPlan } from '@/lib/actions/user';
 import Link from 'next/link';
 
@@ -37,11 +40,16 @@ export default async function SubscriptionPage({
 }: SubscriptionPageProps) {
   const { lng } = await params;
   const t = await getTranslations('subscription');
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    redirect(`/${lng}/auth/signin`);
+  }
 
   // Get current user plan and subscription data
-  const userPlanResult = await getUserPlan();
+  const userPlanResult = await getUserPlan(session.user.id);
 
-  if (!userPlanResult.success || !userPlanResult.data) {
+  if (!userPlanResult || !userPlanResult.data) {
     return (
       <div className="container mx-auto space-y-8 px-4 py-8">
         <div className="text-center">
@@ -61,7 +69,8 @@ export default async function SubscriptionPage({
     );
   }
 
-  const { plan, subscription, features, team } = userPlanResult.data;
+  const { plan, subscription, features } = userPlanResult.data;
+  const team = (userPlanResult.data as any).team || null;
 
   const getPlanBadgeVariant = (planType: string) => {
     switch (planType) {
@@ -139,10 +148,10 @@ export default async function SubscriptionPage({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Badge
-                    variant={getPlanBadgeVariant(plan.type)}
+                    variant={getPlanBadgeVariant(plan?.type || 'FREE')}
                     className="px-4 py-2 text-lg"
                   >
-                    {plan.name}
+                    {plan?.name || 'Free'}
                   </Badge>
                   <Badge variant={statusBadge.variant}>
                     {statusBadge.label}
@@ -195,13 +204,13 @@ export default async function SubscriptionPage({
                   {t('features.title', { default: 'プラン機能' })}
                 </h4>
                 <div className="grid gap-2 md:grid-cols-2">
-                  {features.map(feature => (
+                  {features.map((feature, index) => (
                     <div
-                      key={feature.id}
+                      key={feature.toString() + index}
                       className="flex items-center space-x-2"
                     >
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">{feature.name}</span>
+                      <span className="text-sm">{feature.toString()}</span>
                     </div>
                   ))}
                 </div>
@@ -211,7 +220,7 @@ export default async function SubscriptionPage({
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                {plan.type === 'FREE' ? (
+                {(plan?.type || 'FREE') === 'FREE' ? (
                   <Link href={`/${lng}/plans`}>
                     <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                       <Crown className="mr-2 h-4 w-4" />
@@ -276,13 +285,12 @@ export default async function SubscriptionPage({
                     <p className="text-lg font-semibold">
                       ¥
                       {(
-                        subscription.memberCount *
-                        (subscription.plan?.monthlyPrice || 0)
+                        subscription.memberCount * (plan?.monthlyPrice || 0)
                       ).toLocaleString()}
                     </p>
                     <p className="text-xs text-gray-500">
                       {subscription.memberCount} × ¥
-                      {(subscription.plan?.monthlyPrice || 0).toLocaleString()}
+                      {(plan?.monthlyPrice || 0).toLocaleString()}
                     </p>
                   </div>
 
@@ -332,7 +340,7 @@ export default async function SubscriptionPage({
       </div>
 
       {/* Usage Information */}
-      {plan.type !== 'FREE' && (
+      {plan && plan.type !== 'FREE' && (
         <Card>
           <CardHeader>
             <CardTitle>{t('usage.title', { default: '使用状況' })}</CardTitle>
@@ -344,10 +352,10 @@ export default async function SubscriptionPage({
                   {t('usage.quizzes', { default: '作成したクイズ数' })}
                 </p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {team?._count?.quizzes || 0}
+                  {(team as any)?._count?.quizzes || 0}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxQuizzes === null
+                  {plan?.maxQuizzes === null || plan?.maxQuizzes === undefined
                     ? t('usage.unlimited', { default: '無制限' })
                     : `${plan.maxQuizzes} ${t('usage.quizzesLimit', { default: 'クイズまで' })}`}
                 </p>
@@ -360,7 +368,7 @@ export default async function SubscriptionPage({
                   {subscription?.memberCount || 1}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxMembers === null
+                  {plan?.maxMembers === null || plan?.maxMembers === undefined
                     ? t('usage.unlimited', { default: '無制限' })
                     : `${plan.maxMembers} ${t('usage.membersLimit', { default: '人まで' })}`}
                 </p>
@@ -370,10 +378,11 @@ export default async function SubscriptionPage({
                   {t('usage.storage', { default: 'ストレージ使用量' })}
                 </p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {((team?._count?.quizzes || 0) * 15).toFixed(1)} MB
+                  {(((team as any)?._count?.quizzes || 0) * 15).toFixed(1)} MB
                 </p>
                 <p className="text-xs text-gray-500">
-                  {plan.maxStorageMB === null
+                  {plan?.maxStorageMB === null ||
+                  plan?.maxStorageMB === undefined
                     ? t('usage.unlimited', { default: '無制限' })
                     : `${plan.maxStorageMB} MB ${t('usage.storageLimit', { default: 'まで' })}`}
                 </p>
