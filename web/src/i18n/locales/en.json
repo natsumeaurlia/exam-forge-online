@@ -2403,5 +2403,9 @@
         "weeklyDigestDescription": "Weekly summary of your activity"
       }
     }
+  },
+  "questionBank": {
+    "title": "Question Bank",
+    "description": "Manage and organize your question library"
   }
 }

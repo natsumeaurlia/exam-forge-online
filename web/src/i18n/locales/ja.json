@@ -2313,5 +2313,9 @@
         "weeklyDigestDescription": "週次の活動レポートをメールで受信"
       }
     }
+  },
+  "questionBank": {
+    "title": "問題バンク",
+    "description": "問題ライブラリの管理と整理"
   }
 }
