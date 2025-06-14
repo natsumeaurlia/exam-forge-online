@@ -1,36 +1,57 @@
 import { test, expect } from '@playwright/test';
-
-// テスト用のクイズデータ
-const mockQuizResponse = {
-  quizId: 'test-quiz-id',
-  responses: [
-    {
-      questionId: 'q1',
-      answer: 'A',
-      timeSpent: 30,
-    },
-    {
-      questionId: 'q2',
-      answer: true,
-      timeSpent: 20,
-    },
-    {
-      questionId: 'q3',
-      answer: ['option1', 'option2'],
-      timeSpent: 45,
-    },
-  ],
-  startedAt: new Date().toISOString(),
-  completedAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5分後
-};
+import {
+  getTestDataFactory,
+  cleanupTestData,
+} from '../fixtures/test-data-factory';
 
 test.describe('Quiz Response API', () => {
+  let testQuizId: string;
+  let factory = getTestDataFactory();
+
+  test.beforeAll(async () => {
+    // Create test quiz for API testing
+    const { quiz } = await factory.createQuiz({
+      title: 'API Test Quiz',
+      status: 'PUBLISHED',
+      questionCount: 3,
+      sharingMode: 'URL',
+    });
+    testQuizId = quiz.id;
+  });
+
+  test.afterAll(async () => {
+    await cleanupTestData();
+  });
+
+  // テスト用のクイズデータ
+  const getMockQuizResponse = (quizId: string) => ({
+    quizId,
+    responses: [
+      {
+        questionId: 'q1',
+        answer: 'A',
+        timeSpent: 30,
+      },
+      {
+        questionId: 'q2',
+        answer: true,
+        timeSpent: 20,
+      },
+      {
+        questionId: 'q3',
+        answer: ['option1', 'option2'],
+        timeSpent: 45,
+      },
+    ],
+    startedAt: new Date().toISOString(),
+    completedAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5分後
+  });
   test.describe('POST /api/quiz/response', () => {
     test('認証なしでクイズ回答を送信できる（匿名回答）', async ({
       request,
     }) => {
       const response = await request.post('/api/quiz/response', {
-        data: mockQuizResponse,
+        data: getMockQuizResponse(testQuizId),
       });
 
       // Note: 実際のテストでは、テスト用のクイズが必要
@@ -42,7 +63,7 @@ test.describe('Quiz Response API', () => {
 
     test('無効なデータで400エラーを返す', async ({ request }) => {
       const invalidData = {
-        quizId: 'test-quiz-id',
+        quizId: testQuizId,
         // responsesが欠落
         startedAt: new Date().toISOString(),
         completedAt: new Date().toISOString(),
@@ -60,7 +81,7 @@ test.describe('Quiz Response API', () => {
 
     test('不正な回答形式で400エラーを返す', async ({ request }) => {
       const invalidAnswerData = {
-        quizId: 'test-quiz-id',
+        quizId: testQuizId,
         responses: [
           {
             questionId: 'q1',
@@ -81,7 +102,7 @@ test.describe('Quiz Response API', () => {
 
     test('日時の形式が不正な場合400エラーを返す', async ({ request }) => {
       const invalidDateData = {
-        quizId: 'test-quiz-id',
+        quizId: testQuizId,
         responses: [
           {
             questionId: 'q1',
@@ -182,7 +203,7 @@ test.describe('Quiz Response API', () => {
 
       for (const testCase of testCases) {
         const data = {
-          quizId: 'test-quiz-id',
+          quizId: testQuizId,
           responses: testCase.responses,
           startedAt: new Date().toISOString(),
           completedAt: new Date().toISOString(),

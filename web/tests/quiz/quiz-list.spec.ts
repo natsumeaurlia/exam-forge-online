@@ -1,8 +1,40 @@
 import { test, expect } from '@playwright/test';
+import {
+  getTestDataFactory,
+  cleanupTestData,
+} from '../fixtures/test-data-factory';
 
-test.describe.skip('クイズ一覧ページ', () => {
-  // 認証が必要なため一時的にスキップ
+test.describe('クイズ一覧ページ', () => {
+  let testUserId: string;
+  let testTeamId: string;
+  let factory = getTestDataFactory();
+
+  test.beforeAll(async () => {
+    // Create test user and team with quizzes
+    const { user, team } = await factory.createUser({
+      email: 'quiz-list-test@example.com',
+      name: 'Quiz List Test User',
+    });
+    testUserId = user.id;
+    testTeamId = team.id;
+
+    // Create multiple test quizzes
+    for (let i = 0; i < 5; i++) {
+      await factory.createQuiz({
+        title: `Test Quiz ${i + 1}`,
+        teamId: team.id,
+        status: 'PUBLISHED',
+        questionCount: 3,
+      });
+    }
+  });
+
+  test.afterAll(async () => {
+    await cleanupTestData();
+  });
   test.beforeEach(async ({ page }) => {
+    // TODO: Add authentication setup when auth system is ready
+    // For now, tests will run against public pages
     await page.goto('/ja/dashboard/quizzes');
     await page.waitForLoadState('networkidle');
   });
