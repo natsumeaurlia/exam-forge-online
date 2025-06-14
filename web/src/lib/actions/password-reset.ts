@@ -5,7 +5,6 @@ import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import CryptoJS from 'crypto-js';
 import { sendPasswordResetEmail } from '@/lib/mail';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
@@ -84,12 +83,13 @@ function generateSecureToken(
     hmac,
   };
 
-  // AES暗号化
-  const encrypted = CryptoJS.AES.encrypt(
-    JSON.stringify(payload),
-    SAFE_ENCRYPTION_KEY
-  ).toString();
-  return encrypted;
+  // AES暗号化 (Node.js crypto)
+  const iv = crypto.randomBytes(16);
+  const key = crypto.createHash('sha256').update(SAFE_ENCRYPTION_KEY).digest();
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(JSON.stringify(payload), 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
 }
 
 // 🔒 SECURITY: トークン検証と復号化
@@ -97,9 +97,18 @@ function verifySecureToken(
   token: string
 ): { email: string; userId: string; timestamp: number } | null {
   try {
-    const decrypted = CryptoJS.AES.decrypt(token, SAFE_ENCRYPTION_KEY).toString(
-      CryptoJS.enc.Utf8
-    );
+    const [ivHex, encryptedData] = token.split(':');
+    if (!ivHex || !encryptedData) {
+      return null;
+    }
+    const iv = Buffer.from(ivHex, 'hex');
+    const key = crypto
+      .createHash('sha256')
+      .update(SAFE_ENCRYPTION_KEY)
+      .digest();
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
     const payload = JSON.parse(decrypted);
 
     const [email, userId, timestamp] = payload.data.split(':');
