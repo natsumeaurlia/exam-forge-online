@@ -183,6 +183,7 @@
       "backToEdit": "Back to Edit",
       "desktop": "Desktop",
       "mobile": "Mobile",
+      "takeQuiz": "Take Quiz",
       "detailedPreview": "Detailed Preview",
       "questions": "Questions",
       "passingScore": "Passing Score",
@@ -1101,6 +1102,7 @@
     "cardActions": {
       "openMenu": "Open menu",
       "preview": "Preview",
+      "takeQuiz": "Take Quiz",
       "edit": "Edit",
       "share": "Share",
       "duplicate": "Duplicate",

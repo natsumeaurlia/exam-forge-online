@@ -182,6 +182,7 @@
       "backToEdit": "編集に戻る",
       "desktop": "デスクトップ",
       "mobile": "モバイル",
+      "takeQuiz": "クイズを受ける",
       "detailedPreview": "詳細プレビュー",
       "questions": "問題数",
       "passingScore": "合格点",
@@ -1099,6 +1100,7 @@
     "cardActions": {
       "openMenu": "メニューを開く",
       "preview": "プレビュー",
+      "takeQuiz": "クイズを受ける",
       "edit": "編集",
       "share": "共有",
       "duplicate": "複製",
