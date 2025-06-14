@@ -177,7 +177,7 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset --schema=web/prisma/schema.prisma
 
       - name: Run Prisma seed
         run: pnpm exec prisma db seed
@@ -301,7 +301,7 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset --schema=web/prisma/schema.prisma
 
       - name: Run Prisma seed
         run: pnpm exec prisma db seed
