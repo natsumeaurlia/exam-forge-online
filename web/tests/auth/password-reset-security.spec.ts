@@ -178,21 +178,21 @@ test.describe('Password Reset Security Tests', () => {
     await expect(page.locator('input[id="email"]')).toBeVisible();
   });
 
-  test('should prevent rapid submissions (rate limiting UI)', async ({
+  test('should prevent rapid submissions (Redis rate limiting)', async ({
     page,
   }) => {
-    const email = 'test@example.com';
+    const email = 'ratelimit-test@example.com';
 
     // 連続して複数回送信を試行
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       await page.fill('input[type="email"]', email);
       await page.click('button[type="submit"]');
-      await page.waitForTimeout(100); // 少し待機
+      await page.waitForTimeout(200); // 少し待機
     }
 
-    // 複数回送信しても適切に処理されることを確認
+    // レート制限メッセージの確認
     await expect(
-      page.getByText('パスワードリセット用のメールを送信しました')
+      page.getByText(/リクエストが多すぎます.*に再試行してください/)
     ).toBeVisible();
   });
 });

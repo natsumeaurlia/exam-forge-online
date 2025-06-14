@@ -7,16 +7,23 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import CryptoJS from 'crypto-js';
 import { sendPasswordResetEmail } from '@/lib/mail';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 const action = createSafeActionClient();
 
-// 🔒 SECURITY: Rate limiting で総当たり攻撃を防止
-const RATE_LIMIT_REQUESTS = 5;
-const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15分
-const resetAttempts = new Map<
-  string,
-  { count: number; firstAttempt: number }
->();
+// 🔒 SECURITY: Rate limiting で総当たり攻撃を防止 (Redis永続化)
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+const passwordResetRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '15 m'), // 15分間に5回まで
+  analytics: true,
+  prefix: 'password_reset',
+});
 
 // 🔒 SECURITY: トークン有効期限を短めに設定（1時間）
 const TOKEN_EXPIRY_HOURS = 1;
@@ -39,27 +46,23 @@ if (!TOKEN_SECRET || TOKEN_SECRET.length < 32) {
 const SAFE_ENCRYPTION_KEY = ENCRYPTION_KEY as string;
 const SAFE_TOKEN_SECRET = TOKEN_SECRET as string;
 
-function checkRateLimit(email: string): boolean {
-  const now = Date.now();
-  const userAttempts = resetAttempts.get(email);
+async function checkRateLimit(
+  email: string
+): Promise<{ success: boolean; remaining?: number; resetTime?: number }> {
+  try {
+    const result = await passwordResetRateLimit.limit(email);
 
-  if (!userAttempts) {
-    resetAttempts.set(email, { count: 1, firstAttempt: now });
-    return true;
+    return {
+      success: result.success,
+      remaining: result.remaining,
+      resetTime: result.reset,
+    };
+  } catch (error) {
+    console.error('Rate limit check failed:', error);
+    // Redis障害時はフォールバック（制限なし、但しログ出力）
+    console.warn('Rate limiting disabled due to Redis error');
+    return { success: true };
   }
-
-  // Reset counter if window has passed
-  if (now - userAttempts.firstAttempt > RATE_LIMIT_WINDOW) {
-    resetAttempts.set(email, { count: 1, firstAttempt: now });
-    return true;
-  }
-
-  if (userAttempts.count >= RATE_LIMIT_REQUESTS) {
-    return false;
-  }
-
-  userAttempts.count++;
-  return true;
 }
 
 // 🔒 SECURITY: 暗号化されたセキュアトークン生成
@@ -137,9 +140,15 @@ export const requestPasswordReset = action
   .inputSchema(requestResetSchema)
   .action(async ({ parsedInput: { email } }) => {
     try {
-      // 🔒 SECURITY: Rate limiting check
-      if (!checkRateLimit(email)) {
-        throw new Error('リクエストが多すぎます。15分後に再試行してください。');
+      // 🔒 SECURITY: Rate limiting check (Redis永続化)
+      const rateLimitResult = await checkRateLimit(email);
+      if (!rateLimitResult.success) {
+        const resetTime = rateLimitResult.resetTime
+          ? new Date(rateLimitResult.resetTime).toLocaleTimeString('ja-JP')
+          : '15分後';
+        throw new Error(
+          `リクエストが多すぎます。${resetTime}に再試行してください。`
+        );
       }
 
       // 🔒 SECURITY: トランザクションでRace Condition防止
