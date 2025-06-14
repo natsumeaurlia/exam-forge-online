@@ -12,17 +12,38 @@ import { Redis } from '@upstash/redis';
 const action = createSafeActionClient();
 
 // 🔒 SECURITY: Rate limiting で総当たり攻撃を防止 (Redis永続化)
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+function createPasswordResetRateLimit() {
+  if (
+    !process.env.UPSTASH_REDIS_REST_URL ||
+    !process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    console.warn(
+      'Password reset rate limiting disabled: Missing Redis configuration'
+    );
+    return {
+      limit: async () => ({
+        success: true,
+        limit: 5,
+        reset: Date.now() + 15 * 60 * 1000,
+        remaining: 4,
+      }),
+    };
+  }
 
-const passwordResetRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '15 m'), // 15分間に5回まで
-  analytics: true,
-  prefix: 'password_reset',
-});
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '15 m'), // 15分間に5回まで
+    analytics: true,
+    prefix: 'password_reset',
+  });
+}
+
+const passwordResetRateLimit = createPasswordResetRateLimit();
 
 // 🔒 SECURITY: トークン有効期限を短めに設定（1時間）
 const TOKEN_EXPIRY_HOURS = 1;

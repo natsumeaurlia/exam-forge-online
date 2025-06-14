@@ -1,33 +1,69 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
+// Check if Redis configuration is available
+function createRedisClient() {
+  if (
+    !process.env.UPSTASH_REDIS_REST_URL ||
+    !process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
+    console.warn(
+      'Redis rate limiting disabled: Missing UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN'
+    );
+    return null;
+  }
+  return Redis.fromEnv();
+}
+
+// Create a mock rate limiter for when Redis is not available
+function createMockRatelimit() {
+  return {
+    limit: async () => ({
+      success: true,
+      limit: 1000,
+      reset: Date.now() + 60000,
+      remaining: 999,
+    }),
+  };
+}
+
+const redis = createRedisClient();
+
 // 🔒 SECURITY: レート制限設定 - DDoS攻撃対策
-export const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(100, '1 m'), // 1分間に100リクエスト
-  analytics: true,
-});
+export const ratelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(100, '1 m'), // 1分間に100リクエスト
+      analytics: true,
+    })
+  : createMockRatelimit();
 
 // API別制限設定
-export const strictRatelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(10, '1 m'), // 認証API等は1分間に10リクエスト
-  analytics: true,
-});
+export const strictRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '1 m'), // 認証API等は1分間に10リクエスト
+      analytics: true,
+    })
+  : createMockRatelimit();
 
 // ブルートフォース攻撃対策
-export const authRatelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(5, '5 m'), // 5分間に5回のログイン試行
-  analytics: true,
-});
+export const authRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '5 m'), // 5分間に5回のログイン試行
+      analytics: true,
+    })
+  : createMockRatelimit();
 
 // ファイルアップロード制限
-export const uploadRatelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(10, '5 m'), // 5分間に10回のアップロード
-  analytics: true,
-});
+export const uploadRatelimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '5 m'), // 5分間に10回のアップロード
+      analytics: true,
+    })
+  : createMockRatelimit();
 
 // IPベース制限チェック
 export async function checkRateLimit(

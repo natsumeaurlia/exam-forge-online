@@ -3,9 +3,25 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-// Global SSE clients map
-if (!global.sseClients) {
-  global.sseClients = new Map();
+// Global SSE clients map (only initialize on server runtime)
+declare global {
+  var sseClients: Map<string, any[]> | undefined;
+  var usageMonitors: Map<string, NodeJS.Timeout> | undefined;
+}
+
+// Initialize global variables only when needed
+function getSSEClients() {
+  if (typeof global !== 'undefined' && !global.sseClients) {
+    global.sseClients = new Map();
+  }
+  return global.sseClients;
+}
+
+function getUsageMonitors() {
+  if (typeof global !== 'undefined' && !global.usageMonitors) {
+    global.usageMonitors = new Map();
+  }
+  return global.usageMonitors;
 }
 
 // GET /api/usage/notifications/stream - Server-Sent Events endpoint
@@ -58,11 +74,12 @@ export async function GET(request: NextRequest) {
         controller.enqueue(encoder.encode(initialMessage));
 
         // Store this connection for broadcasting
-        if (!global.sseClients?.has(teamId)) {
-          global.sseClients?.set(teamId, []);
+        const sseClients = getSSEClients();
+        if (!sseClients?.has(teamId)) {
+          sseClients?.set(teamId, []);
         }
 
-        const clients = global.sseClients?.get(teamId) || [];
+        const clients = sseClients?.get(teamId) || [];
         const clientConnection = {
           controller,
           encoder,
@@ -84,7 +101,7 @@ export async function GET(request: NextRequest) {
             clients.splice(index, 1);
           }
           if (clients.length === 0) {
-            global.sseClients?.delete(teamId);
+            getSSEClients()?.delete(teamId);
           }
         };
 
@@ -135,12 +152,9 @@ export async function GET(request: NextRequest) {
 
 // Start monitoring usage for a team
 async function startUsageMonitoring(teamId: string) {
-  if (global.usageMonitors?.has(teamId)) {
+  const usageMonitors = getUsageMonitors();
+  if (usageMonitors?.has(teamId)) {
     return; // Already monitoring this team
-  }
-
-  if (!global.usageMonitors) {
-    global.usageMonitors = new Map();
   }
 
   const monitor = setInterval(async () => {
@@ -151,16 +165,14 @@ async function startUsageMonitoring(teamId: string) {
     }
   }, 60000); // Check every minute
 
-  global.usageMonitors.set(teamId, monitor);
+  usageMonitors?.set(teamId, monitor);
 
   // Cleanup monitor when no clients
   setTimeout(() => {
-    if (
-      !global.sseClients?.has(teamId) ||
-      global.sseClients.get(teamId)?.length === 0
-    ) {
+    const sseClients = getSSEClients();
+    if (!sseClients?.has(teamId) || sseClients.get(teamId)?.length === 0) {
       clearInterval(monitor);
-      global.usageMonitors?.delete(teamId);
+      getUsageMonitors()?.delete(teamId);
     }
   }, 300000); // 5 minutes
 }
@@ -385,9 +397,10 @@ async function broadcastUsageUpdate(
 }
 
 async function broadcastToClients(teamId: string, data: any) {
-  if (!global.sseClients?.has(teamId)) return;
+  const sseClients = getSSEClients();
+  if (!sseClients?.has(teamId)) return;
 
-  const clients = global.sseClients.get(teamId);
+  const clients = sseClients.get(teamId);
   if (!clients) return;
 
   const message = `data: ${JSON.stringify(data)}\n\n`;
