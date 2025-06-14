@@ -13,6 +13,34 @@ import {
 } from '@/types/quiz-schemas';
 import { authAction } from './auth-action';
 
+// Helper function to get user's active team (copied from quiz.ts)
+async function getUserActiveTeam(userId: string): Promise<string> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      teamMembers: {
+        where: {
+          role: {
+            in: ['OWNER', 'ADMIN', 'MEMBER'],
+          },
+        },
+        include: {
+          team: true,
+        },
+        orderBy: {
+          joinedAt: 'asc',
+        },
+      },
+    },
+  });
+
+  if (!user || user.teamMembers.length === 0) {
+    throw new Error('ユーザーのチームが見つかりません');
+  }
+
+  return user.teamMembers[0].team.id;
+}
+
 // タグ作成
 export const createTag = authAction
   .inputSchema(createTagSchema)
@@ -20,21 +48,13 @@ export const createTag = authAction
     const { userId } = ctx;
 
     try {
-      // ユーザーのデフォルトチーム（最初のチーム）を取得
-      const userTeam = await prisma.teamMember.findFirst({
-        where: { userId },
-        include: { team: true },
-      });
-
-      if (!userTeam) {
-        throw new Error('チームが見つかりません');
-      }
+      const teamId = await getUserActiveTeam(userId);
 
       const tag = await prisma.tag.create({
         data: {
           name: data.name,
           color: data.color,
-          teamId: userTeam.teamId,
+          teamId,
         },
       });
 

@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Image,
   Activity,
+  HelpCircle,
 } from 'lucide-react';
 import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
 import { Button } from '@/components/ui/button';
@@ -89,6 +90,11 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       href: `/${lng}/dashboard/team/settings`,
       icon: Settings,
       label: t('navigation.teamSettings'),
+    },
+    {
+      href: `/${lng}/help`,
+      icon: HelpCircle,
+      label: t('navigation.help'),
     },
   ];
 

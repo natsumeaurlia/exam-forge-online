@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { UserMenu } from '@/components/layout/UserMenu';
+import { NotificationBell } from '@/components/notifications';
 import { useRouter } from 'next/navigation';
 import { useDashboard } from '@/hooks/use-dashboard';
 
@@ -29,8 +30,6 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
       router.push(`/${lng}`);
     }
   };
-
-  const unreadNotifications = 3; // モックデータ
 
   return (
     <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -67,18 +66,7 @@ export function DashboardHeader({ lng }: DashboardHeaderProps) {
             <LanguageSwitcher lng={lng} />
 
             {/* 通知ベル */}
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              {unreadNotifications > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs"
-                >
-                  {unreadNotifications}
-                </Badge>
-              )}
-              <span className="sr-only">通知</span>
-            </Button>
+            {session?.user?.id && <NotificationBell userId={session.user.id} />}
 
             {/* ユーザーメニュー */}
             <UserMenu
