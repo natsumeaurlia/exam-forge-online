@@ -229,7 +229,6 @@ model Question {
   order           Int                @db.SmallInt
   hint            String?
   explanation     String?
-<<<<<<< Updated upstream
   correctAnswer   Json?              @map("correct_answer")
   gradingCriteria String?            @map("grading_criteria")
   isRequired      Boolean            @default(false) @map("is_required")
@@ -240,18 +239,6 @@ model Question {
   updatedAt       DateTime           @updatedAt @map("updated_at")
   quizId          String             @map("quiz_id")
   sectionId       String?            @map("section_id")
-=======
-  correctAnswer   Json?
-  gradingCriteria String?
-  isRequired      Boolean            @default(false)
-  isActive        Boolean            @default(true)
-  difficultyLevel QuestionDifficulty?
-  sectionTimeLimit Int?              @db.SmallInt // Time limit in seconds for this question
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
-  quizId          String
-  sectionId       String?
->>>>>>> Stashed changes
   quiz            Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
   section         Section?           @relation(fields: [sectionId], references: [id])
   media           QuestionMedia[]
