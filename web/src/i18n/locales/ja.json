@@ -2337,5 +2337,29 @@
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
     "createFirst": "最初の問題を作成しましょう"
+  },
+  "quiz": {
+    "errors": {
+      "networkOffline": "オフラインです",
+      "networkOfflineDescription": "インターネット接続を確認してください",
+      "retry": "再試行",
+      "retrySuccess": "再試行が成功しました",
+      "retryFailed": "再試行に失敗しました",
+      "retryFailedDescription": "しばらくしてからもう一度お試しください",
+      "retryingMessage": "再試行中...",
+      "retrying": "再試行中",
+      "retryAttempts": "再試行: {current}/{max}",
+      "online": "オンライン",
+      "offline": "オフライン",
+      "hideDetails": "詳細を隠す",
+      "showDetails": "詳細を表示",
+      "dismiss": "閉じる",
+      "errorType": "エラー種別",
+      "errorCode": "エラーコード",
+      "technicalDetails": "技術詳細",
+      "timestamp": "発生時刻",
+      "recommendedAction": "推奨アクション"
+    }
+  }
   }
 }
