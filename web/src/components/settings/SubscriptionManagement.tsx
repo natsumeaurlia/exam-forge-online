@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Card,
@@ -61,9 +61,9 @@ export const SubscriptionManagement = ({
 
   useEffect(() => {
     fetchSubscriptionData();
-  }, []);
+  }, [fetchSubscriptionData]);
 
-  const fetchSubscriptionData = async () => {
+  const fetchSubscriptionData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -87,7 +87,7 @@ export const SubscriptionManagement = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   const handleManageBilling = async () => {
     try {

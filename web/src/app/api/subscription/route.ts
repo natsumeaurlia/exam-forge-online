@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     });
 
     // If there's a Stripe subscription, get updated info
-    let stripeSubscription = null;
+    let stripeSubscription: any = null;
     if (subscription.stripeSubscriptionId) {
       try {
         stripeSubscription = await stripe.subscriptions.retrieve(
@@ -82,10 +82,12 @@ export async function GET(request: NextRequest) {
       pricePerMember: subscription.plan.type === 'PRO' ? 2980 : 4980,
       currentPeriodStart: stripeSubscription?.current_period_start
         ? new Date(stripeSubscription.current_period_start * 1000).toISOString()
-        : subscription.currentPeriodStart?.toISOString(),
+        : subscription.currentPeriodStart?.toISOString() ||
+          new Date().toISOString(),
       currentPeriodEnd: stripeSubscription?.current_period_end
         ? new Date(stripeSubscription.current_period_end * 1000).toISOString()
-        : subscription.currentPeriodEnd?.toISOString(),
+        : subscription.currentPeriodEnd?.toISOString() ||
+          new Date().toISOString(),
       cancelAtPeriodEnd: stripeSubscription?.cancel_at_period_end || false,
       canceledAt: subscription.canceledAt?.toISOString(),
       trialEnd: stripeSubscription?.trial_end

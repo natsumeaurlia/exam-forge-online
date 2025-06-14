@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Card,
@@ -55,9 +55,9 @@ export const PaymentHistory = ({ lng }: PaymentHistoryProps) => {
 
   useEffect(() => {
     fetchPaymentHistory();
-  }, []);
+  }, [fetchPaymentHistory]);
 
-  const fetchPaymentHistory = async () => {
+  const fetchPaymentHistory = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -81,7 +81,7 @@ export const PaymentHistory = ({ lng }: PaymentHistoryProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   const downloadInvoice = async (invoice: Invoice) => {
     try {

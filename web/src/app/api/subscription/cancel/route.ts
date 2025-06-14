@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Cancel the subscription in Stripe
-    const canceledSubscription = await stripe.subscriptions.cancel(
+    const canceledSubscription: any = await stripe.subscriptions.cancel(
       subscription.stripeSubscriptionId,
       {
         prorate: immediately,
@@ -71,21 +71,6 @@ export async function POST(request: NextRequest) {
       where: { id: subscription.id },
       data: {
         status: immediately ? 'CANCELED' : 'ACTIVE',
-        canceledAt: new Date(),
-        cancelReason: reason,
-        cancelFeedback: feedback,
-      },
-    });
-
-    // Create cancellation record for analytics
-    await prisma.cancellationRecord.create({
-      data: {
-        subscriptionId: subscription.id,
-        teamId: teamMember.teamId,
-        userId: session.user.id,
-        reason,
-        feedback,
-        immediately,
         canceledAt: new Date(),
       },
     });
@@ -99,9 +84,9 @@ export async function POST(request: NextRequest) {
         canceledAt: canceledSubscription.canceled_at
           ? new Date(canceledSubscription.canceled_at * 1000)
           : null,
-        currentPeriodEnd: new Date(
-          canceledSubscription.current_period_end * 1000
-        ),
+        currentPeriodEnd: canceledSubscription.current_period_end
+          ? new Date(canceledSubscription.current_period_end * 1000)
+          : null,
       },
     });
   } catch (error) {
