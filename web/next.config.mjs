@@ -39,7 +39,7 @@ const sentryWebpackPluginOptions = {
   // Disable source maps upload for now (can be enabled later)
   dryRun: process.env.NODE_ENV !== 'production',
 
-  // Suppress warnings in CI
+  // Suppress warnings in CI environment
   suppressWarnings: true,
 };
 
