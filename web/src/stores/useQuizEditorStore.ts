@@ -177,7 +177,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           correctAnswer: getDefaultCorrectAnswer(type),
           gradingCriteria: null,
           isRequired: false,
-          isActive: true,
+          // isActive: true, // TODO: Add this field to schema
           quizId: quiz.id,
           sectionId: null,
           difficultyLevel: null,

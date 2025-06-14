@@ -1329,6 +1329,64 @@
       "note": "クレジットカード登録不要・いつでもアップグレード可能"
     }
   },
+  "templateManagement": {
+    "page": {
+      "title": "テンプレート管理",
+      "subtitle": "クイズテンプレートの作成・管理・共有",
+      "description": "クイズテンプレートを管理し、効率的にクイズを作成できます"
+    },
+    "header": {
+      "createTemplate": "テンプレート作成"
+    },
+    "cardActions": {
+      "openMenu": "メニューを開く",
+      "preview": "プレビュー",
+      "edit": "編集",
+      "duplicate": "複製",
+      "createQuiz": "クイズ作成",
+      "delete": "削除"
+    },
+    "cardPresentation": {
+      "public": "公開",
+      "updated": "更新"
+    },
+    "cardStats": {
+      "usageCount": "回使用",
+      "createdBy": "作成者"
+    },
+    "deleteDialog": {
+      "title": "テンプレートを削除",
+      "description": "「{title}」を削除してもよろしいですか？この操作は元に戻せません。",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "deleting": "削除中..."
+    },
+    "createModal": {
+      "title": "新しいテンプレート",
+      "description": "空のテンプレートを作成して、カスタマイズを開始します。",
+      "titleLabel": "テンプレート名",
+      "titlePlaceholder": "例：数学基礎テスト",
+      "descriptionLabel": "説明",
+      "descriptionPlaceholder": "このテンプレートの用途を説明してください",
+      "categoryLabel": "カテゴリー",
+      "categoryPlaceholder": "カテゴリーを選択",
+      "cancel": "キャンセル",
+      "create": "作成",
+      "creating": "作成中...",
+      "categories": {
+        "education": "教育",
+        "business": "ビジネス",
+        "training": "研修",
+        "assessment": "評価",
+        "survey": "アンケート",
+        "certification": "認定",
+        "onboarding": "オンボーディング",
+        "compliance": "コンプライアンス",
+        "feedback": "フィードバック",
+        "general": "一般"
+      }
+    }
+  },
   "quizManagement": {
     "cardActions": {
       "openMenu": "メニューを開く",

@@ -1425,6 +1425,64 @@
       "note": "No credit card required \u00b7 Upgrade anytime"
     }
   },
+  "templateManagement": {
+    "page": {
+      "title": "Template Management",
+      "subtitle": "Create, manage, and share quiz templates",
+      "description": "Manage quiz templates to efficiently create quizzes"
+    },
+    "header": {
+      "createTemplate": "Create Template"
+    },
+    "cardActions": {
+      "openMenu": "Open menu",
+      "preview": "Preview",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "createQuiz": "Create Quiz",
+      "delete": "Delete"
+    },
+    "cardPresentation": {
+      "public": "Public",
+      "updated": "Updated"
+    },
+    "cardStats": {
+      "usageCount": "times used",
+      "createdBy": "Created by"
+    },
+    "deleteDialog": {
+      "title": "Delete Template",
+      "description": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "createModal": {
+      "title": "New Template",
+      "description": "Create an empty template and start customizing.",
+      "titleLabel": "Template Name",
+      "titlePlaceholder": "e.g. Math Basics Test",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the purpose of this template",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select a category",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating...",
+      "categories": {
+        "education": "Education",
+        "business": "Business",
+        "training": "Training",
+        "assessment": "Assessment",
+        "survey": "Survey",
+        "certification": "Certification",
+        "onboarding": "Onboarding",
+        "compliance": "Compliance",
+        "feedback": "Feedback",
+        "general": "General"
+      }
+    }
+  },
   "quizManagement": {
     "cardActions": {
       "openMenu": "Open menu",
