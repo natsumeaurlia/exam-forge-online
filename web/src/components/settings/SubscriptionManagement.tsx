@@ -59,10 +59,6 @@ export const SubscriptionManagement = ({
   const [showPlanChangeDialog, setShowPlanChangeDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-  useEffect(() => {
-    fetchSubscriptionData();
-  }, [fetchSubscriptionData]);
-
   const fetchSubscriptionData = useCallback(async () => {
     try {
       setLoading(true);
@@ -88,6 +84,10 @@ export const SubscriptionManagement = ({
       setLoading(false);
     }
   }, [t]);
+
+  useEffect(() => {
+    fetchSubscriptionData();
+  }, [fetchSubscriptionData]);
 
   const handleManageBilling = async () => {
     try {

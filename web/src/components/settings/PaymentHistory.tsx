@@ -53,10 +53,6 @@ export const PaymentHistory = ({ lng }: PaymentHistoryProps) => {
     null
   );
 
-  useEffect(() => {
-    fetchPaymentHistory();
-  }, [fetchPaymentHistory]);
-
   const fetchPaymentHistory = useCallback(async () => {
     try {
       setLoading(true);
@@ -82,6 +78,10 @@ export const PaymentHistory = ({ lng }: PaymentHistoryProps) => {
       setLoading(false);
     }
   }, [t]);
+
+  useEffect(() => {
+    fetchPaymentHistory();
+  }, [fetchPaymentHistory]);
 
   const downloadInvoice = async (invoice: Invoice) => {
     try {

@@ -2120,6 +2120,10 @@
       }
     }
   },
+  "settings": {
+    "title": "設定",
+    "description": "アカウントやチームの設定を管理します"
+  },
   "notifications": {
     "title": "通知",
     "description": "あなたの通知を管理しましょう",

@@ -2210,6 +2210,10 @@
       }
     }
   },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and team settings"
+  },
   "notifications": {
     "title": "Notifications",
     "description": "Manage your notifications",
