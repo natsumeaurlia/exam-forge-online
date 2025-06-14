@@ -3,15 +3,11 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
-// Initialize Stripe only when needed to avoid build issues
-function getStripe() {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is required');
-  }
-  return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-05-28.basil',
-  });
-}
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-05-28.basil',
+    })
+  : null;
 
 export async function GET(request: NextRequest) {
   try {
@@ -69,9 +65,8 @@ export async function GET(request: NextRequest) {
 
     // If there's a Stripe subscription, get updated info
     let stripeSubscription: any = null;
-    if (subscription.stripeSubscriptionId) {
+    if (subscription.stripeSubscriptionId && stripe) {
       try {
-        const stripe = getStripe();
         stripeSubscription = await stripe.subscriptions.retrieve(
           subscription.stripeSubscriptionId
         );
