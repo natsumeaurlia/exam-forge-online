@@ -25,6 +25,8 @@ import {
 import { UsageChart } from '@/components/usage/UsageChart';
 import { UsageMetrics } from '@/components/usage/UsageMetrics';
 import { TeamPlanCard } from '@/components/usage/TeamPlanCard';
+import { UsageAlerts } from '@/components/usage/UsageAlerts';
+import { UsageExport } from '@/components/usage/UsageExport';
 
 interface TeamPlan {
   name: string;
@@ -115,8 +117,26 @@ export function UsageMonitoringClient({
           <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground">{t('description')}</p>
         </div>
-        <TeamPlanCard team={team} />
+        <div className="flex gap-3">
+          <UsageExport
+            team={team}
+            usageData={usageData}
+            quizStats={quizStats}
+            lng={lng}
+          />
+          <TeamPlanCard team={team} />
+        </div>
       </div>
+
+      {/* Usage Alerts */}
+      <UsageAlerts
+        team={team}
+        currentQuizzes={currentQuizzes}
+        currentMembers={currentMembers}
+        currentStorage={currentStorage}
+        currentResponses={currentResponses}
+        lng={lng}
+      />
 
       {/* Usage Overview Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
