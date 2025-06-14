@@ -2,11 +2,7 @@
 
 import React from 'react';
 import { useUserPlan } from '@/components/providers/UserPlanProvider';
-import { Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
+import { FeatureGate } from '@/components/feature/FeatureGate';
 import type { FeatureType } from '@prisma/client';
 
 interface ProFeatureGateProps {
@@ -14,52 +10,56 @@ interface ProFeatureGateProps {
   featureType?: FeatureType;
   requiredPlan?: 'PRO' | 'PREMIUM';
   className?: string;
+  showUsage?: boolean;
+  fallback?: React.ReactNode;
+  onUpgradeClick?: () => void;
 }
 
+/**
+ * @deprecated Use FeatureGate instead. This component is kept for backward compatibility.
+ */
 export function ProFeatureGate({
   children,
   featureType,
   requiredPlan = 'PRO',
   className,
+  showUsage = false,
+  fallback,
+  onUpgradeClick,
 }: ProFeatureGateProps) {
-  const { isPro, isPremium, hasFeature, loading } = useUserPlan();
-  const t = useTranslations('common');
-  const router = useRouter();
+  const { isPro, isPremium, loading } = useUserPlan();
+  const currentTeamId = 'default-team'; // TODO: Get from user plan
 
-  if (loading) {
-    return <div className="h-32 animate-pulse rounded bg-gray-200" />;
+  // If no specific feature type provided, use legacy plan-based checking
+  if (!featureType) {
+    if (loading) {
+      return <div className="h-32 animate-pulse rounded bg-gray-200" />;
+    }
+
+    const hasAccess = requiredPlan === 'PRO' ? isPro || isPremium : isPremium;
+
+    if (!hasAccess) {
+      return (
+        fallback || (
+          <div className="p-4 text-center">Feature requires upgrade</div>
+        )
+      );
+    }
+
+    return <>{children}</>;
   }
 
-  // Check if user has required plan
-  let hasAccess = requiredPlan === 'PRO' ? isPro || isPremium : isPremium;
-
-  // Check specific feature if provided
-  if (featureType && !hasFeature(featureType)) {
-    hasAccess = false;
-  }
-
-  if (!hasAccess) {
-    return (
-      <Card className={className}>
-        <CardContent className="py-8 text-center">
-          <div className="flex flex-col items-center gap-4">
-            <Lock className="h-12 w-12 text-gray-400" />
-            <h3 className="text-lg font-semibold">
-              {requiredPlan === 'PREMIUM'
-                ? t('upgradeToPremium')
-                : t('upgradeToPro')}
-            </h3>
-            <p className="max-w-md text-sm text-gray-600">
-              {t('featureLocked')}
-            </p>
-            <Button onClick={() => router.push('/plans')} className="mt-2">
-              {t('viewPlans')}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return <>{children}</>;
+  // Use new feature flag system
+  return (
+    <FeatureGate
+      featureType={featureType}
+      teamId={currentTeamId}
+      className={className}
+      showUsage={showUsage}
+      fallback={fallback}
+      onUpgradeClick={onUpgradeClick}
+    >
+      {children}
+    </FeatureGate>
+  );
 }
