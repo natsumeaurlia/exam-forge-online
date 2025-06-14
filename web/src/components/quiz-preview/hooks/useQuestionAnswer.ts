@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuizPreviewStore } from '@/stores/useQuizPreviewStore';
-import type {
-  TrueFalseAnswer,
-  MultipleChoiceAnswer,
-  CheckboxAnswer,
-  ShortAnswer,
-} from '@/types/quiz-schemas';
+import { QuizAnswer } from '@/types/quiz-answers';
 
 export function useQuestionAnswer(questionId: string) {
   const { mockAnswers, submitAnswer } = useQuizPreviewStore();
@@ -17,9 +12,7 @@ export function useQuestionAnswer(questionId: string) {
     setShowHint(false);
   }, [questionId]);
 
-  const handleAnswerChange = (
-    value: TrueFalseAnswer | MultipleChoiceAnswer | CheckboxAnswer | ShortAnswer
-  ) => {
+  const handleAnswerChange = (value: QuizAnswer) => {
     submitAnswer(questionId, value);
   };
 

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { authAction } from './auth-action';
+import { AnalyticsWhereClause } from '@/types/database';
 
 // 内部型定義（エクスポートしない）
 interface TrendPoint {
@@ -95,7 +96,7 @@ export const getQuizAnalytics = authAction
           throw new Error('Quiz not found');
         }
 
-        const where: any = { quizId };
+        const where: AnalyticsWhereClause = { quizId };
         if (range === '30d') {
           where.completedAt = { gte: subDays(new Date(), 30) };
         } else if (range === '7d') {

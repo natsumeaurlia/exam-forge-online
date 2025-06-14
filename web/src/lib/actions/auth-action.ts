@@ -7,9 +7,9 @@ const action = createSafeActionClient();
 
 export const authAction = action.use(async ({ next }) => {
   const session = await getServerSession(authOptions);
-  if (!(session?.user as any)?.id && !session?.user?.email) {
+  if (!session?.user?.id && !session?.user?.email) {
     // ユーザーが認証されていない場合、エラーをスロー
     throw new Error('UNAUTHENTICATED:ログインが必要です');
   }
-  return next({ ctx: { userId: (session?.user as any)?.id } });
+  return next({ ctx: { userId: session.user.id } });
 });

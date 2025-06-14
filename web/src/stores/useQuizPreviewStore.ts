@@ -1,28 +1,6 @@
 import { create } from 'zustand';
 import type { QuestionType } from '@prisma/client';
-import type {
-  TrueFalseAnswer,
-  MultipleChoiceAnswer,
-  CheckboxAnswer,
-  ShortAnswer,
-  SortingAnswer,
-  FillInBlankAnswer,
-  DiagramAnswer,
-  MatchingAnswer,
-  NumericAnswer,
-} from '@/types/quiz-schemas';
-
-// Union type for all possible answer types
-type QuizAnswer =
-  | TrueFalseAnswer
-  | MultipleChoiceAnswer
-  | CheckboxAnswer
-  | ShortAnswer
-  | SortingAnswer
-  | FillInBlankAnswer
-  | DiagramAnswer
-  | MatchingAnswer
-  | NumericAnswer;
+import { QuizAnswer } from '@/types/quiz-answers';
 
 interface QuizPreviewState {
   currentQuestionIndex: number;
