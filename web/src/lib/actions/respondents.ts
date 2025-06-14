@@ -161,8 +161,8 @@ export async function getRespondents(
 
       allRespondents.push({
         id: user.id,
-        name: user.name,
-        email: user.email,
+        name: user.name || '',
+        email: user.email || '',
         image: user.image,
         quizzesCompleted: completedResponses.length,
         averageScore,

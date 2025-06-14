@@ -119,7 +119,10 @@ export const submitQuizResponse = authAction
           totalPoints += question.points;
 
           // 正解判定
-          const isCorrect = checkAnswer(question, response.answer);
+          const isCorrect = checkAnswer(
+            question as QuestionWithDetails,
+            response.answer
+          );
           if (isCorrect) {
             totalScore += question.points;
             correctAnswers++;
@@ -189,8 +192,12 @@ function checkAnswer(
       const trueFalseAnswer =
         typeof answer === 'boolean'
           ? answer.toString()
-          : answer?.toString().toLowerCase();
-      return question.correctAnswer?.toLowerCase() === trueFalseAnswer;
+          : typeof answer === 'string'
+            ? answer.toLowerCase()
+            : String(answer);
+      return (
+        (question.correctAnswer as string)?.toLowerCase() === trueFalseAnswer
+      );
 
     case 'MULTIPLE_CHOICE':
       const correctOption = question.options.find(opt => opt.isCorrect);
@@ -200,15 +207,15 @@ function checkAnswer(
       const correctOptions = question.options
         .filter(opt => opt.isCorrect)
         .map(opt => opt.id);
-      const selectedOptions = answer || [];
+      const selectedOptions = Array.isArray(answer) ? answer : [];
       return (
         correctOptions.length === selectedOptions.length &&
         correctOptions.every((id: string) => selectedOptions.includes(id))
       );
 
     case 'NUMERIC':
-      const correctNum = parseFloat(question.correctAnswer || '0');
-      const answerNum = parseFloat(answer || '0');
+      const correctNum = parseFloat(String(question.correctAnswer) || '0');
+      const answerNum = parseFloat(String(answer) || '0');
       const tolerance = 0.01;
       return Math.abs(correctNum - answerNum) < tolerance;
 
@@ -223,13 +230,13 @@ function checkAnswer(
           );
       };
       return (
-        normalizeString(question.correctAnswer || '') ===
-        normalizeString(answer?.toString() || '')
+        normalizeString(String(question.correctAnswer) || '') ===
+        normalizeString(String(answer) || '')
       );
 
     case 'SORTING':
-      const correctOrder = JSON.parse(question.correctAnswer || '[]');
-      const answerOrder = answer || [];
+      const correctOrder = JSON.parse(String(question.correctAnswer) || '[]');
+      const answerOrder = Array.isArray(answer) ? answer : [];
       return (
         correctOrder.length === answerOrder.length &&
         correctOrder.every(
@@ -238,31 +245,39 @@ function checkAnswer(
       );
 
     case 'FILL_IN_BLANK':
-      const correctBlanks = JSON.parse(question.correctAnswer || '[]');
-      const answerBlanks = answer || [];
+      const correctBlanks = JSON.parse(String(question.correctAnswer) || '[]');
+      const answerBlanks = Array.isArray(answer) ? answer : [];
       return (
         correctBlanks.length === answerBlanks.length &&
         correctBlanks.every(
           (blank: string, index: number) =>
             blank.toLowerCase().trim() ===
-            answerBlanks[index]?.toLowerCase().trim()
+            String(answerBlanks[index] || '')
+              .toLowerCase()
+              .trim()
         )
       );
 
     case 'MATCHING':
-      const correctMatches = JSON.parse(question.correctAnswer || '{}');
-      const answerMatches = answer || {};
+      const correctMatches = JSON.parse(String(question.correctAnswer) || '{}');
+      const answerMatches =
+        typeof answer === 'object' && answer !== null
+          ? (answer as Record<string, string>)
+          : {};
       return Object.keys(correctMatches).every(
         key => correctMatches[key] === answerMatches[key]
       );
 
     case 'DIAGRAM':
-      const correct = question.correctAnswer as {
+      const correct = JSON.parse(String(question.correctAnswer) || '{}') as {
         x: number;
         y: number;
         label: string;
       };
-      const diagramAnswer = answer as { x: number; y: number; label: string };
+      const diagramAnswer =
+        typeof answer === 'object' && answer !== null
+          ? (answer as { x: number; y: number; label: string })
+          : { x: 0, y: 0, label: '' };
       return (
         diagramAnswer.x === correct.x &&
         diagramAnswer.y === correct.y &&

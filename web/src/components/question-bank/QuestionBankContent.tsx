@@ -41,13 +41,13 @@ interface BankQuestion {
   type: string;
   text: string;
   points: number;
-  hint?: string | null;
-  explanation?: string | null;
+  hint?: string;
+  explanation?: string;
   difficulty: string;
   aiGenerated: boolean;
   createdAt: Date;
   createdBy: {
-    name: string | null;
+    name: string;
   };
   options: Array<{
     id: string;
@@ -58,7 +58,7 @@ interface BankQuestion {
     tag: {
       id: string;
       name: string;
-      color?: string | null;
+      color?: string;
     };
   }>;
   categories: Array<{
@@ -117,7 +117,21 @@ export function QuestionBankContent({ userId, lng }: QuestionBankContentProps) {
       });
 
       if (result.data?.success && result.data.questions) {
-        setQuestions(result.data.questions);
+        const processedQuestions = result.data.questions.map((q: any) => ({
+          ...q,
+          hint: q.hint || undefined,
+          explanation: q.explanation || undefined,
+          createdBy: {
+            name: q.createdBy.name || 'Unknown',
+          },
+          tags: q.tags.map((tagItem: any) => ({
+            tag: {
+              ...tagItem.tag,
+              color: tagItem.tag.color || undefined,
+            },
+          })),
+        }));
+        setQuestions(processedQuestions);
       }
     } catch (error) {
       console.error('Failed to load questions:', error);

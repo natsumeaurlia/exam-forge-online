@@ -56,7 +56,7 @@ export async function TemplateListContent({
   }
 
   const { templates, pagination } = result.data as {
-    templates: TemplateListItem[];
+    templates: any[];
     pagination: any;
   };
 
