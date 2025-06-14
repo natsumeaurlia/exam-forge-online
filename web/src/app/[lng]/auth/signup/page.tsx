@@ -107,7 +107,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     },
     onError: error => {
       if (error.error?.serverError) {
-        setErrors({ email: error.error.serverError });
+        setErrors({ email: String(error.error.serverError) });
       } else {
         setErrors({ email: 'エラーが発生しました' });
       }
@@ -165,18 +165,17 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               <h1 className="text-3xl font-bold text-gray-900">ExamForge</h1>
             </Link>
 
-            {/* Header */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-                {t('title')}
+                {String(t('title'))}
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                {t('subtitle')}{' '}
+                {String(t('subtitle'))}{' '}
                 <Link
                   href={`/${resolvedParams.lng}/auth/signin`}
                   className="text-examforge-blue hover:text-examforge-blue-dark font-medium"
                 >
-                  {t('signinLink')}
+                  {String(t('signinLink'))}
                 </Link>
               </p>
             </div>
@@ -185,11 +184,12 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             {result?.serverError && (
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{result.serverError}</AlertDescription>
+                <AlertDescription>
+                  {String(result.serverError)}
+                </AlertDescription>
               </Alert>
             )}
 
-            {/* Social Sign Up */}
             {(availableProviders.google || availableProviders.github) && (
               <div className="space-y-3">
                 {availableProviders.google && (

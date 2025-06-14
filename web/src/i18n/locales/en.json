@@ -1169,6 +1169,51 @@
     "weeklyCompletionRate": "Weekly Completion Rate",
     "newParticipants": "New Participants",
     "defaultUser": "User",
+    "analytics": {
+      "teamAnalytics": "Team Analytics",
+      "teamAnalyticsDescription": "Comprehensive quiz statistics and analytics for your team",
+      "errorTitle": "Error Occurred",
+      "errorMessage": "Failed to fetch analytics data",
+      "trendsAndInsights": "Trends and Insights",
+      "quizRankings": "Quiz Rankings",
+      "totalQuizzes": "Total Quizzes",
+      "totalParticipants": "Total Participants",
+      "totalResponses": "Total Responses",
+      "averageScore": "Average Score",
+      "overallPassRate": "Overall Pass Rate",
+      "totalQuestions": "Total Questions",
+      "noDataAvailable": "No data available",
+      "responseTrends": "Response Trends",
+      "intervalDaily": "Daily",
+      "intervalWeekly": "Weekly",
+      "intervalMonthly": "Monthly",
+      "responseCount": "Response Count",
+      "quizStatusDistribution": "Quiz Status Distribution",
+      "monthlyResponseVolume": "Monthly Response Volume",
+      "published": "Published",
+      "draft": "Draft",
+      "archived": "Archived",
+      "popularQuizzes": "Popular Quizzes",
+      "highScoreQuizzes": "High Score Quizzes",
+      "challengingQuizzes": "Challenging Quizzes",
+      "responses": "responses",
+      "avgScore": "Avg Score",
+      "topPerformer": "Top Performer",
+      "noQuizzesAvailable": "No quizzes available",
+      "topPerformers": "Top Performers",
+      "noPerformersData": "No performers data available",
+      "quizzesCompleted": "quizzes completed",
+      "backToDashboard": "Back to Dashboard",
+      "filter7d": "Past 7 days",
+      "filter30d": "Past 30 days",
+      "filter90d": "Past 90 days",
+      "filterAll": "All time",
+      "export": "Export",
+      "exporting": "Exporting...",
+      "exportSuccess": "Export completed successfully",
+      "exportFailed": "Export failed",
+      "exportRequiresPro": "Export feature requires Pro plan"
+    },
     "navigation": {
       "menu": "Menu",
       "dashboard": "Dashboard",
@@ -1177,6 +1222,7 @@
       "questionBank": "Question Bank",
       "templates": "Templates",
       "analytics": "Reports & Analytics",
+      "usage": "Usage Monitoring",
       "members": "Member Management",
       "media": "Media Library",
       "settings": "Settings",
@@ -1356,6 +1402,83 @@
         "filter7d": "Last 7 Days",
         "noDataAvailable": "No data available for the selected period"
       }
+    },
+    "usage": {
+      "title": "Usage Monitoring",
+      "description": "Monitor your team's usage and limits",
+      "metrics": {
+        "quizzes": "Quizzes",
+        "responses": "Responses",
+        "members": "Members",
+        "storage": "Storage"
+      },
+      "of": "of",
+      "maximum": "maximum",
+      "thisMonth": "this month",
+      "unlimited": "Unlimited",
+      "tabs": {
+        "trends": "Usage Trends",
+        "detailed": "Detailed Metrics"
+      },
+      "charts": {
+        "weeklyTrend": "Weekly Usage Trend",
+        "weeklyDescription": "Usage trend over the past 7 days",
+        "monthlyTrend": "Monthly Usage Trend",
+        "monthlyDescription": "Usage trend over the past 30 days",
+        "noData": "No data to display"
+      },
+      "resourceTypes": {
+        "quiz": "Quiz",
+        "response": "Response",
+        "member": "Member",
+        "storage": "Storage"
+      },
+      "units": {
+        "items": "items",
+        "monthly": "monthly",
+        "users": "users"
+      },
+      "status": {
+        "unlimited": "Unlimited",
+        "critical": "Critical",
+        "warning": "Warning",
+        "normal": "Normal"
+      },
+      "teamPlan": {
+        "currentPlan": "Current Plan",
+        "upgradePrompt": "Get access to more features",
+        "upgrade": "Upgrade Plan"
+      },
+      "plans": {
+        "free": "Free"
+      },
+      "limits": {
+        "quizzes": "Quizzes",
+        "members": "Members",
+        "responses": "Responses",
+        "storage": "Storage"
+      },
+      "detailedUsage": {
+        "title": "Detailed Usage",
+        "description": "Detailed view of current usage and limits"
+      },
+      "table": {
+        "resource": "Resource",
+        "current": "Current Usage",
+        "limit": "Limit",
+        "usage": "Usage",
+        "status": "Status",
+        "type": "Type",
+        "count": "Count",
+        "period": "Period",
+        "timeAgo": "Time Ago"
+      },
+      "recentActivity": {
+        "title": "Recent Activity",
+        "description": "Recent usage activity history",
+        "noData": "No recent activity"
+      },
+      "date": "Date"
     }
   },
   "plans": {
@@ -1423,6 +1546,64 @@
       "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
       "button": "Start for Free",
       "note": "No credit card required \u00b7 Upgrade anytime"
+    }
+  },
+  "templateManagement": {
+    "page": {
+      "title": "Template Management",
+      "subtitle": "Create, manage, and share quiz templates",
+      "description": "Manage quiz templates to efficiently create quizzes"
+    },
+    "header": {
+      "createTemplate": "Create Template"
+    },
+    "cardActions": {
+      "openMenu": "Open menu",
+      "preview": "Preview",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "createQuiz": "Create Quiz",
+      "delete": "Delete"
+    },
+    "cardPresentation": {
+      "public": "Public",
+      "updated": "Updated"
+    },
+    "cardStats": {
+      "usageCount": "times used",
+      "createdBy": "Created by"
+    },
+    "deleteDialog": {
+      "title": "Delete Template",
+      "description": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "createModal": {
+      "title": "New Template",
+      "description": "Create an empty template and start customizing.",
+      "titleLabel": "Template Name",
+      "titlePlaceholder": "e.g. Math Basics Test",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the purpose of this template",
+      "categoryLabel": "Category",
+      "categoryPlaceholder": "Select a category",
+      "cancel": "Cancel",
+      "create": "Create",
+      "creating": "Creating...",
+      "categories": {
+        "education": "Education",
+        "business": "Business",
+        "training": "Training",
+        "assessment": "Assessment",
+        "survey": "Survey",
+        "certification": "Certification",
+        "onboarding": "Onboarding",
+        "compliance": "Compliance",
+        "feedback": "Feedback",
+        "general": "General"
+      }
     }
   },
   "quizManagement": {
@@ -2165,182 +2346,86 @@
       }
     }
   },
-  "settings": {
-    "title": "Settings",
-    "description": "Manage your account and team settings",
-    "tabs": {
-      "profile": "Profile",
-      "team": "Team",
-      "subscription": "Subscription",
-      "notifications": "Notifications",
-      "security": "Security"
+  "notifications": {
+    "title": "Notifications",
+    "description": "Manage your notifications",
+    "openNotifications": "Open notifications",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "delete": "Delete",
+    "viewAll": "View all",
+    "empty": "No notifications",
+    "types": {
+      "quiz_completed": "Quiz Completed",
+      "quiz_shared": "Quiz Shared",
+      "team_invitation": "Team Invitation",
+      "team_member_joined": "Member Joined",
+      "subscription_updated": "Subscription Updated",
+      "payment_failed": "Payment Failed",
+      "system_update": "System Update",
+      "certificate_issued": "Certificate Issued",
+      "quiz_published": "Quiz Published",
+      "quiz_response_received": "Response Received",
+      "storage_limit_warning": "Storage Warning",
+      "plan_limit_warning": "Plan Limit Warning"
     },
-    "profile": {
-      "title": "Profile Settings",
-      "description": "Manage your account information and personal preferences",
-      "comingSoon": "Profile settings coming soon"
-    },
-    "team": {
-      "title": "Team Settings",
-      "description": "Manage team members and permissions",
-      "comingSoon": "Team settings coming soon"
-    },
-    "notifications": {
+    "preferences": {
       "title": "Notification Settings",
-      "description": "Manage email notifications and alerts",
-      "comingSoon": "Notification settings coming soon"
-    },
-    "security": {
-      "title": "Security Settings",
-      "description": "Manage passwords and security options",
-      "comingSoon": "Security settings coming soon"
-    },
-    "subscription": {
-      "title": "Subscription Management",
-      "description": "Manage your plan and billing information",
-      "errorLoading": "Failed to load subscription information",
-      "error": "Error",
-      "billingPortalError": "Failed to open billing portal",
-      "retry": "Retry",
-      "noSubscription": "You don't have an active subscription.",
-      "currentPlan": "Current Plan",
-      "currentPlanDescription": "Details of your current subscription plan",
-      "cancelingAtPeriodEnd": "Canceling at period end",
-      "members": "members",
-      "currentPeriod": "Current billing period",
-      "teamMembers": "Team Members",
-      "activeMembers": "active members",
-      "trialEnds": "Trial ends on {date}",
-      "cancelationNotice": "Your subscription will be canceled on {date}",
-      "changePlan": "Change Plan",
-      "manageBilling": "Manage Billing",
-      "cancelSubscription": "Cancel Subscription",
-      "upgradePlan": "Upgrade Plan",
-      "reactivate": "Reactivate",
-      "plans": {
-        "free": "Free Plan",
-        "pro": "Pro Plan",
-        "premium": "Premium Plan"
+      "description": "Configure how and when you receive notifications",
+      "save": "Save",
+      "saving": "Saving...",
+      "saveSuccess": "Notification settings saved",
+      "saveError": "Failed to save settings",
+      "loadError": "Failed to load settings",
+      "delivery": {
+        "title": "Delivery Methods",
+        "email": "Email Notifications",
+        "emailDescription": "Receive important notifications via email",
+        "inApp": "In-App Notifications",
+        "inAppDescription": "Receive real-time notifications within the app"
       },
-      "billingCycle": {
-        "monthly": "monthly",
-        "yearly": "yearly"
+      "categories": {
+        "title": "Notification Categories",
+        "quizCompletion": "Quiz Completion",
+        "quizCompletionDescription": "When participants complete your quizzes",
+        "teamInvitation": "Team Invitations",
+        "teamInvitationDescription": "When you're invited to join a team",
+        "quizShared": "Quiz Sharing",
+        "quizSharedDescription": "When quizzes are shared with you",
+        "systemUpdates": "System Updates",
+        "systemUpdatesDescription": "System updates and maintenance notifications"
       },
-      "status": {
-        "active": "Active",
-        "canceled": "Canceled",
-        "trialing": "Trialing",
-        "past_due": "Past Due",
-        "unpaid": "Unpaid"
-      }
-    },
-    "planChange": {
-      "title": "Change Plan",
-      "description": "Select the plan that best fits your needs",
-      "error": "Error",
-      "errorDescription": "Failed to change plan. Please try again.",
-      "success": "Success",
-      "downgradedToFree": "Successfully downgraded to Free plan.",
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "save17Percent": "Save 17%",
-      "recommended": "Recommended",
-      "current": "Current Plan",
-      "downgrade": "Downgrade",
-      "upgrade": "Upgrade",
-      "cancel": "Cancel",
-      "free": "Free",
-      "year": "year",
-      "month": "month",
-      "saveAmount": "Save {amount}",
-      "members": "members",
-      "downgradeWarning": "Downgrading will limit access to some features.",
-      "upgradeInfo": "Upgrading will give you access to more features.",
-      "plans": {
-        "free": {
-          "name": "Free Plan",
-          "description": "Perfect for personal use and small projects",
-          "features": {
-            "quizzes": "Up to 5 quizzes",
-            "questions": "Up to 20 questions per quiz",
-            "responses": "Up to 100 responses per month",
-            "basicSupport": "Basic support"
-          }
-        },
-        "pro": {
-          "name": "Pro Plan",
-          "description": "Ideal for teams and businesses",
-          "features": {
-            "unlimitedQuizzes": "Unlimited quiz creation",
-            "advancedQuestions": "Advanced question types",
-            "analytics": "Detailed analytics",
-            "teamMembers": "Team member management",
-            "prioritySupport": "Priority support"
-          }
-        },
-        "premium": {
-          "name": "Premium Plan",
-          "description": "Advanced features for enterprise",
-          "features": {
-            "allPro": "All Pro features",
-            "aiGeneration": "AI question generation",
-            "lmsMode": "LMS mode",
-            "customBranding": "Custom branding",
-            "dedicatedSupport": "Dedicated support"
-          }
-        }
-      }
-    },
-    "cancelSubscription": {
-      "title": "Cancel Subscription",
-      "description": "Please choose from the following options for canceling your subscription.",
-      "success": "Cancellation Complete",
-      "canceledImmediately": "Your subscription has been canceled immediately.",
-      "canceledAtPeriodEnd": "Your subscription will be canceled on {date}. You can continue to use the service until then.",
-      "error": "Error",
-      "errorDescription": "Failed to cancel subscription. Please try again.",
-      "whenToCancel": "When would you like to cancel?",
-      "atPeriodEnd": "At the end of billing period",
-      "atPeriodEndDescription": "Continue using until {date}",
-      "immediately": "Immediately",
-      "immediatelyDescription": "Lose access immediately",
-      "reasonLabel": "Reason for cancellation",
-      "feedbackLabel": "Feedback",
-      "optional": "Optional",
-      "feedbackPlaceholder": "Please share your feedback to help us improve...",
-      "immediateWarning": "Warning: Immediate cancellation means you'll lose access to Pro features right away.",
-      "periodEndWarning": "Your subscription will be canceled on {date}. You can continue to use Pro features until then.",
-      "keepSubscription": "Keep Subscription",
-      "cancelNow": "Cancel Now",
-      "cancelAtPeriodEnd": "Cancel at Period End",
-      "reasons": {
-        "tooExpensive": "Too expensive",
-        "notUsing": "Not using enough",
-        "missingFeatures": "Missing required features",
-        "foundAlternative": "Switching to another service",
-        "technicalIssues": "Technical issues",
-        "other": "Other"
-      }
-    },
-    "paymentHistory": {
-      "title": "Payment History",
-      "description": "Past invoices and payment history",
-      "noInvoices": "No invoices available.",
-      "errorLoading": "Failed to load payment history",
-      "retry": "Retry",
-      "invoice": "Invoice",
-      "download": "Download",
-      "view": "View",
-      "downloadSuccess": "Download Success",
-      "downloadSuccessDescription": "Invoice downloaded successfully.",
-      "downloadError": "Download Error",
-      "downloadErrorDescription": "Failed to download invoice.",
-      "status": {
-        "paid": "Paid",
-        "open": "Open",
-        "void": "Void",
-        "uncollectible": "Uncollectible"
+      "marketing": {
+        "title": "Marketing",
+        "emails": "Marketing Emails",
+        "emailsDescription": "Emails about new features and special offers",
+        "weeklyDigest": "Weekly Digest",
+        "weeklyDigestDescription": "Weekly summary of your activity"
       }
     }
+  },
+  "questionBank": {
+    "title": "Question Bank",
+    "description": "Manage questions shared within your team",
+    "create": "Create Question",
+    "import": "Import Questions",
+    "export": "Export Questions",
+    "categories": "Categories",
+    "tags": "Tags",
+    "difficulty": "Difficulty",
+    "type": "Question Type",
+    "search": "Search questions",
+    "filter": "Filter",
+    "sort": "Sort",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "preview": "Preview",
+    "addToQuiz": "Add to Quiz",
+    "bulkActions": "Bulk Actions",
+    "selectAll": "Select All",
+    "selectedCount": "{count} selected",
+    "noQuestions": "No questions found",
+    "createFirst": "Create your first question"
   }
 }

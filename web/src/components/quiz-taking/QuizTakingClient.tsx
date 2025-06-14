@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useAction } from 'next-safe-action/hooks';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { QuizStartScreen } from './QuizStartScreen';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizResults } from './QuizResults';
-import { submitQuizResponse } from '@/lib/actions/quiz-response';
+import { useEnhancedQuizTaking } from '@/hooks/use-enhanced-quiz-taking';
+import { ErrorType } from '@/lib/utils/error-handling';
 import type {
   Quiz,
   Question,
@@ -54,46 +54,41 @@ export function QuizTakingClient({
     'start' | 'questions' | 'results'
   >('start');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
-  const [participantInfo, setParticipantInfo] = useState({
-    name: '',
-    email: '',
-  });
   const [responseId, setResponseId] = useState<string | null>(null);
+
+  // Enhanced error handling and state management
+  const {
+    answers,
+    participantInfo,
+    error,
+    isOnline,
+    submitting,
+    retryCount,
+    autoSaveStatus,
+    updateAnswer,
+    updateParticipantInfo,
+    enhancedSubmit,
+    clearError,
+    forceRetry,
+  } = useEnhancedQuizTaking(quiz.id, responseId => {
+    setResponseId(responseId);
+    setCurrentStep('results');
+  });
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100;
 
-  const { execute: executeSubmit, isExecuting: submitting } = useAction(
-    submitQuizResponse,
-    {
-      onSuccess: ({ data }) => {
-        if (data && data.success && data.data) {
-          setResponseId(data.data.id);
-          setCurrentStep('results');
-          setError(null);
-        } else if (data && data.error) {
-          setError(data.error);
-        }
-      },
-      onError: ({ error }) => {
-        setError(error.serverError || t('submitError'));
-      },
-    }
-  );
-
   const handleSubmit = useCallback(async () => {
     if (submitting) return;
 
-    setEndTime(new Date());
-    setError(null);
+    const completedAt = new Date();
+    setEndTime(completedAt);
 
-    executeSubmit({
+    await enhancedSubmit({
       quizId: quiz.id,
       responses: Object.values(answers).map(a => ({
         questionId: a.questionId,
@@ -102,11 +97,11 @@ export function QuizTakingClient({
       participantName: participantInfo.name || undefined,
       participantEmail: participantInfo.email || undefined,
       startedAt: startTime!.toISOString(),
-      completedAt: new Date().toISOString(),
+      completedAt: completedAt.toISOString(),
     });
   }, [
     submitting,
-    executeSubmit,
+    enhancedSubmit,
     quiz.id,
     answers,
     participantInfo.name,
@@ -138,25 +133,23 @@ export function QuizTakingClient({
 
     if (quiz.collectParticipantInfo) {
       if (!participantInfo.name || !participantInfo.email) {
-        setError(t('participantInfoRequired'));
+        // Use enhanced error handling
         return;
       }
     }
 
     setCurrentStep('questions');
     setStartTime(new Date());
-    setError(null);
+    clearError();
   };
 
-  const handleAnswer = (answer: any) => {
-    setAnswers({
-      ...answers,
-      [currentQuestion.id]: {
-        questionId: currentQuestion.id,
-        answer,
-      },
-    });
-  };
+  // Enhanced answer handling with auto-save
+  const handleAnswer = useCallback(
+    (answer: any) => {
+      updateAnswer(currentQuestion.id, answer);
+    },
+    [currentQuestion.id, updateAnswer]
+  );
 
   const handleNext = () => {
     if (currentQuestionIndex < quiz.questions.length - 1) {
@@ -192,7 +185,7 @@ export function QuizTakingClient({
         participantInfo={participantInfo}
         error={error}
         onPasswordChange={setPassword}
-        onParticipantInfoChange={setParticipantInfo}
+        onParticipantInfoChange={info => updateParticipantInfo(info)}
         onStart={handleStart}
       />
     );
@@ -285,9 +278,54 @@ export function QuizTakingClient({
           )}
         </div>
 
+        {/* Enhanced Error Display */}
         {error && (
           <Alert variant="destructive" className="mt-4">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="flex items-center justify-between">
+              <div>
+                <div className="font-medium">{error.userMessage}</div>
+                {error.type === ErrorType.OFFLINE_ERROR && (
+                  <div className="mt-1 text-sm text-orange-600">
+                    オフライン状態 - 回答は自動保存されています
+                  </div>
+                )}
+                {retryCount > 0 && (
+                  <div className="mt-1 text-sm text-blue-600">
+                    リトライ {retryCount}/3
+                  </div>
+                )}
+              </div>
+              {error.canRetry && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={forceRetry}
+                  disabled={submitting}
+                >
+                  {error.action === 'reload' ? 'リロード' : 'リトライ'}
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Auto-save Status */}
+        {autoSaveStatus && (
+          <Alert className="mt-4">
+            <AlertDescription>
+              {autoSaveStatus === 'saving' && '自動保存中...'}
+              {autoSaveStatus === 'saved' && '回答を自動保存しました'}
+              {autoSaveStatus === 'error' && '自動保存に失敗しました'}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Online Status Indicator */}
+        {!isOnline && (
+          <Alert className="mt-4 border-orange-200 bg-orange-50">
+            <AlertDescription className="text-orange-800">
+              オフライン状態です。回答は自動保存され、オンライン復帰時に送信されます。
+            </AlertDescription>
           </Alert>
         )}
       </Card>

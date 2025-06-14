@@ -38,7 +38,7 @@ export interface PlanWithFeatures {
 const getPlansWithFeaturesSchema = z.object({});
 
 export const getPlansWithFeatures = actionClient
-  .inputSchema(getPlansWithFeaturesSchema)
+  .schema(getPlansWithFeaturesSchema)
   .action(async (): Promise<PlanWithFeatures[]> => {
     try {
       const plans = await prisma.plan.findMany({
@@ -98,7 +98,7 @@ export const getPlansWithFeatures = actionClient
 const getAllFeaturesSchema = z.object({});
 
 export const getAllFeatures = actionClient
-  .inputSchema(getAllFeaturesSchema)
+  .schema(getAllFeaturesSchema)
   .action(async () => {
     try {
       const features = await prisma.feature.findMany({

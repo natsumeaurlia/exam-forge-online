@@ -71,8 +71,8 @@ describe('getQuizAnalytics', () => {
 
     const result = await getQuizAnalytics({ quizId: 'quiz-1' });
 
-    expect(result.data?.averageScore).toBe(75.5);
-    expect(result.data?.totalResponses).toBe(10);
+    expect(result?.data?.averageScore).toBe(75.5);
+    expect(result?.data?.totalResponses).toBe(10);
   });
 
   it('should return 0 average score when no completed responses exist', async () => {
@@ -104,7 +104,7 @@ describe('getQuizAnalytics', () => {
 
     const result = await getQuizAnalytics({ quizId: 'quiz-1' });
 
-    expect(result.data?.averageScore).toBe(0);
+    expect(result?.data?.averageScore).toBe(0);
   });
 
   it('should use transaction for data consistency', async () => {
@@ -151,6 +151,6 @@ describe('getQuizAnalytics', () => {
 
     // next-safe-action doesn't return success/error properties in the new version
     // Instead, it throws or returns data directly
-    expect(result.data).toBeUndefined();
+    expect(result?.data).toBeUndefined();
   });
 });

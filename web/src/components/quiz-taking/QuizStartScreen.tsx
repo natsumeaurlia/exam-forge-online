@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import type { ErrorInfo } from '@/lib/utils/error-handling';
 import { Clock, FileQuestion, Lock } from 'lucide-react';
 import type { Quiz, Question } from '@prisma/client';
 
@@ -22,7 +23,7 @@ interface QuizStartScreenProps {
     name: string;
     email: string;
   };
-  error: string | null;
+  error: ErrorInfo | null;
   onPasswordChange: (password: string) => void;
   onParticipantInfoChange: (info: { name: string; email: string }) => void;
   onStart: () => void;
@@ -143,7 +144,7 @@ export function QuizStartScreen({
         {/* Error Alert */}
         {error && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{error.userMessage}</AlertDescription>
           </Alert>
         )}
 

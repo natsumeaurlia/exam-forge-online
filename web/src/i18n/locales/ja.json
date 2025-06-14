@@ -801,6 +801,18 @@
         }
       }
     },
+    "forgotPassword": {
+      "title": "パスワードをお忘れですか？",
+      "subtitle": "ご登録のメールアドレスにパスワードリセット用のリンクをお送りします。",
+      "description": "パスワードリセット"
+    },
+    "resetPassword": {
+      "title": "パスワードリセット",
+      "subtitle": "新しいパスワードを設定してください。",
+      "description": "新しいパスワードの設定",
+      "invalidToken": "無効なトークン",
+      "tokenMissing": "パスワードリセット用のトークンが見つかりません。"
+    },
     "error": {
       "title": "認証エラー",
       "configuration": "認証設定に問題があります。管理者にお問い合わせください。",
@@ -1073,6 +1085,51 @@
     "weeklyCompletionRate": "週間完了率",
     "newParticipants": "新規参加者",
     "defaultUser": "ユーザー",
+    "analytics": {
+      "teamAnalytics": "チーム全体分析",
+      "teamAnalyticsDescription": "チーム全体のクイズ統計と詳細分析",
+      "errorTitle": "エラーが発生しました",
+      "errorMessage": "分析データの取得に失敗しました",
+      "trendsAndInsights": "トレンドと洞察",
+      "quizRankings": "クイズランキング",
+      "totalQuizzes": "総クイズ数",
+      "totalParticipants": "総参加者数",
+      "totalResponses": "総回答数",
+      "averageScore": "平均スコア",
+      "overallPassRate": "全体合格率",
+      "totalQuestions": "総問題数",
+      "noDataAvailable": "データがありません",
+      "responseTrends": "回答トレンド",
+      "intervalDaily": "日次",
+      "intervalWeekly": "週次",
+      "intervalMonthly": "月次",
+      "responseCount": "回答数",
+      "quizStatusDistribution": "クイズステータス分布",
+      "monthlyResponseVolume": "月次回答数",
+      "published": "公開済み",
+      "draft": "下書き",
+      "archived": "アーカイブ",
+      "popularQuizzes": "人気クイズ",
+      "highScoreQuizzes": "高得点クイズ",
+      "challengingQuizzes": "難易度の高いクイズ",
+      "responses": "回答",
+      "avgScore": "平均スコア",
+      "topPerformer": "トップパフォーマー",
+      "noQuizzesAvailable": "利用可能なクイズがありません",
+      "topPerformers": "トップパフォーマー",
+      "noPerformersData": "パフォーマーデータがありません",
+      "quizzesCompleted": "クイズ完了",
+      "backToDashboard": "ダッシュボードに戻る",
+      "filter7d": "過去7日",
+      "filter30d": "過去30日",
+      "filter90d": "過去90日",
+      "filterAll": "全期間",
+      "export": "エクスポート",
+      "exporting": "エクスポート中...",
+      "exportSuccess": "エクスポートが完了しました",
+      "exportFailed": "エクスポートに失敗しました",
+      "exportRequiresPro": "エクスポート機能にはプロプランが必要です"
+    },
     "navigation": {
       "menu": "メニュー",
       "dashboard": "ダッシュボード",
@@ -1081,6 +1138,7 @@
       "questionBank": "問題バンク",
       "templates": "テンプレート",
       "analytics": "レポート & 分析",
+      "usage": "使用量監視",
       "members": "メンバー管理",
       "media": "メディアライブラリ",
       "settings": "設定",
@@ -1260,6 +1318,83 @@
         "filter7d": "過去7日",
         "noDataAvailable": "選択した期間のデータがありません"
       }
+    },
+    "usage": {
+      "title": "使用量監視",
+      "description": "チームの使用量と制限を監視します",
+      "metrics": {
+        "quizzes": "クイズ",
+        "responses": "回答数",
+        "members": "メンバー",
+        "storage": "ストレージ"
+      },
+      "of": "/",
+      "maximum": "上限",
+      "thisMonth": "今月",
+      "unlimited": "無制限",
+      "tabs": {
+        "trends": "使用量トレンド",
+        "detailed": "詳細メトリクス"
+      },
+      "charts": {
+        "weeklyTrend": "週間使用量トレンド",
+        "weeklyDescription": "過去7日間の使用量推移",
+        "monthlyTrend": "月間使用量トレンド",
+        "monthlyDescription": "過去30日間の使用量推移",
+        "noData": "表示するデータがありません"
+      },
+      "resourceTypes": {
+        "quiz": "クイズ",
+        "response": "回答",
+        "member": "メンバー",
+        "storage": "ストレージ"
+      },
+      "units": {
+        "items": "個",
+        "monthly": "月次",
+        "users": "ユーザー"
+      },
+      "status": {
+        "unlimited": "無制限",
+        "critical": "上限超過",
+        "warning": "注意",
+        "normal": "正常"
+      },
+      "teamPlan": {
+        "currentPlan": "現在のプラン",
+        "upgradePrompt": "より多くの機能をご利用ください",
+        "upgrade": "プランをアップグレード"
+      },
+      "plans": {
+        "free": "フリー"
+      },
+      "limits": {
+        "quizzes": "クイズ数",
+        "members": "メンバー数",
+        "responses": "回答数",
+        "storage": "ストレージ"
+      },
+      "detailedUsage": {
+        "title": "詳細使用量",
+        "description": "現在の使用量と制限の詳細表示"
+      },
+      "table": {
+        "resource": "リソース",
+        "current": "現在の使用量",
+        "limit": "制限",
+        "usage": "使用率",
+        "status": "ステータス",
+        "type": "タイプ",
+        "count": "件数",
+        "period": "期間",
+        "timeAgo": "経過時間"
+      },
+      "recentActivity": {
+        "title": "最近のアクティビティ",
+        "description": "過去の使用量アクティビティ",
+        "noData": "最近のアクティビティはありません"
+      },
+      "date": "日付"
     }
   },
   "plans": {
@@ -1327,6 +1462,64 @@
       "subtitle": "今すぐ無料でExamForgeを始めて、プロフェッショナルなクイズや試験を作成しましょう。",
       "button": "無料で始める",
       "note": "クレジットカード登録不要・いつでもアップグレード可能"
+    }
+  },
+  "templateManagement": {
+    "page": {
+      "title": "テンプレート管理",
+      "subtitle": "クイズテンプレートの作成・管理・共有",
+      "description": "クイズテンプレートを管理し、効率的にクイズを作成できます"
+    },
+    "header": {
+      "createTemplate": "テンプレート作成"
+    },
+    "cardActions": {
+      "openMenu": "メニューを開く",
+      "preview": "プレビュー",
+      "edit": "編集",
+      "duplicate": "複製",
+      "createQuiz": "クイズ作成",
+      "delete": "削除"
+    },
+    "cardPresentation": {
+      "public": "公開",
+      "updated": "更新"
+    },
+    "cardStats": {
+      "usageCount": "回使用",
+      "createdBy": "作成者"
+    },
+    "deleteDialog": {
+      "title": "テンプレートを削除",
+      "description": "「{title}」を削除してもよろしいですか？この操作は元に戻せません。",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "deleting": "削除中..."
+    },
+    "createModal": {
+      "title": "新しいテンプレート",
+      "description": "空のテンプレートを作成して、カスタマイズを開始します。",
+      "titleLabel": "テンプレート名",
+      "titlePlaceholder": "例：数学基礎テスト",
+      "descriptionLabel": "説明",
+      "descriptionPlaceholder": "このテンプレートの用途を説明してください",
+      "categoryLabel": "カテゴリー",
+      "categoryPlaceholder": "カテゴリーを選択",
+      "cancel": "キャンセル",
+      "create": "作成",
+      "creating": "作成中...",
+      "categories": {
+        "education": "教育",
+        "business": "ビジネス",
+        "training": "研修",
+        "assessment": "評価",
+        "survey": "アンケート",
+        "certification": "認定",
+        "onboarding": "オンボーディング",
+        "compliance": "コンプライアンス",
+        "feedback": "フィードバック",
+        "general": "一般"
+      }
     }
   },
   "quizManagement": {
@@ -2063,182 +2256,86 @@
       }
     }
   },
-  "settings": {
-    "title": "設定",
-    "description": "アカウントやチームの設定を管理します",
-    "tabs": {
-      "profile": "プロフィール",
-      "team": "チーム",
-      "subscription": "サブスクリプション",
-      "notifications": "通知",
-      "security": "セキュリティ"
+  "notifications": {
+    "title": "通知",
+    "description": "あなたの通知を管理しましょう",
+    "openNotifications": "通知を開く",
+    "markAsRead": "既読にする",
+    "markAllAsRead": "すべて既読にする",
+    "delete": "削除",
+    "viewAll": "すべて表示",
+    "empty": "通知はありません",
+    "types": {
+      "quiz_completed": "クイズ完了",
+      "quiz_shared": "クイズ共有",
+      "team_invitation": "チーム招待",
+      "team_member_joined": "メンバー参加",
+      "subscription_updated": "サブスクリプション更新",
+      "payment_failed": "支払い失敗",
+      "system_update": "システム更新",
+      "certificate_issued": "証明書発行",
+      "quiz_published": "クイズ公開",
+      "quiz_response_received": "回答受信",
+      "storage_limit_warning": "容量警告",
+      "plan_limit_warning": "プラン制限警告"
     },
-    "profile": {
-      "title": "プロフィール設定",
-      "description": "アカウント情報と個人設定を管理します",
-      "comingSoon": "プロフィール設定は近日公開予定です"
-    },
-    "team": {
-      "title": "チーム設定",
-      "description": "チームメンバーと権限を管理します",
-      "comingSoon": "チーム設定は近日公開予定です"
-    },
-    "notifications": {
+    "preferences": {
       "title": "通知設定",
-      "description": "メール通知とアラートの設定を管理します",
-      "comingSoon": "通知設定は近日公開予定です"
-    },
-    "security": {
-      "title": "セキュリティ設定",
-      "description": "パスワードとセキュリティオプションを管理します",
-      "comingSoon": "セキュリティ設定は近日公開予定です"
-    },
-    "subscription": {
-      "title": "サブスクリプション管理",
-      "description": "プランと請求情報を管理します",
-      "errorLoading": "サブスクリプション情報の読み込みに失敗しました",
-      "error": "エラー",
-      "billingPortalError": "請求ポータルを開くことができませんでした",
-      "retry": "再試行",
-      "noSubscription": "現在、有効なサブスクリプションはありません。",
-      "currentPlan": "現在のプラン",
-      "currentPlanDescription": "現在のサブスクリプションプランの詳細",
-      "cancelingAtPeriodEnd": "期間終了時にキャンセル予定",
-      "members": "メンバー",
-      "currentPeriod": "現在の契約期間",
-      "teamMembers": "チームメンバー",
-      "activeMembers": "人のアクティブメンバー",
-      "trialEnds": "トライアル終了日: {date}",
-      "cancelationNotice": "サブスクリプションは {date} にキャンセルされます",
-      "changePlan": "プランを変更",
-      "manageBilling": "請求管理",
-      "cancelSubscription": "サブスクリプションをキャンセル",
-      "upgradePlan": "プランをアップグレード",
-      "reactivate": "再有効化",
-      "plans": {
-        "free": "フリープラン",
-        "pro": "プロプラン",
-        "premium": "プレミアムプラン"
+      "description": "通知の配信方法とカテゴリを設定します",
+      "save": "保存",
+      "saving": "保存中...",
+      "saveSuccess": "通知設定を保存しました",
+      "saveError": "設定の保存に失敗しました",
+      "loadError": "設定の読み込みに失敗しました",
+      "delivery": {
+        "title": "配信方法",
+        "email": "メール通知",
+        "emailDescription": "重要な通知をメールで受信する",
+        "inApp": "アプリ内通知",
+        "inAppDescription": "アプリ内でリアルタイムに通知を受信する"
       },
-      "billingCycle": {
-        "monthly": "月",
-        "yearly": "年"
+      "categories": {
+        "title": "通知カテゴリ",
+        "quizCompletion": "クイズ完了通知",
+        "quizCompletionDescription": "受験者がクイズを完了した際の通知",
+        "teamInvitation": "チーム招待",
+        "teamInvitationDescription": "チームに招待された際の通知",
+        "quizShared": "クイズ共有",
+        "quizSharedDescription": "クイズが共有された際の通知",
+        "systemUpdates": "システム更新",
+        "systemUpdatesDescription": "システムの更新やメンテナンス情報"
       },
-      "status": {
-        "active": "アクティブ",
-        "canceled": "キャンセル済み",
-        "trialing": "トライアル中",
-        "past_due": "支払い遅延",
-        "unpaid": "未払い"
-      }
-    },
-    "planChange": {
-      "title": "プランを変更",
-      "description": "ニーズに最適なプランを選択してください",
-      "error": "エラー",
-      "errorDescription": "プランの変更に失敗しました。もう一度お試しください。",
-      "success": "成功",
-      "downgradedToFree": "フリープランにダウングレードしました。",
-      "monthly": "月額",
-      "yearly": "年額",
-      "save17Percent": "17%お得",
-      "recommended": "おすすめ",
-      "current": "現在のプラン",
-      "downgrade": "ダウングレード",
-      "upgrade": "アップグレード",
-      "cancel": "キャンセル",
-      "free": "無料",
-      "year": "年",
-      "month": "月",
-      "saveAmount": "{amount}の節約",
-      "members": "メンバー",
-      "downgradeWarning": "ダウングレードすると、一部の機能が利用できなくなります。",
-      "upgradeInfo": "アップグレードすると、より多くの機能をご利用いただけます。",
-      "plans": {
-        "free": {
-          "name": "フリープラン",
-          "description": "個人利用や小規模プロジェクトに最適",
-          "features": {
-            "quizzes": "最大5つのクイズ作成",
-            "questions": "クイズあたり最大20問",
-            "responses": "月間100回答まで",
-            "basicSupport": "基本的なサポート"
-          }
-        },
-        "pro": {
-          "name": "プロプラン",
-          "description": "チームやビジネスでの利用に最適",
-          "features": {
-            "unlimitedQuizzes": "無制限のクイズ作成",
-            "advancedQuestions": "高度な問題タイプ",
-            "analytics": "詳細な分析機能",
-            "teamMembers": "チームメンバー管理",
-            "prioritySupport": "優先サポート"
-          }
-        },
-        "premium": {
-          "name": "プレミアムプラン",
-          "description": "エンタープライズ向けの高度な機能",
-          "features": {
-            "allPro": "プロプランの全機能",
-            "aiGeneration": "AI問題生成",
-            "lmsMode": "LMSモード",
-            "customBranding": "カスタムブランディング",
-            "dedicatedSupport": "専任サポート"
-          }
-        }
-      }
-    },
-    "cancelSubscription": {
-      "title": "サブスクリプションをキャンセル",
-      "description": "サブスクリプションのキャンセルについて、以下のオプションから選択してください。",
-      "success": "キャンセル完了",
-      "canceledImmediately": "サブスクリプションは即座にキャンセルされました。",
-      "canceledAtPeriodEnd": "サブスクリプションは {date} にキャンセルされます。それまでは引き続きご利用いただけます。",
-      "error": "エラー",
-      "errorDescription": "サブスクリプションのキャンセルに失敗しました。もう一度お試しください。",
-      "whenToCancel": "いつキャンセルしますか？",
-      "atPeriodEnd": "契約期間終了時",
-      "atPeriodEndDescription": "{date} まで引き続きご利用いただけます",
-      "immediately": "今すぐ",
-      "immediatelyDescription": "即座にアクセスを失います",
-      "reasonLabel": "キャンセルの理由",
-      "feedbackLabel": "フィードバック",
-      "optional": "任意",
-      "feedbackPlaceholder": "サービスを改善するために、フィードバックをお聞かせください...",
-      "immediateWarning": "警告: 即座にキャンセルすると、すぐにプロ機能へのアクセスを失います。",
-      "periodEndWarning": "サブスクリプションは {date} にキャンセルされます。それまでは引き続きプロ機能をご利用いただけます。",
-      "keepSubscription": "サブスクリプションを継続",
-      "cancelNow": "今すぐキャンセル",
-      "cancelAtPeriodEnd": "期間終了時にキャンセル",
-      "reasons": {
-        "tooExpensive": "料金が高すぎる",
-        "notUsing": "十分に活用できていない",
-        "missingFeatures": "必要な機能がない",
-        "foundAlternative": "他のサービスに切り替える",
-        "technicalIssues": "技術的な問題",
-        "other": "その他"
-      }
-    },
-    "paymentHistory": {
-      "title": "支払い履歴",
-      "description": "過去の請求書と支払い履歴",
-      "noInvoices": "請求書はありません。",
-      "errorLoading": "支払い履歴の読み込みに失敗しました",
-      "retry": "再試行",
-      "invoice": "請求書",
-      "download": "ダウンロード",
-      "view": "表示",
-      "downloadSuccess": "ダウンロード成功",
-      "downloadSuccessDescription": "請求書をダウンロードしました。",
-      "downloadError": "ダウンロードエラー",
-      "downloadErrorDescription": "請求書のダウンロードに失敗しました。",
-      "status": {
-        "paid": "支払い済み",
-        "open": "未払い",
-        "void": "無効",
-        "uncollectible": "回収不能"
+      "marketing": {
+        "title": "マーケティング",
+        "emails": "マーケティングメール",
+        "emailsDescription": "新機能や特別なオファーに関するメール",
+        "weeklyDigest": "週次レポート",
+        "weeklyDigestDescription": "週次の活動レポートをメールで受信"
       }
     }
+  },
+  "questionBank": {
+    "title": "問題バンク",
+    "description": "チーム内で共有する問題を管理します",
+    "create": "問題を作成",
+    "import": "問題をインポート",
+    "export": "問題をエクスポート",
+    "categories": "カテゴリ",
+    "tags": "タグ",
+    "difficulty": "難易度",
+    "type": "問題タイプ",
+    "search": "問題を検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "actions": "操作",
+    "edit": "編集",
+    "delete": "削除",
+    "preview": "プレビュー",
+    "addToQuiz": "クイズに追加",
+    "bulkActions": "一括操作",
+    "selectAll": "すべて選択",
+    "selectedCount": "{count}件選択中",
+    "noQuestions": "問題が見つかりません",
+    "createFirst": "最初の問題を作成しましょう"
   }
 }

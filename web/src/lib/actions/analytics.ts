@@ -73,7 +73,7 @@ const getQuizAnalyticsSchema = z.object({
 });
 
 export const getQuizAnalytics = authAction
-  .inputSchema(getQuizAnalyticsSchema)
+  .schema(getQuizAnalyticsSchema)
   .action(async ({ parsedInput: { quizId, range }, ctx }) => {
     const { userId } = ctx;
 
@@ -199,7 +199,7 @@ export const getQuizAnalytics = authAction
 const getDashboardStatsSchema = z.object({});
 
 export const getDashboardStats = authAction
-  .inputSchema(getDashboardStatsSchema)
+  .schema(getDashboardStatsSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -325,7 +325,7 @@ const getRecentActivitiesSchema = z.object({
 });
 
 export const getRecentActivities = authAction
-  .inputSchema(getRecentActivitiesSchema)
+  .schema(getRecentActivitiesSchema)
   .action(async ({ parsedInput: { limit }, ctx }) => {
     const { userId } = ctx;
 
@@ -456,7 +456,7 @@ const getRecentQuizzesSchema = z.object({
 });
 
 export const getRecentQuizzes = authAction
-  .inputSchema(getRecentQuizzesSchema)
+  .schema(getRecentQuizzesSchema)
   .action(async ({ parsedInput: { limit }, ctx }) => {
     const { userId } = ctx;
 
@@ -506,7 +506,7 @@ export const getRecentQuizzes = authAction
 const getUsageDataSchema = z.object({});
 
 export const getUsageData = authAction
-  .inputSchema(getUsageDataSchema)
+  .schema(getUsageDataSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -625,3 +625,428 @@ export const getUsageData = authAction
       throw new Error('Failed to fetch usage data');
     }
   });
+
+// チーム全体分析データの型定義
+interface TeamAnalytics {
+  overview: {
+    totalQuizzes: number;
+    totalParticipants: number;
+    totalResponses: number;
+    averageScore: number;
+    overallPassRate: number;
+    totalQuestions: number;
+  };
+  trends: {
+    daily: TrendPoint[];
+    weekly: TrendPoint[];
+    monthly: TrendPoint[];
+  };
+  rankings: {
+    popularQuizzes: Array<{
+      id: string;
+      title: string;
+      responseCount: number;
+      averageScore: number;
+    }>;
+    highScoreQuizzes: Array<{
+      id: string;
+      title: string;
+      averageScore: number;
+      responseCount: number;
+    }>;
+    challengingQuizzes: Array<{
+      id: string;
+      title: string;
+      averageScore: number;
+      responseCount: number;
+    }>;
+  };
+  statistics: {
+    quizzesByStatus: {
+      published: number;
+      draft: number;
+      archived: number;
+    };
+    responsesByMonth: Array<{
+      month: string;
+      count: number;
+    }>;
+    topPerformers: Array<{
+      name: string;
+      averageScore: number;
+      completedQuizzes: number;
+    }>;
+  };
+}
+
+// チーム全体分析データ取得用のスキーマ
+const getTeamAnalyticsSchema = z.object({
+  range: z.enum(['7d', '30d', '90d', 'all']).default('30d'),
+});
+
+export const getTeamAnalytics = authAction
+  .schema(getTeamAnalyticsSchema)
+  .action(async ({ parsedInput: { range }, ctx }) => {
+    const { userId } = ctx;
+
+    try {
+      // Get user's teams
+      const userTeams = await prisma.teamMember.findMany({
+        where: { userId },
+        select: { teamId: true },
+      });
+      const teamIds = userTeams.map(tm => tm.teamId);
+
+      if (teamIds.length === 0) {
+        throw new Error('No teams found for user');
+      }
+
+      // Calculate date range
+      const endDate = endOfDay(new Date());
+      let startDate: Date;
+
+      switch (range) {
+        case '7d':
+          startDate = startOfDay(subDays(endDate, 7));
+          break;
+        case '30d':
+          startDate = startOfDay(subDays(endDate, 30));
+          break;
+        case '90d':
+          startDate = startOfDay(subDays(endDate, 90));
+          break;
+        case 'all':
+        default:
+          startDate = startOfDay(subDays(endDate, 365)); // 1年前まで
+          break;
+      }
+
+      // 並列でデータを取得
+      const [
+        allQuizzes,
+        allResponses,
+        recentResponses,
+        quizStats,
+        participantStats,
+      ] = await Promise.all([
+        // 全クイズ取得
+        prisma.quiz.findMany({
+          where: { teamId: { in: teamIds } },
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            createdAt: true,
+            _count: {
+              select: {
+                responses: true,
+                questions: true,
+              },
+            },
+          },
+        }),
+
+        // 全回答取得
+        prisma.quizResponse.findMany({
+          where: {
+            quiz: { teamId: { in: teamIds } },
+            completedAt: { not: null },
+          },
+          select: {
+            id: true,
+            score: true,
+            totalPoints: true,
+            isPassed: true,
+            completedAt: true,
+            participantEmail: true,
+            quiz: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        }),
+
+        // 期間内の回答
+        prisma.quizResponse.findMany({
+          where: {
+            quiz: { teamId: { in: teamIds } },
+            completedAt: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+          select: {
+            completedAt: true,
+            score: true,
+            totalPoints: true,
+            isPassed: true,
+          },
+        }),
+
+        // クイズ別統計
+        prisma.quiz.findMany({
+          where: {
+            teamId: { in: teamIds },
+            status: 'PUBLISHED',
+          },
+          select: {
+            id: true,
+            title: true,
+            responses: {
+              where: { completedAt: { not: null } },
+              select: {
+                score: true,
+                totalPoints: true,
+                isPassed: true,
+              },
+            },
+          },
+        }),
+
+        // 参加者統計
+        prisma.quizResponse.groupBy({
+          by: ['participantEmail'],
+          where: {
+            quiz: { teamId: { in: teamIds } },
+            completedAt: { not: null },
+            participantEmail: { not: null },
+          },
+          _count: true,
+          _avg: {
+            score: true,
+          },
+        }),
+      ]);
+
+      // 概要統計を計算
+      const totalQuizzes = allQuizzes.length;
+      const totalParticipants = new Set([
+        ...allResponses.map(r => r.participantEmail).filter(Boolean),
+        ...allResponses.map(r => r.user?.name).filter(Boolean),
+      ]).size;
+      const totalResponses = allResponses.length;
+      const totalQuestions = allQuizzes.reduce(
+        (sum, quiz) => sum + quiz._count.questions,
+        0
+      );
+
+      const validScores = allResponses.filter(
+        r => r.score !== null && r.totalPoints > 0
+      );
+      const averageScore =
+        validScores.length > 0
+          ? validScores.reduce(
+              (sum, r) => sum + (r.score! / r.totalPoints) * 100,
+              0
+            ) / validScores.length
+          : 0;
+
+      const overallPassRate =
+        allResponses.length > 0
+          ? (allResponses.filter(r => r.isPassed).length /
+              allResponses.length) *
+            100
+          : 0;
+
+      // トレンドデータを生成
+      const dailyTrend = generateTrendData(
+        recentResponses,
+        'day',
+        startDate,
+        endDate
+      );
+      const weeklyTrend = generateTrendData(
+        recentResponses,
+        'week',
+        startDate,
+        endDate
+      );
+      const monthlyTrend = generateTrendData(
+        recentResponses,
+        'month',
+        startDate,
+        endDate
+      );
+
+      // ランキングデータを生成
+      const quizAnalytics = quizStats.map(quiz => {
+        const responses = quiz.responses;
+        const responseCount = responses.length;
+        const validResponses = responses.filter(
+          r => r.score !== null && r.totalPoints > 0
+        );
+        const avgScore =
+          validResponses.length > 0
+            ? validResponses.reduce(
+                (sum, r) => sum + (r.score! / r.totalPoints) * 100,
+                0
+              ) / validResponses.length
+            : 0;
+
+        return {
+          id: quiz.id,
+          title: quiz.title,
+          responseCount,
+          averageScore: avgScore,
+        };
+      });
+
+      const popularQuizzes = [...quizAnalytics]
+        .sort((a, b) => b.responseCount - a.responseCount)
+        .slice(0, 10);
+
+      const highScoreQuizzes = [...quizAnalytics]
+        .filter(q => q.responseCount >= 3) // 最低3回答以上
+        .sort((a, b) => b.averageScore - a.averageScore)
+        .slice(0, 10);
+
+      const challengingQuizzes = [...quizAnalytics]
+        .filter(q => q.responseCount >= 3) // 最低3回答以上
+        .sort((a, b) => a.averageScore - b.averageScore)
+        .slice(0, 10);
+
+      // ステータス別クイズ数
+      const quizzesByStatus = {
+        published: allQuizzes.filter(q => q.status === 'PUBLISHED').length,
+        draft: allQuizzes.filter(q => q.status === 'DRAFT').length,
+        archived: allQuizzes.filter(q => q.status === 'ARCHIVED').length,
+      };
+
+      // 月別回答数
+      const responsesByMonth = generateMonthlyResponseData(allResponses);
+
+      // トップパフォーマー
+      const topPerformers = participantStats
+        .filter(p => p._count > 2) // 最低3回答以上
+        .sort((a, b) => (b._avg.score || 0) - (a._avg.score || 0))
+        .slice(0, 10)
+        .map(p => ({
+          name: p.participantEmail || 'Anonymous',
+          averageScore: p._avg.score || 0,
+          completedQuizzes: p._count,
+        }));
+
+      const data: TeamAnalytics = {
+        overview: {
+          totalQuizzes,
+          totalParticipants,
+          totalResponses,
+          averageScore: Math.round(averageScore * 100) / 100,
+          overallPassRate: Math.round(overallPassRate * 100) / 100,
+          totalQuestions,
+        },
+        trends: {
+          daily: dailyTrend,
+          weekly: weeklyTrend,
+          monthly: monthlyTrend,
+        },
+        rankings: {
+          popularQuizzes,
+          highScoreQuizzes,
+          challengingQuizzes,
+        },
+        statistics: {
+          quizzesByStatus,
+          responsesByMonth,
+          topPerformers,
+        },
+      };
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching team analytics:', error);
+      throw new Error('Failed to fetch team analytics');
+    }
+  });
+
+// トレンドデータ生成のヘルパー関数
+function generateTrendData(
+  responses: Array<{
+    completedAt: Date | null;
+    score: number | null;
+    totalPoints: number;
+  }>,
+  interval: 'day' | 'week' | 'month',
+  startDate: Date,
+  endDate: Date
+): TrendPoint[] {
+  const validResponses = responses.filter(
+    r => r.completedAt && r.score !== null
+  );
+
+  const dateMap = new Map<
+    string,
+    { count: number; totalScore: number; totalPossible: number }
+  >();
+
+  // 日付の範囲を生成
+  const current = new Date(startDate);
+  while (current <= endDate) {
+    const key = formatDateKey(current, interval);
+    dateMap.set(key, { count: 0, totalScore: 0, totalPossible: 0 });
+
+    if (interval === 'day') {
+      current.setDate(current.getDate() + 1);
+    } else if (interval === 'week') {
+      current.setDate(current.getDate() + 7);
+    } else {
+      current.setMonth(current.getMonth() + 1);
+    }
+  }
+
+  // 回答データを集計
+  validResponses.forEach(response => {
+    const key = formatDateKey(response.completedAt!, interval);
+    const existing = dateMap.get(key);
+    if (existing) {
+      existing.count++;
+      existing.totalScore += response.score!;
+      existing.totalPossible += response.totalPoints;
+    }
+  });
+
+  // 結果を配列に変換
+  return Array.from(dateMap.entries()).map(([date, data]) => ({
+    date,
+    count: data.count,
+    averageScore:
+      data.count > 0 ? (data.totalScore / data.totalPossible) * 100 : 0,
+  }));
+}
+
+function formatDateKey(date: Date, interval: 'day' | 'week' | 'month'): string {
+  if (interval === 'day') {
+    return date.toISOString().split('T')[0];
+  } else if (interval === 'week') {
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() - date.getDay());
+    return weekStart.toISOString().split('T')[0];
+  } else {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  }
+}
+
+function generateMonthlyResponseData(
+  responses: Array<{ completedAt: Date | null }>
+): Array<{ month: string; count: number }> {
+  const monthMap = new Map<string, number>();
+
+  responses.forEach(response => {
+    if (response.completedAt) {
+      const month = `${response.completedAt.getFullYear()}-${String(response.completedAt.getMonth() + 1).padStart(2, '0')}`;
+      monthMap.set(month, (monthMap.get(month) || 0) + 1);
+    }
+  });
+
+  return Array.from(monthMap.entries())
+    .map(([month, count]) => ({ month, count }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .slice(-12); // 最新12ヶ月
+}

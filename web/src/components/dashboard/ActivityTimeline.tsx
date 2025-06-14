@@ -69,7 +69,7 @@ export async function ActivityTimeline({ lng }: ActivityTimelineProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activities.map((activity, index) => {
+          {activities.map((activity: any, index: number) => {
             const Icon = getActivityIcon(activity.type);
             const colorClass = getActivityColor(activity.type);
 
