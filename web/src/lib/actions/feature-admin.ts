@@ -2,8 +2,10 @@
 
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { createSafeAction } from 'next-safe-action';
+import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
+
+const action = createSafeActionClient();
 import { FeatureType, FeatureCategory, TeamRole } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
@@ -51,42 +53,39 @@ const resetFeatureUsageSchema = z.object({
 /**
  * Admin-only: Create a new feature definition
  */
-export const createFeature = createSafeAction(
-  createFeatureSchema,
-  async input => {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
-    }
-
-    // Check if user is admin (you may want to add admin role check here)
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        teamMemberships: {
-          where: { role: 'OWNER' },
-          include: { team: true },
-        },
-      },
-    });
-
-    if (!user || user.teamMemberships.length === 0) {
-      throw new Error('Admin access required');
-    }
-
-    const feature = await prisma.feature.create({
-      data: input,
-    });
-
-    revalidatePath('/admin/features');
-    return { feature };
+export const createFeature = action(createFeatureSchema, async input => {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
   }
-);
+
+  // Check if user is admin (you may want to add admin role check here)
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: {
+      teamMemberships: {
+        where: { role: 'OWNER' },
+        include: { team: true },
+      },
+    },
+  });
+
+  if (!user || user.teamMemberships.length === 0) {
+    throw new Error('Admin access required');
+  }
+
+  const feature = await prisma.feature.create({
+    data: input,
+  });
+
+  revalidatePath('/admin/features');
+  return { feature };
+});
 
 /**
  * Admin-only: Update plan feature configuration
  */
-export const updatePlanFeature = createSafeAction(
+export const updatePlanFeature = action(
   updatePlanFeatureSchema,
   async ({ planId, featureId, isEnabled, limit, metadata }) => {
     const session = await auth();
@@ -141,7 +140,7 @@ export const updatePlanFeature = createSafeAction(
 /**
  * Admin-only: Bulk update plan features
  */
-export const bulkUpdatePlanFeatures = createSafeAction(
+export const bulkUpdatePlanFeatures = action(
   bulkUpdatePlanFeaturesSchema,
   async ({ planId, features }) => {
     const session = await auth();
@@ -197,7 +196,7 @@ export const bulkUpdatePlanFeatures = createSafeAction(
 /**
  * Admin-only: Reset feature usage for a team
  */
-export const resetFeatureUsage = createSafeAction(
+export const resetFeatureUsage = action(
   resetFeatureUsageSchema,
   async ({ teamId, featureType, month }) => {
     const session = await auth();

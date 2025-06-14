@@ -69,8 +69,8 @@ export function UpgradePrompt({
                 {getFeatureMessage(
                   featureType,
                   requiredPlan,
-                  isLimitReached,
-                  isNearLimit
+                  Boolean(isLimitReached),
+                  Boolean(isNearLimit)
                 )}
               </p>
             </div>
@@ -115,8 +115,8 @@ export function UpgradePrompt({
             {getFeatureMessage(
               featureType,
               requiredPlan,
-              isLimitReached,
-              isNearLimit
+              Boolean(isLimitReached),
+              Boolean(isNearLimit)
             )}
           </p>
         </div>
@@ -195,7 +195,7 @@ function getRequiredPlan(featureType: FeatureType): 'PRO' | 'PREMIUM' {
     FeatureType.ON_PREMISE,
   ];
 
-  return premiumFeatures.includes(featureType) ? 'PREMIUM' : 'PRO';
+  return (premiumFeatures as any[]).includes(featureType) ? 'PREMIUM' : 'PRO';
 }
 
 function getPlanInfo(plan: 'PRO' | 'PREMIUM') {

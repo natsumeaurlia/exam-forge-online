@@ -15,9 +15,7 @@ export function useFeatureFlag(featureType: FeatureType, teamId?: string) {
   const [featureCheck, setFeatureCheck] = useState<FeatureCheck | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { currentTeamId } = useUserPlan();
-
-  const effectiveTeamId = teamId || currentTeamId;
+  const effectiveTeamId = teamId;
 
   useEffect(() => {
     async function checkFeature() {
@@ -72,9 +70,7 @@ export function useMultipleFeatureFlags(
   > | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { currentTeamId } = useUserPlan();
-
-  const effectiveTeamId = teamId || currentTeamId;
+  const effectiveTeamId = teamId;
 
   useEffect(() => {
     async function checkFeatures() {
