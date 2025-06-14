@@ -51,7 +51,7 @@ jobs:
             node_modules
             /tmp/.pnpm-store
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-v2-
 
@@ -93,7 +93,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -156,7 +156,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -207,7 +207,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -280,7 +280,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
