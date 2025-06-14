@@ -65,16 +65,18 @@ export async function POST(request: NextRequest) {
 
         case 'customer.subscription.created':
         case 'customer.subscription.updated': {
-          const subscription = event.data
-            .object as SubscriptionWithExpandedData;
-          await handleSubscriptionUpdate(subscription);
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionUpdate(
+            subscription as SubscriptionWithExpandedData
+          );
           break;
         }
 
         case 'customer.subscription.deleted': {
-          const subscription = event.data
-            .object as SubscriptionWithExpandedData;
-          await handleSubscriptionDeleted(subscription);
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionDeleted(
+            subscription as SubscriptionWithExpandedData
+          );
           break;
         }
 

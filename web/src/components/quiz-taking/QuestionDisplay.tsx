@@ -64,7 +64,7 @@ export function QuestionDisplay({
       case 'MULTIPLE_CHOICE':
         return (
           <RadioGroup
-            value={answer || ''}
+            value={typeof answer === 'string' ? answer : ''}
             onValueChange={onAnswer}
             className="space-y-3"
           >
@@ -131,7 +131,7 @@ export function QuestionDisplay({
       case 'SHORT_ANSWER':
         return (
           <Textarea
-            value={answer || ''}
+            value={typeof answer === 'string' ? answer : ''}
             onChange={e => onAnswer(e.target.value)}
             placeholder={t('typeYourAnswer')}
             className="min-h-[100px]"
@@ -142,9 +142,9 @@ export function QuestionDisplay({
         return (
           <Input
             type="number"
-            value={answer || ''}
+            value={typeof answer === 'number' ? answer.toString() : ''}
             onChange={e =>
-              onAnswer(e.target.value ? parseFloat(e.target.value) : null)
+              onAnswer(e.target.value ? parseFloat(e.target.value) : '')
             }
             placeholder={t('enterNumber')}
             step="any"

@@ -105,10 +105,11 @@ export async function handleCheckoutSessionCompleted(
 
   while (retries > 0) {
     try {
-      subscription = (await stripe.subscriptions.retrieve(
+      const retrievedSubscription = await stripe.subscriptions.retrieve(
         session.subscription as string,
         { expand: ['items.data.price.product'] }
-      )) as SubscriptionWithExpandedData;
+      );
+      subscription = retrievedSubscription as SubscriptionWithExpandedData;
       break;
     } catch (error) {
       retries--;

@@ -35,7 +35,7 @@ export function TemplateCardContainer({
         category={template.category}
         isPublic={template.isPublic}
         usageCount={template.usageCount}
-        tags={template.tags?.map(tt => tt.tag) || []}
+        tags={template.tags?.map((tt: any) => tt.tag) || []}
         updatedAt={template.updatedAt}
         createdBy={template.createdBy}
         thumbnail={template.thumbnail}

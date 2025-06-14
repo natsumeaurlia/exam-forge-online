@@ -55,7 +55,10 @@ export async function TemplateListContent({
     );
   }
 
-  const { templates, pagination } = result.data;
+  const { templates, pagination } = result.data as {
+    templates: TemplateListItem[];
+    pagination: any;
+  };
 
   if (templates.length === 0) {
     return (
