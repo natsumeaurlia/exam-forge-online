@@ -31,7 +31,7 @@ const validateUploadSchema = z.object({
  * ファイルサイズ、プラン制限、ストレージ容量をチェック
  */
 export const validateMediaUpload = authAction
-  .inputSchema(validateUploadSchema)
+  .schema(validateUploadSchema)
   .action(async ({ parsedInput: { fileSize, fileType, questionId }, ctx }) => {
     const { userId } = ctx;
 
@@ -143,7 +143,7 @@ export const validateMediaUpload = authAction
  * メディア削除用のServerAction
  */
 export const deleteMedia = authAction
-  .inputSchema(deleteMediaSchema)
+  .schema(deleteMediaSchema)
   .action(async ({ parsedInput: { mediaId }, ctx }) => {
     const { userId } = ctx;
 
@@ -193,7 +193,7 @@ const createMediaRecordSchema = z.object({
 });
 
 export const createMediaRecord = authAction
-  .inputSchema(createMediaRecordSchema)
+  .schema(createMediaRecordSchema)
   .action(async ({ parsedInput, ctx }) => {
     const { userId } = ctx;
 
@@ -240,7 +240,7 @@ export const createMediaRecord = authAction
  * The actual file upload to MinIO should be handled separately.
  */
 export const uploadMedia = authAction
-  .inputSchema(
+  .schema(
     z.object({
       files: z.array(
         z.object({
@@ -414,7 +414,7 @@ export const uploadMedia = authAction
  * Delete media - replaces /api/upload DELETE endpoint
  */
 export const deleteMediaById = authAction
-  .inputSchema(
+  .schema(
     z.object({
       mediaId: z.string().min(1, 'Media ID is required'),
     })

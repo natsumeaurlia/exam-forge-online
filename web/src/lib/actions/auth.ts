@@ -59,7 +59,7 @@ export async function requireAuth(locale: string = 'ja') {
 
 // ユーザー登録ServerAction
 export const signupAction = action
-  .inputSchema(signupSchema)
+  .schema(signupSchema)
   .action(async ({ parsedInput: { name, email, password } }) => {
     try {
       // 🔒 SECURITY: トランザクションでRace Condition脆弱性を修正

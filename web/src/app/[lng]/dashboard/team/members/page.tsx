@@ -39,7 +39,7 @@ export default async function TeamMembersPage({
 
   // Get user's teams
   const teamsResult = await getUserTeams({});
-  if (!teamsResult.data?.teams || teamsResult.data.teams.length === 0) {
+  if (!teamsResult?.data?.teams || teamsResult.data.teams.length === 0) {
     redirect(`/${lng}/dashboard`);
   }
 
@@ -60,14 +60,14 @@ export default async function TeamMembersPage({
       getTeamMembers({ teamId }),
     ]);
 
-    if (!teamResult.data?.team || !membersResult.data?.members) {
+    if (!teamResult?.data?.team || !membersResult?.data?.members) {
       throw new Error('Failed to load team data');
     }
 
     return (
       <TeamMembersClient
         lng={lng}
-        team={teamResult.data.team}
+        team={teamResult.data.team as any}
         members={membersResult.data.members}
         currentUserId={(session.user as any).id}
         userTeams={teams}
