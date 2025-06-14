@@ -1567,6 +1567,77 @@
       "delete": "削除"
     }
   },
+  "respondents": {
+    "pageTitle": "回答者管理",
+    "pageDescription": "クイズ受講者の管理と成績分析",
+    "title": "回答者管理",
+    "description": "クイズを受講したユーザーの成績や活動状況を確認・管理できます",
+    "status": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "blocked": "ブロック済み"
+    },
+    "actions": {
+      "export": "エクスポート",
+      "invite": "招待",
+      "sendEmail": "メール送信",
+      "bulkActions": "一括操作"
+    },
+    "stats": {
+      "totalRespondents": "総回答者数",
+      "active": "アクティブ",
+      "avgScore": "平均スコア",
+      "avgScoreDescription": "全回答者の平均成績",
+      "totalQuizzes": "総受講数",
+      "totalQuizzesDescription": "全クイズの受講回数",
+      "totalPoints": "総獲得ポイント",
+      "totalPointsDescription": "全回答者の獲得ポイント"
+    },
+    "search": {
+      "placeholder": "名前またはメールアドレスで検索..."
+    },
+    "filters": {
+      "all": "すべて",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "blocked": "ブロック済み"
+    },
+    "selected": "件選択中",
+    "table": {
+      "title": "回答者一覧",
+      "description": "クイズを受講した全てのユーザー",
+      "selectAll": "すべて選択",
+      "quizzes": "受講数",
+      "avgScore": "平均スコア",
+      "points": "ポイント"
+    },
+    "details": {
+      "title": "回答者詳細",
+      "description": "詳細な成績と活動履歴",
+      "tabs": {
+        "overview": "概要",
+        "quizzes": "受講履歴",
+        "activity": "活動記録"
+      },
+      "info": {
+        "basic": "基本情報",
+        "email": "メールアドレス",
+        "joined": "参加日",
+        "status": "ステータス",
+        "performance": "成績情報",
+        "completed": "受講完了",
+        "avgScore": "平均スコア",
+        "totalPoints": "総獲得ポイント",
+        "tags": "タグ"
+      },
+      "activityPlaceholder": "活動記録は今後のアップデートで実装予定です"
+    },
+    "empty": {
+      "title": "回答者がいません",
+      "description": "まだクイズを受講したユーザーがいません",
+      "action": "ユーザーを招待"
+    }
+  },
   "media": {
     "title": "メディアライブラリ",
     "description": "アップロードしたすべてのメディアファイルを一元管理",
