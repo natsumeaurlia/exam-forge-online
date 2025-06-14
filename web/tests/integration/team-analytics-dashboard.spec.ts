@@ -42,13 +42,15 @@ test.describe('Team Analytics Dashboard', () => {
         description: 'Quiz for analytics testing',
         status: 'PUBLISHED',
         teamId: teamId,
+        createdById: userId,
         passingScore: 80,
         questions: {
           create: [
             {
-              type: 'SINGLE_SELECT',
+              type: 'MULTIPLE_CHOICE',
               text: 'What is 2+2?',
               points: 10,
+              order: 1,
               options: {
                 create: [
                   { text: '3', isCorrect: false, order: 1 },
@@ -61,6 +63,7 @@ test.describe('Team Analytics Dashboard', () => {
               type: 'TRUE_FALSE',
               text: 'The sky is blue',
               points: 10,
+              order: 2,
               options: {
                 create: [
                   { text: 'True', isCorrect: true, order: 1 },

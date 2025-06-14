@@ -101,20 +101,22 @@ test.describe('🔄 Integration: Team-Quiz Workflow', () => {
     };
 
     // フリープランユーザーを事前作成
-    await prisma.user.create({
+    const freeUser = await prisma.user.create({
       data: {
         name: 'Free Plan User',
         email: userData.email,
-        hashedPassword: 'hashed-password', // 実際のハッシュ化は省略
-        teams: {
+        password: 'hashed-password', // 実際のハッシュ化は省略
+      },
+    });
+
+    await prisma.team.create({
+      data: {
+        name: 'Free Team',
+        slug: 'free-team',
+        creatorId: freeUser.id,
+        members: {
           create: {
-            team: {
-              create: {
-                name: 'Free Team',
-                slug: 'free-team',
-                plan: 'FREE',
-              },
-            },
+            userId: freeUser.id,
             role: 'OWNER',
           },
         },

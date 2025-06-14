@@ -38,22 +38,25 @@ export default async function TeamAnalyticsPage({
   const t = await getTranslations('dashboard.analytics');
 
   // チーム全体の分析データを取得
-  const analyticsData = await getTeamAnalytics({ range });
+  const validRange = ['7d', '30d', '90d', 'all'].includes(range)
+    ? (range as '7d' | '30d' | '90d' | 'all')
+    : '30d';
+  const analyticsResult = await getTeamAnalytics({ range: validRange });
 
-  if (!analyticsData.success) {
+  if (!analyticsResult?.data) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="rounded-lg border border-red-200 bg-red-50 p-6">
           <h2 className="text-lg font-semibold text-red-800">
             {t('errorTitle')}
           </h2>
-          <p className="mt-2 text-red-600">
-            {analyticsData.error || t('errorMessage')}
-          </p>
+          <p className="mt-2 text-red-600">{t('errorMessage')}</p>
         </div>
       </div>
     );
   }
+
+  const analyticsData = analyticsResult.data;
 
   return (
     <div className="container mx-auto space-y-8 px-4 py-8">
@@ -68,14 +71,14 @@ export default async function TeamAnalyticsPage({
         <AnalyticsHeader
           lng={lng}
           currentRange={range}
-          exportData={analyticsData.data}
+          exportData={analyticsData}
           exportType="team"
         />
       </div>
 
       {/* 全体統計概要 */}
       <section>
-        <TeamAnalyticsOverview data={analyticsData.data} lng={lng} />
+        <TeamAnalyticsOverview data={analyticsData} lng={lng} />
       </section>
 
       {/* グラフ表示セクション */}
@@ -83,7 +86,7 @@ export default async function TeamAnalyticsPage({
         <h2 className="mb-6 text-xl font-semibold text-gray-900">
           {t('trendsAndInsights')}
         </h2>
-        <AnalyticsCharts data={analyticsData.data} lng={lng} />
+        <AnalyticsCharts data={analyticsData} lng={lng} />
       </section>
 
       {/* クイズランキングセクション */}
@@ -91,7 +94,7 @@ export default async function TeamAnalyticsPage({
         <h2 className="mb-6 text-xl font-semibold text-gray-900">
           {t('quizRankings')}
         </h2>
-        <QuizRankings data={analyticsData.data} lng={lng} />
+        <QuizRankings data={analyticsData} lng={lng} />
       </section>
     </div>
   );

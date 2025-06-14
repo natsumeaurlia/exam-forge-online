@@ -7,11 +7,18 @@ test.describe('📊 Integration: Analytics Dashboard Flow', () => {
 
   test.beforeEach(async () => {
     // テストデータ準備
+    const testUser = await prisma.user.create({
+      data: {
+        email: 'analytics-test@example.com',
+        name: 'Analytics Test User',
+      },
+    });
+
     testTeam = await prisma.team.create({
       data: {
         name: 'Analytics Test Team',
         slug: 'analytics-test-team',
-        plan: 'PRO',
+        creator: { connect: { id: testUser.id } },
       },
     });
 
@@ -20,9 +27,9 @@ test.describe('📊 Integration: Analytics Dashboard Flow', () => {
         title: 'Analytics Test Quiz',
         description: 'テスト用分析クイズ',
         teamId: testTeam.id,
+        createdById: testUser.id,
         status: 'PUBLISHED',
         sharingMode: 'URL',
-        showCorrectAnswers: true,
         questions: {
           create: [
             {
@@ -53,19 +60,16 @@ test.describe('📊 Integration: Analytics Dashboard Flow', () => {
     // テスト回答データを作成
     const responses = [];
     for (let i = 0; i < 25; i++) {
+      const score = Math.floor(Math.random() * 16); // 0-15点
       responses.push({
         quizId: testQuiz.id,
-        score: Math.floor(Math.random() * 16), // 0-15点
-        duration: 120 + Math.floor(Math.random() * 300), // 2-7分
+        score: score,
+        totalPoints: 15, // 合計点数
+        isPassed: score >= 10, // 10点以上で合格
+        timeTaken: 120 + Math.floor(Math.random() * 300), // 2-7分
         participantName: `テスト参加者${i + 1}`,
         participantEmail: `test-participant-${i + 1}@example.com`,
-        answers: JSON.stringify([
-          {
-            questionId: 'q1',
-            answer: i % 3 === 0 ? '正解選択肢' : '不正解選択肢A',
-          },
-          { questionId: 'q2', answer: i % 2 === 0 ? 'true' : 'false' },
-        ]),
+        completedAt: new Date(),
       });
     }
 

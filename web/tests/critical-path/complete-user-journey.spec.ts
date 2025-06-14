@@ -182,10 +182,18 @@ test.describe('🚨 Critical Path: Complete User Journey', () => {
 
   test('セキュリティ: 未公開クイズへの不正アクセス', async ({ page }) => {
     // DBに未公開のテストクイズを作成
+    const testUser = await prisma.user.create({
+      data: {
+        email: 'security-test@example.com',
+        name: 'Security Test User',
+      },
+    });
+
     const team = await prisma.team.create({
       data: {
         name: 'Security Test Team',
         slug: 'security-test-team',
+        creator: { connect: { id: testUser.id } },
       },
     });
 
@@ -193,8 +201,9 @@ test.describe('🚨 Critical Path: Complete User Journey', () => {
       data: {
         title: 'Private Quiz',
         teamId: team.id,
+        createdById: testUser.id,
         status: 'DRAFT', // 未公開
-        sharingMode: 'NONE',
+        sharingMode: 'URL',
       },
     });
 
