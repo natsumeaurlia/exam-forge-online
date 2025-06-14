@@ -77,13 +77,38 @@ export const signupAction = action
           }
 
           // Create user (same transaction)
-          return await tx.user.create({
+          const newUser = await tx.user.create({
             data: {
               name,
               email,
               password: hashedPassword,
             },
           });
+
+          // Create default team for the new user
+          await tx.team.create({
+            data: {
+              name: `${newUser.name}'s Team`,
+              slug: `user-${newUser.id}`,
+              description: 'Personal team',
+              creatorId: newUser.id,
+              members: {
+                create: {
+                  userId: newUser.id,
+                  role: 'OWNER',
+                },
+              },
+              teamSettings: {
+                create: {
+                  maxMembers: 1,
+                  allowMemberInvite: false,
+                  requireApproval: false,
+                },
+              },
+            },
+          });
+
+          return newUser;
         },
         {
           isolationLevel: 'Serializable', // 最高レベルの分離でRace Condition防止

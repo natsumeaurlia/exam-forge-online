@@ -39,7 +39,10 @@ export async function getUserPlanData(userId: string) {
   });
 
   if (!user) {
-    throw new Error('User not found');
+    console.error(`User ${userId} has valid session but no database record`);
+    throw new Error(
+      'AUTHENTICATION_ERROR: User session invalid - please sign out and sign in again'
+    );
   }
 
   // Get the first team's subscription (or the active team if we implement team switching)

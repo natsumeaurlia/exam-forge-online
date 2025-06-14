@@ -67,6 +67,163 @@
       "nextButton": "Next"
     }
   },
+  "quiz": {
+    "selector": {
+      "title": "Select Quiz Type",
+      "description": "Choose the type of quiz you want to create. Select the format that best suits your purpose.",
+      "selectButton": "Select This Type",
+      "proOnlyButton": "Available with Pro Plan"
+    },
+    "types": {
+      "simple-quiz": {
+        "title": "Simple Quiz",
+        "description": "Basic quiz format including true/false and multiple choice questions.",
+        "features": {
+          "truefalse": "True/False Questions",
+          "single": "Single Choice Questions",
+          "multiple": "Multiple Choice Questions",
+          "freetext": "Free Text Questions"
+        },
+        "featureInfo": {
+          "truefalse": "Basic question format asking about correctness.",
+          "single": "Question format where you select only one answer from multiple options.",
+          "multiple": "Multiple choice questions with multiple correct answers.",
+          "freetext": "Question format where you can freely write your answer."
+        }
+      },
+      "exam": {
+        "title": "Exam",
+        "description": "Comprehensive exam mode with passing score settings and time limits.",
+        "features": {
+          "passingScore": "Passing Score Setting",
+          "analytics": "Detailed Analytics",
+          "certificate": "Certificate Issuance",
+          "timeLimit": "Time Limit"
+        },
+        "featureInfo": {
+          "passingScore": "You can set the passing criteria for the exam.",
+          "analytics": "You can analyze test takers' performance in detail.",
+          "certificate": "Certificates are automatically issued to passing candidates.",
+          "timeLimit": "You can set time limits for the exam."
+        }
+      },
+      "survey": {
+        "title": "Survey",
+        "description": "Form for collecting opinions and information without right or wrong answers.",
+        "features": {
+          "freeAnswer": "Free Response Format",
+          "choice": "Choice Format",
+          "matrix": "Matrix Questions",
+          "analytics": "Aggregation and Analysis"
+        },
+        "featureInfo": {
+          "freeAnswer": "Format where you can freely input your responses.",
+          "choice": "Format where you select answers from choices.",
+          "matrix": "Format where you answer multiple questions with the same choices.",
+          "analytics": "You can aggregate and analyze response results."
+        }
+      },
+      "assessment": {
+        "title": "Assessment",
+        "description": "Comprehensive question set for advanced evaluation.",
+        "features": {
+          "sections": "Section Division",
+          "branching": "Conditional Branching",
+          "scoring": "Composite Scoring",
+          "reports": "Detailed Reports"
+        },
+        "featureInfo": {
+          "sections": "You can categorize questions by sections.",
+          "branching": "You can set conditional branching where the next question changes based on the answer.",
+          "scoring": "You can combine multiple scoring methods.",
+          "reports": "You can create detailed evaluation reports."
+        }
+      },
+      "course": {
+        "title": "Course",
+        "description": "Learning experience combining educational content with quizzes.",
+        "features": {
+          "lessons": "Lesson Structure",
+          "progress": "Learning Progress Management",
+          "quizzes": "Confirmation Quizzes",
+          "certificates": "Completion Certificate Issuance"
+        },
+        "featureInfo": {
+          "lessons": "You can progress through learning with a structured lesson format.",
+          "progress": "You can manage learners' progress status.",
+          "quizzes": "You can set quizzes to check lesson comprehension.",
+          "certificates": "Certificates are issued to course completers."
+        }
+      },
+      "ai-quiz": {
+        "title": "AI Auto-Generated Quiz",
+        "description": "AI automatically generates quizzes based on topics.",
+        "features": {
+          "autoGenerate": "Auto Generation",
+          "customPrompt": "Custom Prompt",
+          "instant": "Instant Generation",
+          "edit": "Editable"
+        },
+        "featureInfo": {
+          "autoGenerate": "AI automatically creates questions just by entering a topic.",
+          "customPrompt": "You can customize detailed instructions to the AI.",
+          "instant": "Complete quizzes are generated in just a few seconds.",
+          "edit": "Generated questions can be freely edited and adjusted."
+        }
+      }
+    },
+    "taking": {
+      "questionProgress": "Question {{current}} of {{total}}",
+      "timeRemaining": "Time remaining: {{minutes}} minutes",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "submitting": "Submitting...",
+      "participantInfoRequired": "Please enter participant information",
+      "submitError": "Failed to submit response",
+      "createdBy": "Created by {{teamName}}",
+      "questionCount": "{{count}} questions",
+      "timeLimit": "Time limit: {{minutes}} minutes",
+      "passwordRequired": "Password required",
+      "enterPassword": "Enter password",
+      "incorrectPassword": "Incorrect password",
+      "participantInfo": "Participant Information",
+      "name": "Name",
+      "enterName": "Enter your name",
+      "email": "Email",
+      "enterEmail": "Enter your email",
+      "instructions": "Instructions",
+      "startQuiz": "Start Quiz",
+      "quizInfo": "You cannot change your answers after submission",
+      "multipleAttemptsAllowed": "Multiple attempts allowed",
+      "answersShownAfter": "Answers will be shown after submission",
+      "true": "True",
+      "false": "False",
+      "typeYourAnswer": "Type your answer",
+      "enterNumber": "Enter a number",
+      "blank": "Blank",
+      "items": "Items",
+      "matches": "Matches",
+      "selectMatch": "Select match",
+      "unsupportedQuestionType": "Unsupported question type"
+    },
+    "results": {
+      "loadingResults": "Loading results...",
+      "errorLoadingResults": "Failed to load results",
+      "quizCompleted": "Quiz Completed!",
+      "scoreText": "{{correct}} out of {{total}} correct",
+      "passed": "Passed",
+      "failed": "Failed",
+      "passingScore": "Passing score: {{score}}%",
+      "timeSpent": "Time spent",
+      "accuracy": "Accuracy",
+      "certificateEarned": "Certificate earned!",
+      "downloadCertificate": "Download Certificate",
+      "reviewAnswers": "Review Answers",
+      "retakeQuiz": "Retake Quiz",
+      "backToHome": "Back to Home"
+    }
+  },
   "features": {
     "types": {
       "simple-quiz": {
@@ -1771,59 +1928,6 @@
         "deleteTeam": "Delete Team",
         "deleteWarning": "Deleting your team will permanently remove all data"
       }
-    }
-  },
-  "quiz": {
-    "taking": {
-      "questionProgress": "Question {{current}} of {{total}}",
-      "timeRemaining": "Time remaining: {{minutes}} minutes",
-      "previous": "Previous",
-      "next": "Next",
-      "submit": "Submit",
-      "submitting": "Submitting...",
-      "participantInfoRequired": "Please enter participant information",
-      "submitError": "Failed to submit response",
-      "createdBy": "Created by {{teamName}}",
-      "questionCount": "{{count}} questions",
-      "timeLimit": "Time limit: {{minutes}} minutes",
-      "passwordRequired": "Password required",
-      "enterPassword": "Enter password",
-      "incorrectPassword": "Incorrect password",
-      "participantInfo": "Participant Information",
-      "name": "Name",
-      "enterName": "Enter your name",
-      "email": "Email",
-      "enterEmail": "Enter your email",
-      "instructions": "Instructions",
-      "startQuiz": "Start Quiz",
-      "quizInfo": "You cannot change your answers after submission",
-      "multipleAttemptsAllowed": "Multiple attempts allowed",
-      "answersShownAfter": "Answers will be shown after submission",
-      "true": "True",
-      "false": "False",
-      "typeYourAnswer": "Type your answer",
-      "enterNumber": "Enter a number",
-      "blank": "Blank",
-      "items": "Items",
-      "matches": "Matches",
-      "selectMatch": "Select match",
-      "unsupportedQuestionType": "Unsupported question type"
-    },
-    "results": {
-      "loadingResults": "Loading results...",
-      "errorLoadingResults": "Failed to load results",
-      "quizCompleted": "Quiz Completed!",
-      "scoreText": "{{correct}} out of {{total}} correct",
-      "passed": "Passed",
-      "failed": "Failed",
-      "passingScore": "Passing score: {{score}}%",
-      "timeSpent": "Time spent",
-      "accuracy": "Accuracy",
-      "certificateEarned": "Certificate earned!",
-      "downloadCertificate": "Download Certificate",
-      "reviewAnswers": "Review Answers",
-      "retakeQuiz": "Retake Quiz",
-      "backToHome": "Back to Home"
     }
   }
 }
