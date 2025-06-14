@@ -1364,7 +1364,6 @@
       "coverImage": "Cover Image",
       "coverImageAlt": "Cover image",
       "uploadCoverImage": "Upload Cover Image (Pro Plan)",
-      "settings": "Quiz Settings",
       "timeLimit": "Time Limit (minutes)",
       "timeLimitPlaceholder": "Unlimited",
       "shuffleQuestions": "Shuffle Questions",
@@ -1373,7 +1372,6 @@
       "maxAttemptsPlaceholder": "Unlimited",
       "proPlanFeature": "Pro Plan Feature",
       "minutes": "minutes",
-      "settingsMovedToProTab": "Advanced settings have been moved to the Pro Features tab.",
       "coverImageHelperText": "Recommended size: 1200x630px",
       "publish": {
         "title": "Publish Quiz",

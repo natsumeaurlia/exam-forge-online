@@ -10,10 +10,11 @@ import { redirect } from 'next/navigation';
 import TeamMembersClient from './client';
 
 export async function generateMetadata({
-  params: { lng },
+  params,
 }: {
-  params: { lng: string };
+  params: Promise<{ lng: string }>;
 }): Promise<Metadata> {
+  const { lng } = await params;
   const t = await getTranslations({ locale: lng, namespace: 'team' });
 
   return {
@@ -22,12 +23,15 @@ export async function generateMetadata({
 }
 
 export default async function TeamMembersPage({
-  params: { lng },
+  params,
   searchParams,
 }: {
-  params: { lng: string };
-  searchParams: { teamId?: string };
+  params: Promise<{ lng: string }>;
+  searchParams: Promise<{ teamId?: string }>;
 }) {
+  const { lng } = await params;
+  const { teamId: searchParamsTeamId } = await searchParams;
+
   const session = await auth();
   if (!session?.user?.id) {
     redirect(`/${lng}/auth/signin`);
@@ -42,7 +46,7 @@ export default async function TeamMembersPage({
   const teams = teamsResult.data.teams;
 
   // Get team ID from searchParams or user's first team
-  let teamId = searchParams.teamId || teams[0].id;
+  let teamId = searchParamsTeamId || teams[0].id;
 
   // Verify user has access to the requested team
   const hasAccess = teams.some(team => team.id === teamId);

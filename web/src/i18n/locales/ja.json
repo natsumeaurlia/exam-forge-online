@@ -1268,7 +1268,6 @@
       "coverImage": "カバー画像",
       "coverImageAlt": "カバー画像",
       "uploadCoverImage": "カバー画像をアップロード（Proプラン）",
-      "settings": "クイズ設定",
       "timeLimit": "制限時間（分）",
       "timeLimitPlaceholder": "無制限",
       "shuffleQuestions": "問題をシャッフル",
@@ -1277,7 +1276,6 @@
       "maxAttemptsPlaceholder": "無制限",
       "proPlanFeature": "Proプラン機能",
       "minutes": "分",
-      "settingsMovedToProTab": "詳細設定はPro機能タブに移動しました。",
       "coverImageHelperText": "推奨サイズ: 1200x630px",
       "publish": {
         "title": "クイズを公開",
