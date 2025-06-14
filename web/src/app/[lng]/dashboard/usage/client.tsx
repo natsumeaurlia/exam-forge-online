@@ -27,6 +27,7 @@ import { UsageMetrics } from '@/components/usage/UsageMetrics';
 import { TeamPlanCard } from '@/components/usage/TeamPlanCard';
 import { UsageAlerts } from '@/components/usage/UsageAlerts';
 import { UsageExport } from '@/components/usage/UsageExport';
+import { UsageNotifications } from '@/components/usage/UsageNotifications';
 
 interface TeamPlan {
   name: string;
@@ -137,6 +138,9 @@ export function UsageMonitoringClient({
         currentResponses={currentResponses}
         lng={lng}
       />
+
+      {/* Real-time Usage Notifications */}
+      <UsageNotifications teamId={team.id} lng={lng} />
 
       {/* Usage Overview Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
