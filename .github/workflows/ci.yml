@@ -50,7 +50,6 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-v2-
@@ -60,7 +59,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm exec prisma generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
@@ -93,7 +92,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -105,7 +104,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm exec prisma generate
 
       - name: TypeScript type checking
         run: pnpm exec tsc --noEmit
@@ -156,7 +155,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -168,7 +167,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -207,7 +206,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -219,7 +218,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -280,7 +279,7 @@ jobs:
             ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -292,7 +291,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
