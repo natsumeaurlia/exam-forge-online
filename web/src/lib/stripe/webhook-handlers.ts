@@ -136,16 +136,14 @@ export async function handleCheckoutSessionCompleted(
     where: { teamId },
     create: {
       teamId,
-      stripeSubscriptionId: (subscription as any).id,
-      stripeCustomerId: (subscription as any).customer as string,
-      stripePriceId: (subscription as any).items.data[0].price.id,
-      stripeProductId: (subscription as any).items.data[0].price
-        .product as string,
-      status: mapStripeStatus((subscription as any).status),
+      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: subscription.customer as string,
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeProductId: subscription.items.data[0].price.product as string,
+      status: mapStripeStatus(subscription.status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember:
-        (subscription as any).items.data[0].price.unit_amount || 0,
+      pricePerMember: subscription.items.data[0].price.unit_amount || 0,
       currentPeriodStart: new Date(
         (subscription as any).current_period_start * 1000
       ),
@@ -155,15 +153,13 @@ export async function handleCheckoutSessionCompleted(
       planId: plan.id,
     },
     update: {
-      stripeSubscriptionId: (subscription as any).id,
-      stripePriceId: (subscription as any).items.data[0].price.id,
-      stripeProductId: (subscription as any).items.data[0].price
-        .product as string,
-      status: mapStripeStatus((subscription as any).status),
+      stripeSubscriptionId: subscription.id,
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeProductId: subscription.items.data[0].price.product as string,
+      status: mapStripeStatus(subscription.status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
-      pricePerMember:
-        (subscription as any).items.data[0].price.unit_amount || 0,
+      pricePerMember: subscription.items.data[0].price.unit_amount || 0,
       currentPeriodStart: new Date(
         (subscription as any).current_period_start * 1000
       ),
@@ -175,13 +171,10 @@ export async function handleCheckoutSessionCompleted(
   });
 
   // Update subscription quantity based on team members
-  if ((subscription as any).items.data[0].quantity !== teamMemberCount) {
-    await stripe.subscriptionItems.update(
-      (subscription as any).items.data[0].id,
-      {
-        quantity: teamMemberCount,
-      }
-    );
+  if (subscription.items.data[0].quantity !== teamMemberCount) {
+    await stripe.subscriptionItems.update(subscription.items.data[0].id, {
+      quantity: teamMemberCount,
+    });
   }
 }
 
