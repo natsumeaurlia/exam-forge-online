@@ -167,15 +167,15 @@ export default function SignUpPage({ params }: SignUpPageProps) {
 
             <div className="mb-8">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-                {t('title')}
+                {String(t('title'))}
               </h2>
               <p className="mt-2 text-sm text-gray-600">
-                {t('subtitle')}{' '}
+                {String(t('subtitle'))}{' '}
                 <Link
                   href={`/${resolvedParams.lng}/auth/signin`}
                   className="text-examforge-blue hover:text-examforge-blue-dark font-medium"
                 >
-                  {t('signinLink')}
+                  {String(t('signinLink'))}
                 </Link>
               </p>
             </div>
@@ -184,7 +184,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             {result?.serverError && (
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{result.serverError}</AlertDescription>
+                <AlertDescription>
+                  {String(result.serverError)}
+                </AlertDescription>
               </Alert>
             )}
 

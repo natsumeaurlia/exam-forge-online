@@ -27,7 +27,7 @@ const createCheckoutSessionSchema = z.object({
  * Create Stripe checkout session - replaces /api/stripe/checkout
  */
 export const createCheckoutSession = authAction
-  .inputSchema(createCheckoutSessionSchema)
+  .schema(createCheckoutSessionSchema)
   .action(async ({ parsedInput: { teamId, planType, billingCycle }, ctx }) => {
     const { userId } = ctx;
 
@@ -155,7 +155,7 @@ const createPortalSessionSchema = z.object({
  * Create Stripe customer portal session - replaces /api/stripe/portal
  */
 export const createPortalSession = authAction
-  .inputSchema(createPortalSessionSchema)
+  .schema(createPortalSessionSchema)
   .action(async ({ parsedInput: { teamId }, ctx }) => {
     const { userId } = ctx;
 

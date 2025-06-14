@@ -15,7 +15,7 @@ const addTeamMemberSchema = z.object({
 });
 
 export const addTeamMember = authAction
-  .inputSchema(addTeamMemberSchema)
+  .schema(addTeamMemberSchema)
   .action(async ({ parsedInput: { teamId, email, role }, ctx }) => {
     const { userId } = ctx;
 
@@ -87,7 +87,7 @@ const removeTeamMemberSchema = z.object({
 });
 
 export const removeTeamMember = authAction
-  .inputSchema(removeTeamMemberSchema)
+  .schema(removeTeamMemberSchema)
   .action(async ({ parsedInput: { teamId, userId: targetUserId }, ctx }) => {
     const { userId } = ctx;
 
@@ -137,7 +137,7 @@ const updateTeamMemberRoleSchema = z.object({
 });
 
 export const updateTeamMemberRole = authAction
-  .inputSchema(updateTeamMemberRoleSchema)
+  .schema(updateTeamMemberRoleSchema)
   .action(
     async ({ parsedInput: { teamId, userId: targetUserId, role }, ctx }) => {
       const { userId } = ctx;
@@ -178,7 +178,7 @@ const getTeamMembersSchema = z.object({
 });
 
 export const getTeamMembers = authAction
-  .inputSchema(getTeamMembersSchema)
+  .schema(getTeamMembersSchema)
   .action(async ({ parsedInput: { teamId }, ctx }) => {
     const { userId } = ctx;
 
@@ -225,7 +225,7 @@ export const getTeamMembers = authAction
 const getUserTeamsSchema = z.object({});
 
 export const getUserTeams = authAction
-  .inputSchema(getUserTeamsSchema)
+  .schema(getUserTeamsSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -263,7 +263,7 @@ const getTeamByIdSchema = z.object({
 });
 
 export const getTeamById = authAction
-  .inputSchema(getTeamByIdSchema)
+  .schema(getTeamByIdSchema)
   .action(async ({ parsedInput: { teamId }, ctx }) => {
     const { userId } = ctx;
 
@@ -319,7 +319,7 @@ const updateTeamSchema = z.object({
 });
 
 export const updateTeam = authAction
-  .inputSchema(updateTeamSchema)
+  .schema(updateTeamSchema)
   .action(async ({ parsedInput: { teamId, name, description, logo }, ctx }) => {
     const { userId } = ctx;
 
@@ -359,7 +359,7 @@ const createTeamInvitationSchema = z.object({
 });
 
 export const createTeamInvitation = authAction
-  .inputSchema(createTeamInvitationSchema)
+  .schema(createTeamInvitationSchema)
   .action(async ({ parsedInput: { teamId, email, role }, ctx }) => {
     const { userId } = ctx;
 
@@ -412,7 +412,7 @@ const getTeamInvitationsSchema = z.object({
 });
 
 export const getTeamInvitations = authAction
-  .inputSchema(getTeamInvitationsSchema)
+  .schema(getTeamInvitationsSchema)
   .action(async ({ parsedInput: { teamId }, ctx }) => {
     const { userId } = ctx;
 
@@ -460,7 +460,7 @@ const cancelTeamInvitationSchema = z.object({
 });
 
 export const cancelTeamInvitation = authAction
-  .inputSchema(cancelTeamInvitationSchema)
+  .schema(cancelTeamInvitationSchema)
   .action(async ({ parsedInput: { invitationId }, ctx }) => {
     const { userId } = ctx;
 

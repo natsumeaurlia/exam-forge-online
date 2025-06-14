@@ -43,7 +43,7 @@ async function getUserActiveTeam(userId: string): Promise<string> {
 
 // タグ作成
 export const createTag = authAction
-  .inputSchema(createTagSchema)
+  .schema(createTagSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -67,7 +67,7 @@ export const createTag = authAction
 
 // タグ更新
 export const updateTag = authAction
-  .inputSchema(updateTagSchema)
+  .schema(updateTagSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -107,7 +107,7 @@ export const updateTag = authAction
 
 // タグ削除
 export const deleteTag = authAction
-  .inputSchema(deleteTagSchema)
+  .schema(deleteTagSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -144,7 +144,7 @@ export const deleteTag = authAction
 
 // クイズにタグを追加
 export const addTagToQuiz = authAction
-  .inputSchema(addTagToQuizSchema)
+  .schema(addTagToQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -184,7 +184,7 @@ export const addTagToQuiz = authAction
 
 // クイズからタグを削除
 export const removeTagFromQuiz = authAction
-  .inputSchema(removeTagFromQuizSchema)
+  .schema(removeTagFromQuizSchema)
   .action(async ({ parsedInput: data, ctx }) => {
     const { userId } = ctx;
 
@@ -224,7 +224,7 @@ export const removeTagFromQuiz = authAction
 
 // タグ一覧取得
 export const getTags = authAction
-  .inputSchema(getTagsSchema)
+  .schema(getTagsSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 

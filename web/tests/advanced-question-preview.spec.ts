@@ -55,7 +55,7 @@ test.describe('Advanced Question Type Preview', () => {
       // Check for hot spot indicators
       await expect(
         page.locator('[data-testid="hotspot-indicator"]')
-      ).toHaveCount({ min: 1 });
+      ).toHaveCount(1);
 
       // Check hot spot numbers
       await expect(page.getByText('1')).toBeVisible();
@@ -109,7 +109,7 @@ test.describe('Advanced Question Type Preview', () => {
       // Hot spots should be visible again
       await expect(
         page.locator('[data-testid="hotspot-indicator"]')
-      ).toHaveCount({ min: 1 });
+      ).toHaveCount(1);
     });
   });
 
@@ -127,12 +127,8 @@ test.describe('Advanced Question Type Preview', () => {
       await expect(page.getByText(/right column/i)).toBeVisible();
 
       // Check for matching items
-      await expect(page.locator('[data-testid="left-item"]')).toHaveCount({
-        min: 1,
-      });
-      await expect(page.locator('[data-testid="right-item"]')).toHaveCount({
-        min: 1,
-      });
+      await expect(page.locator('[data-testid="left-item"]')).toHaveCount(2);
+      await expect(page.locator('[data-testid="right-item"]')).toHaveCount(2);
     });
 
     test('should handle drag and drop matching', async ({ page }) => {
@@ -209,9 +205,7 @@ test.describe('Advanced Question Type Preview', () => {
         .nth(1);
 
       // The already connected option should be disabled or marked as taken
-      await expect(secondDropdown.locator('option:disabled')).toHaveCount({
-        min: 1,
-      });
+      await expect(secondDropdown.locator('option:disabled')).toHaveCount(1);
     });
 
     test('should show completion status', async ({ page }) => {
@@ -243,14 +237,10 @@ test.describe('Advanced Question Type Preview', () => {
 
     test('should display sortable items', async ({ page }) => {
       // Check for sortable items
-      await expect(page.locator('[data-testid="sorting-item"]')).toHaveCount({
-        min: 2,
-      });
+      await expect(page.locator('[data-testid="sorting-item"]')).toHaveCount(2);
 
       // Check for drag handles
-      await expect(page.locator('[data-testid="drag-handle"]')).toHaveCount({
-        min: 2,
-      });
+      await expect(page.locator('[data-testid="drag-handle"]')).toHaveCount(2);
     });
 
     test('should handle drag and drop sorting', async ({ page }) => {

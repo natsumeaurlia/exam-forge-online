@@ -11,10 +11,10 @@ export default async function VerifyPage({ params }: VerifyPageProps) {
   const result = await verifyCertificate({ code });
 
   if (
-    result.serverError ||
-    !result.data ||
-    !result.data.success ||
-    !result.data.certificate
+    result?.serverError ||
+    !result?.data ||
+    !result?.data?.success ||
+    !result?.data?.certificate
   ) {
     return <div className="p-8 text-center text-red-600">{t('invalid')}</div>;
   }

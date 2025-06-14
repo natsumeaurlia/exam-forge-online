@@ -24,7 +24,7 @@ test.describe('Subscription Management UI', () => {
     await expect(page.getByText(/responses/i)).toBeVisible();
 
     // Verify progress bars are displayed
-    await expect(page.locator('[role="progressbar"]')).toHaveCount({ min: 1 });
+    await expect(page.locator('[role="progressbar"]')).toHaveCount(1);
   });
 
   test('should show usage alerts when near limits', async ({ page }) => {

@@ -99,11 +99,8 @@ export function PlanChangeModal({
 
     setIsProcessing(true);
     try {
-      if (newPlan === 'FREE') {
-        // Handle downgrade - redirect to Stripe portal for cancellation
-        window.location.href = '/api/stripe/portal';
-        return;
-      }
+      // Note: FREE plan handling should be done via Stripe portal
+      // This function only handles PRO and PREMIUM upgrades
 
       // Create checkout session for upgrade
       const result = await createCheckoutSession({
@@ -303,7 +300,9 @@ export function PlanChangeModal({
                 onClick={() =>
                   handlePlanChange(selectedPlan as 'PRO' | 'PREMIUM')
                 }
-                disabled={isProcessing || wouldExceedLimits(selectedPlan)}
+                disabled={
+                  isProcessing || Boolean(wouldExceedLimits(selectedPlan))
+                }
               >
                 {isProcessing && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

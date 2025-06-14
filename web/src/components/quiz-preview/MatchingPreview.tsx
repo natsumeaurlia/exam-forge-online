@@ -295,10 +295,10 @@ export function MatchingPreview({
                       <option
                         key={rightItem.id}
                         value={rightItem.id}
-                        disabled={
+                        disabled={Boolean(
                           getConnectionForRight(rightItem.id) &&
-                          getConnectionForRight(rightItem.id) !== leftItem.id
-                        }
+                            getConnectionForRight(rightItem.id) !== leftItem.id
+                        )}
                       >
                         {rightItem.text}
                         {getConnectionForRight(rightItem.id) &&

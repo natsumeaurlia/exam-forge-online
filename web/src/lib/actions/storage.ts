@@ -11,7 +11,7 @@ import { getUserStorageData } from './helpers';
 const getUserStorageSchema = z.object({});
 
 export const getUserStorage = authAction
-  .inputSchema(getUserStorageSchema)
+  .schema(getUserStorageSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -27,7 +27,7 @@ export const getUserStorage = authAction
 
 // Update user storage usage
 export const updateStorageUsage = authAction
-  .inputSchema(
+  .schema(
     z.object({
       bytesChange: z.number(), // Positive for addition, negative for deletion
     })
@@ -76,7 +76,7 @@ const deleteUserFileSchema = z.object({
 });
 
 export const deleteUserFile = authAction
-  .inputSchema(deleteUserFileSchema)
+  .schema(deleteUserFileSchema)
   .action(async ({ parsedInput: { fileId }, ctx }) => {
     const { userId } = ctx;
 
@@ -128,7 +128,7 @@ export const deleteUserFile = authAction
 const getUserStorageWithDetailsSchema = z.object({});
 
 export const getUserStorageWithDetails = authAction
-  .inputSchema(getUserStorageWithDetailsSchema)
+  .schema(getUserStorageWithDetailsSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 

@@ -38,7 +38,7 @@ export interface TeamUsageData {
  * Get real-time usage data for a team
  */
 export const getTeamUsage = authAction
-  .inputSchema(getTeamUsageSchema)
+  .schema(getTeamUsageSchema)
   .action(async ({ parsedInput: { teamId }, ctx }) => {
     const { userId } = ctx;
 
@@ -253,6 +253,6 @@ export const getCurrentUserTeamUsage = authAction.action(async ({ ctx }) => {
     teamName: activeTeamMember.team.name,
     planType: activeTeamMember.team.subscription?.plan.type || 'FREE',
     subscription: activeTeamMember.team.subscription,
-    usage: usageData.data,
+    usage: usageData?.data,
   };
 });

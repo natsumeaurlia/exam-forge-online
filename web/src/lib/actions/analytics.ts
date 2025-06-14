@@ -73,7 +73,7 @@ const getQuizAnalyticsSchema = z.object({
 });
 
 export const getQuizAnalytics = authAction
-  .inputSchema(getQuizAnalyticsSchema)
+  .schema(getQuizAnalyticsSchema)
   .action(async ({ parsedInput: { quizId, range }, ctx }) => {
     const { userId } = ctx;
 
@@ -199,7 +199,7 @@ export const getQuizAnalytics = authAction
 const getDashboardStatsSchema = z.object({});
 
 export const getDashboardStats = authAction
-  .inputSchema(getDashboardStatsSchema)
+  .schema(getDashboardStatsSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -325,7 +325,7 @@ const getRecentActivitiesSchema = z.object({
 });
 
 export const getRecentActivities = authAction
-  .inputSchema(getRecentActivitiesSchema)
+  .schema(getRecentActivitiesSchema)
   .action(async ({ parsedInput: { limit }, ctx }) => {
     const { userId } = ctx;
 
@@ -456,7 +456,7 @@ const getRecentQuizzesSchema = z.object({
 });
 
 export const getRecentQuizzes = authAction
-  .inputSchema(getRecentQuizzesSchema)
+  .schema(getRecentQuizzesSchema)
   .action(async ({ parsedInput: { limit }, ctx }) => {
     const { userId } = ctx;
 
@@ -506,7 +506,7 @@ export const getRecentQuizzes = authAction
 const getUsageDataSchema = z.object({});
 
 export const getUsageData = authAction
-  .inputSchema(getUsageDataSchema)
+  .schema(getUsageDataSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -685,7 +685,7 @@ const getTeamAnalyticsSchema = z.object({
 });
 
 export const getTeamAnalytics = authAction
-  .inputSchema(getTeamAnalyticsSchema)
+  .schema(getTeamAnalyticsSchema)
   .action(async ({ parsedInput: { range }, ctx }) => {
     const { userId } = ctx;
 
