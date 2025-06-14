@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { QuizAnswer, AnswerRecord } from '@/types/quiz-answers';
 
 interface UseQuizTakingProps {
   totalQuestions: number;
@@ -12,7 +13,7 @@ export function useQuizTaking({
   onTimeUp,
 }: UseQuizTakingProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answers, setAnswers] = useState<AnswerRecord>({});
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
 
@@ -42,7 +43,7 @@ export function useQuizTaking({
     }
   }, [timeLimit]);
 
-  const setAnswer = useCallback((questionId: string, answer: any) => {
+  const setAnswer = useCallback((questionId: string, answer: QuizAnswer) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer,

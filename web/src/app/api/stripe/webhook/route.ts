@@ -9,6 +9,10 @@ import {
   handleInvoicePaid,
   handleInvoicePaymentFailed,
 } from '@/lib/stripe/webhook-handlers';
+import {
+  SubscriptionWithExpandedData,
+  InvoiceWithTaxInfo,
+} from '@/types/stripe';
 
 // Initialize Stripe only if the API key is available
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
@@ -62,24 +66,28 @@ export async function POST(request: NextRequest) {
         case 'customer.subscription.created':
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
-          await handleSubscriptionUpdate(subscription);
+          await handleSubscriptionUpdate(
+            subscription as SubscriptionWithExpandedData
+          );
           break;
         }
 
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
-          await handleSubscriptionDeleted(subscription);
+          await handleSubscriptionDeleted(
+            subscription as SubscriptionWithExpandedData
+          );
           break;
         }
 
         case 'invoice.paid': {
-          const invoice = event.data.object as Stripe.Invoice;
+          const invoice = event.data.object as InvoiceWithTaxInfo;
           await handleInvoicePaid(invoice);
           break;
         }
 
         case 'invoice.payment_failed': {
-          const invoice = event.data.object as Stripe.Invoice;
+          const invoice = event.data.object as InvoiceWithTaxInfo;
           await handleInvoicePaymentFailed(invoice);
           break;
         }

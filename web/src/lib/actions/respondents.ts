@@ -4,6 +4,12 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import type { User, QuizResponse, Quiz } from '@prisma/client';
+
+type QuizResponseWithUserAndQuiz = QuizResponse & {
+  user: User | null;
+  quiz: Pick<Quiz, 'title'>;
+};
 
 const getRespondentsSchema = z.object({
   teamId: z.string(),
@@ -95,8 +101,8 @@ export async function getRespondents(
     const userStatsMap = new Map<
       string,
       {
-        user: any;
-        responses: any[];
+        user: User;
+        responses: QuizResponseWithUserAndQuiz[];
         lastActivity: Date | null;
       }
     >();
@@ -155,8 +161,8 @@ export async function getRespondents(
 
       allRespondents.push({
         id: user.id,
-        name: user.name,
-        email: user.email,
+        name: user.name || '',
+        email: user.email || '',
         image: user.image,
         quizzesCompleted: completedResponses.length,
         averageScore,

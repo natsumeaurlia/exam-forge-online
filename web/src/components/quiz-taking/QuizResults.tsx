@@ -8,12 +8,13 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle, Clock, Award } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
 import { getQuizResponse } from '@/lib/actions/quiz-response';
+import { QuizAnswer } from '@/types/quiz-answers';
 import type { Quiz } from '@prisma/client';
 
 interface QuizResultsProps {
   quiz: Quiz;
   responseId: string;
-  answers: Record<string, any>;
+  answers: Record<string, { questionId: string; answer: QuizAnswer }>;
   timeSpent: number;
   lng: string;
 }

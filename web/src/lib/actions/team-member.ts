@@ -337,7 +337,11 @@ export const updateTeam = authAction
       throw new Error('Insufficient permissions');
     }
 
-    const updateData: any = {};
+    const updateData: Partial<{
+      name: string;
+      description: string;
+      logo: string;
+    }> = {};
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (logo !== undefined) updateData.logo = logo;

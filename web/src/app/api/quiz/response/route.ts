@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { QuizAnswer, QuestionWithDetails } from '@/types/quiz-answers';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -35,7 +36,10 @@ const submitQuizResponseSchema = z.object({
 });
 
 // 正解判定ヘルパー関数
-function checkAnswer(question: any, answer: any): boolean {
+function checkAnswer(
+  question: QuestionWithDetails,
+  answer: QuizAnswer
+): boolean {
   if (!question.correctAnswer) return false;
 
   switch (question.type) {
@@ -72,11 +76,16 @@ function checkAnswer(question: any, answer: any): boolean {
       return JSON.stringify(answer) === JSON.stringify(question.correctAnswer);
 
     case 'DIAGRAM':
-      const correct = question.correctAnswer as any;
+      const correct = question.correctAnswer as {
+        x: number;
+        y: number;
+        label: string;
+      };
+      const diagramAnswer = answer as { x: number; y: number; label: string };
       return (
-        answer.x === correct.x &&
-        answer.y === correct.y &&
-        answer.label === correct.label
+        diagramAnswer.x === correct.x &&
+        diagramAnswer.y === correct.y &&
+        diagramAnswer.label === correct.label
       );
 
     default:
@@ -170,7 +179,10 @@ export async function POST(request: NextRequest) {
         totalPoints += question.points;
 
         // 正解判定
-        const isCorrect = checkAnswer(question, response.answer);
+        const isCorrect = checkAnswer(
+          question as QuestionWithDetails,
+          response.answer
+        );
         if (isCorrect) {
           totalScore += question.points;
         }
