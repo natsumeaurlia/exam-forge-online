@@ -1,7 +1,5 @@
-'use client';
-
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import {
   FileText,
   Users,
@@ -12,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getDashboardStats } from '@/lib/actions/analytics';
 
 interface StatItem {
   key: string;
@@ -26,39 +25,56 @@ interface StatsCardProps {
   lng: string;
 }
 
-export function StatsCard({ lng }: StatsCardProps) {
-  const t = useTranslations('dashboard.stats');
+export async function StatsCard({ lng }: StatsCardProps) {
+  const t = await getTranslations('dashboard.stats');
 
-  // モックデータ - 実際のプロジェクトではAPIから取得
+  // Fetch real data from database
+  const result = await getDashboardStats({});
+
+  if (!result || !result.data) {
+    // Return empty state or error message
+    return (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="col-span-full">
+          <CardContent className="py-8 text-center text-gray-500">
+            {t('noData')}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const { data } = result;
+
   const stats: StatItem[] = [
     {
       key: 'totalQuizzes',
-      value: 24,
-      change: 12,
+      value: data.totalQuizzes,
+      change: data.percentageChanges.totalQuizzes,
       icon: FileText,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
     },
     {
       key: 'monthlyParticipants',
-      value: 1247,
-      change: 8.5,
+      value: data.monthlyParticipants,
+      change: data.percentageChanges.monthlyParticipants,
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
       key: 'averageScore',
-      value: 87.3,
-      change: -2.1,
+      value: data.averageScore,
+      change: data.percentageChanges.averageScore,
       icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
     {
       key: 'activeQuizzes',
-      value: 8,
-      change: 4,
+      value: data.activeQuizzes,
+      change: data.percentageChanges.activeQuizzes,
       icon: Activity,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -67,7 +83,7 @@ export function StatsCard({ lng }: StatsCardProps) {
 
   const formatValue = (key: string, value: number) => {
     if (key === 'averageScore') {
-      return `${value}%`;
+      return `${value.toFixed(1)}%`;
     }
     if (key === 'monthlyParticipants') {
       return value.toLocaleString();
@@ -80,7 +96,7 @@ export function StatsCard({ lng }: StatsCardProps) {
     return {
       value: Math.abs(change),
       isPositive,
-      text: isPositive ? `+${change}%` : `${change}%`,
+      text: isPositive ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`,
     };
   };
 

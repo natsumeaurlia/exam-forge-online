@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { MediaUpload } from '@/components/common/MediaUpload';
 import { MediaDisplay } from '@/components/common/MediaDisplay';
+import { useAction } from 'next-safe-action/hooks';
 import { getUserStorage, deleteUserFile } from '@/lib/actions/storage';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -60,7 +61,6 @@ interface MediaGalleryProps {
 export function MediaGallery({ lng }: MediaGalleryProps) {
   const t = useTranslations('media');
   const [files, setFiles] = useState<MediaFile[]>([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,38 +72,49 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
   const [selectMode, setSelectMode] = useState(false);
   const [editingImage, setEditingImage] = useState<MediaFile | null>(null);
 
-  const fetchUserMedia = useCallback(async () => {
-    try {
-      setLoading(true);
-      const storage = await getUserStorage();
+  const { execute: executeGetUserStorage, isExecuting: isLoadingStorage } =
+    useAction(getUserStorage, {
+      onSuccess: ({ data }) => {
+        if (data) {
+          setStorageUsage({
+            used: data.storageUsed,
+            total: data.storageLimit,
+          });
 
-      if (!storage.success || !storage.data) {
-        throw new Error(storage.error || 'Failed to get storage data');
-      }
+          // Transform storage files to MediaFile format
+          const mediaFiles: MediaFile[] = data.files.map(file => ({
+            id: file.id,
+            url: file.url,
+            type: file.contentType.startsWith('video/') ? 'video' : 'image',
+            filename: file.filename,
+            size: file.size,
+            uploadedAt: new Date(file.createdAt),
+          }));
 
-      setStorageUsage({
-        used: storage.data.storageUsed,
-        total: storage.data.storageLimit,
-      });
+          setFiles(mediaFiles);
+        }
+      },
+      onError: ({ error }) => {
+        console.error('Failed to fetch media:', error);
+        toast.error(t('errors.fetchFailed'));
+      },
+    });
 
-      // Transform storage files to MediaFile format
-      const mediaFiles: MediaFile[] = storage.data.files.map((file: any) => ({
-        id: file.id,
-        url: file.url,
-        type: file.contentType.startsWith('video/') ? 'video' : 'image',
-        filename: file.filename,
-        size: file.size,
-        uploadedAt: new Date(file.createdAt),
-      }));
+  const { execute: executeDeleteUserFile, isExecuting: isDeletingFile } =
+    useAction(deleteUserFile, {
+      onSuccess: () => {
+        // Refresh media after successful deletion
+        executeGetUserStorage({});
+      },
+      onError: ({ error }) => {
+        console.error('Failed to delete file:', error);
+        toast.error(t('errors.deleteFailed'));
+      },
+    });
 
-      setFiles(mediaFiles);
-    } catch (error) {
-      console.error('Failed to fetch media:', error);
-      toast.error(t('errors.fetchFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const fetchUserMedia = useCallback(() => {
+    executeGetUserStorage({});
+  }, [executeGetUserStorage]);
 
   useEffect(() => {
     fetchUserMedia();
@@ -111,8 +122,10 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
 
   const handleDelete = async (fileIds: string[]) => {
     try {
-      await Promise.all(fileIds.map(id => deleteUserFile(id)));
-      await fetchUserMedia();
+      // Execute delete actions for all files
+      await Promise.all(
+        fileIds.map(id => executeDeleteUserFile({ fileId: id }))
+      );
       setSelectedFiles(new Set());
       toast.success(t('messages.deleteSuccess', { count: fileIds.length }));
     } catch (error) {
@@ -327,7 +340,7 @@ export function MediaGallery({ lng }: MediaGalleryProps) {
       )}
 
       {/* Media Grid/List */}
-      {loading ? (
+      {isLoadingStorage ? (
         <div
           className={cn(
             viewMode === 'grid'

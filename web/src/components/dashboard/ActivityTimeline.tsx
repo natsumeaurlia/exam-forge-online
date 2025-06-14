@@ -1,240 +1,100 @@
-'use client';
-
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import {
   FileText,
-  CheckCircle,
-  UserPlus,
+  Users,
   Edit,
-  Share,
+  Share2,
+  CheckCircle,
   Clock,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-interface ActivityItem {
-  id: string;
-  type:
-    | 'quiz_created'
-    | 'quiz_completed'
-    | 'user_joined'
-    | 'quiz_edited'
-    | 'quiz_shared';
-  title: string;
-  description: string;
-  timestamp: string;
-  user: {
-    name: string;
-    avatar?: string;
-  };
-  metadata?: {
-    quizTitle?: string;
-    score?: number;
-    participants?: number;
-  };
-}
+import { Badge } from '@/components/ui/badge';
+import { getRecentActivities } from '@/lib/actions/analytics';
+import { formatDistanceToNow } from 'date-fns';
+import { ja, enUS } from 'date-fns/locale';
 
 interface ActivityTimelineProps {
   lng: string;
 }
 
-export function ActivityTimeline({ lng }: ActivityTimelineProps) {
-  const t = useTranslations('dashboard.activity');
+export async function ActivityTimeline({ lng }: ActivityTimelineProps) {
+  const t = await getTranslations('dashboard.activity');
 
-  // モックデータ - 実際のプロジェクトではAPIから取得
-  const activities: ActivityItem[] = [
-    {
-      id: '1',
-      type: 'quiz_completed',
-      title: t('types.quizCompleted.title'),
-      description: t('types.quizCompleted.description', {
-        user: '田中太郎',
-        quiz: 'マーケティング基礎',
-      }),
-      timestamp: '2025-06-01T05:30:00Z',
-      user: {
-        name: '田中太郎',
-        avatar: '/placeholder.svg',
-      },
-      metadata: {
-        quizTitle: 'マーケティング基礎',
-        score: 85,
-      },
-    },
-    {
-      id: '2',
-      type: 'quiz_created',
-      title: t('types.quizCreated.title'),
-      description: t('types.quizCreated.description', {
-        quiz: 'JavaScript基礎',
-      }),
-      timestamp: '2025-06-01T04:15:00Z',
-      user: {
-        name: '山田花子',
-        avatar: '/placeholder.svg',
-      },
-      metadata: {
-        quizTitle: 'JavaScript基礎',
-      },
-    },
-    {
-      id: '3',
-      type: 'user_joined',
-      title: t('types.userJoined.title'),
-      description: t('types.userJoined.description', { user: '佐藤次郎' }),
-      timestamp: '2025-06-01T03:45:00Z',
-      user: {
-        name: '佐藤次郎',
-        avatar: '/placeholder.svg',
-      },
-    },
-    {
-      id: '4',
-      type: 'quiz_edited',
-      title: t('types.quizEdited.title'),
-      description: t('types.quizEdited.description', {
-        quiz: 'プロジェクト管理基礎',
-      }),
-      timestamp: '2025-06-01T02:20:00Z',
-      user: {
-        name: '鈴木一郎',
-        avatar: '/placeholder.svg',
-      },
-      metadata: {
-        quizTitle: 'プロジェクト管理基礎',
-      },
-    },
-    {
-      id: '5',
-      type: 'quiz_shared',
-      title: t('types.quizShared.title'),
-      description: t('types.quizShared.description', {
-        quiz: 'データ分析入門',
-      }),
-      timestamp: '2025-06-01T01:10:00Z',
-      user: {
-        name: '高橋美咲',
-        avatar: '/placeholder.svg',
-      },
-      metadata: {
-        quizTitle: 'データ分析入門',
-        participants: 5,
-      },
-    },
-  ];
+  // Fetch real data from database
+  const result = await getRecentActivities({ limit: 8 });
 
-  const getActivityIcon = (type: ActivityItem['type']) => {
-    switch (type) {
-      case 'quiz_created':
-        return <FileText className="h-4 w-4 text-blue-600" />;
-      case 'quiz_completed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'user_joined':
-        return <UserPlus className="h-4 w-4 text-purple-600" />;
-      case 'quiz_edited':
-        return <Edit className="h-4 w-4 text-orange-600" />;
-      case 'quiz_shared':
-        return <Share className="h-4 w-4 text-indigo-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
-    }
+  if (!result || !result.data || result.data.length === 0) {
+    return (
+      <Card className="col-span-full lg:col-span-5">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="py-8 text-center text-gray-500">{t('noActivity')}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const activities = result.data;
+  const locale = lng === 'ja' ? ja : enUS;
+
+  const getActivityIcon = (type: string) => {
+    const icons = {
+      quiz_completed: CheckCircle,
+      quiz_created: FileText,
+      user_joined: Users,
+      quiz_edited: Edit,
+      quiz_shared: Share2,
+    };
+    return icons[type as keyof typeof icons] || FileText;
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInMinutes = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60)
-    );
-
-    if (diffInMinutes < 60) {
-      return t('timeAgo.minutes', { minutes: diffInMinutes });
-    } else if (diffInMinutes < 1440) {
-      return t('timeAgo.hours', { hours: Math.floor(diffInMinutes / 60) });
-    } else {
-      return date.toLocaleDateString(lng === 'ja' ? 'ja-JP' : 'en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
+  const getActivityColor = (type: string) => {
+    const colors = {
+      quiz_completed: 'text-green-600 bg-green-50',
+      quiz_created: 'text-blue-600 bg-blue-50',
+      user_joined: 'text-purple-600 bg-purple-50',
+      quiz_edited: 'text-orange-600 bg-orange-50',
+      quiz_shared: 'text-pink-600 bg-pink-50',
+    };
+    return colors[type as keyof typeof colors] || 'text-gray-600 bg-gray-50';
   };
 
   return (
-    <Card>
+    <Card className="col-span-full lg:col-span-5">
       <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
+        <CardTitle className="text-lg font-semibold">{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activities.map((activity, index) => (
-            <div key={activity.id} className="flex items-start space-x-3">
-              {/* アイコンとタイムライン */}
-              <div className="flex flex-col items-center">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
-                  {getActivityIcon(activity.type)}
-                </div>
-                {index < activities.length - 1 && (
-                  <div className="mt-2 h-8 w-px bg-gray-200" />
-                )}
-              </div>
+          {activities.map((activity, index) => {
+            const Icon = getActivityIcon(activity.type);
+            const colorClass = getActivityColor(activity.type);
 
-              {/* コンテンツ */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
+            return (
+              <div key={activity.id} className="flex items-start space-x-3">
+                <div className={`rounded-lg p-2 ${colorClass.split(' ')[1]}`}>
+                  <Icon className={`h-4 w-4 ${colorClass.split(' ')[0]}`} />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium text-gray-900">
+                    {activity.title}
+                  </p>
                   <div className="flex items-center space-x-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage
-                        src={activity.user.avatar}
-                        alt={activity.user.name}
-                      />
-                      <AvatarFallback className="text-xs">
-                        {activity.user.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-gray-900">
-                      {activity.user.name}
+                    <Clock className="h-3 w-3 text-gray-400" />
+                    <span className="text-xs text-gray-500">
+                      {formatDistanceToNow(activity.timestamp, {
+                        addSuffix: true,
+                        locale,
+                      })}
                     </span>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {formatTimestamp(activity.timestamp)}
-                  </span>
                 </div>
-
-                <p className="mt-1 text-sm text-gray-600">
-                  {activity.description}
-                </p>
-
-                {/* メタデータ */}
-                {activity.metadata && (
-                  <div className="mt-2 text-xs text-gray-500">
-                    {activity.metadata.score && (
-                      <span>
-                        {t('metadata.score', {
-                          score: activity.metadata.score,
-                        })}
-                      </span>
-                    )}
-                    {activity.metadata.participants && (
-                      <span>
-                        {t('metadata.participants', {
-                          participants: activity.metadata.participants,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 text-center">
-          <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
-            {t('viewAll')}
-          </button>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

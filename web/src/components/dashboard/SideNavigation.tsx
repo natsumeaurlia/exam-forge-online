@@ -75,14 +75,14 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       label: t('navigation.media'),
     },
     {
-      href: `/${lng}/dashboard/members`,
+      href: `/${lng}/dashboard/team/members`,
       icon: Users,
       label: t('navigation.members'),
     },
     {
-      href: `/${lng}/dashboard/settings`,
+      href: `/${lng}/dashboard/team/settings`,
       icon: Settings,
-      label: t('navigation.settings'),
+      label: t('navigation.teamSettings'),
     },
   ];
 
