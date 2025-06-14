@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { GripVertical } from 'lucide-react';
 import type { Question, QuestionOption } from '@prisma/client';
+import { DiagramPreview } from './DiagramPreview';
+import { MatchingPreview } from './MatchingPreview';
 
 interface QuestionContentRendererProps {
   question: Question & { options: QuestionOption[] };
@@ -199,69 +201,21 @@ export function QuestionContentRenderer({
       );
 
     case 'MATCHING':
-      const matchingAnswer = (currentAnswer as Record<string, string>) || {};
-      const leftItems = question.options.filter((_, index) => index % 2 === 0);
-      const rightItems = question.options.filter((_, index) => index % 2 === 1);
-
       return (
-        <div className="space-y-4">
-          {leftItems.map(leftItem => (
-            <div key={leftItem.id} className="flex items-center gap-4">
-              <div className="bg-card flex-1 rounded-lg border p-3">
-                {leftItem.text}
-              </div>
-              <select
-                value={matchingAnswer[leftItem.id] || ''}
-                onChange={e => {
-                  const newAnswer = { ...matchingAnswer };
-                  if (e.target.value) {
-                    newAnswer[leftItem.id] = e.target.value;
-                  } else {
-                    delete newAnswer[leftItem.id];
-                  }
-                  onAnswerChange(newAnswer);
-                }}
-                className="bg-background w-48 rounded-lg border p-2"
-              >
-                <option value="">{t('selectMatch')}</option>
-                {rightItems.map(rightItem => (
-                  <option key={rightItem.id} value={rightItem.id}>
-                    {rightItem.text}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
+        <MatchingPreview
+          question={question}
+          currentAnswer={currentAnswer}
+          onAnswerChange={onAnswerChange}
+        />
       );
 
     case 'DIAGRAM':
-      // For diagram questions, we'll show clickable areas or input fields based on the question setup
-      const diagramAnswer = (currentAnswer as Record<string, string>) || {};
-
       return (
-        <div className="space-y-4">
-          <p className="text-muted-foreground text-sm">
-            {t('diagramInstructions')}
-          </p>
-          {question.options.map((option, index) => (
-            <div key={option.id} className="flex items-center gap-2">
-              <span className="text-sm font-medium">
-                {t('label')} {index + 1}:
-              </span>
-              <Input
-                value={diagramAnswer[option.id] || ''}
-                onChange={e => {
-                  const newAnswer = { ...diagramAnswer };
-                  newAnswer[option.id] = e.target.value;
-                  onAnswerChange(newAnswer);
-                }}
-                placeholder={option.text || t('enterLabel')}
-                className="flex-1"
-              />
-            </div>
-          ))}
-        </div>
+        <DiagramPreview
+          question={question}
+          currentAnswer={currentAnswer}
+          onAnswerChange={onAnswerChange}
+        />
       );
 
     default:
