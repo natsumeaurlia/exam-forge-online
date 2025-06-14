@@ -46,14 +46,14 @@ test.describe('Team Analytics Dashboard', () => {
         questions: {
           create: [
             {
-              type: 'SINGLE_CHOICE',
+              type: 'SINGLE_SELECT',
               text: 'What is 2+2?',
               points: 10,
               options: {
                 create: [
-                  { text: '3', isCorrect: false },
-                  { text: '4', isCorrect: true },
-                  { text: '5', isCorrect: false },
+                  { text: '3', isCorrect: false, order: 1 },
+                  { text: '4', isCorrect: true, order: 2 },
+                  { text: '5', isCorrect: false, order: 3 },
                 ],
               },
             },
@@ -63,8 +63,8 @@ test.describe('Team Analytics Dashboard', () => {
               points: 10,
               options: {
                 create: [
-                  { text: 'True', isCorrect: true },
-                  { text: 'False', isCorrect: false },
+                  { text: 'True', isCorrect: true, order: 1 },
+                  { text: 'False', isCorrect: false, order: 2 },
                 ],
               },
             },
