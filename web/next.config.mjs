@@ -29,16 +29,16 @@ const sentryWebpackPluginOptions = {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
-  
+
   // Suppress source maps upload in development
   silent: true,
-  
+
   // Upload source maps in production only
   hideSourceMaps: process.env.NODE_ENV === 'production',
-  
-  // Disable source maps upload for now (can be enabled later)  
+
+  // Disable source maps upload for now (can be enabled later)
   dryRun: process.env.NODE_ENV !== 'production',
-  
+
   // Suppress warnings in CI
   suppressWarnings: true,
 };
