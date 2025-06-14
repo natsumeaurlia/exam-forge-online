@@ -801,6 +801,18 @@
         }
       }
     },
+    "forgotPassword": {
+      "title": "パスワードをお忘れですか？",
+      "subtitle": "ご登録のメールアドレスにパスワードリセット用のリンクをお送りします。",
+      "description": "パスワードリセット"
+    },
+    "resetPassword": {
+      "title": "パスワードリセット",
+      "subtitle": "新しいパスワードを設定してください。",
+      "description": "新しいパスワードの設定",
+      "invalidToken": "無効なトークン",
+      "tokenMissing": "パスワードリセット用のトークンが見つかりません。"
+    },
     "error": {
       "title": "認証エラー",
       "configuration": "認証設定に問題があります。管理者にお問い合わせください。",

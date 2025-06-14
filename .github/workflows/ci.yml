@@ -177,10 +177,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset --schema=web/prisma/schema.prisma
+        run: pnpm --filter web exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec prisma db seed
+        run: pnpm --filter web exec prisma db seed
 
   # ビルドテスト
   build:
@@ -301,10 +301,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: pnpm exec prisma db push --force-reset --schema=web/prisma/schema.prisma
+        run: pnpm --filter web exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: pnpm exec prisma db seed
+        run: pnpm --filter web exec prisma db seed
 
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
