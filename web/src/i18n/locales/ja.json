@@ -1138,6 +1138,7 @@
       "questionBank": "問題バンク",
       "templates": "テンプレート",
       "analytics": "レポート & 分析",
+      "usage": "使用量監視",
       "members": "メンバー管理",
       "media": "メディアライブラリ",
       "settings": "設定",
@@ -1317,6 +1318,83 @@
         "filter7d": "過去7日",
         "noDataAvailable": "選択した期間のデータがありません"
       }
+    },
+    "usage": {
+      "title": "使用量監視",
+      "description": "チームの使用量と制限を監視します",
+      "metrics": {
+        "quizzes": "クイズ",
+        "responses": "回答数",
+        "members": "メンバー",
+        "storage": "ストレージ"
+      },
+      "of": "/",
+      "maximum": "上限",
+      "thisMonth": "今月",
+      "unlimited": "無制限",
+      "tabs": {
+        "trends": "使用量トレンド",
+        "detailed": "詳細メトリクス"
+      },
+      "charts": {
+        "weeklyTrend": "週間使用量トレンド",
+        "weeklyDescription": "過去7日間の使用量推移",
+        "monthlyTrend": "月間使用量トレンド",
+        "monthlyDescription": "過去30日間の使用量推移",
+        "noData": "表示するデータがありません"
+      },
+      "resourceTypes": {
+        "quiz": "クイズ",
+        "response": "回答",
+        "member": "メンバー",
+        "storage": "ストレージ"
+      },
+      "units": {
+        "items": "個",
+        "monthly": "月次",
+        "users": "ユーザー"
+      },
+      "status": {
+        "unlimited": "無制限",
+        "critical": "上限超過",
+        "warning": "注意",
+        "normal": "正常"
+      },
+      "teamPlan": {
+        "currentPlan": "現在のプラン",
+        "upgradePrompt": "より多くの機能をご利用ください",
+        "upgrade": "プランをアップグレード"
+      },
+      "plans": {
+        "free": "フリー"
+      },
+      "limits": {
+        "quizzes": "クイズ数",
+        "members": "メンバー数",
+        "responses": "回答数",
+        "storage": "ストレージ"
+      },
+      "detailedUsage": {
+        "title": "詳細使用量",
+        "description": "現在の使用量と制限の詳細表示"
+      },
+      "table": {
+        "resource": "リソース",
+        "current": "現在の使用量",
+        "limit": "制限",
+        "usage": "使用率",
+        "status": "ステータス",
+        "type": "タイプ",
+        "count": "件数",
+        "period": "期間",
+        "timeAgo": "経過時間"
+      },
+      "recentActivity": {
+        "title": "最近のアクティビティ",
+        "description": "過去の使用量アクティビティ",
+        "noData": "最近のアクティビティはありません"
+      },
+      "date": "日付"
     }
   },
   "plans": {

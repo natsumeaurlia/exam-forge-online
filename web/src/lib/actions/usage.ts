@@ -1,5 +1,4 @@
 'use server';
-
 import { authAction } from './auth-action';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';

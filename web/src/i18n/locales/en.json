@@ -1222,6 +1222,7 @@
       "questionBank": "Question Bank",
       "templates": "Templates",
       "analytics": "Reports & Analytics",
+      "usage": "Usage Monitoring",
       "members": "Member Management",
       "media": "Media Library",
       "settings": "Settings",
@@ -1401,6 +1402,83 @@
         "filter7d": "Last 7 Days",
         "noDataAvailable": "No data available for the selected period"
       }
+    },
+    "usage": {
+      "title": "Usage Monitoring",
+      "description": "Monitor your team's usage and limits",
+      "metrics": {
+        "quizzes": "Quizzes",
+        "responses": "Responses",
+        "members": "Members",
+        "storage": "Storage"
+      },
+      "of": "of",
+      "maximum": "maximum",
+      "thisMonth": "this month",
+      "unlimited": "Unlimited",
+      "tabs": {
+        "trends": "Usage Trends",
+        "detailed": "Detailed Metrics"
+      },
+      "charts": {
+        "weeklyTrend": "Weekly Usage Trend",
+        "weeklyDescription": "Usage trend over the past 7 days",
+        "monthlyTrend": "Monthly Usage Trend",
+        "monthlyDescription": "Usage trend over the past 30 days",
+        "noData": "No data to display"
+      },
+      "resourceTypes": {
+        "quiz": "Quiz",
+        "response": "Response",
+        "member": "Member",
+        "storage": "Storage"
+      },
+      "units": {
+        "items": "items",
+        "monthly": "monthly",
+        "users": "users"
+      },
+      "status": {
+        "unlimited": "Unlimited",
+        "critical": "Critical",
+        "warning": "Warning",
+        "normal": "Normal"
+      },
+      "teamPlan": {
+        "currentPlan": "Current Plan",
+        "upgradePrompt": "Get access to more features",
+        "upgrade": "Upgrade Plan"
+      },
+      "plans": {
+        "free": "Free"
+      },
+      "limits": {
+        "quizzes": "Quizzes",
+        "members": "Members",
+        "responses": "Responses",
+        "storage": "Storage"
+      },
+      "detailedUsage": {
+        "title": "Detailed Usage",
+        "description": "Detailed view of current usage and limits"
+      },
+      "table": {
+        "resource": "Resource",
+        "current": "Current Usage",
+        "limit": "Limit",
+        "usage": "Usage",
+        "status": "Status",
+        "type": "Type",
+        "count": "Count",
+        "period": "Period",
+        "timeAgo": "Time Ago"
+      },
+      "recentActivity": {
+        "title": "Recent Activity",
+        "description": "Recent usage activity history",
+        "noData": "No recent activity"
+      },
+      "date": "Date"
     }
   },
   "plans": {
