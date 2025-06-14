@@ -122,6 +122,15 @@ export const Footer = async ({ lng }: FooterProps) => {
               <ul className="space-y-2" data-testid="footer-resources-list">
                 <li>
                   <a
+                    href={`/${lng}/help`}
+                    className="hover:text-examforge-blue text-sm text-gray-600"
+                    data-testid="footer-help-link"
+                  >
+                    {lng === 'ja' ? 'ヘルプ' : 'Help'}
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="#"
                     className="hover:text-examforge-blue text-sm text-gray-600"
                     data-testid="footer-support-link"
