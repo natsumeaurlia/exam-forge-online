@@ -53,41 +53,43 @@ const resetFeatureUsageSchema = z.object({
 /**
  * Admin-only: Create a new feature definition
  */
-export const createFeature = action(createFeatureSchema, async input => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
+export const createFeature = action
+  .schema(createFeatureSchema)
+  .action(async input => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
 
-  // Check if user is admin (you may want to add admin role check here)
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      teamMemberships: {
-        where: { role: 'OWNER' },
-        include: { team: true },
+    // Check if user is admin (you may want to add admin role check here)
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        teamMemberships: {
+          where: { role: 'OWNER' },
+          include: { team: true },
+        },
       },
-    },
+    });
+
+    if (!user || user.teamMemberships.length === 0) {
+      throw new Error('Admin access required');
+    }
+
+    const feature = await prisma.feature.create({
+      data: input,
+    });
+
+    revalidatePath('/admin/features');
+    return { feature };
   });
-
-  if (!user || user.teamMemberships.length === 0) {
-    throw new Error('Admin access required');
-  }
-
-  const feature = await prisma.feature.create({
-    data: input,
-  });
-
-  revalidatePath('/admin/features');
-  return { feature };
-});
 
 /**
  * Admin-only: Update plan feature configuration
  */
-export const updatePlanFeature = action(
-  updatePlanFeatureSchema,
-  async ({ planId, featureId, isEnabled, limit, metadata }) => {
+export const updatePlanFeature = action
+  .schema(updatePlanFeatureSchema)
+  .action(async ({ planId, featureId, isEnabled, limit, metadata }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -134,15 +136,14 @@ export const updatePlanFeature = action(
 
     revalidatePath('/admin/plans');
     return { planFeature };
-  }
-);
+  });
 
 /**
  * Admin-only: Bulk update plan features
  */
-export const bulkUpdatePlanFeatures = action(
-  bulkUpdatePlanFeaturesSchema,
-  async ({ planId, features }) => {
+export const bulkUpdatePlanFeatures = action
+  .schema(bulkUpdatePlanFeaturesSchema)
+  .action(async ({ planId, features }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -190,15 +191,14 @@ export const bulkUpdatePlanFeatures = action(
 
     revalidatePath('/admin/plans');
     return { updatedFeatures: results };
-  }
-);
+  });
 
 /**
  * Admin-only: Reset feature usage for a team
  */
-export const resetFeatureUsage = action(
-  resetFeatureUsageSchema,
-  async ({ teamId, featureType, month }) => {
+export const resetFeatureUsage = action
+  .schema(resetFeatureUsageSchema)
+  .action(async ({ teamId, featureType, month }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -241,8 +241,7 @@ export const resetFeatureUsage = action(
 
     revalidatePath('/admin/usage');
     return { success: true };
-  }
-);
+  });
 
 /**
  * Get all features with plan associations
