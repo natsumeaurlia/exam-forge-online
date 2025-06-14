@@ -3,9 +3,11 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-});
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-05-28.basil',
+    })
+  : null;
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     // If there's a Stripe subscription, get updated info
     let stripeSubscription: any = null;
-    if (subscription.stripeSubscriptionId) {
+    if (subscription.stripeSubscriptionId && stripe) {
       try {
         stripeSubscription = await stripe.subscriptions.retrieve(
           subscription.stripeSubscriptionId

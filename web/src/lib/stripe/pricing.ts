@@ -97,7 +97,12 @@ export async function handleTeamMemberChange(
   }
 
   // Initialize Stripe
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.warn('STRIPE_SECRET_KEY not available, skipping subscription sync');
+    return;
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2025-05-28.basil',
   });
 
@@ -136,11 +141,12 @@ export function getStripeConfig() {
   const env = process.env.NODE_ENV || 'development';
 
   return {
-    apiKey: process.env.STRIPE_SECRET_KEY!,
-    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY!,
+    apiKey: process.env.STRIPE_SECRET_KEY || '',
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
     webhookSecret:
       process.env[`STRIPE_WEBHOOK_SECRET_${env.toUpperCase()}`] ||
-      process.env.STRIPE_WEBHOOK_SECRET!,
-    portalConfigurationId: process.env.STRIPE_PORTAL_CONFIGURATION_ID,
+      process.env.STRIPE_WEBHOOK_SECRET ||
+      '',
+    portalConfigurationId: process.env.STRIPE_PORTAL_CONFIGURATION_ID || '',
   };
 }
