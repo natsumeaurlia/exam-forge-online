@@ -1789,6 +1789,77 @@
       "saving": "Saving..."
     }
   },
+  "respondents": {
+    "pageTitle": "Respondent Management",
+    "pageDescription": "Manage quiz participants and analyze performance",
+    "title": "Respondent Management",
+    "description": "View and manage users who have taken your quizzes, analyze their performance and activity",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "actions": {
+      "export": "Export",
+      "invite": "Invite",
+      "sendEmail": "Send Email",
+      "bulkActions": "Bulk Actions"
+    },
+    "stats": {
+      "totalRespondents": "Total Respondents",
+      "active": "Active",
+      "avgScore": "Average Score",
+      "avgScoreDescription": "Average performance across all respondents",
+      "totalQuizzes": "Total Quiz Attempts",
+      "totalQuizzesDescription": "Total number of quiz completions",
+      "totalPoints": "Total Points Earned",
+      "totalPointsDescription": "Total points earned by all respondents"
+    },
+    "search": {
+      "placeholder": "Search by name or email..."
+    },
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "selected": "selected",
+    "table": {
+      "title": "Respondent List",
+      "description": "All users who have taken quizzes",
+      "selectAll": "Select All",
+      "quizzes": "Quizzes",
+      "avgScore": "Avg Score",
+      "points": "Points"
+    },
+    "details": {
+      "title": "Respondent Details",
+      "description": "Detailed performance and activity history",
+      "tabs": {
+        "overview": "Overview",
+        "quizzes": "Quiz History",
+        "activity": "Activity Log"
+      },
+      "info": {
+        "basic": "Basic Information",
+        "email": "Email Address",
+        "joined": "Joined",
+        "status": "Status",
+        "performance": "Performance",
+        "completed": "Completed Quizzes",
+        "avgScore": "Average Score",
+        "totalPoints": "Total Points",
+        "tags": "Tags"
+      },
+      "activityPlaceholder": "Activity log will be implemented in future updates"
+    },
+    "empty": {
+      "title": "No Respondents",
+      "description": "No users have taken quizzes yet",
+      "action": "Invite Users"
+    }
+  },
   "team": {
     "title": "Team Management",
     "description": "Manage your teams and members",
