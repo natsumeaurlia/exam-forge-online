@@ -29,10 +29,6 @@ export interface QuizErrorInfo extends ErrorInfo {
   maxRetries?: number;
   requiresAuth?: boolean;
   userActionRequired?: string;
-  severity?: 'error' | 'warning' | 'info';
-  code?: string;
-  technicalMessage?: string;
-  timestamp?: string;
 }
 
 /**
@@ -47,18 +43,15 @@ export function analyzeQuizError(
   }
 ): QuizErrorInfo {
   const baseError = analyzeError(error);
-  const errorMessage = error?.message || error?.toString() || '';
 
   // Default quiz error info
   let quizErrorInfo: QuizErrorInfo = {
     ...baseError,
     quizErrorType: QuizErrorType.SERVER_ERROR,
     retryable: false,
-    severity: 'error',
-    code: 'UNKNOWN_ERROR',
-    technicalMessage: errorMessage,
-    timestamp: new Date().toISOString(),
   };
+
+  const errorMessage = error?.message || error?.toString() || '';
 
   // Quiz-specific error classification
   if (
@@ -315,7 +308,7 @@ export function createQuizErrorResponse(
     userId?: string;
     locale?: string;
   }
-): { success: false; error: any } | { success: true; data: any } {
+) {
   const analyzedError = analyzeQuizError(error, context);
   const errorMessage = getQuizErrorMessage(analyzedError, context?.locale);
 
@@ -323,7 +316,7 @@ export function createQuizErrorResponse(
     success: false,
     error: {
       type: analyzedError.quizErrorType,
-      code: analyzedError.code || 'UNKNOWN_ERROR',
+      code: analyzedError.code,
       message: errorMessage.message,
       title: errorMessage.title,
       actionText: errorMessage.actionText,
@@ -333,8 +326,8 @@ export function createQuizErrorResponse(
       maxRetries: analyzedError.maxRetries,
       requiresAuth: analyzedError.requiresAuth,
       userActionRequired: analyzedError.userActionRequired,
-      technicalMessage: analyzedError.technicalMessage || '',
-      timestamp: analyzedError.timestamp || new Date().toISOString(),
+      technicalMessage: analyzedError.technicalMessage,
+      timestamp: new Date().toISOString(),
     },
   };
 }

@@ -2314,6 +2314,7 @@
       }
     }
   },
+<<<<<<< HEAD
   "questionBank": {
     "title": "問題バンク",
     "description": "チーム内で共有する問題を管理します",
@@ -2338,6 +2339,8 @@
     "noQuestions": "問題が見つかりません",
     "createFirst": "最初の問題を作成しましょう"
   },
+=======
+>>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
   "quiz": {
     "errors": {
       "networkOffline": "オフラインです",
@@ -2360,6 +2363,9 @@
       "timestamp": "発生時刻",
       "recommendedAction": "推奨アクション"
     }
+<<<<<<< HEAD
   }
+=======
+>>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
   }
 }

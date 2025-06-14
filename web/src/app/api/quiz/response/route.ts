@@ -266,8 +266,8 @@ export async function POST(request: NextRequest) {
     // 統一エラーハンドリングを使用
     const errorResponse = createQuizErrorResponse(error, {
       action: 'submit',
-      quizId: undefined,
-      userId: undefined,
+      quizId: data?.quizId,
+      userId: userId || undefined,
     });
 
     // エラータイプに応じたHTTPステータスコード
@@ -348,7 +348,7 @@ export async function GET(request: NextRequest) {
     console.error('Failed to fetch quiz responses:', error);
     const errorResponse = createQuizErrorResponse(error, {
       action: 'load',
-      userId: undefined,
+      userId: session?.user?.id,
     });
     return NextResponse.json(errorResponse, { status: 500 });
   }

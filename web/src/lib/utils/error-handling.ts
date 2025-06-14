@@ -10,6 +10,10 @@ export interface ErrorInfo {
   canRetry: boolean;
   retryDelay?: number;
   action?: string;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  code?: string | number;
+  technicalMessage?: string;
+  timestamp?: string;
 }
 
 export enum ErrorType {
