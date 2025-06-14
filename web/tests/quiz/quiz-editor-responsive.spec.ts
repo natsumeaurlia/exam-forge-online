@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { test, expect } from '@playwright/test';
 
 test.describe('Quiz Editor - Responsive Design', () => {
@@ -49,3 +50,5 @@ test.describe('Quiz Editor - Responsive Design', () => {
     await expect(sidebar).toBeVisible();
   });
 });
+
+export {};

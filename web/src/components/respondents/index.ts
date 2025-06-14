@@ -1,0 +1,1 @@
+export { RespondentManagementContent } from './RespondentManagementContent';

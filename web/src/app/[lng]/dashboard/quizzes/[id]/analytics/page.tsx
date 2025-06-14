@@ -10,10 +10,11 @@ interface AnalyticsPageProps {
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const t = await getTranslations('dashboard.quizzes.analytics');
 
-  const { data, error } = await getQuizAnalytics(params.id);
-  if (error || !data) {
+  const result = await getQuizAnalytics({ quizId: params.id });
+  if (!result || !result.data) {
     notFound();
   }
+  const data = result.data;
 
   return (
     <div className="container mx-auto space-y-8 px-4 py-8">

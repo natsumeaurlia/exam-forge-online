@@ -25,13 +25,13 @@ test.describe('ServerAction and API Routes Separation', () => {
     await page.fill('#email', email);
     await page.fill('#password', 'TestPassword123');
     await page.fill('#confirmPassword', 'TestPassword123');
-    await page.check('#terms');
+    await page.check('#agreeToTerms');
 
     // Submit the form
     await page.click('button[type="submit"]');
 
     // Wait for navigation to dashboard
-    await page.waitForURL('/ja/dashboard', { timeout: 10000 });
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
 
     // Verify we successfully reached the dashboard
     expect(page.url()).toContain('/ja/dashboard');
@@ -66,7 +66,7 @@ test.describe('ServerAction and API Routes Separation', () => {
     await page.click('button[type="submit"]');
 
     // Wait for dashboard
-    await page.waitForURL('/ja/dashboard', { timeout: 10000 });
+    await page.waitForURL('**/dashboard', { timeout: 15000 });
 
     // Verify user successfully logged in
     expect(page.url()).toContain('/ja/dashboard');

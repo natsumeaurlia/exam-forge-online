@@ -32,8 +32,8 @@ test.describe('Authentication Redirect Tests', () => {
     await page.goto('/ja/auth/signin');
 
     // Fill in credentials
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password');
+    await page.fill('#email', 'test@example.com');
+    await page.fill('#password', 'password');
 
     // Click sign in
     await page.click('button[type="submit"]');
@@ -49,8 +49,8 @@ test.describe('Authentication Redirect Tests', () => {
     await page.goto('/ja/auth/signin');
 
     // Fill in wrong credentials
-    await page.fill('input[type="email"]', 'wrong@example.com');
-    await page.fill('input[type="password"]', 'wrongpassword');
+    await page.fill('#email', 'wrong@example.com');
+    await page.fill('#password', 'wrongpassword');
 
     // Click sign in
     await page.click('button[type="submit"]');

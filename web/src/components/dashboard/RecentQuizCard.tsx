@@ -17,9 +17,9 @@ export async function RecentQuizCard({ lng }: RecentQuizCardProps) {
   const t = await getTranslations('dashboard.recentQuizzes');
 
   // Fetch real data from database
-  const result = await getRecentQuizzes(5);
+  const result = await getRecentQuizzes({ limit: 5 });
 
-  if (!result.success || !result.data || result.data.length === 0) {
+  if (!result || !result.data || result.data.length === 0) {
     return (
       <Card className="col-span-full lg:col-span-7">
         <CardHeader className="flex flex-row items-center justify-between">

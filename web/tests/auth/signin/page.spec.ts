@@ -26,11 +26,11 @@ test.describe('サインインページ', () => {
     await page.goto('/ja/auth/signin');
 
     // メールフィールドが表示されているか確認
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.locator('#email');
     await expect(emailInput).toBeVisible();
 
     // パスワードフィールドが表示されているか確認
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.locator('#password');
     await expect(passwordInput).toBeVisible();
 
     // サインインボタンが表示されているか確認
@@ -55,10 +55,10 @@ test.describe('サインインページ', () => {
     await page.goto('/ja/auth/signin');
 
     // フォームに入力
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.locator('#email');
     await emailInput.fill('test@example.com');
 
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.locator('#password');
     await passwordInput.fill('password123');
 
     // 入力値が正しく設定されているか確認
@@ -113,7 +113,7 @@ test.describe('サインインページ', () => {
     await page.goto('/ja/auth/signin');
 
     // パスワード入力フィールドが表示されているか確認
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.locator('#password');
     await expect(passwordInput).toBeVisible();
 
     // パスワードを入力
@@ -125,7 +125,7 @@ test.describe('サインインページ', () => {
     // パスワードトグルボタンを探す（パスワードフィールドの隣にあるボタン）
     const passwordContainer = page
       .locator('div')
-      .filter({ has: page.locator('input[type="password"]') });
+      .filter({ has: page.locator('#password') });
     const toggleButton = passwordContainer
       .locator('button[type="button"]')
       .first();
@@ -143,7 +143,7 @@ test.describe('サインインページ', () => {
     await page.goto('/ja/auth/signin');
 
     // パスワード入力フィールドの存在確認
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.locator('#password');
     await expect(passwordInput).toBeVisible();
 
     // パスワードを入力
@@ -152,7 +152,7 @@ test.describe('サインインページ', () => {
     // パスワードトグルボタンの存在確認
     const passwordContainer = page
       .locator('div')
-      .filter({ has: page.locator('input[type="password"]') });
+      .filter({ has: page.locator('#password') });
     const toggleButton = passwordContainer
       .locator('button[type="button"]')
       .first();
