@@ -96,11 +96,6 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       icon: HelpCircle,
       label: t('navigation.help'),
     },
-    {
-      href: `/${lng}/help`,
-      icon: HelpCircle,
-      label: t('navigation.help'),
-    },
   ];
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -86,11 +86,7 @@ export function QuestionBankContent({ userId, lng }: QuestionBankContentProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
 
-  useEffect(() => {
-    loadQuestions();
-  }, [selectedCategory, selectedDifficulty, selectedType, sortBy]);
-
-  const loadQuestions = async () => {
+  const loadQuestions = useCallback(async () => {
     try {
       setLoading(true);
       const result = await getBankQuestions({
@@ -139,7 +135,18 @@ export function QuestionBankContent({ userId, lng }: QuestionBankContentProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedDifficulty,
+    selectedType,
+    sortBy,
+    t,
+  ]);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions]);
 
   const handleSearch = () => {
     loadQuestions();

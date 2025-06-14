@@ -180,7 +180,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.gettingStarted.description',
       category: 'getting-started',
       icon: Book,
-      link: '#',
+      link: '/help/guides/getting-started',
     },
     {
       id: 'quiz-creation-guide',
@@ -188,7 +188,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.quizCreation.description',
       category: 'quiz-creation',
       icon: Zap,
-      link: '#',
+      link: '/help/guides/quiz-creation',
     },
     {
       id: 'team-setup-guide',
@@ -196,7 +196,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.teamSetup.description',
       category: 'team-management',
       icon: Users,
-      link: '#',
+      link: '/help/guides/team-setup',
     },
     {
       id: 'analytics-guide',
@@ -204,7 +204,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.analytics.description',
       category: 'analytics',
       icon: BarChart3,
-      link: '#',
+      link: '/help/guides/analytics',
     },
     {
       id: 'billing-guide',
@@ -212,7 +212,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.billing.description',
       category: 'billing',
       icon: CreditCard,
-      link: '#',
+      link: '/help/guides/billing',
     },
     {
       id: 'security-guide',
@@ -220,7 +220,7 @@ export const helpData: HelpData = {
       descriptionKey: 'help.guides.security.description',
       category: 'security',
       icon: Shield,
-      link: '#',
+      link: '/help/guides/security',
     },
   ],
   tutorials: [

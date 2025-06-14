@@ -172,7 +172,9 @@ export const getBankQuestions = action
       }
 
       if (categoryId) {
-        where.categoryId = categoryId;
+        where.categories = {
+          some: { categoryId },
+        };
       }
 
       if (difficulty) {

@@ -2316,6 +2316,84 @@
   },
   "questionBank": {
     "title": "問題バンク",
-    "description": "問題ライブラリの管理と整理"
+    "description": "チーム内で共有する問題を管理します",
+    "create": "問題を作成",
+    "import": "問題をインポート",
+    "export": "問題をエクスポート",
+    "categories": "カテゴリ",
+    "tags": "タグ",
+    "difficulty": "難易度",
+    "type": "問題タイプ",
+    "search": {
+      "placeholder": "問題を検索...",
+      "button": "検索"
+    },
+    "filters": {
+      "title": "フィルター",
+      "category": "カテゴリ",
+      "categoryPlaceholder": "カテゴリを選択...",
+      "difficulty": "難易度",
+      "difficultyPlaceholder": "難易度を選択...",
+      "type": "タイプ",
+      "typePlaceholder": "タイプを選択...",
+      "sortBy": "並び替え",
+      "all": "すべて"
+    },
+    "difficulty": {
+      "easy": "簡単",
+      "medium": "普通",
+      "hard": "難しい",
+      "expert": "上級"
+    },
+    "types": {
+      "trueFalse": "正誤問題",
+      "multipleChoice": "選択問題",
+      "checkbox": "複数選択",
+      "shortAnswer": "記述問題"
+    },
+    "sort": {
+      "newest": "新しい順",
+      "oldest": "古い順",
+      "difficulty": "難易度順",
+      "type": "タイプ順"
+    },
+    "results": {
+      "found": "{count}件の問題が見つかりました",
+      "total": "合計{count}件"
+    },
+    "empty": {
+      "title": "問題がありません",
+      "description": "最初の問題を作成して問題バンクを始めましょう。",
+      "createFirst": "最初の問題を作成",
+      "generateWithAI": "AIで生成"
+    },
+    "errors": {
+      "loadFailed": "問題の読み込みに失敗しました"
+    },
+    "actions": {
+      "create": "問題を作成",
+      "generateWithAI": "AIで生成",
+      "edit": "編集",
+      "delete": "削除",
+      "preview": "プレビュー",
+      "addToQuiz": "クイズに追加"
+    },
+    "category": {
+      "create": "カテゴリを作成",
+      "createTitle": "新しいカテゴリを作成",
+      "name": "名前",
+      "namePlaceholder": "カテゴリ名を入力",
+      "description": "説明",
+      "descriptionPlaceholder": "説明を入力（任意）",
+      "color": "色",
+      "cancel": "キャンセル",
+      "creating": "作成中...",
+      "createSuccess": "カテゴリを作成しました",
+      "createError": "カテゴリの作成に失敗しました",
+      "loadError": "カテゴリの読み込みに失敗しました",
+      "validation": {
+        "nameRequired": "カテゴリ名は必須です"
+      }
+    }
   }
 }

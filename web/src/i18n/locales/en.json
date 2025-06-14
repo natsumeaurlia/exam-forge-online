@@ -2406,6 +2406,84 @@
   },
   "questionBank": {
     "title": "Question Bank",
-    "description": "Manage and organize your question library"
+    "description": "Manage questions shared within your team",
+    "create": "Create Question",
+    "import": "Import Questions",
+    "export": "Export Questions",
+    "categories": "Categories",
+    "tags": "Tags",
+    "difficulty": "Difficulty",
+    "type": "Question Type",
+    "search": {
+      "placeholder": "Search questions...",
+      "button": "Search"
+    },
+    "filters": {
+      "title": "Filters",
+      "category": "Category",
+      "categoryPlaceholder": "Select category...",
+      "difficulty": "Difficulty",
+      "difficultyPlaceholder": "Select difficulty...",
+      "type": "Type",
+      "typePlaceholder": "Select type...",
+      "sortBy": "Sort by",
+      "all": "All"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "expert": "Expert"
+    },
+    "types": {
+      "trueFalse": "True/False",
+      "multipleChoice": "Multiple Choice",
+      "checkbox": "Checkbox",
+      "shortAnswer": "Short Answer"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "difficulty": "Difficulty",
+      "type": "Type"
+    },
+    "results": {
+      "found": "{count} questions found",
+      "total": "{count} total"
+    },
+    "empty": {
+      "title": "No questions yet",
+      "description": "Start building your question bank by creating your first question.",
+      "createFirst": "Create First Question",
+      "generateWithAI": "Generate with AI"
+    },
+    "errors": {
+      "loadFailed": "Failed to load questions"
+    },
+    "actions": {
+      "create": "Create Question",
+      "generateWithAI": "Generate with AI",
+      "edit": "Edit",
+      "delete": "Delete",
+      "preview": "Preview",
+      "addToQuiz": "Add to Quiz"
+    },
+    "category": {
+      "create": "Create Category",
+      "createTitle": "Create New Category",
+      "name": "Name",
+      "namePlaceholder": "Enter category name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter description (optional)",
+      "color": "Color",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "createSuccess": "Category created successfully",
+      "createError": "Failed to create category",
+      "loadError": "Failed to load categories",
+      "validation": {
+        "nameRequired": "Category name is required"
+      }
+    }
   }
 }
