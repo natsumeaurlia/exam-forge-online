@@ -52,7 +52,7 @@ export interface TestQuizOptions {
   timeLimit?: number;
   maxAttempts?: number;
   password?: string;
-  sharingMode?: 'URL';
+  sharingMode?: 'PRIVATE' | 'URL' | 'PUBLIC';
 }
 
 export interface TestQuestionOptions {
@@ -133,10 +133,6 @@ export class TestDataFactory {
       name: options.name || `Test Team ${Date.now()}`,
       description: options.description || 'A test team for E2E testing',
       plan: options.plan || 'FREE',
-      slug: `test-team-${Date.now()}`,
-      creator: {
-        connect: { id: options.ownerId || 'default-user-id' },
-      },
     };
 
     const team = await this.prisma.team.create({
@@ -152,6 +148,7 @@ export class TestDataFactory {
           teamId: team.id,
           userId: options.ownerId,
           role: 'OWNER',
+          status: 'ACTIVE',
         },
       });
     }
@@ -162,12 +159,11 @@ export class TestDataFactory {
   /**
    * Create a test quiz with questions
    */
-  async createQuiz(options: TestQuizOptions = {}): Promise<any> {
-    const teamId = options.teamId || (await this.createTeam()).id;
+  async createQuiz(options: TestQuizOptions = {}) {
     const quizData = {
       title: options.title || `Test Quiz ${Date.now()}`,
       description: options.description || 'A test quiz for E2E testing',
-      teamId: teamId,
+      teamId: options.teamId || (await this.createTeam()).id,
       createdById: options.createdById || 'default-user-id',
       status: options.status || 'PUBLISHED',
       passingScore: options.passingScore || null,
@@ -179,7 +175,7 @@ export class TestDataFactory {
     };
 
     const quiz = await this.prisma.quiz.create({
-      data: quizData as any,
+      data: quizData,
     });
 
     this.createdData.quizzes.push(quiz.id);
@@ -204,10 +200,10 @@ export class TestDataFactory {
   /**
    * Create a test question with options
    */
-  async createQuestion(options: TestQuestionOptions = {}): Promise<any> {
+  async createQuestion(options: TestQuestionOptions = {}) {
     const questionType = options.type || 'MULTIPLE_CHOICE';
     const quizId = options.quizId || (await this.createQuiz()).quiz.id;
-    const questionData: any = {
+    const questionData = {
       quizId: quizId,
       type: questionType,
       text: options.text || `Test ${questionType} Question ${Date.now()}`,
@@ -364,6 +360,7 @@ export class TestDataFactory {
           teamId: team.id,
           userId: user.id,
           role: 'MEMBER',
+          status: 'ACTIVE',
         },
       });
 
