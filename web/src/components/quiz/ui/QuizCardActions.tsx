@@ -9,6 +9,7 @@ import {
   Copy,
   BarChart,
   Trash2,
+  Play,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ interface QuizCardActionsProps {
   onCopy: () => void;
   onAnalytics: () => void;
   onDelete: () => void;
+  onTakeQuiz: () => void;
 }
 
 export function QuizCardActions({
@@ -35,6 +37,7 @@ export function QuizCardActions({
   onCopy,
   onAnalytics,
   onDelete,
+  onTakeQuiz,
 }: QuizCardActionsProps) {
   const t = useTranslations('quizManagement.cardActions');
 
@@ -50,6 +53,10 @@ export function QuizCardActions({
         <DropdownMenuItem onClick={onPreview}>
           <Eye className="mr-2 h-4 w-4" />
           {t('preview')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onTakeQuiz}>
+          <Play className="mr-2 h-4 w-4" />
+          {t('takeQuiz')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onEdit}>
           <Edit className="mr-2 h-4 w-4" />
