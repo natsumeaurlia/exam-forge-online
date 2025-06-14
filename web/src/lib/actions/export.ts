@@ -21,7 +21,7 @@ const exportTeamAnalyticsToCSVSchema = z.object({
 });
 
 export const exportTeamAnalyticsToCSV = authAction
-  .inputSchema(exportTeamAnalyticsToCSVSchema)
+  .schema(exportTeamAnalyticsToCSVSchema)
   .action(async ({ parsedInput: { range, language, exportType }, ctx }) => {
     const { userId } = ctx;
 
@@ -290,7 +290,7 @@ export const exportTeamAnalyticsToCSV = authAction
   });
 
 export const exportAnalyticsToCSV = authAction
-  .inputSchema(exportAnalyticsToCSVSchema)
+  .schema(exportAnalyticsToCSVSchema)
   .action(async ({ parsedInput: { quizId, range, language }, ctx }) => {
     const { userId } = ctx;
 

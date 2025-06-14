@@ -11,7 +11,7 @@ import { getUserPlanData } from './helpers';
 const getUserPlanSchema = z.object({});
 
 export const getUserPlan = authAction
-  .inputSchema(getUserPlanSchema)
+  .schema(getUserPlanSchema)
   .action(async ({ ctx }) => {
     const { userId } = ctx;
 
@@ -28,7 +28,7 @@ const checkUserFeatureSchema = z.object({
 });
 
 export const checkUserFeature = authAction
-  .inputSchema(checkUserFeatureSchema)
+  .schema(checkUserFeatureSchema)
   .action(async ({ parsedInput: { featureType }, ctx }) => {
     const { userId } = ctx;
 

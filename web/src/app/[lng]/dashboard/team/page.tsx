@@ -30,7 +30,7 @@ export default async function TeamPage({
   try {
     const teamsResult = await getUserTeams({});
 
-    if (!teamsResult.data?.teams || teamsResult.data.teams.length === 0) {
+    if (!teamsResult?.data?.teams || teamsResult.data.teams.length === 0) {
       // No teams, redirect to dashboard or create team flow
       redirect(`/${lng}/dashboard`);
     }

@@ -2209,5 +2209,63 @@
         "deleteWarning": "Deleting your team will permanently remove all data"
       }
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Manage your notifications",
+    "openNotifications": "Open notifications",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "delete": "Delete",
+    "viewAll": "View all",
+    "empty": "No notifications",
+    "types": {
+      "quiz_completed": "Quiz Completed",
+      "quiz_shared": "Quiz Shared",
+      "team_invitation": "Team Invitation",
+      "team_member_joined": "Member Joined",
+      "subscription_updated": "Subscription Updated",
+      "payment_failed": "Payment Failed",
+      "system_update": "System Update",
+      "certificate_issued": "Certificate Issued",
+      "quiz_published": "Quiz Published",
+      "quiz_response_received": "Response Received",
+      "storage_limit_warning": "Storage Warning",
+      "plan_limit_warning": "Plan Limit Warning"
+    },
+    "preferences": {
+      "title": "Notification Settings",
+      "description": "Configure how and when you receive notifications",
+      "save": "Save",
+      "saving": "Saving...",
+      "saveSuccess": "Notification settings saved",
+      "saveError": "Failed to save settings",
+      "loadError": "Failed to load settings",
+      "delivery": {
+        "title": "Delivery Methods",
+        "email": "Email Notifications",
+        "emailDescription": "Receive important notifications via email",
+        "inApp": "In-App Notifications",
+        "inAppDescription": "Receive real-time notifications within the app"
+      },
+      "categories": {
+        "title": "Notification Categories",
+        "quizCompletion": "Quiz Completion",
+        "quizCompletionDescription": "When participants complete your quizzes",
+        "teamInvitation": "Team Invitations",
+        "teamInvitationDescription": "When you're invited to join a team",
+        "quizShared": "Quiz Sharing",
+        "quizSharedDescription": "When quizzes are shared with you",
+        "systemUpdates": "System Updates",
+        "systemUpdatesDescription": "System updates and maintenance notifications"
+      },
+      "marketing": {
+        "title": "Marketing",
+        "emails": "Marketing Emails",
+        "emailsDescription": "Emails about new features and special offers",
+        "weeklyDigest": "Weekly Digest",
+        "weeklyDigestDescription": "Weekly summary of your activity"
+      }
+    }
   }
 }

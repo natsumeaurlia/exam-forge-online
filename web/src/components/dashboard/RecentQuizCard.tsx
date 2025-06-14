@@ -68,7 +68,7 @@ export async function RecentQuizCard({ lng }: RecentQuizCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {quizzes.map(quiz => (
+          {quizzes.map((quiz: any) => (
             <Link
               key={quiz.id}
               href={`/${lng}/dashboard/quizzes/${quiz.id}/edit`}
