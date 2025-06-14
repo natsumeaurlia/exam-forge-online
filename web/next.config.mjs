@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin();
 
@@ -22,4 +23,24 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Wrap Next.js config with Sentry
+const sentryWebpackPluginOptions = {
+  // Additional config options for the Sentry webpack plugin
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  
+  // Suppress source maps upload in development
+  silent: true,
+  
+  // Upload source maps in production only
+  hideSourceMaps: process.env.NODE_ENV === 'production',
+  
+  // Disable source maps upload for now (can be enabled later)
+  dryRun: process.env.NODE_ENV !== 'production',
+};
+
+export default withSentryConfig(
+  withNextIntl(nextConfig),
+  sentryWebpackPluginOptions
+);
