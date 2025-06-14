@@ -357,7 +357,7 @@ function PlanFeatureMatrix({ plan, features, onToggle, onLimitChange }: any) {
         <div className="space-y-4">
           {Object.values(FeatureCategory).map(category => {
             const categoryFeatures = features.filter(
-              f => f.category === category
+              (f: any) => f.category === category
             );
 
             return (
@@ -367,9 +367,9 @@ function PlanFeatureMatrix({ plan, features, onToggle, onLimitChange }: any) {
                   <Badge variant="outline">{categoryFeatures.length}</Badge>
                 </h4>
                 <div className="grid gap-2 md:grid-cols-2">
-                  {categoryFeatures.map(feature => {
+                  {categoryFeatures.map((feature: any) => {
                     const planFeature = feature.planFeatures.find(
-                      pf => pf.planId === plan.id
+                      (pf: any) => pf.planId === plan.id
                     );
                     const enabled = planFeature?.isEnabled || false;
                     const limit = planFeature?.limit;

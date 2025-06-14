@@ -30,7 +30,7 @@ export function UpgradePrompt({
     featureType,
     teamId
   );
-  const { isPro, isPremium, currentPlan } = useUserPlan();
+  const { isPro, isPremium } = useUserPlan();
   const t = useTranslations('common');
   const router = useRouter();
 
