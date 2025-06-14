@@ -65,14 +65,14 @@ export const createFeature = action
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        teamMemberships: {
+        teamMembers: {
           where: { role: 'OWNER' },
           include: { team: true },
         },
       },
     });
 
-    if (!user || user.teamMemberships.length === 0) {
+    if (!user || user.teamMembers.length === 0) {
       throw new Error('Admin access required');
     }
 
@@ -99,13 +99,13 @@ export const updatePlanFeature = action
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        teamMemberships: {
+        teamMembers: {
           where: { role: 'OWNER' },
         },
       },
     });
 
-    if (!user || user.teamMemberships.length === 0) {
+    if (!user || user.teamMembers.length === 0) {
       throw new Error('Admin access required');
     }
 
@@ -153,13 +153,13 @@ export const bulkUpdatePlanFeatures = action
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        teamMemberships: {
+        teamMembers: {
           where: { role: 'OWNER' },
         },
       },
     });
 
-    if (!user || user.teamMemberships.length === 0) {
+    if (!user || user.teamMembers.length === 0) {
       throw new Error('Admin access required');
     }
 
@@ -208,13 +208,13 @@ export const resetFeatureUsage = action
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        teamMemberships: {
+        teamMembers: {
           where: { role: 'OWNER' },
         },
       },
     });
 
-    if (!user || user.teamMemberships.length === 0) {
+    if (!user || user.teamMembers.length === 0) {
       throw new Error('Admin access required');
     }
 
@@ -375,7 +375,7 @@ export async function generateFeatureUsageReport(
     },
   });
 
-  if (!user || user.teamMemberships.length === 0) {
+  if (!user || user.teamMembers.length === 0) {
     throw new Error('Admin access required');
   }
 
