@@ -72,3 +72,9 @@ export function getQuizEditUrl(lng: string, quizId: string): string {
 export function getQuizAnalyticsUrl(lng: string, quizId: string): string {
   return `/${lng}/dashboard/quizzes/${quizId}/analytics`;
 }
+
+// クイズを受けるURLを生成
+export function getQuizTakeUrl(quizId: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+  return `${baseUrl}/quiz/${quizId}`;
+}

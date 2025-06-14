@@ -96,7 +96,7 @@ export async function handleCheckoutSessionCompleted(
   }
 
   // Retrieve the subscription with retry logic
-  let subscription: Stripe.Subscription | undefined;
+  let subscription: Stripe.Subscription | null = null;
   let retries = 3;
 
   while (retries > 0) {
@@ -137,10 +137,9 @@ export async function handleCheckoutSessionCompleted(
     create: {
       teamId,
       stripeSubscriptionId: subscription.id,
-      stripeCustomerId: (subscription.customer as string) || '',
+      stripeCustomerId: subscription.customer as string,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId:
-        (subscription.items.data[0].price.product as string) || '',
+      stripeProductId: subscription.items.data[0].price.product as string,
       status: mapStripeStatus(subscription.status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
@@ -156,8 +155,7 @@ export async function handleCheckoutSessionCompleted(
     update: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: subscription.items.data[0].price.id,
-      stripeProductId:
-        (subscription.items.data[0].price.product as string) || '',
+      stripeProductId: subscription.items.data[0].price.product as string,
       status: mapStripeStatus(subscription.status),
       billingCycle: billingCycle as any,
       memberCount: teamMemberCount,
@@ -299,7 +297,7 @@ export async function handleInvoicePaid(
       teamId: subscription.teamId,
       stripeInvoiceId: invoice.id || '',
       stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: (invoice.number as string) || invoice.id || '',
+      invoiceNumber: invoice.number || invoice.id || '',
       status: 'PAID',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
@@ -360,8 +358,8 @@ export async function handleInvoicePaymentFailed(
       teamId: subscription.teamId,
       stripeInvoiceId: invoice.id || '',
       stripeCustomerId: (invoice.customer as string) || '',
-      invoiceNumber: (invoice.number as string) || invoice.id || '',
-      status: 'PAYMENT_FAILED' as any,
+      invoiceNumber: invoice.number || invoice.id || '',
+      status: 'UNCOLLECTIBLE',
       subtotal: invoice.subtotal,
       tax: (invoice as any).tax || 0,
       total: invoice.total,

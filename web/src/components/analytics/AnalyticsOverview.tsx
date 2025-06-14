@@ -11,7 +11,20 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useTranslations } from 'next-intl';
-import type { QuizAnalytics } from '@/lib/actions/analytics';
+
+interface TrendPoint {
+  date: string;
+  count: number;
+  averageScore: number;
+}
+
+interface QuizAnalytics {
+  totalResponses: number;
+  averageScore: number;
+  passRate: number;
+  averageTime: number;
+  trend: TrendPoint[];
+}
 
 interface AnalyticsOverviewProps {
   data: QuizAnalytics;

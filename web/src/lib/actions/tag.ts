@@ -2,8 +2,6 @@
 
 import { createSafeActionClient } from 'next-safe-action';
 import { revalidatePath } from 'next/cache';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import {
   createTagSchema,
@@ -13,18 +11,7 @@ import {
   removeTagFromQuizSchema,
   getTagsSchema,
 } from '@/types/quiz-schemas';
-
-// Safe Action クライアントを作成
-const action = createSafeActionClient();
-
-// Helper function to get authenticated user
-async function getAuthenticatedUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new Error('認証が必要です');
-  }
-  return session.user.id;
-}
+import { authAction } from './auth-action';
 
 // Helper function to get user's active team (copied from quiz.ts)
 async function getUserActiveTeam(userId: string): Promise<string> {
@@ -55,10 +42,10 @@ async function getUserActiveTeam(userId: string): Promise<string> {
 }
 
 // タグ作成
-export const createTag = action
-  .schema(createTagSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const createTag = authAction
+  .inputSchema(createTagSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const teamId = await getUserActiveTeam(userId);
@@ -79,32 +66,71 @@ export const createTag = action
   });
 
 // タグ更新
-export const updateTag = action
-  .schema(updateTagSchema)
-  .action(async ({ parsedInput: data }) => {
-    await getAuthenticatedUser();
+export const updateTag = authAction
+  .inputSchema(updateTagSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const { id, ...updateData } = data;
-      const tag = await prisma.tag.update({
+
+      // タグの所有権確認 - ユーザーのチームに属するタグのみ更新可能
+      const tag = await prisma.tag.findFirst({
+        where: {
+          id,
+          team: {
+            members: {
+              some: {
+                userId,
+                role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+              },
+            },
+          },
+        },
+      });
+
+      if (!tag) {
+        throw new Error('タグが見つからないか、編集権限がありません');
+      }
+
+      const updatedTag = await prisma.tag.update({
         where: { id },
         data: updateData,
       });
 
       revalidatePath('/dashboard/quizzes');
-      return { tag };
+      return { tag: updatedTag };
     } catch (error) {
       throw new Error('タグの更新に失敗しました');
     }
   });
 
 // タグ削除
-export const deleteTag = action
-  .schema(deleteTagSchema)
-  .action(async ({ parsedInput: data }) => {
-    await getAuthenticatedUser();
+export const deleteTag = authAction
+  .inputSchema(deleteTagSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
+      // タグの所有権確認 - ユーザーのチームに属するタグのみ削除可能
+      const tag = await prisma.tag.findFirst({
+        where: {
+          id: data.id,
+          team: {
+            members: {
+              some: {
+                userId,
+                role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+              },
+            },
+          },
+        },
+      });
+
+      if (!tag) {
+        throw new Error('タグが見つからないか、削除権限がありません');
+      }
+
       await prisma.tag.delete({
         where: { id: data.id },
       });
@@ -117,10 +143,10 @@ export const deleteTag = action
   });
 
 // クイズにタグを追加
-export const addTagToQuiz = action
-  .schema(addTagToQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const addTagToQuiz = authAction
+  .inputSchema(addTagToQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // クイズの所有者確認
@@ -157,10 +183,10 @@ export const addTagToQuiz = action
   });
 
 // クイズからタグを削除
-export const removeTagFromQuiz = action
-  .schema(removeTagFromQuizSchema)
-  .action(async ({ parsedInput: data }) => {
-    const userId = await getAuthenticatedUser();
+export const removeTagFromQuiz = authAction
+  .inputSchema(removeTagFromQuizSchema)
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       // クイズの所有者確認
@@ -197,25 +223,38 @@ export const removeTagFromQuiz = action
   });
 
 // タグ一覧取得
-export const getTags = action.schema(getTagsSchema).action(async () => {
-  await getAuthenticatedUser();
+export const getTags = authAction
+  .inputSchema(getTagsSchema)
+  .action(async ({ ctx }) => {
+    const { userId } = ctx;
 
-  try {
-    const tags = await prisma.tag.findMany({
-      include: {
-        _count: {
-          select: {
-            quizzes: true,
+    try {
+      // ユーザーのチーム一覧を取得
+      const userTeams = await prisma.teamMember.findMany({
+        where: { userId },
+        select: { teamId: true },
+      });
+
+      const teamIds = userTeams.map(tm => tm.teamId);
+
+      const tags = await prisma.tag.findMany({
+        where: {
+          teamId: { in: teamIds },
+        },
+        include: {
+          _count: {
+            select: {
+              quizzes: true,
+            },
           },
         },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
+        orderBy: {
+          name: 'asc',
+        },
+      });
 
-    return { tags };
-  } catch (error) {
-    throw new Error('タグ一覧の取得に失敗しました');
-  }
-});
+      return { tags };
+    } catch (error) {
+      throw new Error('タグ一覧の取得に失敗しました');
+    }
+  });

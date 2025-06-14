@@ -1,15 +1,18 @@
-import { NextAuthOptions, getServerSession } from 'next-auth';
+import { AuthOptions, NextAuthOptions, getServerSession } from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import GitHubProvider from 'next-auth/providers/github';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
+import CredentialsProvider, {
+  CredentialsConfig,
+} from 'next-auth/providers/credentials';
+import * as bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
-import './auth-config-validator';
+import { OAuthConfig } from 'next-auth/providers/oauth';
+import { EmailConfig } from 'next-auth/providers/email';
 
 // Helper function to create providers based on available environment variables
 function createAuthProviders() {
-  const providers: any[] = [];
+  const providers: (OAuthConfig<any> | EmailConfig | CredentialsConfig)[] = [];
 
   // Add Google provider only if both credentials are available
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -80,75 +83,65 @@ function createAuthProviders() {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: createAuthProviders(),
+  callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'github' || account?.provider === 'google') {
+        return true;
+      }
+
+      if (!user.id) {
+        return false;
+      }
+
+      const existingUser = await prisma.user.findFirst({
+        where: { id: user.id },
+      });
+
+      if (!existingUser) {
+        return false;
+      }
+
+      return true;
+    },
+
+    session({ session, token }) {
+      if (token.sub) {
+        (session.user as any).id = token.sub;
+      }
+
+      return session;
+    },
+    async jwt({ token }) {
+      if (!token.sub) {
+        return token;
+      }
+
+      const existingUser = await prisma.user.findFirst({
+        where: { id: token.sub },
+      });
+
+      if (!existingUser) {
+        return token;
+      }
+
+      token.name = existingUser.name;
+      token.email = existingUser.email;
+      token.image = existingUser.image;
+      return token;
+    },
+  },
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  debug: process.env.NODE_ENV === 'development',
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    updateAge: 24 * 60 * 60, // Update session every 24 hours
   },
   pages: {
     signIn: '/auth/signin',
-    error: '/auth/error', // Note: This will be redirected with locale in middleware
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
-    async redirect({ url, baseUrl }) {
-      // callbackUrlから言語情報を保持
-      let locale = 'ja';
-
-      // URLから言語パラメータを抽出
-      const urlObj = new URL(url, baseUrl);
-      const pathname = urlObj.pathname;
-      const langMatch = pathname.match(/^\/([a-z]{2})(\/|$)/);
-
-      if (langMatch) {
-        locale = langMatch[1];
-      }
-
-      // callbackUrlがある場合はそれを優先
-      const callbackUrl = urlObj.searchParams.get('callbackUrl');
-      if (callbackUrl) {
-        // callbackUrlが相対URLの場合
-        if (callbackUrl.startsWith('/')) {
-          return callbackUrl;
-        }
-        // callbackUrlが同じドメインの場合
-        try {
-          const callbackUrlObj = new URL(callbackUrl, baseUrl);
-          if (callbackUrlObj.origin === baseUrl) {
-            return callbackUrl;
-          }
-        } catch {}
-      }
-
-      // サインイン後は言語を保持してダッシュボードにリダイレクト
-      if (pathname.includes('/auth/')) {
-        return `${baseUrl}/${locale}/dashboard`;
-      }
-
-      // 相対URLの場合はbaseUrlを追加
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      }
-
-      // 同じドメインの場合はそのまま
-      if (urlObj.origin === baseUrl) {
-        return url;
-      }
-
-      // その他の場合は言語を保持してbaseUrlにリダイレクト
-      return `${baseUrl}/${locale}`;
-    },
+    signOut: '/auth/signout',
+    newUser: '/auth/signup',
+    error: '/auth/error',
   },
 };
 
@@ -156,8 +149,9 @@ export function auth() {
   return getServerSession(authOptions);
 }
 
-// Helper function to check which OAuth providers are available
-export function getAvailableProviders() {
+// SECURITY FIX: Server-side only function to check OAuth providers
+// This should only be used server-side and never exposed to client
+function getAvailableProvidersInternal() {
   return {
     google: !!(
       process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -165,4 +159,13 @@ export function getAvailableProviders() {
     github: !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET),
     credentials: true, // Always available
   };
+}
+
+// SECURITY: Safe client-side provider check (no configuration details exposed)
+export function getEnabledProviders() {
+  // Only expose provider names that are actually configured
+  const providers = getAvailableProvidersInternal();
+  return Object.keys(providers).filter(
+    key => providers[key as keyof typeof providers]
+  );
 }

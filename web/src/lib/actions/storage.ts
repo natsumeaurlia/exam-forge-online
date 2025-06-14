@@ -1,104 +1,43 @@
 'use server';
 
 import { createSafeActionClient } from 'next-safe-action';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { z } from 'zod';
 import { prisma } from '../prisma';
-
-// Create safe action client
-const action = createSafeActionClient();
+import { authAction } from './auth-action';
+import { getUserStorageData } from './helpers';
 
 // Get user storage information
-export async function getUserStorage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      error: 'Not authenticated',
-      data: null,
-    };
-  }
+const getUserStorageSchema = z.object({});
 
-  try {
-    // Get or create user storage record
-    let storage = await prisma.userStorage.findUnique({
-      where: { userId: session.user.id },
-    });
+export const getUserStorage = authAction
+  .inputSchema(getUserStorageSchema)
+  .action(async ({ ctx }) => {
+    const { userId } = ctx;
 
-    if (!storage) {
-      storage = await prisma.userStorage.create({
-        data: {
-          userId: session.user.id,
-          usedBytes: BigInt(0),
-          maxBytes: BigInt(10 * 1024 * 1024 * 1024), // 10GB
-        },
-      });
+    try {
+      return await getUserStorageData(userId);
+    } catch (error) {
+      console.error('Error getting user storage:', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to get storage info'
+      );
     }
-
-    // Get user's files
-    const files = await prisma.questionMedia.findMany({
-      where: {
-        question: {
-          quiz: {
-            createdById: session.user.id,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    // Convert BigInt to number for JSON serialization
-    const usedBytes = Number(storage.usedBytes);
-    const maxBytes = Number(storage.maxBytes);
-    return {
-      success: true,
-      data: {
-        usedBytes: usedBytes,
-        maxBytes: maxBytes,
-        usedGB: usedBytes / 1024 ** 3,
-        maxGB: maxBytes / 1024 ** 3,
-        storageUsed: usedBytes,
-        storageLimit: maxBytes,
-        files: files.map(file => ({
-          id: file.id,
-          url: file.url,
-          contentType: file.type === 'IMAGE' ? 'image/jpeg' : 'video/mp4',
-          filename: file.url.split('/').pop() || 'unknown',
-          size: 1024 * 1024, // Default size, you may want to store actual size
-          createdAt: file.createdAt.toISOString(),
-        })),
-      },
-      error: null,
-    };
-  } catch (error) {
-    console.error('Error getting user storage:', error);
-    return {
-      success: false,
-      data: null,
-      error: 'Failed to get storage information',
-    };
-  }
-}
+  });
 
 // Update user storage usage
-export const updateStorageUsage = action
-  .schema(
+export const updateStorageUsage = authAction
+  .inputSchema(
     z.object({
       bytesChange: z.number(), // Positive for addition, negative for deletion
     })
   )
-  .action(async ({ parsedInput: data }) => {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      throw new Error('Not authenticated');
-    }
+  .action(async ({ parsedInput: data, ctx }) => {
+    const { userId } = ctx;
 
     try {
       const storage = await prisma.userStorage.findUnique({
-        where: { userId: session.user.id },
+        where: { userId },
       });
 
       if (!storage) {
@@ -116,7 +55,7 @@ export const updateStorageUsage = action
       }
 
       const updatedStorage = await prisma.userStorage.update({
-        where: { userId: session.user.id },
+        where: { userId },
         data: { usedBytes: finalUsedBytes },
       });
 
@@ -132,39 +71,92 @@ export const updateStorageUsage = action
   });
 
 // Delete user file
-export async function deleteUserFile(fileId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    throw new Error('Not authenticated');
-  }
+const deleteUserFileSchema = z.object({
+  fileId: z.string().min(1, 'File ID is required'),
+});
 
-  try {
-    // Check if the file belongs to the user
-    const file = await prisma.questionMedia.findFirst({
-      where: {
-        id: fileId,
-        question: {
-          quiz: {
-            createdById: session.user.id,
+export const deleteUserFile = authAction
+  .inputSchema(deleteUserFileSchema)
+  .action(async ({ parsedInput: { fileId }, ctx }) => {
+    const { userId } = ctx;
+
+    try {
+      // SECURITY: チームベースの削除権限検証
+      const file = await prisma.questionMedia.findFirst({
+        where: {
+          id: fileId,
+          question: {
+            quiz: {
+              OR: [
+                { createdById: userId }, // 作成者
+                {
+                  team: {
+                    members: {
+                      some: {
+                        userId: userId,
+                        role: { in: ['OWNER', 'ADMIN', 'MEMBER'] },
+                      },
+                    },
+                  },
+                }, // チームメンバー
+              ],
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!file) {
-      throw new Error('File not found or access denied');
+      if (!file) {
+        throw new Error('File not found or access denied');
+      }
+
+      // Delete the file record
+      await prisma.questionMedia.delete({
+        where: { id: fileId },
+      });
+
+      // TODO: Also delete from MinIO storage
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      throw new Error('Failed to delete file');
     }
+  });
 
-    // Delete the file record
-    await prisma.questionMedia.delete({
-      where: { id: fileId },
-    });
+// Get user storage information with detailed calculations
+// This replaces the /api/storage endpoint
+const getUserStorageWithDetailsSchema = z.object({});
 
-    // TODO: Also delete from MinIO storage
+export const getUserStorageWithDetails = authAction
+  .inputSchema(getUserStorageWithDetailsSchema)
+  .action(async ({ ctx }) => {
+    const { userId } = ctx;
 
-    return { success: true };
-  } catch (error) {
-    console.error('Error deleting file:', error);
-    throw new Error('Failed to delete file');
-  }
-}
+    try {
+      // Get user storage information
+      const storageData = await getUserStorageData(userId);
+
+      if (!storageData) {
+        throw new Error('Failed to get storage info');
+      }
+
+      // Calculate additional properties
+      const storageUsedGB = storageData.storageUsed / (1024 * 1024 * 1024);
+      const storageLimitGB = storageData.storageLimit / (1024 * 1024 * 1024);
+      const percentageUsed =
+        (storageData.storageUsed / storageData.storageLimit) * 100;
+
+      // Return storage info with the expected structure
+      return {
+        storageUsed: storageData.storageUsed,
+        storageLimit: storageData.storageLimit,
+        storageUsedGB: parseFloat(storageUsedGB.toFixed(2)),
+        storageLimitGB: parseFloat(storageLimitGB.toFixed(2)),
+        percentageUsed: parseFloat(percentageUsed.toFixed(2)),
+        files: storageData.files,
+      };
+    } catch (error) {
+      console.error('Storage API error:', error);
+      throw new Error('Failed to get storage info');
+    }
+  });

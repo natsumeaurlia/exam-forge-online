@@ -43,6 +43,7 @@ export function QuizCardContainer({
         onCopy={actions.handleCopy}
         onAnalytics={actions.handleAnalytics}
         onDelete={handleDelete}
+        onTakeQuiz={actions.handleTakeQuiz}
       />
       <QuizCardDeleteDialog
         quiz={quiz}

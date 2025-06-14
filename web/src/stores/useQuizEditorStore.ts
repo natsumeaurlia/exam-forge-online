@@ -179,6 +179,7 @@ export const useQuizEditorStore = create<QuizEditorState>()(
           isRequired: false,
           difficultyLevel: null,
           sectionTimeLimit: null,
+          isActive: true,
           quizId: quiz.id,
           sectionId: null,
           createdAt: new Date(),

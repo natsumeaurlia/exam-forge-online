@@ -22,8 +22,8 @@ export async function seedTestData(prisma: PrismaClient) {
     });
 
     if (!testUser) {
-      // パスワードをハッシュ化
-      const hashedPassword = await bcrypt.hash('password123', 10);
+      // パスワードをハッシュ化 (統一パスワード)
+      const hashedPassword = await bcrypt.hash('TestPassword123!', 10);
 
       testUser = await prisma.user.create({
         data: {
@@ -35,8 +35,53 @@ export async function seedTestData(prisma: PrismaClient) {
         },
       });
       console.log('✅ テストユーザー作成:', testUser.email);
-      console.log('   パスワード: password123');
+      console.log('   パスワード: TestPassword123!');
     }
+
+    // E2E認証テスト用の追加ユーザー
+    const e2eUsers = [
+      {
+        email: 'userA@example.com',
+        name: 'User A (E2E Test)',
+        password: 'TestPassword123!',
+      },
+      {
+        email: 'userB@example.com',
+        name: 'User B (E2E Test)',
+        password: 'TestPassword123!',
+      },
+      {
+        email: 'security-test@example.com',
+        name: 'Security Test User',
+        password: 'TestPassword123!',
+      },
+    ];
+
+    const createdE2EUsers = [];
+    for (const userData of e2eUsers) {
+      let user = await prisma.user.findUnique({
+        where: { email: userData.email },
+      });
+
+      if (!user) {
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        user = await prisma.user.create({
+          data: {
+            email: userData.email,
+            name: userData.name,
+            password: hashedPassword,
+            image: null,
+            stripeCustomerId: `cus_e2e_${Date.now()}_${userData.email.split('@')[0]}`,
+          },
+        });
+      }
+      createdE2EUsers.push(user);
+    }
+    console.log(
+      '✅ E2E認証テスト用ユーザー作成:',
+      createdE2EUsers.length,
+      '名'
+    );
     // 追加のユーザーを作成（チームメンバー用）
     const teamMembers = [];
     for (let i = 1; i <= 3; i++) {
@@ -148,14 +193,14 @@ export async function seedTestData(prisma: PrismaClient) {
         prisma.tag.upsert({
           where: {
             teamId_name: {
-              teamId: testTeam!.id,
+              teamId: testTeam.id,
               name: tag.name,
             },
           },
           update: {},
           create: {
             ...tag,
-            teamId: testTeam!.id,
+            teamId: testTeam.id,
           },
         })
       )
@@ -222,6 +267,17 @@ export async function seedTestData(prisma: PrismaClient) {
         sharingMode: SharingMode.URL,
         tags: ['数学', '科学'],
       },
+      // E2Eテスト専用のクイズ
+      {
+        title: 'E2E Test Quiz',
+        description: 'End-to-End testing用のクイズです。',
+        status: QuizStatus.PUBLISHED,
+        scoringType: ScoringType.AUTO,
+        sharingMode: SharingMode.URL,
+        subdomain: 'e2e-test-quiz',
+        publishedAt: new Date(),
+        tags: ['テスト'],
+      },
     ];
 
     // クイズを作成
@@ -263,7 +319,7 @@ export async function seedTestData(prisma: PrismaClient) {
       }
     }
 
-    // 回答データの作成
+    // 回答データの作成（E2Eテスト対応版）
     const publishedQuizzes = await prisma.quiz.findMany({
       where: {
         teamId: testTeam.id,
@@ -274,8 +330,15 @@ export async function seedTestData(prisma: PrismaClient) {
       },
     });
 
+    // テスト用の参加者情報
+    const testParticipants = [
+      { name: 'テスト参加者', email: 'participant@example.com' },
+      { name: '匿名参加者', email: 'anonymous@example.com' },
+      { name: 'E2E参加者', email: 'e2e-participant@example.com' },
+    ];
+
     for (const quiz of publishedQuizzes.slice(0, 3)) {
-      // 各クイズに対して5-10件の回答を生成
+      // 各クイズに対して詳細な回答データを生成
       const responseCount = Math.floor(Math.random() * 6) + 5;
 
       for (let i = 0; i < responseCount; i++) {
@@ -287,29 +350,64 @@ export async function seedTestData(prisma: PrismaClient) {
           Math.random() * totalPoints * 0.4 + totalPoints * 0.6
         ); // 60-100%のスコア
 
+        const participant = testParticipants[i % testParticipants.length];
+        const duration = Math.floor(Math.random() * 600) + 120; // 2-12分
+
         await prisma.quizResponse.create({
           data: {
             quizId: quiz.id,
-            userId: testUser.id,
+            userId: i % 2 === 0 ? testUser.id : null, // 一部は匿名回答
             score,
             totalPoints,
             isPassed: score >= totalPoints * 0.7,
+            startedAt: new Date(
+              Date.now() -
+                Math.random() * 30 * 24 * 60 * 60 * 1000 -
+                duration * 1000
+            ),
             completedAt: new Date(
               Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000
             ), // 過去30日以内
             responses: {
-              create: quiz.questions.map(question => ({
-                question: {
-                  connect: { id: question.id },
-                },
-                answer: getRandomAnswer(question.type),
-                score: Math.random() > 0.3 ? question.points : 0,
-                isCorrect: Math.random() > 0.3,
-              })),
+              create: quiz.questions.map((question, qIndex) => {
+                const isCorrect = Math.random() > 0.3; // 70%の確率で正解
+                return {
+                  question: {
+                    connect: { id: question.id },
+                  },
+                  answer: getDetailedAnswer(question.type, isCorrect),
+                  score: isCorrect ? question.points : 0,
+                  isCorrect,
+                };
+              }),
             },
           },
         });
       }
+
+      // 完璧スコア（100%）のテストデータを追加
+      const totalPoints = quiz.questions.reduce((sum, q) => sum + q.points, 0);
+      await prisma.quizResponse.create({
+        data: {
+          quizId: quiz.id,
+          userId: null, // 匿名回答
+          score: totalPoints,
+          totalPoints,
+          isPassed: true,
+          startedAt: new Date(Date.now() - 300000), // 5分前開始
+          completedAt: new Date(),
+          responses: {
+            create: quiz.questions.map((question, qIndex) => ({
+              question: {
+                connect: { id: question.id },
+              },
+              answer: getCorrectAnswer(question),
+              score: question.points,
+              isCorrect: true,
+            })),
+          },
+        },
+      });
     }
 
     console.log('✅ 回答データ作成完了');
@@ -505,6 +603,28 @@ function getQuestionsForQuiz(title: string) {
         explanation: '光の速度は真空中で約30万km/秒です。',
       },
     ],
+    'E2E Test Quiz': [
+      {
+        type: QuestionType.MULTIPLE_CHOICE,
+        text: 'TypeScriptはJavaScriptのスーパーセットですか？',
+        points: 1,
+        order: 1,
+        correctAnswer: 'はい',
+        options: {
+          create: [
+            { text: 'はい', isCorrect: true, order: 1 },
+            { text: 'いいえ', isCorrect: false, order: 2 },
+          ],
+        },
+      },
+      {
+        type: QuestionType.TRUE_FALSE,
+        text: 'Next.js 15はApp Routerを使用していますか？',
+        points: 1,
+        order: 2,
+        correctAnswer: true,
+      },
+    ],
   };
 
   // デフォルトの問題セット
@@ -563,5 +683,51 @@ function getRandomAnswer(
       return 'ダイアグラムの回答';
     default:
       return 'デフォルト回答';
+  }
+}
+
+// E2Eテスト用の詳細な回答を生成
+function getDetailedAnswer(
+  type: QuestionType,
+  isCorrect: boolean = false
+): string | boolean | string[] | Record<string, string> {
+  switch (type) {
+    case QuestionType.TRUE_FALSE:
+      return isCorrect ? true : false;
+    case QuestionType.MULTIPLE_CHOICE:
+      return isCorrect ? 'りんご' : 'みかん'; // 実際の選択肢に基づく
+    case QuestionType.CHECKBOX:
+      return isCorrect ? ['Cat', 'Dog'] : ['Table', 'Chair'];
+    case QuestionType.SHORT_ANSWER:
+      return isCorrect ? '20' : '18';
+    case QuestionType.FILL_IN_BLANK:
+      return isCorrect ? 'H2O' : 'CO2';
+    case QuestionType.NUMERIC:
+      return isCorrect ? '20' : '25';
+    default:
+      return isCorrect ? '正解' : '不正解';
+  }
+}
+
+// 問題の正解を取得
+function getCorrectAnswer(
+  question: any
+): string | boolean | string[] | Record<string, string> {
+  if (question.correctAnswer) {
+    return question.correctAnswer;
+  }
+
+  // 問題タイプに基づいてデフォルトの正解を返す
+  switch (question.type) {
+    case QuestionType.TRUE_FALSE:
+      return true;
+    case QuestionType.MULTIPLE_CHOICE:
+      return '20'; // 基本的な数学問題の正解
+    case QuestionType.CHECKBOX:
+      return ['Cat', 'Dog'];
+    case QuestionType.SHORT_ANSWER:
+      return '20';
+    default:
+      return '正解';
   }
 }

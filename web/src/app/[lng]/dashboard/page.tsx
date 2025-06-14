@@ -6,6 +6,7 @@ import { RecentQuizCard } from '@/components/dashboard/RecentQuizCard';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
 import { UsageMeter } from '@/components/dashboard/UsageMeter';
 import { QuickActionButton } from '@/components/dashboard/QuickActionButton';
+import { DashboardRefresher } from '@/components/dashboard/DashboardRefresher';
 
 interface DashboardPageProps {
   params: Promise<{ lng: string }>;
@@ -27,8 +28,14 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
   return (
     <div className="container mx-auto space-y-8 px-4 py-8">
-      {/* ウェルカムセクション */}
-      <WelcomeSection lng={lng} />
+      {/* リフレッシュボタン */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          {/* ウェルカムセクション */}
+          <WelcomeSection lng={lng} />
+        </div>
+        <DashboardRefresher autoRefreshInterval={60} />
+      </div>
 
       {/* 統計カード */}
       <section>

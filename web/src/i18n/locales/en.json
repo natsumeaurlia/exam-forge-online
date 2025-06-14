@@ -7,6 +7,7 @@
     "pricing": "Pricing",
     "plans": {
       "title": "Plans & Pricing",
+      "details": "Plan Details",
       "free": "Free",
       "pro": "Pro",
       "premium": "Premium"
@@ -37,7 +38,7 @@
       "termsOfService": "Terms of Service",
       "privacyPolicy": "Privacy Policy",
       "commercialTransactions": "Legal Information",
-      "copyright": "© 2025 ExamForge Inc. All rights reserved."
+      "copyright": "\u00a9 2025 ExamForge Inc. All rights reserved."
     }
   },
   "hero": {
@@ -69,10 +70,161 @@
   "quiz": {
     "selector": {
       "title": "Select Quiz Type",
-      "description": "Choose the type of quiz you want to create. You can select the format that best suits your purpose.",
-      "selectButton": "Select this type",
-      "proOnlyButton": "Available in Pro plan"
+      "description": "Choose the type of quiz you want to create. Select the format that best suits your purpose.",
+      "selectButton": "Select This Type",
+      "proOnlyButton": "Available with Pro Plan"
     },
+    "types": {
+      "simple-quiz": {
+        "title": "Simple Quiz",
+        "description": "Basic quiz format including true/false and multiple choice questions.",
+        "features": {
+          "truefalse": "True/False Questions",
+          "single": "Single Choice Questions",
+          "multiple": "Multiple Choice Questions",
+          "freetext": "Free Text Questions"
+        },
+        "featureInfo": {
+          "truefalse": "Basic question format asking about correctness.",
+          "single": "Question format where you select only one answer from multiple options.",
+          "multiple": "Multiple choice questions with multiple correct answers.",
+          "freetext": "Question format where you can freely write your answer."
+        }
+      },
+      "exam": {
+        "title": "Exam",
+        "description": "Comprehensive exam mode with passing score settings and time limits.",
+        "features": {
+          "passingScore": "Passing Score Setting",
+          "analytics": "Detailed Analytics",
+          "certificate": "Certificate Issuance",
+          "timeLimit": "Time Limit"
+        },
+        "featureInfo": {
+          "passingScore": "You can set the passing criteria for the exam.",
+          "analytics": "You can analyze test takers' performance in detail.",
+          "certificate": "Certificates are automatically issued to passing candidates.",
+          "timeLimit": "You can set time limits for the exam."
+        }
+      },
+      "survey": {
+        "title": "Survey",
+        "description": "Form for collecting opinions and information without right or wrong answers.",
+        "features": {
+          "freeAnswer": "Free Response Format",
+          "choice": "Choice Format",
+          "matrix": "Matrix Questions",
+          "analytics": "Aggregation and Analysis"
+        },
+        "featureInfo": {
+          "freeAnswer": "Format where you can freely input your responses.",
+          "choice": "Format where you select answers from choices.",
+          "matrix": "Format where you answer multiple questions with the same choices.",
+          "analytics": "You can aggregate and analyze response results."
+        }
+      },
+      "assessment": {
+        "title": "Assessment",
+        "description": "Comprehensive question set for advanced evaluation.",
+        "features": {
+          "sections": "Section Division",
+          "branching": "Conditional Branching",
+          "scoring": "Composite Scoring",
+          "reports": "Detailed Reports"
+        },
+        "featureInfo": {
+          "sections": "You can categorize questions by sections.",
+          "branching": "You can set conditional branching where the next question changes based on the answer.",
+          "scoring": "You can combine multiple scoring methods.",
+          "reports": "You can create detailed evaluation reports."
+        }
+      },
+      "course": {
+        "title": "Course",
+        "description": "Learning experience combining educational content with quizzes.",
+        "features": {
+          "lessons": "Lesson Structure",
+          "progress": "Learning Progress Management",
+          "quizzes": "Confirmation Quizzes",
+          "certificates": "Completion Certificate Issuance"
+        },
+        "featureInfo": {
+          "lessons": "You can progress through learning with a structured lesson format.",
+          "progress": "You can manage learners' progress status.",
+          "quizzes": "You can set quizzes to check lesson comprehension.",
+          "certificates": "Certificates are issued to course completers."
+        }
+      },
+      "ai-quiz": {
+        "title": "AI Auto-Generated Quiz",
+        "description": "AI automatically generates quizzes based on topics.",
+        "features": {
+          "autoGenerate": "Auto Generation",
+          "customPrompt": "Custom Prompt",
+          "instant": "Instant Generation",
+          "edit": "Editable"
+        },
+        "featureInfo": {
+          "autoGenerate": "AI automatically creates questions just by entering a topic.",
+          "customPrompt": "You can customize detailed instructions to the AI.",
+          "instant": "Complete quizzes are generated in just a few seconds.",
+          "edit": "Generated questions can be freely edited and adjusted."
+        }
+      }
+    },
+    "taking": {
+      "questionProgress": "Question {{current}} of {{total}}",
+      "timeRemaining": "Time remaining: {{minutes}} minutes",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit",
+      "submitting": "Submitting...",
+      "participantInfoRequired": "Please enter participant information",
+      "submitError": "Failed to submit response",
+      "createdBy": "Created by {{teamName}}",
+      "questionCount": "{{count}} questions",
+      "timeLimit": "Time limit: {{minutes}} minutes",
+      "passwordRequired": "Password required",
+      "enterPassword": "Enter password",
+      "incorrectPassword": "Incorrect password",
+      "participantInfo": "Participant Information",
+      "name": "Name",
+      "enterName": "Enter your name",
+      "email": "Email",
+      "enterEmail": "Enter your email",
+      "instructions": "Instructions",
+      "startQuiz": "Start Quiz",
+      "quizInfo": "You cannot change your answers after submission",
+      "multipleAttemptsAllowed": "Multiple attempts allowed",
+      "answersShownAfter": "Answers will be shown after submission",
+      "true": "True",
+      "false": "False",
+      "typeYourAnswer": "Type your answer",
+      "enterNumber": "Enter a number",
+      "blank": "Blank",
+      "items": "Items",
+      "matches": "Matches",
+      "selectMatch": "Select match",
+      "unsupportedQuestionType": "Unsupported question type"
+    },
+    "results": {
+      "loadingResults": "Loading results...",
+      "errorLoadingResults": "Failed to load results",
+      "quizCompleted": "Quiz Completed!",
+      "scoreText": "{{correct}} out of {{total}} correct",
+      "passed": "Passed",
+      "failed": "Failed",
+      "passingScore": "Passing score: {{score}}%",
+      "timeSpent": "Time spent",
+      "accuracy": "Accuracy",
+      "certificateEarned": "Certificate earned!",
+      "downloadCertificate": "Download Certificate",
+      "reviewAnswers": "Review Answers",
+      "retakeQuiz": "Retake Quiz",
+      "backToHome": "Back to Home"
+    }
+  },
+  "features": {
     "types": {
       "simple-quiz": {
         "title": "Simple Quiz",
@@ -182,6 +334,7 @@
       "backToEdit": "Back to Edit",
       "desktop": "Desktop",
       "mobile": "Mobile",
+      "takeQuiz": "Take Quiz",
       "detailedPreview": "Detailed Preview",
       "questions": "Questions",
       "passingScore": "Passing Score",
@@ -240,8 +393,8 @@
     }
   },
   "usecases": {
-    "title": "ExamForge Works Across Various Scenarios",
-    "description": "From educational institutions to corporate training, we support a wide range of applications. Find the optimal use case for your needs.",
+    "title": "Create Professional Exams with Simple Operations",
+    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
     "tabs": {
       "education": {
         "title": "For Educational Institutions",
@@ -325,11 +478,7 @@
           "certificate": "Auto certificate generation"
         }
       }
-    }
-  },
-  "features": {
-    "title": "Create Professional Exams with Simple Operations",
-    "description": "With ExamForge's versatile features, you can efficiently create, manage, and analyze all types of quizzes and exams.",
+    },
     "list": {
       "builder": {
         "title": "Intuitive Quiz Builder",
@@ -768,6 +917,170 @@
       "backToHome": "Back to home"
     }
   },
+  "help": {
+    "title": "Help Center",
+    "description": "Find answers to frequently asked questions and detailed guides about using ExamForge.",
+    "search": {
+      "placeholder": "Enter keywords to search..."
+    },
+    "noResults": "No matching results found.",
+    "categories": {
+      "all": "All",
+      "gettingStarted": "Getting Started",
+      "quizCreation": "Quiz Creation",
+      "teamManagement": "Team Management",
+      "billing": "Billing & Payments",
+      "analytics": "Analytics",
+      "security": "Security",
+      "troubleshooting": "Troubleshooting"
+    },
+    "tabs": {
+      "faq": "FAQ",
+      "guides": "Guides",
+      "tutorials": "Tutorials",
+      "contact": "Contact"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Common questions and answers about ExamForge to help you get started."
+    },
+    "guides": {
+      "readMore": "Read more",
+      "gettingStarted": {
+        "title": "Getting Started with ExamForge",
+        "description": "Learn the basics from account creation to creating your first quiz."
+      },
+      "quizCreation": {
+        "title": "Quiz Creation Guide",
+        "description": "Learn best practices and tips for creating effective quizzes."
+      },
+      "teamSetup": {
+        "title": "Team Setup Guide",
+        "description": "Detailed guide on inviting team members and managing permissions."
+      },
+      "analytics": {
+        "title": "Using Analytics Features",
+        "description": "Learn how to analyze data effectively to maximize learning outcomes."
+      },
+      "billing": {
+        "title": "Plans and Payment Management",
+        "description": "Information about changing pricing plans and setting up payment methods."
+      },
+      "security": {
+        "title": "Security Settings",
+        "description": "Learn about security features to keep your account and data safe."
+      }
+    },
+    "tutorials": {
+      "watch": "Watch video",
+      "createFirstQuiz": {
+        "title": "Creating Your First Quiz",
+        "description": "Step-by-step video guide for creating your first quiz with ExamForge."
+      },
+      "advancedFeatures": {
+        "title": "Using Advanced Features",
+        "description": "Learn about time limits, passing scores, certificate generation and more."
+      },
+      "teamCollaboration": {
+        "title": "Team Collaboration",
+        "description": "Effective ways to create and manage quizzes with multiple team members."
+      },
+      "analyticsOverview": {
+        "title": "Analytics Overview",
+        "description": "Learn how to use analytics features to improve learning outcomes."
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "description": "When you need help, feel free to contact us. Our expert staff will support you.",
+      "email": {
+        "title": "Email Support",
+        "description": "For general inquiries, please feel free to contact us via email.",
+        "button": "Send email"
+      },
+      "documentation": {
+        "title": "Detailed Documentation",
+        "description": "Check technical specifications and detailed feature explanations.",
+        "button": "View documentation"
+      },
+      "hours": {
+        "title": "Support Hours",
+        "weekdays": "Weekdays: 10:00 - 18:00",
+        "timezone": "Japan Standard Time (JST)",
+        "note": "Pro and Premium plan users receive priority support."
+      }
+    },
+    "faq": {
+      "accountCreation": {
+        "question": "How do I create an account?",
+        "answer": "Click the 'Get Started Free' button on the homepage and enter your email address and password, or sign up with your Google or GitHub account. Registration is free and no credit card information is required."
+      },
+      "firstQuiz": {
+        "question": "How do I create my first quiz?",
+        "answer": "Click 'Create New Quiz' from your dashboard and select a quiz type (Simple Quiz, Exam, Survey, etc.). Enter a title and description, then add questions. It's that simple!"
+      },
+      "freePlanLimits": {
+        "question": "What are the limitations of the free plan?",
+        "answer": "The free plan allows up to 5 quizzes, 20 questions per quiz, and 100 responses per month. Basic question types (true/false, choice, essay) and automatic grading are available."
+      },
+      "questionTypes": {
+        "question": "What types of questions can I use?",
+        "answer": "Basic types include true/false, single choice, multiple choice, and free text questions. Pro plan adds numeric input, fill-in-the-blank, matching, sorting, and diagram questions."
+      },
+      "quizSettings": {
+        "question": "Where can I change quiz settings?",
+        "answer": "In the quiz editor, go to the 'Settings' tab to change time limits, passing scores, password protection, participant information collection, and publication settings."
+      },
+      "mediaUpload": {
+        "question": "Can I upload images and videos?",
+        "answer": "Yes. You can add images to questions and answer choices. Pro plan also supports video embedding for richer content."
+      },
+      "inviteMembers": {
+        "question": "How do I invite team members?",
+        "answer": "From your dashboard, go to 'Member Management' and invite by email address. You can set permissions (editor, viewer, administrator) for invited members."
+      },
+      "userRoles": {
+        "question": "What's the difference between user permissions?",
+        "answer": "Administrators have access to all features, editors can create and edit quizzes, viewers can only view results. Team owners can also manage billing settings."
+      },
+      "upgradePlan": {
+        "question": "How do I upgrade my plan?",
+        "answer": "Go to Dashboard → Settings → Plan Management, select your desired plan and enter credit card information. Includes a 14-day free trial."
+      },
+      "cancelSubscription": {
+        "question": "How do I cancel my subscription?",
+        "answer": "In plan management, simply click 'Cancel Plan'. You'll continue to have full access until the end of your billing period."
+      },
+      "paymentMethods": {
+        "question": "What payment methods are supported?",
+        "answer": "We support major credit cards (VISA, Mastercard, JCB, American Express). Premium plan also supports bank transfers."
+      },
+      "viewResults": {
+        "question": "Where can I view quiz results?",
+        "answer": "From the quiz list, select the target quiz and view detailed results in the 'Analytics' tab. Individual responses and statistics are displayed."
+      },
+      "exportData": {
+        "question": "Can I export data?",
+        "answer": "Quiz data and results can be exported in CSV and Excel formats. Pro plan also supports detailed analytics reports in PDF format."
+      },
+      "dataSecurity": {
+        "question": "How is my data secured?",
+        "answer": "We implement SSL encryption, regular backups, and strict access controls. Data is managed in certified data centers and complies with GDPR and other regulations."
+      },
+      "passwordReset": {
+        "question": "What if I forget my password?",
+        "answer": "Click 'Forgot password?' on the login screen and enter your registered email address. We'll send you a password reset link."
+      },
+      "browserSupport": {
+        "question": "Which browsers are supported?",
+        "answer": "We support the latest versions of Chrome, Firefox, Safari, and Microsoft Edge. Mobile devices (iOS Safari, Android Chrome) are also supported. IE11 and earlier are not supported."
+      },
+      "loadingIssues": {
+        "question": "What if pages load slowly?",
+        "answer": "Try clearing your browser cache or using a different browser. If issues persist, check your network environment or contact support."
+      }
+    }
+  },
   "faq": {
     "title": "Frequently Asked Questions",
     "description": "Common questions and answers about ExamForge to help you get started.",
@@ -778,7 +1091,7 @@
       },
       "proUpgrade": {
         "question": "How do I upgrade to the Pro plan?",
-        "answer": "You can upgrade from your dashboard by going to Settings → Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
+        "answer": "You can upgrade from your dashboard by going to Settings \u2192 Plan Management. Simply enter your credit card information to immediately start using Pro plan features. We also offer a 14-day free trial."
       },
       "dataSecurity": {
         "question": "How secure is my data?",
@@ -867,6 +1180,7 @@
       "members": "Member Management",
       "media": "Media Library",
       "settings": "Settings",
+      "teamSettings": "Team Settings",
       "help": "Help",
       "documentation": "Documentation",
       "expand": "Expand sidebar",
@@ -883,17 +1197,23 @@
       "totalQuizzes": "Total Quizzes",
       "monthlyParticipants": "Monthly Participants",
       "averageScore": "Average Score",
-      "activeQuizzes": "Active Quizzes"
+      "activeQuizzes": "Active Quizzes",
+      "noData": "No data available"
     },
     "recentQuizzes": {
       "title": "Recent Quizzes",
       "created": "Created",
-      "status": "Status",
       "edit": "Edit",
       "preview": "Preview",
       "viewAll": "View All",
+      "questions": "questions",
       "questionsCount": "Questions: {count}",
       "participantsCount": "Participants: {count}",
+      "status": {
+        "published": "Published",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
       "statusBadge": {
         "published": "Published",
         "draft": "Draft",
@@ -904,7 +1224,8 @@
         "share": "Share",
         "export": "Export",
         "delete": "Delete"
-      }
+      },
+      "noQuizzes": "No quizzes found"
     },
     "activity": {
       "title": "Activity",
@@ -941,13 +1262,21 @@
       "metadata": {
         "score": "Score: {score}%",
         "participants": "Participants: {participants}"
-      }
+      },
+      "noActivity": "No recent activity"
     },
     "usage": {
       "title": "Usage",
+      "noData": "No usage data available",
+      "quizzes": "Quizzes",
+      "participants": "Monthly Participants",
+      "storage": "Storage",
+      "members": "Members",
+      "currentPlan": "Current Plan",
+      "upgrade": "Upgrade",
+      "unlimited": "Unlimited",
       "quizLimit": "Quiz Limit",
       "participantLimit": "Participant Limit",
-      "upgrade": "Upgrade",
       "units": {
         "items": "items",
         "peoplePerMonth": "people/month",
@@ -1093,13 +1422,14 @@
       "title": "Ready to Get Started?",
       "subtitle": "Start using ExamForge for free today and create professional quizzes and exams.",
       "button": "Start for Free",
-      "note": "No credit card required · Upgrade anytime"
+      "note": "No credit card required \u00b7 Upgrade anytime"
     }
   },
   "quizManagement": {
     "cardActions": {
       "openMenu": "Open menu",
       "preview": "Preview",
+      "takeQuiz": "Take Quiz",
       "edit": "Edit",
       "share": "Share",
       "duplicate": "Duplicate",
@@ -1200,7 +1530,6 @@
       "coverImage": "Cover Image",
       "coverImageAlt": "Cover image",
       "uploadCoverImage": "Upload Cover Image (Pro Plan)",
-      "settings": "Quiz Settings",
       "timeLimit": "Time Limit (minutes)",
       "timeLimitPlaceholder": "Unlimited",
       "shuffleQuestions": "Shuffle Questions",
@@ -1209,7 +1538,6 @@
       "maxAttemptsPlaceholder": "Unlimited",
       "proPlanFeature": "Pro Plan Feature",
       "minutes": "minutes",
-      "settingsMovedToProTab": "Advanced settings have been moved to the Pro Features tab.",
       "coverImageHelperText": "Recommended size: 1200x630px",
       "publish": {
         "title": "Publish Quiz",
@@ -1429,8 +1757,8 @@
           "correctAnswer": "Correct Answer",
           "answerPlaceholder": "Correct numeric value",
           "tolerance": "Tolerance",
-          "tolerancePlaceholder": "± tolerance",
-          "toleranceHint": "Example: Setting 0.1 accepts answers within ±0.1 of the correct answer",
+          "tolerancePlaceholder": "\u00b1 tolerance",
+          "toleranceHint": "Example: Setting 0.1 accepts answers within \u00b10.1 of the correct answer",
           "allowRange": "Specify as Range",
           "minValue": "Minimum Value",
           "minPlaceholder": "Min value",
@@ -1460,8 +1788,8 @@
       "multiMediaUpload": {
         "title": "Media Attachments",
         "clickOrDrag": "Click or drag files to upload",
-        "supportedFormats": "Images: JPEG, PNG, GIF, WebP • Videos: MP4, WebM, OGG, MOV",
-        "sizeLimit": "Images: max 10MB • Videos: max 500MB",
+        "supportedFormats": "Images: JPEG, PNG, GIF, WebP \u2022 Videos: MP4, WebM, OGG, MOV",
+        "sizeLimit": "Images: max 10MB \u2022 Videos: max 500MB",
         "uploading": "Uploading...",
         "uploadSuccess": "{count, plural, one {# file} other {# files}} uploaded successfully",
         "uploadError": "Failed to upload files",
@@ -1533,6 +1861,12 @@
           "viewFullReport": "View Full Report"
         }
       }
+    },
+    "certificateVerify": {
+      "title": "Certificate Verification",
+      "valid": "Certificate for {name} - {quiz} issued on {date}",
+      "expires": "Expires on {date}",
+      "invalid": "Certificate not found or expired"
     }
   },
   "ui": {
@@ -1619,6 +1953,216 @@
       "cancel": "Cancel",
       "save": "Save",
       "saving": "Saving..."
+    }
+  },
+  "respondents": {
+    "pageTitle": "Respondent Management",
+    "pageDescription": "Manage quiz participants and analyze performance",
+    "title": "Respondent Management",
+    "description": "View and manage users who have taken your quizzes, analyze their performance and activity",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "actions": {
+      "export": "Export",
+      "invite": "Invite",
+      "sendEmail": "Send Email",
+      "bulkActions": "Bulk Actions"
+    },
+    "stats": {
+      "totalRespondents": "Total Respondents",
+      "active": "Active",
+      "avgScore": "Average Score",
+      "avgScoreDescription": "Average performance across all respondents",
+      "totalQuizzes": "Total Quiz Attempts",
+      "totalQuizzesDescription": "Total number of quiz completions",
+      "totalPoints": "Total Points Earned",
+      "totalPointsDescription": "Total points earned by all respondents"
+    },
+    "search": {
+      "placeholder": "Search by name or email..."
+    },
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "inactive": "Inactive",
+      "blocked": "Blocked"
+    },
+    "selected": "selected",
+    "table": {
+      "title": "Respondent List",
+      "description": "All users who have taken quizzes",
+      "selectAll": "Select All",
+      "quizzes": "Quizzes",
+      "avgScore": "Avg Score",
+      "points": "Points"
+    },
+    "details": {
+      "title": "Respondent Details",
+      "description": "Detailed performance and activity history",
+      "tabs": {
+        "overview": "Overview",
+        "quizzes": "Quiz History",
+        "activity": "Activity Log"
+      },
+      "info": {
+        "basic": "Basic Information",
+        "email": "Email Address",
+        "joined": "Joined",
+        "status": "Status",
+        "performance": "Performance",
+        "completed": "Completed Quizzes",
+        "avgScore": "Average Score",
+        "totalPoints": "Total Points",
+        "tags": "Tags"
+      },
+      "activityPlaceholder": "Activity log will be implemented in future updates"
+    },
+    "empty": {
+      "title": "No Respondents",
+      "description": "No users have taken quizzes yet",
+      "action": "Invite Users"
+    }
+  },
+  "team": {
+    "title": "Team Management",
+    "description": "Manage your teams and members",
+    "selectTeam": "Select Team",
+    "noDescription": "No description",
+    "membersCount": "{count} members",
+    "quizzesCount": "{count} quizzes",
+    "teamId": "Team ID",
+    "viewMembers": "View Members",
+    "viewSettings": "View Settings",
+    "tabs": {
+      "members": "Members",
+      "settings": "Settings",
+      "permissions": "Permissions"
+    },
+    "permissions": {
+      "description": "About permissions for each role",
+      "owner": "Owner",
+      "ownerDescription": "Has all permissions",
+      "admin": "Admin",
+      "adminDescription": "Can manage members and edit quizzes",
+      "member": "Member",
+      "memberDescription": "Can create and edit quizzes",
+      "viewer": "Viewer",
+      "viewerDescription": "Can only view quizzes"
+    },
+    "noTeams": {
+      "title": "No Teams",
+      "description": "Create a team to get started",
+      "createTeam": "Create Team"
+    },
+    "members": {
+      "title": "Team Members",
+      "description": "Manage members of {teamName}",
+      "inviteMember": "Invite Member",
+      "inviteDialogTitle": "Invite New Member",
+      "inviteDialogDescription": "Enter an email address and role to invite a new member to your team.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "member@example.com",
+      "roleLabel": "Role",
+      "inviteButton": "Send Invitation",
+      "inviteSuccess": "Invitation sent successfully",
+      "inviteError": "Failed to send invitation",
+      "removeConfirm": "Are you sure you want to remove this member from the team?",
+      "removeSuccess": "Member removed successfully",
+      "removeError": "Failed to remove member",
+      "roleUpdateSuccess": "Role updated successfully",
+      "roleUpdateError": "Failed to update role",
+      "limitReachedTitle": "Member Limit Reached",
+      "limitReachedDescription": "Your current plan allows up to {max} members.",
+      "membersList": "Members List",
+      "membersCount": "{count} / {max} members",
+      "memberColumn": "Member",
+      "roleColumn": "Role",
+      "joinedColumn": "Joined",
+      "you": "You",
+      "actions": "Actions",
+      "makeAdmin": "Make Admin",
+      "makeMember": "Make Member",
+      "makeViewer": "Make Viewer",
+      "remove": "Remove",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member",
+        "viewer": "Viewer"
+      }
+    },
+    "settings": {
+      "title": "Team Settings",
+      "description": "Manage your team's basic information and settings",
+      "updateSuccess": "Settings updated successfully",
+      "updateError": "Failed to update settings",
+      "tabs": {
+        "general": "General",
+        "billing": "Billing",
+        "security": "Security"
+      },
+      "general": {
+        "title": "Basic Information",
+        "description": "Configure your team's basic information",
+        "teamName": "Team Name",
+        "teamSlug": "Team ID",
+        "slugHelp": "Unique identifier used in URLs",
+        "teamDescription": "Team Description",
+        "descriptionPlaceholder": "Enter your team's purpose or activities",
+        "teamLogo": "Team Logo",
+        "logoHelp": "Recommended size: 200x200px",
+        "saveChanges": "Save Changes"
+      },
+      "info": {
+        "title": "Team Information",
+        "created": "Created",
+        "teamId": "Team ID",
+        "members": "Members",
+        "quizzes": "Quizzes"
+      },
+      "billing": {
+        "title": "Subscription",
+        "description": "Current plan and billing information",
+        "price": "{price} {currency} / {interval}",
+        "interval": {
+          "month": "month",
+          "year": "year"
+        },
+        "status": {
+          "active": "Active",
+          "trialing": "Trial",
+          "past_due": "Past Due",
+          "canceled": "Canceled"
+        },
+        "limits": "Usage Limits",
+        "maxMembers": "Max Members",
+        "maxQuizzes": "Max Quizzes",
+        "nextBilling": "Next billing date: {date}",
+        "manageSubscription": "Manage Subscription",
+        "noPlan": "No active subscription",
+        "upgradePlan": "Upgrade Plan"
+      },
+      "security": {
+        "title": "Security Settings",
+        "description": "Manage your team's security and access control",
+        "twoFactor": "Two-Factor Authentication",
+        "twoFactorDescription": "Require two-factor authentication for team members",
+        "apiKeys": "API Keys",
+        "apiKeysDescription": "Manage API keys for external integrations",
+        "auditLogs": "Audit Logs",
+        "auditLogsDescription": "Track all team activities",
+        "comingSoon": "Coming Soon",
+        "enterpriseOnly": "Enterprise Only"
+      },
+      "danger": {
+        "title": "Danger Zone",
+        "description": "These actions cannot be undone",
+        "deleteTeam": "Delete Team",
+        "deleteWarning": "Deleting your team will permanently remove all data"
+      }
     }
   }
 }

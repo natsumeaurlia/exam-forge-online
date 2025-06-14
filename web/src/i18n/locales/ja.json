@@ -6,6 +6,7 @@
     "features": "機能",
     "pricing": "料金プラン",
     "plans": {
+      "title": "プランと料金",
       "details": "プランの詳細",
       "free": "無料",
       "pro": "プロ",
@@ -169,6 +170,57 @@
           "instant": "わずか数秒で完成したクイズが生成されます。",
           "edit": "生成された問題は自由に編集・調整できます。"
         }
+      },
+      "taking": {
+        "questionProgress": "質問 {{current}} / {{total}}",
+        "timeRemaining": "残り時間: {{minutes}}分",
+        "previous": "前へ",
+        "next": "次へ",
+        "submit": "提出",
+        "submitting": "提出中...",
+        "participantInfoRequired": "参加者情報を入力してください",
+        "submitError": "提出エラーが発生しました",
+        "createdBy": "作成者: {{teamName}}",
+        "questionCount": "{{count}}問",
+        "timeLimit": "制限時間: {{minutes}}分",
+        "passwordRequired": "パスワードが必要です",
+        "enterPassword": "パスワードを入力",
+        "incorrectPassword": "パスワードが正しくありません",
+        "participantInfo": "参加者情報",
+        "name": "名前",
+        "enterName": "名前を入力",
+        "email": "メールアドレス",
+        "enterEmail": "メールアドレスを入力",
+        "instructions": "受験上の注意",
+        "startQuiz": "クイズを開始",
+        "quizInfo": "提出後は回答を変更できません",
+        "multipleAttemptsAllowed": "複数回の受験が可能です",
+        "answersShownAfter": "提出後に正解が表示されます",
+        "true": "正しい",
+        "false": "誤り",
+        "typeYourAnswer": "回答を入力してください",
+        "enterNumber": "数値を入力",
+        "blank": "空欄",
+        "items": "項目",
+        "matches": "対応",
+        "selectMatch": "対応を選択",
+        "unsupportedQuestionType": "サポートされていない質問タイプです"
+      },
+      "results": {
+        "loadingResults": "結果を読み込んでいます...",
+        "errorLoadingResults": "結果の読み込みに失敗しました",
+        "quizCompleted": "クイズ完了！",
+        "scoreText": "{{correct}} / {{total}} 問正解",
+        "passed": "合格",
+        "failed": "不合格",
+        "passingScore": "合格点: {{score}}%",
+        "timeSpent": "所要時間",
+        "accuracy": "正答率",
+        "certificateEarned": "合格証明書を獲得しました！",
+        "downloadCertificate": "証明書をダウンロード",
+        "reviewAnswers": "回答を確認",
+        "retakeQuiz": "再受験",
+        "backToHome": "ホームに戻る"
       }
     },
     "demo": {
@@ -182,6 +234,7 @@
       "backToEdit": "編集に戻る",
       "desktop": "デスクトップ",
       "mobile": "モバイル",
+      "takeQuiz": "クイズを受ける",
       "detailedPreview": "詳細プレビュー",
       "questions": "問題数",
       "passingScore": "合格点",
@@ -767,6 +820,170 @@
       "backToHome": "ホームに戻る"
     }
   },
+  "help": {
+    "title": "ヘルプセンター",
+    "description": "ExamForgeの使い方について、よくある質問と詳しいガイドをご確認いただけます。",
+    "search": {
+      "placeholder": "検索したいキーワードを入力..."
+    },
+    "noResults": "該当する結果が見つかりませんでした。",
+    "categories": {
+      "all": "すべて",
+      "gettingStarted": "はじめに",
+      "quizCreation": "クイズ作成",
+      "teamManagement": "チーム管理",
+      "billing": "料金・支払い",
+      "analytics": "分析",
+      "security": "セキュリティ",
+      "troubleshooting": "トラブルシューティング"
+    },
+    "tabs": {
+      "faq": "よくある質問",
+      "guides": "ガイド",
+      "tutorials": "チュートリアル",
+      "contact": "お問い合わせ"
+    },
+    "faq": {
+      "title": "よくある質問",
+      "description": "ExamForgeについてよく寄せられる質問とその回答をまとめました。"
+    },
+    "guides": {
+      "readMore": "詳しく見る",
+      "gettingStarted": {
+        "title": "ExamForgeを始める",
+        "description": "アカウント作成から最初のクイズ作成まで、基本的な使い方を説明します。"
+      },
+      "quizCreation": {
+        "title": "クイズ作成ガイド",
+        "description": "効果的なクイズを作成するためのベストプラクティスとコツを学びます。"
+      },
+      "teamSetup": {
+        "title": "チーム設定ガイド",
+        "description": "チームメンバーの招待と権限管理の方法について詳しく説明します。"
+      },
+      "analytics": {
+        "title": "分析機能の活用",
+        "description": "データを効果的に分析し、学習効果を最大化する方法を学びます。"
+      },
+      "billing": {
+        "title": "プランと支払い管理",
+        "description": "料金プランの変更や支払い方法の設定について説明します。"
+      },
+      "security": {
+        "title": "セキュリティ設定",
+        "description": "アカウントとデータを安全に保つためのセキュリティ機能について説明します。"
+      }
+    },
+    "tutorials": {
+      "watch": "動画を見る",
+      "createFirstQuiz": {
+        "title": "初めてのクイズ作成",
+        "description": "ExamForgeで最初のクイズを作成する手順を動画で解説します。"
+      },
+      "advancedFeatures": {
+        "title": "高度な機能の活用",
+        "description": "時間制限、合格点設定、証明書発行などの高度な機能を学びます。"
+      },
+      "teamCollaboration": {
+        "title": "チームでの協力",
+        "description": "複数人でクイズを作成・管理する効果的な方法を紹介します。"
+      },
+      "analyticsOverview": {
+        "title": "分析機能の概要",
+        "description": "受験結果の分析機能を使って学習効果を向上させる方法を学びます。"
+      }
+    },
+    "contact": {
+      "title": "お問い合わせ",
+      "description": "困った時はお気軽にご連絡ください。専門スタッフがサポートいたします。",
+      "email": {
+        "title": "メールサポート",
+        "description": "一般的なお問い合わせは、メールでお気軽にご連絡ください。",
+        "button": "メールを送る"
+      },
+      "documentation": {
+        "title": "詳細ドキュメント",
+        "description": "技術的な仕様や詳細な機能説明をご確認いただけます。",
+        "button": "ドキュメントを見る"
+      },
+      "hours": {
+        "title": "サポート時間",
+        "weekdays": "平日: 10:00 - 18:00",
+        "timezone": "日本標準時 (JST)",
+        "note": "プロ・プレミアムプランユーザーには優先サポートを提供しています。"
+      }
+    },
+    "faq": {
+      "accountCreation": {
+        "question": "アカウントはどのように作成しますか？",
+        "answer": "ホームページの「無料で始める」ボタンをクリックし、メールアドレスとパスワードを入力するか、GoogleまたはGitHubアカウントでサインアップできます。登録は無料で、クレジットカード情報の入力は不要です。"
+      },
+      "firstQuiz": {
+        "question": "初めてのクイズはどうやって作成しますか？",
+        "answer": "ダッシュボードで「新しいクイズを作成」をクリックし、クイズタイプ（シンプルクイズ、試験、アンケートなど）を選択します。タイトルと説明を入力し、質問を追加していくだけで簡単に作成できます。"
+      },
+      "freePlanLimits": {
+        "question": "無料プランの制限は何ですか？",
+        "answer": "無料プランでは、最大5つのクイズ、各クイズ20問まで、月間100回までの回答を受け付けます。基本的な問題タイプ（マルバツ、選択、記述）と自動採点機能が利用できます。"
+      },
+      "questionTypes": {
+        "question": "どのような問題タイプが使えますか？",
+        "answer": "マルバツ問題、単一選択、複数選択、自由記述問題が基本です。プロプランでは数値入力、穴埋め、マッチング、並び替え、図解問題なども利用できます。"
+      },
+      "quizSettings": {
+        "question": "クイズの設定はどこで変更できますか？",
+        "answer": "クイズ編集画面の「設定」タブで、制限時間、合格点、パスワード保護、受験者情報の収集設定などを変更できます。公開設定もここで調整可能です。"
+      },
+      "mediaUpload": {
+        "question": "画像や動画をアップロードできますか？",
+        "answer": "はい。問題文や選択肢に画像を追加できます。プロプランでは動画の埋め込みも可能で、より豊かなコンテンツを作成できます。"
+      },
+      "inviteMembers": {
+        "question": "チームメンバーはどうやって招待しますか？",
+        "answer": "ダッシュボードの「メンバー管理」から、メールアドレスで招待できます。招待されたメンバーには権限（編集者、閲覧者、管理者）を設定できます。"
+      },
+      "userRoles": {
+        "question": "ユーザー権限の違いは何ですか？",
+        "answer": "管理者は全機能にアクセス可能、編集者はクイズの作成・編集が可能、閲覧者は結果の確認のみ可能です。チーム所有者は請求設定なども管理できます。"
+      },
+      "upgradePlan": {
+        "question": "プランのアップグレード方法は？",
+        "answer": "ダッシュボードの「設定」→「プラン管理」から、希望するプランを選択してクレジットカード情報を入力するだけです。14日間の無料トライアル付きです。"
+      },
+      "cancelSubscription": {
+        "question": "サブスクリプションの解約方法は？",
+        "answer": "プラン管理画面から「プランをキャンセル」をクリックするだけです。解約後も契約期間終了まで全機能をご利用いただけます。"
+      },
+      "paymentMethods": {
+        "question": "どのような支払い方法に対応していますか？",
+        "answer": "主要クレジットカード（VISA、Mastercard、JCB、American Express）に対応しています。プレミアムプランでは銀行振込も選択可能です。"
+      },
+      "viewResults": {
+        "question": "クイズの結果はどこで確認できますか？",
+        "answer": "クイズ一覧から対象のクイズを選択し、「分析」タブで詳細な結果を確認できます。個別の回答内容や統計情報も表示されます。"
+      },
+      "exportData": {
+        "question": "データのエクスポートは可能ですか？",
+        "answer": "CSV・Excel形式でクイズデータと受験結果をエクスポートできます。プロプランでは詳細な分析レポートのPDF出力も利用可能です。"
+      },
+      "dataSecurity": {
+        "question": "データのセキュリティはどうなっていますか？",
+        "answer": "SSL暗号化通信、定期的なバックアップ、厳格なアクセス制御を実施しています。データは認証を受けたデータセンターで管理され、GDPR等の規制に準拠しています。"
+      },
+      "passwordReset": {
+        "question": "パスワードを忘れた場合はどうすればいいですか？",
+        "answer": "ログイン画面の「パスワードをお忘れですか？」をクリックし、登録メールアドレスを入力してください。パスワードリセット用のリンクを送信いたします。"
+      },
+      "browserSupport": {
+        "question": "対応ブラウザを教えてください",
+        "answer": "Chrome、Firefox、Safari、Microsoft Edgeの最新版に対応しています。モバイルデバイス（iOS Safari、Android Chrome）でも利用可能です。IE11以前は非対応です。"
+      },
+      "loadingIssues": {
+        "question": "ページの読み込みが遅い場合は？",
+        "answer": "ブラウザのキャッシュをクリアしたり、別のブラウザで試してください。問題が続く場合は、ネットワーク環境を確認するか、サポートまでお問い合わせください。"
+      }
+    }
+  },
   "faq": {
     "title": "よくある質問",
     "description": "ExamForgeについてよく寄せられる質問とその回答をまとめました。",
@@ -806,14 +1023,15 @@
     "welcome": "おかえりなさい、{name}さん",
     "overview": "概要",
     "recentActivity": "最近のアクティビティ",
+    "refresh": "更新",
     "quickActions": {
       "title": "クイックアクション",
       "createQuiz": {
-        "label": "新しいクイズを作成",
+        "label": "新規クイズ作成",
         "description": "新しいクイズを素早く作成"
       },
       "inviteUsers": {
-        "label": "受験者を招待",
+        "label": "参加者を招待",
         "description": "チームメンバーを招待"
       },
       "viewReports": {
@@ -821,7 +1039,7 @@
         "description": "詳細な分析レポートを表示"
       },
       "manageSettings": {
-        "label": "設定を管理",
+        "label": "設定管理",
         "description": "アカウント設定を管理"
       },
       "questionBank": {
@@ -841,8 +1059,8 @@
         "description": "テーマをカスタマイズ"
       },
       "moreActions": "その他のアクション",
-      "needHelp": "お困りですか？",
-      "helpCenter": "ヘルプセンターへ"
+      "needHelp": "ヘルプが必要ですか？",
+      "helpCenter": "ヘルプセンターにアクセス"
     },
     "todaysTasks": "今日のタスク",
     "today": "今日",
@@ -851,9 +1069,9 @@
     "settings": "設定",
     "profile": "プロフィール",
     "logout": "ログアウト",
-    "recentAchievements": "最近の成果",
+    "recentAchievements": "最近の実績",
     "weeklyCompletionRate": "週間完了率",
-    "newParticipants": "新規受験者",
+    "newParticipants": "新規参加者",
     "defaultUser": "ユーザー",
     "navigation": {
       "menu": "メニュー",
@@ -862,10 +1080,11 @@
       "createQuiz": "クイズ作成",
       "questionBank": "問題バンク",
       "templates": "テンプレート",
-      "analytics": "レポート・分析",
+      "analytics": "レポート & 分析",
       "members": "メンバー管理",
       "media": "メディアライブラリ",
       "settings": "設定",
+      "teamSettings": "チーム設定",
       "help": "ヘルプ",
       "documentation": "ドキュメント",
       "expand": "サイドバーを展開",
@@ -875,26 +1094,32 @@
     },
     "tasks": {
       "marketingQuizReview": "マーケティング基礎クイズのレビュー",
-      "newEmployeeTrainingReview": "新入社員研修の結果レビュー",
-      "q2AssessmentPrep": "第2四半期評価テストの準備"
+      "newEmployeeTrainingReview": "新入社員研修結果のレビュー",
+      "q2AssessmentPrep": "Q2評価テストの準備"
     },
     "stats": {
       "totalQuizzes": "総クイズ数",
-      "monthlyParticipants": "月間受験者数",
+      "monthlyParticipants": "月間参加者数",
       "averageScore": "平均スコア",
-      "activeQuizzes": "アクティブなクイズ"
+      "activeQuizzes": "アクティブなクイズ",
+      "noData": "データがありません"
     },
     "recentQuizzes": {
       "title": "最近のクイズ",
       "created": "作成日",
-      "status": "ステータス",
       "edit": "編集",
       "preview": "プレビュー",
-      "viewAll": "すべて見る",
+      "viewAll": "すべて表示",
+      "questions": "問題",
       "questionsCount": "問題数: {count}",
-      "participantsCount": "受験者数: {count}",
+      "participantsCount": "参加者数: {count}",
+      "status": {
+        "published": "公開中",
+        "draft": "下書き",
+        "archived": "アーカイブ"
+      },
       "statusBadge": {
-        "published": "公開済み",
+        "published": "公開中",
         "draft": "下書き",
         "archived": "アーカイブ"
       },
@@ -903,14 +1128,15 @@
         "share": "共有",
         "export": "エクスポート",
         "delete": "削除"
-      }
+      },
+      "noQuizzes": "クイズが見つかりません"
     },
     "activity": {
       "title": "アクティビティ",
       "quizCreated": "クイズが作成されました",
       "quizCompleted": "クイズが完了しました",
       "userJoined": "新しいユーザーが参加しました",
-      "viewAll": "すべてのアクティビティを見る",
+      "viewAll": "すべてのアクティビティを表示",
       "timeAgo": {
         "minutes": "{minutes}分前",
         "hours": "{hours}時間前"
@@ -925,12 +1151,12 @@
           "description": "新しいクイズ{quiz}が作成されました"
         },
         "userJoined": {
-          "title": "新規ユーザー参加",
+          "title": "新しいユーザーが参加",
           "description": "{user}がチームに参加しました"
         },
         "quizEdited": {
           "title": "クイズ編集",
-          "description": "{quiz}の質問が更新されました"
+          "description": "{quiz}の問題が更新されました"
         },
         "quizShared": {
           "title": "クイズ共有",
@@ -939,16 +1165,24 @@
       },
       "metadata": {
         "score": "スコア: {score}%",
-        "participants": "受験者数: {participants}"
-      }
+        "participants": "参加者: {participants}"
+      },
+      "noActivity": "最近のアクティビティがありません"
     },
     "usage": {
-      "title": "使用状況",
-      "quizLimit": "クイズ作成上限",
-      "participantLimit": "受験者数上限",
+      "title": "使用量",
+      "noData": "使用量データがありません",
+      "quizzes": "クイズ",
+      "participants": "月間参加者",
+      "storage": "ストレージ",
+      "members": "メンバー",
+      "currentPlan": "現在のプラン",
       "upgrade": "アップグレード",
+      "unlimited": "無制限",
+      "quizLimit": "クイズ上限",
+      "participantLimit": "参加者上限",
       "units": {
-        "items": "個",
+        "items": "項目",
         "peoplePerMonth": "人/月",
         "people": "人",
         "mb": "MB"
@@ -960,29 +1194,29 @@
       },
       "plans": {
         "free": "無料プラン",
-        "pro": "Proプラン",
+        "pro": "プロプラン",
         "premium": "プレミアムプラン"
       },
       "metrics": {
-        "quizzes": "クイズ数",
-        "participants": "月間受験者数",
+        "quizzes": "クイズ",
+        "participants": "月間参加者",
         "storage": "ストレージ",
-        "members": "メンバー数"
+        "members": "メンバー"
       },
-      "percentUsed": "{percent}%使用中",
+      "percentUsed": "{percent}% 使用",
       "remaining": "残り: {amount} {unit}",
-      "upgradePrompt": "もっと多くの機能を使いたいですか？",
-      "upgradeDescription": "Proプランにアップグレードして、無制限のクイズ作成、高度な分析、AI自動生成などをご利用ください。",
-      "priceFrom": "月額2,980円",
+      "upgradePrompt": "より多くの機能を使いたいですか？",
+      "upgradeDescription": "プロプランにアップグレードして、無制限のクイズ作成、高度な分析、AI自動生成などをご利用ください。",
+      "priceFrom": "月額$29",
       "from": "から",
-      "showDetails": "詳細な使用状況を表示"
+      "showDetails": "詳細な使用量を表示"
     },
     "actions": {
       "title": "クイックアクション",
-      "createQuiz": "新しいクイズを作成",
-      "inviteUsers": "受験者を招待",
-      "viewReports": "レポートを見る",
-      "manageSettings": "設定を管理"
+      "createQuiz": "新規クイズ作成",
+      "inviteUsers": "参加者を招待",
+      "viewReports": "レポートを表示",
+      "manageSettings": "設定管理"
     },
     "planStatus": {
       "title": "現在のプラン",
@@ -992,18 +1226,18 @@
         "premium": "プレミアムプラン"
       },
       "usage": {
-        "quizzes": "クイズ数",
+        "quizzes": "クイズ",
         "responses": "今月の回答数",
-        "questionsPerQuiz": "1クイズあたりの質問数",
+        "questionsPerQuiz": "クイズあたりの問題数",
         "upTo": "最大"
       },
       "features": {
-        "title": "プラン特典",
-        "aiGeneration": "AI質問生成",
-        "advancedAnalytics": "詳細分析機能",
+        "title": "プラン機能",
+        "aiGeneration": "AI問題生成",
+        "advancedAnalytics": "高度な分析",
         "excelImport": "Excel一括インポート"
       },
-      "upgradeButton": "プロプランにアップグレード",
+      "upgradeButton": "プロにアップグレード",
       "subscription": {
         "nextBilling": "次回請求日"
       }
@@ -1013,17 +1247,17 @@
         "title": "クイズ分析",
         "totalResponses": "総回答数",
         "avgScore": "平均スコア",
-        "completionRate": "合格率",
-        "avgTime": "平均回答時間",
-        "back": "クイズ詳細に戻る",
+        "completionRate": "完了率",
+        "avgTime": "平均時間",
+        "back": "クイズに戻る",
         "export": "エクスポート",
         "exporting": "エクスポート中...",
-        "exportSuccess": "分析データをエクスポートしました",
-        "exportFailed": "エクスポートに失敗しました",
-        "exportRequiresPro": "エクスポート機能はプロプランが必要です",
+        "exportSuccess": "分析データのエクスポートが完了しました",
+        "exportFailed": "分析データのエクスポートに失敗しました",
+        "exportRequiresPro": "エクスポート機能にはプロプランが必要です",
         "filterAll": "全期間",
-        "filter30d": "直近30日",
-        "filter7d": "直近7日",
+        "filter30d": "過去30日",
+        "filter7d": "過去7日",
         "noDataAvailable": "選択した期間のデータがありません"
       }
     }
@@ -1099,6 +1333,7 @@
     "cardActions": {
       "openMenu": "メニューを開く",
       "preview": "プレビュー",
+      "takeQuiz": "クイズを受ける",
       "edit": "編集",
       "share": "共有",
       "duplicate": "複製",
@@ -1199,7 +1434,6 @@
       "coverImage": "カバー画像",
       "coverImageAlt": "カバー画像",
       "uploadCoverImage": "カバー画像をアップロード（Proプラン）",
-      "settings": "クイズ設定",
       "timeLimit": "制限時間（分）",
       "timeLimitPlaceholder": "無制限",
       "shuffleQuestions": "問題をシャッフル",
@@ -1208,7 +1442,6 @@
       "maxAttemptsPlaceholder": "無制限",
       "proPlanFeature": "Proプラン機能",
       "minutes": "分",
-      "settingsMovedToProTab": "詳細設定はPro機能タブに移動しました。",
       "coverImageHelperText": "推奨サイズ: 1200x630px",
       "publish": {
         "title": "クイズを公開",
@@ -1567,6 +1800,77 @@
       "delete": "削除"
     }
   },
+  "respondents": {
+    "pageTitle": "回答者管理",
+    "pageDescription": "クイズ受講者の管理と成績分析",
+    "title": "回答者管理",
+    "description": "クイズを受講したユーザーの成績や活動状況を確認・管理できます",
+    "status": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "blocked": "ブロック済み"
+    },
+    "actions": {
+      "export": "エクスポート",
+      "invite": "招待",
+      "sendEmail": "メール送信",
+      "bulkActions": "一括操作"
+    },
+    "stats": {
+      "totalRespondents": "総回答者数",
+      "active": "アクティブ",
+      "avgScore": "平均スコア",
+      "avgScoreDescription": "全回答者の平均成績",
+      "totalQuizzes": "総受講数",
+      "totalQuizzesDescription": "全クイズの受講回数",
+      "totalPoints": "総獲得ポイント",
+      "totalPointsDescription": "全回答者の獲得ポイント"
+    },
+    "search": {
+      "placeholder": "名前またはメールアドレスで検索..."
+    },
+    "filters": {
+      "all": "すべて",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "blocked": "ブロック済み"
+    },
+    "selected": "件選択中",
+    "table": {
+      "title": "回答者一覧",
+      "description": "クイズを受講した全てのユーザー",
+      "selectAll": "すべて選択",
+      "quizzes": "受講数",
+      "avgScore": "平均スコア",
+      "points": "ポイント"
+    },
+    "details": {
+      "title": "回答者詳細",
+      "description": "詳細な成績と活動履歴",
+      "tabs": {
+        "overview": "概要",
+        "quizzes": "受講履歴",
+        "activity": "活動記録"
+      },
+      "info": {
+        "basic": "基本情報",
+        "email": "メールアドレス",
+        "joined": "参加日",
+        "status": "ステータス",
+        "performance": "成績情報",
+        "completed": "受講完了",
+        "avgScore": "平均スコア",
+        "totalPoints": "総獲得ポイント",
+        "tags": "タグ"
+      },
+      "activityPlaceholder": "活動記録は今後のアップデートで実装予定です"
+    },
+    "empty": {
+      "title": "回答者がいません",
+      "description": "まだクイズを受講したユーザーがいません",
+      "action": "ユーザーを招待"
+    }
+  },
   "media": {
     "title": "メディアライブラリ",
     "description": "アップロードしたすべてのメディアファイルを一元管理",
@@ -1618,6 +1922,145 @@
       "cancel": "キャンセル",
       "save": "保存",
       "saving": "保存中..."
+    }
+  },
+  "team": {
+    "title": "チーム管理",
+    "description": "チームとメンバーを管理します",
+    "selectTeam": "チームを選択",
+    "noDescription": "説明がありません",
+    "membersCount": "{count}人のメンバー",
+    "quizzesCount": "{count}個のクイズ",
+    "teamId": "チームID",
+    "viewMembers": "メンバーを見る",
+    "viewSettings": "設定を見る",
+    "tabs": {
+      "members": "メンバー",
+      "settings": "設定",
+      "permissions": "権限"
+    },
+    "permissions": {
+      "description": "各役割の権限について",
+      "owner": "オーナー",
+      "ownerDescription": "すべての権限を持ちます",
+      "admin": "管理者",
+      "adminDescription": "メンバーの管理とクイズの編集ができます",
+      "member": "メンバー",
+      "memberDescription": "クイズの作成と編集ができます",
+      "viewer": "閲覧者",
+      "viewerDescription": "クイズの閲覧のみできます"
+    },
+    "noTeams": {
+      "title": "チームがありません",
+      "description": "チームを作成して始めましょう",
+      "createTeam": "チームを作成"
+    },
+    "members": {
+      "title": "チームメンバー",
+      "description": "{teamName}のメンバーを管理",
+      "inviteMember": "メンバーを招待",
+      "inviteDialogTitle": "新しいメンバーを招待",
+      "inviteDialogDescription": "メールアドレスと役割を入力して、チームに新しいメンバーを招待してください。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "member@example.com",
+      "roleLabel": "役割",
+      "inviteButton": "招待を送信",
+      "inviteSuccess": "招待を送信しました",
+      "inviteError": "招待の送信に失敗しました",
+      "removeConfirm": "このメンバーをチームから除名してもよろしいですか？",
+      "removeSuccess": "メンバーを除名しました",
+      "removeError": "メンバーの除名に失敗しました",
+      "roleUpdateSuccess": "役割を更新しました",
+      "roleUpdateError": "役割の更新に失敗しました",
+      "limitReachedTitle": "メンバー数の上限に達しました",
+      "limitReachedDescription": "現在のプランでは最大{max}人まで招待できます。",
+      "membersList": "メンバー一覧",
+      "membersCount": "{count} / {max}人のメンバー",
+      "memberColumn": "メンバー",
+      "roleColumn": "役割",
+      "joinedColumn": "参加日",
+      "you": "あなた",
+      "actions": "アクション",
+      "makeAdmin": "管理者にする",
+      "makeMember": "メンバーにする",
+      "makeViewer": "閲覧者にする",
+      "remove": "除名",
+      "roles": {
+        "owner": "オーナー",
+        "admin": "管理者",
+        "member": "メンバー",
+        "viewer": "閲覧者"
+      }
+    },
+    "settings": {
+      "title": "チーム設定",
+      "description": "チームの基本情報と設定を管理します",
+      "updateSuccess": "設定を更新しました",
+      "updateError": "設定の更新に失敗しました",
+      "tabs": {
+        "general": "一般",
+        "billing": "請求",
+        "security": "セキュリティ"
+      },
+      "general": {
+        "title": "基本情報",
+        "description": "チームの基本情報を設定します",
+        "teamName": "チーム名",
+        "teamSlug": "チームID",
+        "slugHelp": "URLで使用される一意の識別子",
+        "teamDescription": "チームの説明",
+        "descriptionPlaceholder": "チームの目的や活動内容を入力してください",
+        "teamLogo": "チームロゴ",
+        "logoHelp": "推奨サイズ: 200x200px",
+        "saveChanges": "変更を保存"
+      },
+      "info": {
+        "title": "チーム情報",
+        "created": "作成日",
+        "teamId": "チームID",
+        "members": "メンバー",
+        "quizzes": "クイズ"
+      },
+      "billing": {
+        "title": "サブスクリプション",
+        "description": "現在のプランと請求情報",
+        "price": "{price} {currency} / {interval}",
+        "interval": {
+          "month": "月",
+          "year": "年"
+        },
+        "status": {
+          "active": "有効",
+          "trialing": "試用中",
+          "past_due": "支払い遅延",
+          "canceled": "キャンセル済み"
+        },
+        "limits": "使用制限",
+        "maxMembers": "最大メンバー数",
+        "maxQuizzes": "最大クイズ数",
+        "nextBilling": "次回請求日: {date}",
+        "manageSubscription": "サブスクリプション管理",
+        "noPlan": "有効なサブスクリプションがありません",
+        "upgradePlan": "プランをアップグレード"
+      },
+      "security": {
+        "title": "セキュリティ設定",
+        "description": "チームのセキュリティとアクセス制御を管理します",
+        "twoFactor": "二要素認証",
+        "twoFactorDescription": "チームメンバーに二要素認証を必須にする",
+        "apiKeys": "APIキー",
+        "apiKeysDescription": "外部統合用のAPIキーを管理",
+        "auditLogs": "監査ログ",
+        "auditLogsDescription": "すべてのチーム活動を追跡",
+        "comingSoon": "近日公開",
+        "enterpriseOnly": "エンタープライズ限定"
+      },
+      "danger": {
+        "title": "危険な操作",
+        "description": "これらの操作は取り消せません",
+        "deleteTeam": "チームを削除",
+        "deleteWarning": "チームを削除すると、すべてのデータが完全に削除されます"
+      }
     }
   }
 }
