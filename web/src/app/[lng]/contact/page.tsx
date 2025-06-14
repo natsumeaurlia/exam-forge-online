@@ -4,7 +4,7 @@ import { DefaultLayout } from '@/components/layout/DefaultLayout';
 import { ContactForm } from '@/components/contact/ContactForm';
 
 interface ContactPageProps {
-  params: { lng: string };
+  params: Promise<{ lng: string }>;
 }
 
 interface FAQItem {
@@ -13,7 +13,7 @@ interface FAQItem {
 }
 
 export default async function ContactPage({ params }: ContactPageProps) {
-  const { lng } = params;
+  const { lng } = await params;
   const t = await getTranslations('pages.contact');
 
   // Get all translations as static data

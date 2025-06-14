@@ -7,6 +7,7 @@ import {
   getQuizPreviewUrl,
   getQuizEditUrl,
   getQuizAnalyticsUrl,
+  getQuizTakeUrl,
 } from '@/lib/utils/quiz';
 
 export function useQuizCardActions(quizId: string, lng: string) {
@@ -54,6 +55,11 @@ export function useQuizCardActions(quizId: string, lng: string) {
     executeDelete({ id: quizId });
   };
 
+  const handleTakeQuiz = () => {
+    const takeUrl = getQuizTakeUrl(quizId);
+    window.open(takeUrl, '_blank');
+  };
+
   return {
     handlePreview,
     handleEdit,
@@ -61,6 +67,7 @@ export function useQuizCardActions(quizId: string, lng: string) {
     handleCopy,
     handleAnalytics,
     handleDelete,
+    handleTakeQuiz,
     isDeleting,
   };
 }

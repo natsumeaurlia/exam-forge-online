@@ -49,8 +49,8 @@ test.describe('Session Handling Tests', () => {
   }) => {
     // First, sign in successfully
     await page.goto('/ja/auth/signin');
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password');
+    await page.fill('#email', 'test@example.com');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
 
     // Wait for dashboard
@@ -83,8 +83,8 @@ test.describe('Session Handling Tests', () => {
     await expect(page).toHaveURL(/\/en\/auth\/signin/);
 
     // Sign in
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password');
+    await page.fill('#email', 'test@example.com');
+    await page.fill('#password', 'password');
     await page.click('button[type="submit"]');
 
     // Should return to English dashboard

@@ -4,10 +4,11 @@ import { MediaGallery } from '@/components/media/MediaGallery';
 import { getTranslations } from 'next-intl/server';
 
 export async function generateMetadata({
-  params: { lng },
+  params,
 }: {
-  params: { lng: string };
+  params: Promise<{ lng: string }>;
 }) {
+  const { lng } = await params;
   const t = await getTranslations({ locale: lng, namespace: 'media' });
   return {
     title: t('title'),
@@ -16,10 +17,11 @@ export async function generateMetadata({
 }
 
 export default async function MediaPage({
-  params: { lng },
+  params,
 }: {
-  params: { lng: string };
+  params: Promise<{ lng: string }>;
 }) {
+  const { lng } = await params;
   const session = await auth();
 
   if (!session?.user) {

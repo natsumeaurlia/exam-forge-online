@@ -28,6 +28,7 @@ interface QuizCardPresentationProps {
   onCopy: () => void;
   onAnalytics: () => void;
   onDelete: () => void;
+  onTakeQuiz: () => void;
 }
 
 export function QuizCardPresentation({
@@ -44,6 +45,7 @@ export function QuizCardPresentation({
   onCopy,
   onAnalytics,
   onDelete,
+  onTakeQuiz,
 }: QuizCardPresentationProps) {
   const t = useTranslations('quizManagement');
 
@@ -73,6 +75,7 @@ export function QuizCardPresentation({
               onCopy={onCopy}
               onAnalytics={onAnalytics}
               onDelete={onDelete}
+              onTakeQuiz={onTakeQuiz}
             />
           </div>
         </div>

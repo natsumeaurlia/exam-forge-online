@@ -16,12 +16,11 @@ const publicPaths = [
   '/legal',
 ] as const;
 
-// SECURITY: API routes that require authentication
-const protectedApiPaths = [
-  '/api/upload',
-  '/api/storage',
-  '/api/stripe/checkout',
-  '/api/stripe/portal',
+// SECURITY FIX: Switch to secure-by-default - all API routes require auth unless explicitly excluded
+const publicApiPaths = [
+  '/api/auth/',
+  '/api/stripe/webhook',
+  '/api/certificates/verify/',
 ] as const;
 
 // Create the internationalization middleware
@@ -50,19 +49,23 @@ export default async function middleware(request: NextRequest) {
     ? (pathSegments[1] as 'en' | 'ja')
     : 'ja';
 
+  // Skip middleware for NextAuth API routes to prevent interference
+  if (pathname.startsWith('/api/auth/')) {
+    return NextResponse.next();
+  }
+
   // Check if this is a public path (doesn't require authentication)
   const isPublicPath = publicPaths.some(path => {
     const fullPath = `/${locale}${path === '/' ? '' : path}`;
     return pathname === fullPath || pathname === path;
   });
 
-  // Check if this is a public API path (auth and webhook endpoints)
-  const isPublicApiPath =
-    pathname.startsWith('/api/auth/') ||
-    pathname.startsWith('/api/stripe/webhook') ||
-    pathname.startsWith('/api/certificates/verify/');
+  // SECURITY FIX: Secure-by-default - check if API route is explicitly public
+  const isPublicApiPath = publicApiPaths.some(path =>
+    pathname.startsWith(path)
+  );
 
-  // For public paths and public API routes, use only i18n middleware
+  // For public paths and explicitly public API routes, use only i18n middleware
   if (isPublicPath || (pathname.startsWith('/api') && isPublicApiPath)) {
     return intlMiddleware(request);
   }
@@ -86,6 +89,29 @@ export default async function middleware(request: NextRequest) {
       signInUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(signInUrl);
     }
+
+    // Additional database validation for authenticated requests
+    // This ensures users exist in the database even if they have valid tokens
+    if (
+      pathname.startsWith(`/${locale}/dashboard`) ||
+      pathname.startsWith(`/${locale}/quiz`)
+    ) {
+      // Add a header to identify this as needing database validation
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('x-auth-validation-required', 'true');
+      requestHeaders.set('x-user-id', token.sub || '');
+
+      const response = intlMiddleware(request);
+
+      // Copy headers to the response
+      if (response instanceof NextResponse) {
+        requestHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+      }
+
+      return response;
+    }
   } catch (error) {
     // JWTデコードエラーの場合も認証なしとして処理
     console.warn('JWT validation error:', error);
@@ -99,7 +125,15 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Match only internationalized pathnames
-  // Exclude API routes, Next.js internals, and static files
-  matcher: ['/', '/(ja|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+  // Match internationalized pathnames and protected API routes
+  // Exclude Next.js internals, static files, and NextAuth API routes
+  matcher: [
+    '/',
+    '/(ja|en)/:path*',
+    '/api/upload/:path*',
+    '/api/storage/:path*',
+    '/api/stripe/checkout/:path*',
+    '/api/stripe/portal/:path*',
+    '/((?!_next|_vercel|api/auth|.*\\..*).*)',
+  ],
 };

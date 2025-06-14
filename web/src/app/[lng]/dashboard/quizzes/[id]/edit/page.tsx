@@ -13,9 +13,13 @@ export default async function QuizEditPage({ params }: QuizEditPageProps) {
   const { id, lng } = await params;
 
   try {
-    const quiz = await getQuizForEdit(id);
+    const result = await getQuizForEdit({ quizId: id });
 
-    return <QuizEditor quiz={quiz} lng={lng} />;
+    if (!result || !result.data || !result.data.quiz) {
+      notFound();
+    }
+
+    return <QuizEditor quiz={result.data.quiz} lng={lng} />;
   } catch (error) {
     notFound();
   }

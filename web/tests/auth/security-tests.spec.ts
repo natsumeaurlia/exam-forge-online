@@ -7,7 +7,7 @@ test.describe('不正アクセス防止テスト', () => {
       const response = await request.post('/api/auth/signup', {
         data: {
           email: 'test@example.com',
-          password: 'TestPassword123!',
+          password: 'password123',
           name: 'Test User',
         },
       });
@@ -21,8 +21,8 @@ test.describe('不正アクセス防止テスト', () => {
     test('他ユーザーのリソースへのアクセス拒否', async ({ page }) => {
       // ユーザーAとしてログイン
       await page.goto('/ja/auth/signin');
-      await page.fill('input[name="email"]', 'userA@example.com');
-      await page.fill('input[name="password"]', 'TestPassword123!');
+      await page.fill('#email', 'userA@example.com');
+      await page.fill('#password', 'password123');
       await page.click('button[type="submit"]');
       await page.waitForURL('**/dashboard');
 
@@ -55,8 +55,8 @@ test.describe('不正アクセス防止テスト', () => {
 
       // 5回連続で間違ったパスワードでログインを試みる
       for (let i = 0; i < 5; i++) {
-        await page.fill('input[name="email"]', 'test@example.com');
-        await page.fill('input[name="password"]', `WrongPassword${i}`);
+        await page.fill('#email', 'test@example.com');
+        await page.fill('#password', `WrongPassword${i}`);
         await page.click('button[type="submit"]');
 
         if (i < 4) {
@@ -109,8 +109,8 @@ test.describe('不正アクセス防止テスト', () => {
       await page.goto('/ja/auth/signin');
 
       // SQLインジェクションを試みる
-      await page.fill('input[name="email"]', "test@example.com' OR '1'='1");
-      await page.fill('input[name="password"]', "password' OR '1'='1");
+      await page.fill('#email', "test@example.com' OR '1'='1");
+      await page.fill('#password', "password' OR '1'='1");
       await page.click('button[type="submit"]');
 
       // 通常のエラーメッセージが表示され、インジェクションが無効化されていることを確認
@@ -124,11 +124,11 @@ test.describe('不正アクセス防止テスト', () => {
 
       // XSSを試みる
       const xssPayload = '<script>alert("XSS")</script>';
-      await page.fill('input[name="name"]', xssPayload);
-      await page.fill('input[name="email"]', 'test@example.com');
-      await page.fill('input[name="password"]', 'TestPassword123!');
-      await page.fill('input[name="confirmPassword"]', 'TestPassword123!');
-      await page.check('input[name="terms"]');
+      await page.fill('#name', xssPayload);
+      await page.fill('#email', 'test@example.com');
+      await page.fill('#password', 'password123');
+      await page.fill('#confirmPassword', 'password123');
+      await page.check('#terms');
       await page.click('button[type="submit"]');
 
       // スクリプトが実行されず、エスケープされて表示されることを確認
@@ -160,8 +160,8 @@ test.describe('不正アクセス防止テスト', () => {
     test('セキュアなCookie設定', async ({ page, context }) => {
       // ログイン
       await page.goto('/ja/auth/signin');
-      await page.fill('input[name="email"]', 'test@example.com');
-      await page.fill('input[name="password"]', 'TestPassword123!');
+      await page.fill('#email', 'test@example.com');
+      await page.fill('#password', 'password123');
       await page.click('button[type="submit"]');
       await page.waitForURL('**/dashboard');
 

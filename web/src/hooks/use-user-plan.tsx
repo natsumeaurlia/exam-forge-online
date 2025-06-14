@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAction } from 'next-safe-action/hooks';
 import { getUserPlan } from '@/lib/actions/user';
 import type { Plan, Subscription, PlanType, FeatureType } from '@prisma/client';
 
@@ -24,32 +25,35 @@ interface UseUserPlanReturn {
 
 export function useUserPlan(): UseUserPlanReturn {
   const [data, setData] = useState<UserPlanData | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPlan = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await getUserPlan();
-
-      if (!result.success || !result.data) {
-        setError(result.error || 'Failed to fetch plan');
-        return;
-      }
-
-      setData(result.data);
-    } catch (err) {
-      setError('Failed to fetch user plan');
-      console.error(err);
-    } finally {
-      setLoading(false);
+  const { execute: executeGetUserPlan, isExecuting: loading } = useAction(
+    getUserPlan,
+    {
+      onSuccess: ({ data: planData }) => {
+        if (
+          planData &&
+          typeof planData === 'object' &&
+          'planType' in planData
+        ) {
+          setData(planData as UserPlanData);
+          setError(null);
+        }
+      },
+      onError: ({ error: actionError }) => {
+        setError('Failed to fetch user plan');
+        console.error(actionError);
+      },
     }
-  };
+  );
+
+  const fetchPlan = useCallback(async () => {
+    executeGetUserPlan({});
+  }, [executeGetUserPlan]);
 
   useEffect(() => {
     fetchPlan();
-  }, []);
+  }, [fetchPlan]);
 
   const isPro = data?.planType === 'PRO';
   const isPremium = data?.planType === 'PREMIUM';

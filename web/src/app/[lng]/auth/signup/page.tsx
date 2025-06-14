@@ -2,7 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useState, use, useEffect } from 'react';
-import { getAvailableProviders } from '@/lib/auth';
+import { getEnabledProviders } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -76,7 +76,12 @@ export default function SignUpPage({ params }: SignUpPageProps) {
   });
 
   useEffect(() => {
-    setAvailableProviders(getAvailableProviders());
+    const providers = getEnabledProviders();
+    setAvailableProviders({
+      google: providers.includes('google'),
+      github: providers.includes('github'),
+      credentials: providers.includes('credentials'),
+    });
   }, []);
 
   // ServerActionを使用
@@ -102,7 +107,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     },
     onError: error => {
       if (error.error?.serverError) {
-        setErrors({ email: error.error.serverError });
+        setErrors({ email: String(error.error.serverError) });
       } else {
         setErrors({ email: 'エラーが発生しました' });
       }
@@ -160,7 +165,6 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               <h1 className="text-3xl font-bold text-gray-900">ExamForge</h1>
             </Link>
 
-            {/* Header */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold tracking-tight text-gray-900">
                 {t('title')}
@@ -184,7 +188,6 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               </Alert>
             )}
 
-            {/* Social Sign Up */}
             {(availableProviders.google || availableProviders.github) && (
               <div className="space-y-3">
                 {availableProviders.google && (
