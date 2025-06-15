@@ -2314,6 +2314,29 @@
       }
     }
   },
+  "quiz": {
+    "errors": {
+      "networkOffline": "オフラインです",
+      "networkOfflineDescription": "インターネット接続を確認してください",
+      "retry": "再試行",
+      "retrySuccess": "再試行が成功しました",
+      "retryFailed": "再試行に失敗しました",
+      "retryFailedDescription": "しばらくしてからもう一度お試しください",
+      "retryingMessage": "再試行中...",
+      "retrying": "再試行中",
+      "retryAttempts": "再試行: {current}/{max}",
+      "online": "オンライン",
+      "offline": "オフライン",
+      "hideDetails": "詳細を隠す",
+      "showDetails": "詳細を表示",
+      "dismiss": "閉じる",
+      "errorType": "エラー種別",
+      "errorCode": "エラーコード",
+      "technicalDetails": "技術詳細",
+      "timestamp": "発生時刻",
+      "recommendedAction": "推奨アクション"
+    }
+  },
   "questionBank": {
     "title": "問題バンク",
     "description": "チーム内で共有する問題を管理します",
@@ -2324,76 +2347,43 @@
     "tags": "タグ",
     "difficulty": "難易度",
     "type": "問題タイプ",
-    "search": {
-      "placeholder": "問題を検索...",
-      "button": "検索"
-    },
-    "filters": {
-      "title": "フィルター",
-      "category": "カテゴリ",
-      "categoryPlaceholder": "カテゴリを選択...",
-      "difficulty": "難易度",
-      "difficultyPlaceholder": "難易度を選択...",
-      "type": "タイプ",
-      "typePlaceholder": "タイプを選択...",
-      "sortBy": "並び替え",
-      "all": "すべて"
-    },
-    "difficulty": {
-      "easy": "簡単",
-      "medium": "普通",
-      "hard": "難しい",
-      "expert": "上級"
-    },
-    "types": {
-      "trueFalse": "正誤問題",
-      "multipleChoice": "選択問題",
-      "checkbox": "複数選択",
-      "shortAnswer": "記述問題"
-    },
-    "sort": {
-      "newest": "新しい順",
-      "oldest": "古い順",
-      "difficulty": "難易度順",
-      "type": "タイプ順"
-    },
-    "results": {
-      "found": "{count}件の問題が見つかりました",
-      "total": "合計{count}件"
-    },
-    "empty": {
-      "title": "問題がありません",
-      "description": "最初の問題を作成して問題バンクを始めましょう。",
-      "createFirst": "最初の問題を作成",
-      "generateWithAI": "AIで生成"
-    },
+    "search": "問題を検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "actions": "操作",
+    "edit": "編集",
+    "delete": "削除",
+    "preview": "プレビュー",
+    "addToQuiz": "クイズに追加",
+    "bulkActions": "一括操作",
+    "selectAll": "すべて選択",
+    "selectedCount": "{count}件選択中",
+    "noQuestions": "問題が見つかりません",
+    "createFirst": "最初の問題を作成しましょう"
+  },
+  "quiz": {
     "errors": {
-      "loadFailed": "問題の読み込みに失敗しました"
-    },
-    "actions": {
-      "create": "問題を作成",
-      "generateWithAI": "AIで生成",
-      "edit": "編集",
-      "delete": "削除",
-      "preview": "プレビュー",
-      "addToQuiz": "クイズに追加"
-    },
-    "category": {
-      "create": "カテゴリを作成",
-      "createTitle": "新しいカテゴリを作成",
-      "name": "名前",
-      "namePlaceholder": "カテゴリ名を入力",
-      "description": "説明",
-      "descriptionPlaceholder": "説明を入力（任意）",
-      "color": "色",
-      "cancel": "キャンセル",
-      "creating": "作成中...",
-      "createSuccess": "カテゴリを作成しました",
-      "createError": "カテゴリの作成に失敗しました",
-      "loadError": "カテゴリの読み込みに失敗しました",
-      "validation": {
-        "nameRequired": "カテゴリ名は必須です"
-      }
+      "networkOffline": "オフラインです",
+      "networkOfflineDescription": "インターネット接続を確認してください",
+      "retry": "再試行",
+      "retrySuccess": "再試行が成功しました",
+      "retryFailed": "再試行に失敗しました",
+      "retryFailedDescription": "しばらくしてからもう一度お試しください",
+      "retryingMessage": "再試行中...",
+      "retrying": "再試行中",
+      "retryAttempts": "再試行: {current}/{max}",
+      "online": "オンライン",
+      "offline": "オフライン",
+      "hideDetails": "詳細を隠す",
+      "showDetails": "詳細を表示",
+      "dismiss": "閉じる",
+      "errorType": "エラー種別",
+      "errorCode": "エラーコード",
+      "technicalDetails": "技術詳細",
+      "timestamp": "発生時刻",
+      "recommendedAction": "推奨アクション"
     }
+  }
+  }
   }
 }

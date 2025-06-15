@@ -1,11 +1,30 @@
 import { test, expect } from '@playwright/test';
+import {
+  getTestDataFactory,
+  cleanupTestData,
+} from '../fixtures/test-data-factory';
 
-test.describe.skip('Quiz Taking', () => {
-  // Sample public quiz ID (you'll need to replace with actual ID)
-  const publicQuizId = 'test-quiz-id';
+test.describe('Quiz Taking', () => {
+  let testQuizId: string;
+  let factory = getTestDataFactory();
+
+  test.beforeAll(async () => {
+    // Create test quiz with questions
+    const { quiz } = await factory.createQuiz({
+      title: 'E2E Test Quiz',
+      status: 'PUBLISHED',
+      questionCount: 5,
+      sharingMode: 'URL',
+    });
+    testQuizId = quiz.id;
+  });
+
+  test.afterAll(async () => {
+    await cleanupTestData();
+  });
 
   test('should display quiz start screen', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
 
     // Should show quiz title and info
     await expect(page.locator('h1')).toBeVisible();
@@ -18,7 +37,7 @@ test.describe.skip('Quiz Taking', () => {
 
   test('should require password for protected quiz', async ({ page }) => {
     // Navigate to password-protected quiz
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
 
     // Check if password field exists
     const passwordField = page.locator('#password');
@@ -35,7 +54,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should collect participant info when required', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
 
     // Check if participant info fields exist
     const nameField = page.locator('input[id="name"]');
@@ -49,7 +68,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should navigate through questions', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
     await page.getByRole('button', { name: 'クイズを開始' }).click();
 
     // Wait for question to load
@@ -77,7 +96,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should display progress bar', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
     await page.getByRole('button', { name: 'クイズを開始' }).click();
 
     // Check progress indicator
@@ -91,7 +110,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should handle different question types', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
     await page.getByRole('button', { name: 'クイズを開始' }).click();
 
     // Multiple choice
@@ -124,7 +143,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should show time limit countdown', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
 
     // Check if time limit is displayed
     const timeLimit = page.getByText(/制限時間.*分/);
@@ -137,7 +156,7 @@ test.describe.skip('Quiz Taking', () => {
   });
 
   test('should submit quiz and show results', async ({ page }) => {
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
     await page.getByRole('button', { name: 'クイズを開始' }).click();
 
     // Answer all questions (simplified - just click through)
@@ -175,7 +194,7 @@ test.describe.skip('Quiz Taking', () => {
 
   test('should show pass/fail status', async ({ page }) => {
     // Complete quiz and check results
-    await page.goto(`/ja/quiz/${publicQuizId}/take`);
+    await page.goto(`/ja/quiz/${testQuizId}/take`);
     await page.getByRole('button', { name: 'クイズを開始' }).click();
 
     // Quick submit (would normally answer questions)

@@ -43,7 +43,7 @@ export function QuizResults({
     getQuizResponse,
     {
       onSuccess: ({ data }) => {
-        if (data && data.data) {
+        if (data && 'data' in data && data.data) {
           setResponseData(data.data);
         }
       },
