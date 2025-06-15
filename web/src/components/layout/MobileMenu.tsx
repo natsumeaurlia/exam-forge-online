@@ -50,13 +50,21 @@ export const MobileMenu = ({
         aria-controls="mobile-navigation"
         aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
       >
-        {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+        {mobileMenuOpen ? (
+          <X aria-hidden="true" />
+        ) : (
+          <Menu aria-hidden="true" />
+        )}
       </button>
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="absolute top-full right-0 left-0 border-t bg-white/80 px-4 py-4 backdrop-blur-md md:hidden">
-          <nav id="mobile-navigation" className="flex flex-col gap-4" aria-label="Mobile navigation">
+          <nav
+            id="mobile-navigation"
+            className="flex flex-col gap-4"
+            aria-label="Mobile navigation"
+          >
             <Link
               href={getLinkHref('#features')}
               className="hover:text-examforge-blue text-sm font-medium transition-colors"

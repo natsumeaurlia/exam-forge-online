@@ -189,6 +189,55 @@ export const reorderQuestionsSchema = z.object({
 });
 
 // ============================================
+// セクション関連スキーマ
+// ============================================
+
+// セクション作成スキーマ
+export const createSectionSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'セクション名は必須です')
+    .max(100, 'セクション名は100文字以内で入力してください'),
+  description: z
+    .string()
+    .optional()
+    .transform(val => (val === '' ? undefined : val)),
+  quizId: idSchema,
+});
+
+// セクション更新スキーマ
+export const updateSectionSchema = z.object({
+  id: idSchema,
+  title: z
+    .string()
+    .min(1, 'セクション名は必須です')
+    .max(100, 'セクション名は100文字以内で入力してください')
+    .optional(),
+  description: z
+    .string()
+    .optional()
+    .transform(val => (val === '' ? undefined : val))
+    .nullable(),
+});
+
+// セクション削除スキーマ
+export const deleteSectionSchema = z.object({
+  id: idSchema,
+});
+
+// セクション順序変更スキーマ
+export const reorderSectionsSchema = z.object({
+  quizId: idSchema,
+  sectionIds: z.array(idSchema),
+});
+
+// 問題のセクション移動スキーマ
+export const moveQuestionToSectionSchema = z.object({
+  questionId: idSchema,
+  sectionId: idSchema.nullable(),
+});
+
+// ============================================
 // タグ関連スキーマ
 // ============================================
 

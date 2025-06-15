@@ -179,16 +179,16 @@ export const updateFeatureUsage = action
       teamId,
     });
 
-    if (!featureCheck.data?.hasAccess) {
+    if (!featureCheck.hasAccess) {
       throw new Error('Feature access denied');
     }
 
     // Check if incrementing would exceed limit
-    if (featureCheck.data.limit && !featureCheck.data.isUnlimited) {
-      const newUsage = (featureCheck.data.currentUsage || 0) + increment;
-      if (newUsage > featureCheck.data.limit) {
+    if (featureCheck.limit && !featureCheck.isUnlimited) {
+      const newUsage = (featureCheck.currentUsage || 0) + increment;
+      if (newUsage > featureCheck.limit) {
         throw new Error(
-          `Feature usage limit exceeded. Limit: ${featureCheck.data.limit}, Current: ${featureCheck.data.currentUsage}, Requested: ${increment}`
+          `Feature usage limit exceeded. Limit: ${featureCheck.limit}, Current: ${featureCheck.currentUsage}, Requested: ${increment}`
         );
       }
     }
@@ -218,7 +218,7 @@ export const updateFeatureUsage = action
     revalidatePath('/dashboard');
     return {
       success: true,
-      newUsage: (featureCheck.data.currentUsage || 0) + increment,
+      newUsage: (featureCheck.currentUsage || 0) + increment,
     };
   });
 

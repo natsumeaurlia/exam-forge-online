@@ -8,7 +8,11 @@ interface FocusTrapProps {
   restoreFocus?: boolean;
 }
 
-export function FocusTrap({ children, active = true, restoreFocus = true }: FocusTrapProps) {
+export function FocusTrap({
+  children,
+  active = true,
+  restoreFocus = true,
+}: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previousActiveElementRef = useRef<Element | null>(null);
 
@@ -29,7 +33,9 @@ export function FocusTrap({ children, active = true, restoreFocus = true }: Focu
     );
 
     const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
 
     // Focus the first element
     if (firstElement) {
@@ -58,7 +64,7 @@ export function FocusTrap({ children, active = true, restoreFocus = true }: Focu
 
     return () => {
       container.removeEventListener('keydown', handleTabKey);
-      
+
       // Restore focus when component unmounts
       if (restoreFocus && previousActiveElementRef.current) {
         (previousActiveElementRef.current as HTMLElement).focus?.();
@@ -80,11 +86,11 @@ interface LiveRegionProps {
   relevant?: 'additions' | 'removals' | 'text' | 'all';
 }
 
-export function LiveRegion({ 
-  children, 
-  politeness = 'polite', 
+export function LiveRegion({
+  children,
+  politeness = 'polite',
   atomic = true,
-  relevant = 'additions'
+  relevant = 'additions',
 }: LiveRegionProps) {
   return (
     <div

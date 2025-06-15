@@ -69,7 +69,7 @@ export class FeatureFlagSystem {
         increment: amount,
       });
 
-      if (result.data?.success) {
+      if (result?.data?.success) {
         // Invalidate cache for this feature
         const cacheKey = `${teamId}-${featureType}`;
         this.cache.delete(cacheKey);
@@ -250,7 +250,7 @@ export const PLAN_FEATURES = {
     FEATURES.SLA_GUARANTEE,
     FEATURES.ON_PREMISE,
   ],
-} as const;
+};
 
 /**
  * Default limits for free plan

@@ -13,7 +13,9 @@ export const DefaultLayout = async ({ children, lng }: DefaultLayoutProps) => {
     <div className="flex min-h-screen flex-col">
       <SkipLinks />
       <Navbar lng={lng} />
-      <main id="main-content" className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <Footer lng={lng} />
     </div>
   );
