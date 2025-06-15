@@ -24,9 +24,11 @@ export interface FeatureCheck {
 
 export interface TeamFeatureAccess extends Team {
   subscription?: {
-    planFeatures: (PlanFeature & {
-      feature: Feature;
-    })[];
+    plan: {
+      features: (PlanFeature & {
+        feature: Feature;
+      })[];
+    };
   } | null;
 }
 
@@ -65,7 +67,6 @@ export const checkFeatureAccess = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -79,12 +80,16 @@ export const checkFeatureAccess = action
       include: {
         subscription: {
           include: {
-            planFeatures: {
+            plan: {
               include: {
-                feature: true,
-              },
-              where: {
-                isEnabled: true,
+                features: {
+                  include: {
+                    feature: true,
+                  },
+                  where: {
+                    isEnabled: true,
+                  },
+                },
               },
             },
           },
@@ -98,21 +103,25 @@ export const checkFeatureAccess = action
 
     // For free teams, check basic feature access
     if (!team.subscription) {
-      const basicFeatures = [
+      const basicFeatures: FeatureType[] = [
         FeatureType.TRUE_FALSE_QUESTION,
         FeatureType.SINGLE_CHOICE_QUESTION,
         FeatureType.MULTIPLE_CHOICE_QUESTION,
+        FeatureType.FREE_TEXT_QUESTION,
+        FeatureType.AUTO_GRADING,
+        FeatureType.MANUAL_GRADING,
+        FeatureType.PASSWORD_PROTECTION,
       ];
 
       return {
         hasAccess: basicFeatures.includes(featureType),
-        limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
+        limit: featureType === FeatureType.AI_QUIZ_GENERATION ? 3 : undefined,
         isUnlimited: false,
       } as FeatureCheck;
     }
 
     // Check plan feature access
-    const planFeature = team.subscription.planFeatures.find(
+    const planFeature = team.subscription.plan.features.find(
       pf => pf.feature.type === featureType
     );
 
@@ -157,7 +166,6 @@ export const updateFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -166,21 +174,21 @@ export const updateFeatureUsage = action
     }
 
     // Check if user has access to this feature first
-    const featureCheck = await checkFeatureAccess.execute({
+    const featureCheck = await checkFeatureAccess({
       featureType,
       teamId,
     });
 
-    if (!featureCheck.data?.hasAccess) {
+    if (!featureCheck.hasAccess) {
       throw new Error('Feature access denied');
     }
 
     // Check if incrementing would exceed limit
-    if (featureCheck.data.limit && !featureCheck.data.isUnlimited) {
-      const newUsage = (featureCheck.data.currentUsage || 0) + increment;
-      if (newUsage > featureCheck.data.limit) {
+    if (featureCheck.limit && !featureCheck.isUnlimited) {
+      const newUsage = (featureCheck.currentUsage || 0) + increment;
+      if (newUsage > featureCheck.limit) {
         throw new Error(
-          `Feature usage limit exceeded. Limit: ${featureCheck.data.limit}, Current: ${featureCheck.data.currentUsage}, Requested: ${increment}`
+          `Feature usage limit exceeded. Limit: ${featureCheck.limit}, Current: ${featureCheck.currentUsage}, Requested: ${increment}`
         );
       }
     }
@@ -210,7 +218,7 @@ export const updateFeatureUsage = action
     revalidatePath('/dashboard');
     return {
       success: true,
-      newUsage: (featureCheck.data.currentUsage || 0) + increment,
+      newUsage: (featureCheck.currentUsage || 0) + increment,
     };
   });
 
@@ -252,7 +260,6 @@ export const getFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -302,7 +309,7 @@ export async function checkTeamFeatureAccess(
   teamId: string,
   featureType: FeatureType
 ): Promise<FeatureCheck> {
-  const result = await checkFeatureAccess.execute({ featureType, teamId });
+  const result = await checkFeatureAccess({ featureType, teamId });
 
   if (!result.data) {
     return {

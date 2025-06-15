@@ -843,6 +843,8 @@
       "forgotPassword": "Forgot password?",
       "sessionExpired": "Your session has expired. Please sign in again.",
       "errorGeneric": "An authentication error occurred. Please try again.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "welcome": {
         "title": "Welcome back!",
         "subtitle": "Resume efficient quiz and exam management with ExamForge.",
@@ -882,6 +884,10 @@
       "agreeToTerms": "I agree to the",
       "createAccount": "Create account",
       "creatingAccount": "Creating...",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "showConfirmPassword": "Show confirm password",
+      "hideConfirmPassword": "Hide confirm password",
       "benefits": {
         "title": "Get started with ExamForge",
         "item1": {
@@ -2514,6 +2520,36 @@
     "selectAll": "Select All",
     "selectedCount": "{count} selected",
     "noQuestions": "No questions found",
+<<<<<<< HEAD
     "createFirst": "Create your first question"
+  },
+  "accessibility": {
+    "skipToMain": "Skip to main content",
+    "skipToNavigation": "Skip to navigation"
+=======
+    "createFirst": "Create your first question",
+    "filters": {
+      "all": "All Categories"
+    },
+    "category": {
+      "loadError": "Failed to load categories",
+      "createError": "Failed to create category",
+      "createSuccess": "Category created successfully",
+      "create": "Create Category",
+      "createTitle": "Create New Category",
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter category description",
+      "parent": "Parent Category",
+      "selectParent": "Select parent category",
+      "noParent": "No Parent (Root Category)",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "validation": {
+        "nameRequired": "Category name is required"
+      }
+    }
+>>>>>>> origin/main
   }
 }

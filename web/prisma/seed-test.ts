@@ -29,7 +29,6 @@ export async function seedTestData(prisma: PrismaClient) {
         data: {
           email: 'test@example.com',
           name: 'テストユーザー',
-          password: hashedPassword,
           image: null,
           stripeCustomerId: `cus_test_${Date.now()}`,
         },
@@ -69,7 +68,6 @@ export async function seedTestData(prisma: PrismaClient) {
           data: {
             email: userData.email,
             name: userData.name,
-            password: hashedPassword,
             image: null,
             stripeCustomerId: `cus_e2e_${Date.now()}_${userData.email.split('@')[0]}`,
           },
@@ -95,7 +93,6 @@ export async function seedTestData(prisma: PrismaClient) {
           data: {
             email: `member${i}@example.com`,
             name: `チームメンバー${i}`,
-            password: hashedPassword,
             image: null,
           },
         });
@@ -199,8 +196,11 @@ export async function seedTestData(prisma: PrismaClient) {
           },
           update: {},
           create: {
-            ...tag,
-            teamId: testTeam.id,
+            name: tag.name,
+            color: tag.color,
+            team: {
+              connect: { id: testTeam.id },
+            },
           },
         })
       )
@@ -435,7 +435,6 @@ export async function seedTestData(prisma: PrismaClient) {
         data: {
           email: 'personal@example.com',
           name: '個人ユーザー',
-          password: hashedPassword,
           image: null,
         },
       });

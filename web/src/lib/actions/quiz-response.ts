@@ -101,7 +101,7 @@ export const submitQuizResponse = authAction
                 },
               },
               include: {
-                questionResponses: true,
+                responses: true,
               },
             });
 
@@ -118,7 +118,7 @@ export const submitQuizResponse = authAction
 
               const previousAnswersHash = Buffer.from(
                 JSON.stringify(
-                  recentSubmission.questionResponses.map(r => ({
+                  recentSubmission.responses.map((r: any) => ({
                     questionId: r.questionId,
                     answer: JSON.parse(r.answer),
                   }))

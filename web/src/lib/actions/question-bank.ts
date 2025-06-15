@@ -7,6 +7,8 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
 import { BankQuestionWhereClause, BankQuestionOrderBy } from '@/types/database';
+import { aiQuestionService, type GenerationParams } from '@/lib/services/ai';
+import { FEATURES, canUseFeature, incrementUsage } from '@/lib/feature-flags';
 
 const action = createSafeActionClient();
 
@@ -173,7 +175,7 @@ export const getBankQuestions = action
 
       if (categoryId) {
         where.categories = {
-          some: { categoryId: categoryId },
+          some: { categoryId: { in: [categoryId] } },
         };
       }
 
@@ -493,3 +495,159 @@ export const getBankQuestionsForTeam = async (
     return { success: false, error: '問題の取得に失敗しました' };
   }
 };
+
+// AI Question Generation Schema
+const generateQuestionsWithAISchema = z.object({
+  topic: z.string().min(1, 'トピックは必須です'),
+  context: z.string().optional(),
+  questionType: z.nativeEnum(QuestionType),
+  difficulty: z.nativeEnum(QuestionDifficulty),
+  count: z
+    .number()
+    .min(1, '最低1問は必要です')
+    .max(20, '最大20問まで生成可能です'),
+  language: z.enum(['ja', 'en']).default('ja'),
+  customInstructions: z.string().optional(),
+});
+
+export const generateQuestionsWithAI = action
+  .schema(generateQuestionsWithAISchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return { success: false, error: '認証が必要です' };
+      }
+
+      // Get user's team
+      const teamMember = await prisma.teamMember.findFirst({
+        where: { userId: session.user.id },
+        include: { team: true },
+      });
+
+      if (!teamMember) {
+        return { success: false, error: 'チームメンバーシップが必要です' };
+      }
+
+      const teamId = teamMember.teamId;
+
+      // Check if team can use AI generation feature
+      const canUse = await canUseFeature(teamId, FEATURES.AI_GENERATION);
+      if (!canUse) {
+        return {
+          success: false,
+          error: 'AI問題生成機能はProプランでご利用いただけます',
+        };
+      }
+
+      // Prepare generation parameters
+      const generationParams: GenerationParams = {
+        topic: parsedInput.topic,
+        context: parsedInput.context,
+        questionType: parsedInput.questionType,
+        difficulty: parsedInput.difficulty,
+        count: parsedInput.count,
+        language: parsedInput.language,
+        customInstructions: parsedInput.customInstructions,
+      };
+
+      // Generate questions with AI
+      const result =
+        await aiQuestionService.generateQuestions(generationParams);
+
+      if (!result.success || result.questions.length === 0) {
+        return {
+          success: false,
+          error:
+            'AI問題生成に失敗しました。しばらく待ってから再試行してください。',
+        };
+      }
+
+      // Save generated questions to database
+      const savedQuestions = [];
+
+      for (const question of result.questions) {
+        try {
+          const bankQuestion = await prisma.bankQuestion.create({
+            data: {
+              teamId,
+              createdById: session.user.id,
+              type: question.type,
+              text: question.text,
+              points: question.points,
+              hint: question.hint,
+              explanation: question.explanation,
+              difficulty: question.difficulty,
+              aiGenerated: true,
+              aiMetadata: {
+                generatedAt: new Date().toISOString(),
+                model: result.metadata.model,
+                providerId: result.metadata.providerId,
+                generationParams: {
+                  topic: parsedInput.topic,
+                  difficulty: parsedInput.difficulty,
+                  questionType: parsedInput.questionType,
+                  language: parsedInput.language,
+                },
+                tokensUsed: Math.ceil(
+                  result.metadata.tokensUsed / result.questions.length
+                ),
+              },
+              options: question.options
+                ? {
+                    create: question.options.map((option, index) => ({
+                      text: option.text,
+                      isCorrect: option.isCorrect,
+                      order: index + 1,
+                    })),
+                  }
+                : undefined,
+            },
+            include: {
+              options: {
+                orderBy: { order: 'asc' },
+              },
+            },
+          });
+
+          savedQuestions.push(bankQuestion);
+        } catch (questionError) {
+          console.error('Failed to save generated question:', questionError);
+          // Continue with other questions rather than failing completely
+        }
+      }
+
+      // Track feature usage
+      try {
+        await incrementUsage(
+          teamId,
+          FEATURES.AI_GENERATION,
+          savedQuestions.length
+        );
+      } catch (usageError) {
+        console.error('Failed to track AI generation usage:', usageError);
+        // Don't fail the whole operation for tracking errors
+      }
+
+      revalidatePath('/[lng]/dashboard/question-bank', 'page');
+
+      return {
+        success: true,
+        questions: savedQuestions,
+        metadata: {
+          generated: result.questions.length,
+          saved: savedQuestions.length,
+          tokensUsed: result.metadata.tokensUsed,
+          generationTime: result.metadata.generationTime,
+          model: result.metadata.model,
+        },
+      };
+    } catch (error) {
+      console.error('Failed to generate questions with AI:', error);
+      return {
+        success: false,
+        error:
+          'AI問題生成中にエラーが発生しました。しばらく待ってから再試行してください。',
+      };
+    }
+  });
