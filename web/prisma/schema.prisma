@@ -218,6 +218,7 @@ model Quiz {
   sections               Section[]
   certificateTemplates   QuizCertificateTemplate[]
   quizBankQuestions      QuizBankQuestion[]
+  lmsCourses             LMSCourse[]
 
   @@index([teamId])
   @@index([createdById])
@@ -757,6 +758,7 @@ model Category {
   parent               Category?              @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children             Category[]             @relation("CategoryHierarchy")
   bankQuestionCategories BankQuestionCategory[]
+  lmsCourses           LMSCourse[]
   
   @@index([teamId])
   @@index([parentId])
