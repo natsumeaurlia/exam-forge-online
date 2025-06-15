@@ -2336,5 +2336,30 @@
       "timestamp": "発生時刻",
       "recommendedAction": "推奨アクション"
     }
+  },
+  "questionBank": {
+    "title": "問題バンク",
+    "description": "チーム内で共有する問題を管理します",
+    "create": "問題を作成",
+    "import": "問題をインポート",
+    "export": "問題をエクスポート",
+    "categories": "カテゴリ",
+    "tags": "タグ",
+    "difficulty": "難易度",
+    "type": "問題タイプ",
+    "search": "問題を検索",
+    "filter": "フィルター",
+    "sort": "並び替え",
+    "actions": "操作",
+    "edit": "編集",
+    "delete": "削除",
+    "preview": "プレビュー",
+    "addToQuiz": "クイズに追加",
+    "bulkActions": "一括操作",
+    "selectAll": "すべて選択",
+    "selectedCount": "{count}件選択中",
+    "noQuestions": "問題が見つかりません",
+    "createFirst": "最初の問題を作成しましょう"
+  }
   }
 }
