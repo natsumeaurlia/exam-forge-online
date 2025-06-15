@@ -30,14 +30,12 @@ export interface TestUserOptions {
   email?: string;
   name?: string;
   password?: string;
-  role?: 'USER' | 'ADMIN';
   emailVerified?: boolean;
 }
 
 export interface TestTeamOptions {
   name?: string;
   description?: string;
-  plan?: 'FREE' | 'PRO' | 'PREMIUM';
   ownerId?: string;
 }
 
@@ -106,7 +104,6 @@ export class TestDataFactory {
       email: options.email || `test-user-${Date.now()}@example.com`,
       name: options.name || `Test User ${Date.now()}`,
       password: await hash(options.password || 'password123', 12),
-      role: options.role || 'USER',
       emailVerified: options.emailVerified ? new Date() : null,
     };
 
@@ -132,11 +129,8 @@ export class TestDataFactory {
     const teamData = {
       name: options.name || `Test Team ${Date.now()}`,
       description: options.description || 'A test team for E2E testing',
-      plan: options.plan || 'FREE',
       slug: `test-team-${Date.now()}`,
-      creator: {
-        connect: { id: options.ownerId || 'default-user-id' },
-      },
+      creatorId: options.ownerId || 'default-user-id',
     };
 
     const team = await this.prisma.team.create({
@@ -144,6 +138,13 @@ export class TestDataFactory {
     });
 
     this.createdData.teams.push(team.id);
+
+    // Create team settings
+    await this.prisma.teamSettings.create({
+      data: {
+        teamId: team.id,
+      },
+    });
 
     // Add owner to team if specified
     if (options.ownerId) {
