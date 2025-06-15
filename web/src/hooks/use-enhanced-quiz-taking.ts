@@ -98,7 +98,7 @@ export function useEnhancedQuizTaking(
           if (onSuccess) {
             onSuccess(data.data.id);
           }
-        } else if (data && data.error) {
+        } else if (data && 'error' in data && data.error) {
           const errorInfo = analyzeError({ message: data.error });
           setError(errorInfo);
         }
