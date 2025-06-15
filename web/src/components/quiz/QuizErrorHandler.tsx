@@ -272,27 +272,29 @@ export function QuizErrorHandler({
               </Badge>
             </div>
 
-            {error.code && (
+            {(error as any).code && (
               <div>
                 <span className="font-medium">{t('errorCode')}:</span>
                 <code className="ml-2 rounded bg-gray-200 px-1">
-                  {error.code}
+                  {(error as any).code}
                 </code>
               </div>
             )}
 
-            {error.technicalMessage && (
+            {(error as any).technicalMessage && (
               <div>
                 <span className="font-medium">{t('technicalDetails')}:</span>
-                <p className="mt-1 text-gray-600">{error.technicalMessage}</p>
+                <p className="mt-1 text-gray-600">
+                  {(error as any).technicalMessage}
+                </p>
               </div>
             )}
 
-            {error.timestamp && (
+            {(error as any).timestamp && (
               <div>
                 <span className="font-medium">{t('timestamp')}:</span>
                 <span className="ml-2 text-gray-600">
-                  {new Date(error.timestamp).toLocaleString(locale)}
+                  {new Date((error as any).timestamp).toLocaleString(locale)}
                 </span>
               </div>
             )}

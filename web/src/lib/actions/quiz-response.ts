@@ -63,7 +63,7 @@ export const submitQuizResponse = authAction
           {
             action: 'submit',
             quizId: data.quizId,
-            userId,
+            userId: ctx.userId,
           }
         );
       }
@@ -101,7 +101,7 @@ export const submitQuizResponse = authAction
           const attemptCount = await tx.quizResponse.count({
             where: {
               quizId: data.quizId,
-              userId,
+              userId: ctx.userId,
             },
           });
 
@@ -196,7 +196,7 @@ export const submitQuizResponse = authAction
       return createQuizErrorResponse(error, {
         action: 'submit',
         quizId: data.quizId,
-        userId,
+        userId: ctx.userId,
       });
     }
   });
@@ -352,7 +352,7 @@ export const getQuizResponse = authAction
       if (!response) {
         return createQuizErrorResponse(new Error('Response not found'), {
           action: 'load',
-          userId,
+          userId: ctx.userId,
         });
       }
 
@@ -362,14 +362,14 @@ export const getQuizResponse = authAction
         const teamMember = await prisma.teamMember.findFirst({
           where: {
             teamId: response.quiz.teamId,
-            userId,
+            userId: ctx.userId,
           },
         });
 
         if (!teamMember) {
           return createQuizErrorResponse(new Error('認証が必要です'), {
             action: 'load',
-            userId,
+            userId: ctx.userId,
           });
         }
       }
@@ -390,7 +390,7 @@ export const getQuizResponse = authAction
       console.error('Error fetching quiz response:', error);
       return createQuizErrorResponse(error, {
         action: 'load',
-        userId,
+        userId: ctx.userId,
       });
     }
   });
@@ -409,7 +409,7 @@ export const getQuizResponses = authAction
     try {
       const responses = await prisma.quizResponse.findMany({
         where: {
-          userId,
+          userId: ctx.userId,
           ...(data.quizId && { quizId: data.quizId }),
         },
         include: {
@@ -432,7 +432,7 @@ export const getQuizResponses = authAction
       console.error('Error fetching quiz responses:', error);
       return createQuizErrorResponse(error, {
         action: 'load',
-        userId,
+        userId: ctx.userId,
       });
     }
   });

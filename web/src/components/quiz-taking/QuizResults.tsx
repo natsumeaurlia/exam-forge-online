@@ -42,9 +42,9 @@ export function QuizResults({
   const { execute: executeGetQuizResponse, isExecuting } = useAction(
     getQuizResponse,
     {
-      onSuccess: ({ data }) => {
-        if (data && data.data) {
-          setResponseData(data.data);
+      onSuccess: result => {
+        if (result?.data && 'data' in result.data) {
+          setResponseData(result.data.data);
         }
       },
       onError: ({ error }) => {

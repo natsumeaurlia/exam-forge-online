@@ -135,7 +135,13 @@ export class TestDataFactory {
     };
 
     const team = await this.prisma.team.create({
-      data: teamData,
+      data: {
+        ...teamData,
+        slug: `test-team-${Date.now()}`,
+        creator: {
+          connect: { id: options.ownerId || 'default-user-id' },
+        },
+      } as any,
     });
 
     this.createdData.teams.push(team.id);
@@ -147,7 +153,7 @@ export class TestDataFactory {
           teamId: team.id,
           userId: options.ownerId,
           role: 'OWNER',
-          status: 'ACTIVE',
+          // status: 'ACTIVE', // Remove status as it doesn't exist in schema
         },
       });
     }
@@ -168,12 +174,19 @@ export class TestDataFactory {
       timeLimit: options.timeLimit || null,
       maxAttempts: options.maxAttempts || null,
       password: options.password || null,
-      sharingMode: options.sharingMode || 'URL',
+      sharingMode: (options.sharingMode as any) || 'LINK_ONLY',
       subdomain: `test-quiz-${Date.now()}`,
     };
 
     const quiz = await this.prisma.quiz.create({
-      data: quizData,
+      data: {
+        ...quizData,
+        createdById: 'default-user-id',
+        passingScore: quizData.passingScore ?? undefined,
+        timeLimit: quizData.timeLimit ?? undefined,
+        maxAttempts: quizData.maxAttempts ?? undefined,
+        password: quizData.password ?? undefined,
+      } as any,
     });
 
     this.createdData.quizzes.push(quiz.id);
@@ -198,9 +211,9 @@ export class TestDataFactory {
   /**
    * Create a test question with options
    */
-  async createQuestion(options: TestQuestionOptions = {}) {
+  async createQuestion(options: TestQuestionOptions = {}): Promise<any> {
     const questionType = options.type || 'MULTIPLE_CHOICE';
-    const questionData = {
+    const questionData: any = {
       quizId: options.quizId || (await this.createQuiz()).quiz.id,
       type: questionType,
       text: options.text || `Test ${questionType} Question ${Date.now()}`,
@@ -209,7 +222,7 @@ export class TestDataFactory {
       correctAnswer: this.getCorrectAnswerForType(questionType),
     };
 
-    const question = await this.prisma.question.create({
+    const question: any = await this.prisma.question.create({
       data: questionData,
     });
 
@@ -277,7 +290,10 @@ export class TestDataFactory {
     };
 
     const response = await this.prisma.quizResponse.create({
-      data: responseData,
+      data: {
+        ...responseData,
+        quizId: responseData.quizId || 'default-quiz-id',
+      } as any,
     });
 
     this.createdData.responses.push(response.id);
@@ -357,7 +373,7 @@ export class TestDataFactory {
           teamId: team.id,
           userId: user.id,
           role: 'MEMBER',
-          status: 'ACTIVE',
+          // status: 'ACTIVE', // Remove status field
         },
       });
 

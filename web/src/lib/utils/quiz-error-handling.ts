@@ -29,6 +29,10 @@ export interface QuizErrorInfo extends ErrorInfo {
   maxRetries?: number;
   requiresAuth?: boolean;
   userActionRequired?: string;
+  severity?: 'low' | 'medium' | 'high';
+  code?: string;
+  technicalMessage?: string;
+  timestamp?: string;
 }
 
 /**

@@ -90,16 +90,28 @@ export function useEnhancedQuizTaking(
   const { execute: executeSubmit, isExecuting: submitting } = useAction(
     submitQuizResponse,
     {
-      onSuccess: ({ data }) => {
-        if (data && data.success && data.data) {
+      onSuccess: result => {
+        if (
+          result?.data &&
+          'success' in result.data &&
+          result.data.success &&
+          'data' in result.data &&
+          result.data.data
+        ) {
           clearSavedAnswers(quizId);
           setError(null);
           setRetryCount(0);
           if (onSuccess) {
-            onSuccess(data.data.id);
+            onSuccess(result.data.data.id);
           }
-        } else if (data && data.error) {
-          const errorInfo = analyzeError({ message: data.error });
+        } else if (
+          result?.data &&
+          'error' in result.data &&
+          result.data.error
+        ) {
+          const errorInfo = analyzeError({
+            message: String(result.data.error),
+          });
           setError(errorInfo);
         }
       },

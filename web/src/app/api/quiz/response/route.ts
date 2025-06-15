@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       const errorResponse = createQuizErrorResponse(
         new Error('入力データに問題があります'),
-        { action: 'submit', userId }
+        { action: 'submit', userId: userId || undefined }
       );
       return NextResponse.json(errorResponse, { status: 400 });
     }
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     if (!dataValidation.isValid) {
       const errorResponse = createQuizErrorResponse(
         new Error('回答データの形式が正しくありません'),
-        { action: 'submit', quizId: data.quizId, userId }
+        { action: 'submit', quizId: data.quizId, userId: userId || undefined }
       );
       return NextResponse.json(errorResponse, { status: 400 });
     }
@@ -263,11 +263,14 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Quiz response submission error:', error);
 
+    // Get session info for error context
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id || null;
+
     // 統一エラーハンドリングを使用
     const errorResponse = createQuizErrorResponse(error, {
       action: 'submit',
-      quizId: data?.quizId,
-      userId,
+      userId: userId || undefined,
     });
 
     // エラータイプに応じたHTTPステータスコード
@@ -346,9 +349,11 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Failed to fetch quiz responses:', error);
+    const { auth } = await import('@/lib/auth');
+    const session = await auth();
     const errorResponse = createQuizErrorResponse(error, {
       action: 'load',
-      userId: session?.user?.id,
+      userId: session?.user?.id || undefined,
     });
     return NextResponse.json(errorResponse, { status: 500 });
   }
