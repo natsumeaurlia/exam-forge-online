@@ -47,6 +47,7 @@ export interface TestQuizOptions {
   teamId?: string;
   status?: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   questionCount?: number;
+  createdById?: string;
   passingScore?: number;
   timeLimit?: number;
   maxAttempts?: number;
@@ -132,6 +133,10 @@ export class TestDataFactory {
       name: options.name || `Test Team ${Date.now()}`,
       description: options.description || 'A test team for E2E testing',
       plan: options.plan || 'FREE',
+      slug: `test-team-${Date.now()}`,
+      creator: {
+        connect: { id: options.ownerId || 'default-user-id' },
+      },
     };
 
     const team = await this.prisma.team.create({
@@ -147,7 +152,6 @@ export class TestDataFactory {
           teamId: team.id,
           userId: options.ownerId,
           role: 'OWNER',
-          status: 'ACTIVE',
         },
       });
     }
@@ -158,18 +162,23 @@ export class TestDataFactory {
   /**
    * Create a test quiz with questions
    */
-  async createQuiz(options: TestQuizOptions = {}) {
+  async createQuiz(
+    options: TestQuizOptions = {}
+  ): Promise<{ quiz: any; questions: any[] }> {
+    const createdById = options.createdById || 'default-user-id';
+
     const quizData = {
       title: options.title || `Test Quiz ${Date.now()}`,
       description: options.description || 'A test quiz for E2E testing',
       teamId: options.teamId || (await this.createTeam()).id,
       status: options.status || 'PUBLISHED',
-      passingScore: options.passingScore || null,
-      timeLimit: options.timeLimit || null,
-      maxAttempts: options.maxAttempts || null,
-      password: options.password || null,
-      sharingMode: options.sharingMode || 'URL',
+      passingScore: options.passingScore || undefined,
+      timeLimit: options.timeLimit || undefined,
+      maxAttempts: options.maxAttempts || undefined,
+      password: options.password || undefined,
+      sharingMode: (options.sharingMode as any) || 'URL',
       subdomain: `test-quiz-${Date.now()}`,
+      createdById,
     };
 
     const quiz = await this.prisma.quiz.create({
@@ -183,7 +192,7 @@ export class TestDataFactory {
     const questions = [];
 
     for (let i = 0; i < questionCount; i++) {
-      const question = await this.createQuestion({
+      const question: any = await this.createQuestion({
         quizId: quiz.id,
         type: this.getRandomQuestionType(),
         text: `Test Question ${i + 1}`,
@@ -198,9 +207,9 @@ export class TestDataFactory {
   /**
    * Create a test question with options
    */
-  async createQuestion(options: TestQuestionOptions = {}) {
+  async createQuestion(options: TestQuestionOptions = {}): Promise<any> {
     const questionType = options.type || 'MULTIPLE_CHOICE';
-    const questionData = {
+    const questionData: any = {
       quizId: options.quizId || (await this.createQuiz()).quiz.id,
       type: questionType,
       text: options.text || `Test ${questionType} Question ${Date.now()}`,
@@ -209,7 +218,7 @@ export class TestDataFactory {
       correctAnswer: this.getCorrectAnswerForType(questionType),
     };
 
-    const question = await this.prisma.question.create({
+    const question: any = await this.prisma.question.create({
       data: questionData,
     });
 
@@ -264,7 +273,7 @@ export class TestDataFactory {
     const startTime = new Date(now.getTime() - 300000); // 5 minutes ago
 
     const responseData = {
-      quizId,
+      quizId: quizId!,
       userId,
       participantName: options.participantName || null,
       participantEmail: options.participantEmail || null,
@@ -357,7 +366,6 @@ export class TestDataFactory {
           teamId: team.id,
           userId: user.id,
           role: 'MEMBER',
-          status: 'ACTIVE',
         },
       });
 
