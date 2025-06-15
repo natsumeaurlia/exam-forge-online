@@ -226,9 +226,15 @@ export default function SignInPage({ params }: SignInPageProps) {
                   placeholder="test@example.com"
                   disabled={isLoading}
                   className={errors.email ? 'border-red-500' : ''}
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p
+                    id="email-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
                     {errors.email.message}
                   </p>
                 )}
@@ -244,21 +250,34 @@ export default function SignInPage({ params }: SignInPageProps) {
                     placeholder="••••••••"
                     disabled={isLoading}
                     className={errors.password ? 'border-red-500' : ''}
+                    aria-invalid={errors.password ? 'true' : 'false'}
+                    aria-describedby={
+                      errors.password ? 'password-error' : undefined
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={
+                      showPassword
+                        ? t('auth.signin.hidePassword')
+                        : t('auth.signin.showPassword')
+                    }
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" aria-hidden="true" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p
+                    id="password-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
                     {errors.password.message}
                   </p>
                 )}

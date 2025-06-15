@@ -104,14 +104,18 @@ export const checkFeatureAccess = action
     // For free teams, check basic feature access
     if (!team.subscription) {
       const basicFeatures: FeatureType[] = [
-        'TRUE_FALSE_QUESTION' as FeatureType,
-        'SINGLE_CHOICE_QUESTION' as FeatureType,
-        'MULTIPLE_CHOICE_QUESTION' as FeatureType,
+        FeatureType.TRUE_FALSE_QUESTION,
+        FeatureType.SINGLE_CHOICE_QUESTION,
+        FeatureType.MULTIPLE_CHOICE_QUESTION,
+        FeatureType.FREE_TEXT_QUESTION,
+        FeatureType.AUTO_GRADING,
+        FeatureType.MANUAL_GRADING,
+        FeatureType.PASSWORD_PROTECTION,
       ];
 
       return {
         hasAccess: basicFeatures.includes(featureType),
-        limit: featureType === 'QUIZ_CREATION_LIMIT' ? 5 : undefined,
+        limit: featureType === FeatureType.AI_QUIZ_GENERATION ? 3 : undefined,
         isUnlimited: false,
       } as FeatureCheck;
     }
@@ -170,7 +174,7 @@ export const updateFeatureUsage = action
     }
 
     // Check if user has access to this feature first
-    const featureCheck = await checkFeatureAccess.execute({
+    const featureCheck = await checkFeatureAccess({
       featureType,
       teamId,
     });
@@ -305,7 +309,7 @@ export async function checkTeamFeatureAccess(
   teamId: string,
   featureType: FeatureType
 ): Promise<FeatureCheck> {
-  const result = await checkFeatureAccess.execute({ featureType, teamId });
+  const result = await checkFeatureAccess({ featureType, teamId });
 
   if (!result.data) {
     return {

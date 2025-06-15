@@ -175,7 +175,7 @@ export const getBankQuestions = action
 
       if (categoryId) {
         where.categories = {
-          some: { categoryId: categoryId },
+          some: { categoryId: { in: [categoryId] } },
         };
       }
 

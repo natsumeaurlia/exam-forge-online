@@ -109,7 +109,8 @@ export async function handleCheckoutSessionCompleted(
         session.subscription as string,
         { expand: ['items.data.price.product'] }
       );
-      subscription = retrievedSubscription as SubscriptionWithExpandedData;
+      subscription =
+        retrievedSubscription as unknown as SubscriptionWithExpandedData;
       break;
     } catch (error) {
       retries--;
