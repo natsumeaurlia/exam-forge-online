@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useQuizPreviewStore } from '@/stores/useQuizPreviewStore';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+const participantSchema = z.object({
+  name: z.string().min(1, '名前を入力してください'),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+});
+
+type ParticipantFormData = z.infer<typeof participantSchema>;
+
 interface ParticipantFormProps {
   onSubmit: () => void;
 }
@@ -21,12 +30,22 @@ interface ParticipantFormProps {
 export function ParticipantForm({ onSubmit }: ParticipantFormProps) {
   const t = useTranslations('quiz.preview');
   const { setParticipantInfo } = useQuizPreviewStore();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setParticipantInfo({ name, email });
+  const form = useForm<ParticipantFormData>({
+    resolver: zodResolver(participantSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+    },
+  });
+
+  const {
+    formState: { errors },
+    handleSubmit,
+  } = form;
+
+  const onFormSubmit = (data: ParticipantFormData) => {
+    setParticipantInfo(data);
     onSubmit();
   };
 
@@ -37,17 +56,19 @@ export function ParticipantForm({ onSubmit }: ParticipantFormProps) {
         <CardDescription>{t('participantInfo.description')}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">{t('participantInfo.name')}</Label>
             <Input
               id="name"
               type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
+              {...form.register('name')}
               placeholder={t('participantInfo.namePlaceholder')}
-              required
+              className={errors.name ? 'border-red-500' : ''}
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -55,11 +76,13 @@ export function ParticipantForm({ onSubmit }: ParticipantFormProps) {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              {...form.register('email')}
               placeholder={t('participantInfo.emailPlaceholder')}
-              required
+              className={errors.email ? 'border-red-500' : ''}
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full">

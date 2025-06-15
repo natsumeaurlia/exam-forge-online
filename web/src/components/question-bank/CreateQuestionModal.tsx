@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -43,6 +47,37 @@ interface Option {
   isCorrect: boolean;
 }
 
+const optionSchema = z.object({
+  text: z.string().min(1, '選択肢を入力してください'),
+  isCorrect: z.boolean(),
+});
+
+const questionSchema = z.object({
+  type: z.nativeEnum(QuestionType),
+  text: z.string().min(1, '問題文を入力してください'),
+  points: z.number().min(1, '1点以上を指定してください').max(100, '100点以下を指定してください'),
+  difficulty: z.nativeEnum(QuestionDifficulty),
+  hint: z.string().optional(),
+  explanation: z.string().optional(),
+  options: z.array(optionSchema).optional(),
+}).refine((data) => {
+  if (data.type === 'SHORT_ANSWER') {
+    return true;
+  }
+  
+  if (!data.options || data.options.length === 0) {
+    return false;
+  }
+  
+  const hasCorrectOption = data.options.some(opt => opt.isCorrect);
+  return hasCorrectOption;
+}, {
+  message: '正解となる選択肢を少なくとも1つ選択してください',
+  path: ['options'],
+});
+
+type QuestionFormData = z.infer<typeof questionSchema>;
+
 interface CreateQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,40 +90,55 @@ export function CreateQuestionModal({
   onSuccess,
 }: CreateQuestionModalProps) {
   const t = useTranslations('questionBank');
-  const [loading, setLoading] = useState(false);
 
-  // Form state
-  const [questionType, setQuestionType] =
-    useState<QuestionType>('MULTIPLE_CHOICE');
-  const [questionText, setQuestionText] = useState('');
-  const [points, setPoints] = useState(1);
-  const [difficulty, setDifficulty] = useState<QuestionDifficulty>('MEDIUM');
-  const [hint, setHint] = useState('');
-  const [explanation, setExplanation] = useState('');
-  const [options, setOptions] = useState<Option[]>([
-    { text: '', isCorrect: false },
-    { text: '', isCorrect: false },
-  ]);
+  const form = useForm<QuestionFormData>({
+    resolver: zodResolver(questionSchema),
+    defaultValues: {
+      type: 'MULTIPLE_CHOICE',
+      text: '',
+      points: 1,
+      difficulty: 'MEDIUM',
+      hint: '',
+      explanation: '',
+      options: [
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false },
+      ],
+    },
+  });
+
+  const {
+    formState: { errors },
+    watch,
+    setValue,
+    reset,
+  } = form;
+
+  const questionType = watch('type');
+  const options = watch('options') || [];
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
-      resetForm();
+      reset();
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
-  const resetForm = () => {
-    setQuestionType('MULTIPLE_CHOICE');
-    setQuestionText('');
-    setPoints(1);
-    setDifficulty('MEDIUM');
-    setHint('');
-    setExplanation('');
-    setOptions([
-      { text: '', isCorrect: false },
-      { text: '', isCorrect: false },
-    ]);
-  };
+  // React Hook Form Action integration
+  const { action, isPending } = useHookFormAction(
+    createBankQuestion,
+    form,
+    {
+      onSuccess: () => {
+        toast.success(t('create.success'));
+        onSuccess();
+        onClose();
+      },
+      onError: (error) => {
+        toast.error(error.serverError || t('create.error'));
+      },
+    }
+  );
 
   const getQuestionTypeIcon = (type: QuestionType) => {
     switch (type) {
@@ -106,18 +156,18 @@ export function CreateQuestionModal({
   };
 
   const handleTypeChange = (type: QuestionType) => {
-    setQuestionType(type);
+    setValue('type', type);
 
     // Reset options based on question type
     if (type === 'TRUE_FALSE') {
-      setOptions([
+      setValue('options', [
         { text: 'True', isCorrect: false },
         { text: 'False', isCorrect: false },
       ]);
     } else if (type === 'SHORT_ANSWER') {
-      setOptions([]);
+      setValue('options', []);
     } else {
-      setOptions([
+      setValue('options', [
         { text: '', isCorrect: false },
         { text: '', isCorrect: false },
       ]);
@@ -126,13 +176,13 @@ export function CreateQuestionModal({
 
   const addOption = () => {
     if (options.length < 8) {
-      setOptions([...options, { text: '', isCorrect: false }]);
+      setValue('options', [...options, { text: '', isCorrect: false }]);
     }
   };
 
   const removeOption = (index: number) => {
     if (options.length > 2) {
-      setOptions(options.filter((_, i) => i !== index));
+      setValue('options', options.filter((_, i) => i !== index));
     }
   };
 
@@ -155,61 +205,9 @@ export function CreateQuestionModal({
       });
     }
 
-    setOptions(newOptions);
+    setValue('options', newOptions);
   };
 
-  const handleSubmit = async () => {
-    try {
-      // Validation
-      if (!questionText.trim()) {
-        toast.error(t('create.validation.questionRequired'));
-        return;
-      }
-
-      if (questionType !== 'SHORT_ANSWER' && options.length === 0) {
-        toast.error(t('create.validation.optionsRequired'));
-        return;
-      }
-
-      if (questionType !== 'SHORT_ANSWER') {
-        const hasCorrectOption = options.some(opt => opt.isCorrect);
-        if (!hasCorrectOption) {
-          toast.error(t('create.validation.correctOptionRequired'));
-          return;
-        }
-
-        const hasEmptyOption = options.some(opt => !opt.text.trim());
-        if (hasEmptyOption) {
-          toast.error(t('create.validation.emptyOptionsNotAllowed'));
-          return;
-        }
-      }
-
-      setLoading(true);
-
-      const result = await createBankQuestion({
-        type: questionType,
-        text: questionText.trim(),
-        points,
-        difficulty,
-        hint: hint.trim() || undefined,
-        explanation: explanation.trim() || undefined,
-        options: questionType === 'SHORT_ANSWER' ? undefined : options,
-      });
-
-      if (result.data?.success) {
-        toast.success(t('create.success'));
-        onSuccess();
-      } else {
-        toast.error(result.data?.error || t('create.error'));
-      }
-    } catch (error) {
-      console.error('Failed to create question:', error);
-      toast.error(t('create.error'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const correctOptionsCount = options.filter(opt => opt.isCorrect).length;
 
@@ -273,11 +271,13 @@ export function CreateQuestionModal({
                 <Textarea
                   id="question-text"
                   placeholder={t('create.question.placeholder')}
-                  value={questionText}
-                  onChange={e => setQuestionText(e.target.value)}
+                  {...form.register('text')}
                   rows={4}
-                  className="resize-none"
+                  className={`resize-none ${errors.text ? 'border-red-500' : ''}`}
                 />
+                {errors.text && (
+                  <p className="mt-1 text-sm text-red-500">{errors.text.message}</p>
+                )}
               </div>
 
               {/* Options */}
@@ -345,6 +345,9 @@ export function CreateQuestionModal({
                         )}
                       </div>
                     ))}
+                    {errors.options && (
+                      <p className="mt-1 text-sm text-red-500">{errors.options.message}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -362,9 +365,12 @@ export function CreateQuestionModal({
                     type="number"
                     min={1}
                     max={100}
-                    value={points}
-                    onChange={e => setPoints(parseInt(e.target.value) || 1)}
+                    {...form.register('points', { valueAsNumber: true })}
+                    className={errors.points ? 'border-red-500' : ''}
                   />
+                  {errors.points && (
+                    <p className="mt-1 text-sm text-red-500">{errors.points.message}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -372,9 +378,9 @@ export function CreateQuestionModal({
                     {t('create.difficulty.label')}
                   </Label>
                   <Select
-                    value={difficulty}
+                    value={watch('difficulty')}
                     onValueChange={(value: QuestionDifficulty) =>
-                      setDifficulty(value)
+                      setValue('difficulty', value)
                     }
                   >
                     <SelectTrigger>
@@ -399,8 +405,7 @@ export function CreateQuestionModal({
                 <Textarea
                   id="hint"
                   placeholder={t('create.hint.placeholder')}
-                  value={hint}
-                  onChange={e => setHint(e.target.value)}
+                  {...form.register('hint')}
                   rows={2}
                   className="resize-none"
                 />
@@ -414,8 +419,7 @@ export function CreateQuestionModal({
                 <Textarea
                   id="explanation"
                   placeholder={t('create.explanation.placeholder')}
-                  value={explanation}
-                  onChange={e => setExplanation(e.target.value)}
+                  {...form.register('explanation')}
                   rows={3}
                   className="resize-none"
                 />
@@ -429,17 +433,19 @@ export function CreateQuestionModal({
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={loading}
+              disabled={isPending}
             >
               <X className="mr-2 h-4 w-4" />
               {t('create.actions.cancel')}
             </Button>
-            <Button type="button" onClick={handleSubmit} disabled={loading}>
-              <Save className="mr-2 h-4 w-4" />
-              {loading
-                ? t('create.actions.creating')
-                : t('create.actions.create')}
-            </Button>
+            <form onSubmit={action}>
+              <Button type="submit" disabled={isPending}>
+                <Save className="mr-2 h-4 w-4" />
+                {isPending
+                  ? t('create.actions.creating')
+                  : t('create.actions.create')}
+              </Button>
+            </form>
           </div>
         </div>
       </DialogContent>
