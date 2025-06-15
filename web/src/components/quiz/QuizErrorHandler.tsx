@@ -139,9 +139,9 @@ export function QuizErrorHandler({
     if (!isOnline) return <WifiOff className="h-6 w-6 text-red-500" />;
 
     switch (error.severity) {
-      case 'high':
+      case 'error':
         return <XCircle className="h-6 w-6 text-red-500" />;
-      case 'medium':
+      case 'warning':
         return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
       default:
         return <AlertTriangle className="h-6 w-6 text-blue-500" />;
@@ -150,15 +150,15 @@ export function QuizErrorHandler({
 
   const getAlertVariant = () => {
     if (!isOnline) return 'destructive';
-    return error.severity === 'high' ? 'destructive' : 'default';
+    return error.severity === 'error' ? 'destructive' : 'default';
   };
 
   return (
     <Card
       className={`border-l-4 ${
-        error.severity === 'high'
+        error.severity === 'error'
           ? 'border-l-red-500'
-          : error.severity === 'medium'
+          : error.severity === 'warning'
             ? 'border-l-yellow-500'
             : 'border-l-blue-500'
       } ${className}`}

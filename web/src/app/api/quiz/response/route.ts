@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       const errorResponse = createQuizErrorResponse(
         new Error('入力データに問題があります'),
-        { action: 'submit', userId }
+        { action: 'submit', userId: userId || undefined }
       );
       return NextResponse.json(errorResponse, { status: 400 });
     }
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     if (!dataValidation.isValid) {
       const errorResponse = createQuizErrorResponse(
         new Error('回答データの形式が正しくありません'),
-        { action: 'submit', quizId: data.quizId, userId }
+        { action: 'submit', quizId: data.quizId, userId: userId || undefined }
       );
       return NextResponse.json(errorResponse, { status: 400 });
     }
@@ -266,8 +266,8 @@ export async function POST(request: NextRequest) {
     // 統一エラーハンドリングを使用
     const errorResponse = createQuizErrorResponse(error, {
       action: 'submit',
-      quizId: data?.quizId,
-      userId,
+      quizId: undefined,
+      userId: undefined,
     });
 
     // エラータイプに応じたHTTPステータスコード
@@ -348,7 +348,7 @@ export async function GET(request: NextRequest) {
     console.error('Failed to fetch quiz responses:', error);
     const errorResponse = createQuizErrorResponse(error, {
       action: 'load',
-      userId: session?.user?.id,
+      userId: undefined,
     });
     return NextResponse.json(errorResponse, { status: 500 });
   }
