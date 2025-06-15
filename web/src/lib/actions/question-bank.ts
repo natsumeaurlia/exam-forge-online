@@ -502,7 +502,10 @@ const generateQuestionsWithAISchema = z.object({
   context: z.string().optional(),
   questionType: z.nativeEnum(QuestionType),
   difficulty: z.nativeEnum(QuestionDifficulty),
-  count: z.number().min(1, '最低1問は必要です').max(20, '最大20問まで生成可能です'),
+  count: z
+    .number()
+    .min(1, '最低1問は必要です')
+    .max(20, '最大20問まで生成可能です'),
   language: z.enum(['ja', 'en']).default('ja'),
   customInstructions: z.string().optional(),
 });
@@ -531,9 +534,9 @@ export const generateQuestionsWithAI = action
       // Check if team can use AI generation feature
       const canUse = await canUseFeature(teamId, FEATURES.AI_GENERATION);
       if (!canUse) {
-        return { 
-          success: false, 
-          error: 'AI問題生成機能はProプランでご利用いただけます' 
+        return {
+          success: false,
+          error: 'AI問題生成機能はProプランでご利用いただけます',
         };
       }
 
@@ -549,18 +552,20 @@ export const generateQuestionsWithAI = action
       };
 
       // Generate questions with AI
-      const result = await aiQuestionService.generateQuestions(generationParams);
+      const result =
+        await aiQuestionService.generateQuestions(generationParams);
 
       if (!result.success || result.questions.length === 0) {
-        return { 
-          success: false, 
-          error: 'AI問題生成に失敗しました。しばらく待ってから再試行してください。' 
+        return {
+          success: false,
+          error:
+            'AI問題生成に失敗しました。しばらく待ってから再試行してください。',
         };
       }
 
       // Save generated questions to database
       const savedQuestions = [];
-      
+
       for (const question of result.questions) {
         try {
           const bankQuestion = await prisma.bankQuestion.create({
@@ -584,7 +589,9 @@ export const generateQuestionsWithAI = action
                   questionType: parsedInput.questionType,
                   language: parsedInput.language,
                 },
-                tokensUsed: Math.ceil(result.metadata.tokensUsed / result.questions.length),
+                tokensUsed: Math.ceil(
+                  result.metadata.tokensUsed / result.questions.length
+                ),
               },
               options: question.options
                 ? {
@@ -612,7 +619,11 @@ export const generateQuestionsWithAI = action
 
       // Track feature usage
       try {
-        await incrementUsage(teamId, FEATURES.AI_GENERATION, savedQuestions.length);
+        await incrementUsage(
+          teamId,
+          FEATURES.AI_GENERATION,
+          savedQuestions.length
+        );
       } catch (usageError) {
         console.error('Failed to track AI generation usage:', usageError);
         // Don't fail the whole operation for tracking errors
@@ -620,8 +631,8 @@ export const generateQuestionsWithAI = action
 
       revalidatePath('/[lng]/dashboard/question-bank', 'page');
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         questions: savedQuestions,
         metadata: {
           generated: result.questions.length,
@@ -629,13 +640,14 @@ export const generateQuestionsWithAI = action
           tokensUsed: result.metadata.tokensUsed,
           generationTime: result.metadata.generationTime,
           model: result.metadata.model,
-        }
+        },
       };
     } catch (error) {
       console.error('Failed to generate questions with AI:', error);
-      return { 
-        success: false, 
-        error: 'AI問題生成中にエラーが発生しました。しばらく待ってから再試行してください。' 
+      return {
+        success: false,
+        error:
+          'AI問題生成中にエラーが発生しました。しばらく待ってから再試行してください。',
       };
     }
   });

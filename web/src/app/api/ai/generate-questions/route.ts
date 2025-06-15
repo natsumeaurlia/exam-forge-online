@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
     const canUse = await canUseFeature(teamId, FEATURES.AI_GENERATION);
     if (!canUse) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'AI問題生成機能はProプランでご利用いただけます' 
+        {
+          success: false,
+          error: 'AI問題生成機能はProプランでご利用いただけます',
         },
         { status: 403 }
       );
@@ -45,13 +45,13 @@ export async function POST(request: NextRequest) {
     // Parse and validate request body
     const body = await request.json();
     const validation = generationRequestSchema.safeParse(body);
-    
+
     if (!validation.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'リクエストパラメータが無効です',
-          details: validation.error.errors 
+          details: validation.error.errors,
         },
         { status: 400 }
       );
@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'AI問題生成に失敗しました' 
+        {
+          success: false,
+          error: 'AI問題生成に失敗しました',
         },
         { status: 500 }
       );
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Save questions to database
     const savedQuestions = [];
-    
+
     for (const question of result.questions) {
       try {
         const bankQuestion = await prisma.bankQuestion.create({
@@ -93,7 +93,9 @@ export async function POST(request: NextRequest) {
               model: result.metadata.model,
               providerId: result.metadata.providerId,
               generationParams: params,
-              tokensUsed: Math.ceil(result.metadata.tokensUsed / result.questions.length),
+              tokensUsed: Math.ceil(
+                result.metadata.tokensUsed / result.questions.length
+              ),
             },
             options: question.options
               ? {
@@ -120,7 +122,11 @@ export async function POST(request: NextRequest) {
 
     // Track usage
     try {
-      await incrementUsage(teamId, FEATURES.AI_GENERATION, savedQuestions.length);
+      await incrementUsage(
+        teamId,
+        FEATURES.AI_GENERATION,
+        savedQuestions.length
+      );
     } catch (usageError) {
       console.error('Failed to track AI generation usage:', usageError);
     }
@@ -136,13 +142,12 @@ export async function POST(request: NextRequest) {
         model: result.metadata.model,
       },
     });
-
   } catch (error) {
     console.error('AI generation API error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'サーバーエラーが発生しました' 
+      {
+        success: false,
+        error: 'サーバーエラーが発生しました',
       },
       { status: 500 }
     );
@@ -166,13 +171,12 @@ export async function GET(request: NextRequest) {
       success: true,
       providers,
     });
-
   } catch (error) {
     console.error('AI providers API error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'サーバーエラーが発生しました' 
+      {
+        success: false,
+        error: 'サーバーエラーが発生しました',
       },
       { status: 500 }
     );

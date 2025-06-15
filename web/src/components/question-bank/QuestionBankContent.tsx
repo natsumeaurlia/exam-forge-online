@@ -27,6 +27,9 @@ import {
   Tag,
   Calendar,
   User,
+  Upload,
+  Download,
+  HelpCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -35,6 +38,26 @@ import { CreateQuestionModal } from './CreateQuestionModal';
 import { AIQuestionGenerator } from './AIQuestionGenerator';
 import { CategoryFilter } from './CategoryFilter';
 import { getBankQuestions } from '@/lib/actions/question-bank';
+import {
+  importQuestions,
+  exportQuestions,
+  getImportTemplate,
+} from '@/lib/actions/import-export';
+import {
+  generateCSVTemplate,
+  exportQuestionsToCSV,
+  downloadCSV,
+} from '@/lib/utils/csv-import-export';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface BankQuestion {
   id: string;
@@ -85,6 +108,15 @@ export function QuestionBankContent({ userId, lng }: QuestionBankContentProps) {
   const [sortBy, setSortBy] = useState<string>('newest');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
+
+  // Import/Export modal states
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [importCsv, setImportCsv] = useState('');
+  const [createCategories, setCreateCategories] = useState(true);
+  const [createTags, setCreateTags] = useState(true);
+  const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const loadQuestions = useCallback(async () => {
     try {

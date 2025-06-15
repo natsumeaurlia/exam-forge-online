@@ -52,29 +52,37 @@ const optionSchema = z.object({
   isCorrect: z.boolean(),
 });
 
-const questionSchema = z.object({
-  type: z.nativeEnum(QuestionType),
-  text: z.string().min(1, '問題文を入力してください'),
-  points: z.number().min(1, '1点以上を指定してください').max(100, '100点以下を指定してください'),
-  difficulty: z.nativeEnum(QuestionDifficulty),
-  hint: z.string().optional(),
-  explanation: z.string().optional(),
-  options: z.array(optionSchema).optional(),
-}).refine((data) => {
-  if (data.type === 'SHORT_ANSWER') {
-    return true;
-  }
-  
-  if (!data.options || data.options.length === 0) {
-    return false;
-  }
-  
-  const hasCorrectOption = data.options.some(opt => opt.isCorrect);
-  return hasCorrectOption;
-}, {
-  message: '正解となる選択肢を少なくとも1つ選択してください',
-  path: ['options'],
-});
+const questionSchema = z
+  .object({
+    type: z.nativeEnum(QuestionType),
+    text: z.string().min(1, '問題文を入力してください'),
+    points: z
+      .number()
+      .min(1, '1点以上を指定してください')
+      .max(100, '100点以下を指定してください'),
+    difficulty: z.nativeEnum(QuestionDifficulty),
+    hint: z.string().optional(),
+    explanation: z.string().optional(),
+    options: z.array(optionSchema).optional(),
+  })
+  .refine(
+    data => {
+      if (data.type === 'SHORT_ANSWER') {
+        return true;
+      }
+
+      if (!data.options || data.options.length === 0) {
+        return false;
+      }
+
+      const hasCorrectOption = data.options.some(opt => opt.isCorrect);
+      return hasCorrectOption;
+    },
+    {
+      message: '正解となる選択肢を少なくとも1つ選択してください',
+      path: ['options'],
+    }
+  );
 
 type QuestionFormData = z.infer<typeof questionSchema>;
 
@@ -125,20 +133,16 @@ export function CreateQuestionModal({
   }, [isOpen, reset]);
 
   // React Hook Form Action integration
-  const { action, isPending } = useHookFormAction(
-    createBankQuestion,
-    form,
-    {
-      onSuccess: () => {
-        toast.success(t('create.success'));
-        onSuccess();
-        onClose();
-      },
-      onError: (error) => {
-        toast.error(error.serverError || t('create.error'));
-      },
-    }
-  );
+  const { action, isPending } = useHookFormAction(createBankQuestion, form, {
+    onSuccess: () => {
+      toast.success(t('create.success'));
+      onSuccess();
+      onClose();
+    },
+    onError: error => {
+      toast.error(error.serverError || t('create.error'));
+    },
+  });
 
   const getQuestionTypeIcon = (type: QuestionType) => {
     switch (type) {
@@ -182,7 +186,10 @@ export function CreateQuestionModal({
 
   const removeOption = (index: number) => {
     if (options.length > 2) {
-      setValue('options', options.filter((_, i) => i !== index));
+      setValue(
+        'options',
+        options.filter((_, i) => i !== index)
+      );
     }
   };
 
@@ -207,7 +214,6 @@ export function CreateQuestionModal({
 
     setValue('options', newOptions);
   };
-
 
   const correctOptionsCount = options.filter(opt => opt.isCorrect).length;
 
@@ -276,7 +282,9 @@ export function CreateQuestionModal({
                   className={`resize-none ${errors.text ? 'border-red-500' : ''}`}
                 />
                 {errors.text && (
-                  <p className="mt-1 text-sm text-red-500">{errors.text.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.text.message}
+                  </p>
                 )}
               </div>
 
@@ -346,7 +354,9 @@ export function CreateQuestionModal({
                       </div>
                     ))}
                     {errors.options && (
-                      <p className="mt-1 text-sm text-red-500">{errors.options.message}</p>
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.options.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -369,7 +379,9 @@ export function CreateQuestionModal({
                     className={errors.points ? 'border-red-500' : ''}
                   />
                   {errors.points && (
-                    <p className="mt-1 text-sm text-red-500">{errors.points.message}</p>
+                    <p className="mt-1 text-sm text-red-500">
+                      {errors.points.message}
+                    </p>
                   )}
                 </div>
 

@@ -1,8 +1,17 @@
 import { openai } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
-import type { AIProvider, GenerationParams, GeneratedQuestion, ValidationResult, AIGenerationResult } from './types';
-import { QUESTION_TYPE_TEMPLATES, buildPrompt } from './prompts/question-templates';
+import type {
+  AIProvider,
+  GenerationParams,
+  GeneratedQuestion,
+  ValidationResult,
+  AIGenerationResult,
+} from './types';
+import {
+  QUESTION_TYPE_TEMPLATES,
+  buildPrompt,
+} from './prompts/question-templates';
 import { aiQuestionResponseSchema, validatedQuestionSchema } from './schemas';
 
 export class OpenAIProvider implements AIProvider {
@@ -10,10 +19,12 @@ export class OpenAIProvider implements AIProvider {
   private model = openai('gpt-4-turbo');
   private maxRetries = 3;
 
-  async generateQuestions(params: GenerationParams): Promise<GeneratedQuestion[]> {
+  async generateQuestions(
+    params: GenerationParams
+  ): Promise<GeneratedQuestion[]> {
     const startTime = Date.now();
     const template = QUESTION_TYPE_TEMPLATES[params.questionType];
-    
+
     if (!template) {
       throw new Error(`Unsupported question type: ${params.questionType}`);
     }
@@ -64,7 +75,7 @@ export class OpenAIProvider implements AIProvider {
 
       // Validate and transform the AI response
       const question = this.transformAIResponse(object, params);
-      
+
       // Validate the final question
       const validation = validatedQuestionSchema.safeParse(question);
       if (!validation.success) {
@@ -78,18 +89,23 @@ export class OpenAIProvider implements AIProvider {
       return question;
     } catch (error) {
       console.error('Error generating question:', error);
-      
+
       if (retryCount < this.maxRetries) {
         // Wait briefly before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+        await new Promise(resolve =>
+          setTimeout(resolve, 1000 * (retryCount + 1))
+        );
         return this.generateSingleQuestion(prompt, params, retryCount + 1);
       }
-      
+
       return null;
     }
   }
 
-  private transformAIResponse(aiResponse: any, params: GenerationParams): GeneratedQuestion {
+  private transformAIResponse(
+    aiResponse: any,
+    params: GenerationParams
+  ): GeneratedQuestion {
     return {
       text: aiResponse.text,
       type: params.questionType,
@@ -103,10 +119,14 @@ export class OpenAIProvider implements AIProvider {
 
   private getDefaultPoints(difficulty: string): number {
     switch (difficulty) {
-      case 'EASY': return 1;
-      case 'MEDIUM': return 2;
-      case 'HARD': return 3;
-      default: return 2;
+      case 'EASY':
+        return 1;
+      case 'MEDIUM':
+        return 2;
+      case 'HARD':
+        return 3;
+      default:
+        return 2;
     }
   }
 
@@ -160,7 +180,10 @@ Return a JSON object with:
   }
 
   // Cost estimation (rough estimates)
-  estimateCost(params: GenerationParams): { tokensEstimate: number; costEstimate: number } {
+  estimateCost(params: GenerationParams): {
+    tokensEstimate: number;
+    costEstimate: number;
+  } {
     const baseTokensPerQuestion = 500; // Rough estimate
     const tokensEstimate = baseTokensPerQuestion * params.count;
     const costPerToken = 0.00003; // GPT-4 turbo pricing (approximate)

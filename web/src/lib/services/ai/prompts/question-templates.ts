@@ -273,15 +273,21 @@ Return your response in the following JSON format:
   },
 };
 
-export function buildPrompt(template: PromptTemplate, params: {
-  topic: string;
-  context?: string;
-  difficulty: QuestionDifficulty;
-  language: string;
-  customInstructions?: string;
-}): { system: string; user: string } {
+export function buildPrompt(
+  template: PromptTemplate,
+  params: {
+    topic: string;
+    context?: string;
+    difficulty: QuestionDifficulty;
+    language: string;
+    customInstructions?: string;
+  }
+): { system: string; user: string } {
   const difficultyDescription = DIFFICULTY_DESCRIPTIONS[params.difficulty];
-  const languageInstructions = LANGUAGE_INSTRUCTIONS[params.language as keyof typeof LANGUAGE_INSTRUCTIONS] || LANGUAGE_INSTRUCTIONS.en;
+  const languageInstructions =
+    LANGUAGE_INSTRUCTIONS[
+      params.language as keyof typeof LANGUAGE_INSTRUCTIONS
+    ] || LANGUAGE_INSTRUCTIONS.en;
 
   const replacements = {
     '{{topic}}': params.topic,

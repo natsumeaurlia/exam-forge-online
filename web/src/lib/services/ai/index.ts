@@ -31,8 +31,8 @@ export type {
 } from './schemas';
 
 // Prompt template exports
-export { 
-  QUESTION_TYPE_TEMPLATES, 
+export {
+  QUESTION_TYPE_TEMPLATES,
   buildPrompt,
   DIFFICULTY_DESCRIPTIONS,
   LANGUAGE_INSTRUCTIONS,

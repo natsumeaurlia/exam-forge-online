@@ -1,9 +1,9 @@
-import type { 
-  AIProvider, 
-  GenerationParams, 
-  GeneratedQuestion, 
-  ValidationResult, 
-  AIGenerationResult 
+import type {
+  AIProvider,
+  GenerationParams,
+  GeneratedQuestion,
+  ValidationResult,
+  AIGenerationResult,
 } from './types';
 import { OpenAIProvider } from './openai-provider';
 
@@ -32,10 +32,15 @@ export class AIQuestionService {
       this.validateGenerationParams(params);
 
       // Check provider availability
-      if ('isAvailable' in provider && typeof provider.isAvailable === 'function') {
+      if (
+        'isAvailable' in provider &&
+        typeof provider.isAvailable === 'function'
+      ) {
         const isAvailable = await provider.isAvailable();
         if (!isAvailable) {
-          throw new Error(`AI provider '${providerId}' is currently unavailable`);
+          throw new Error(
+            `AI provider '${providerId}' is currently unavailable`
+          );
         }
       }
 
@@ -58,7 +63,7 @@ export class AIQuestionService {
       };
     } catch (error) {
       console.error(`AI generation failed with provider ${providerId}:`, error);
-      
+
       return {
         success: false,
         questions: [],
@@ -72,7 +77,10 @@ export class AIQuestionService {
     }
   }
 
-  async validateQuestionContent(content: string, providerId: string = this.defaultProvider): Promise<ValidationResult> {
+  async validateQuestionContent(
+    content: string,
+    providerId: string = this.defaultProvider
+  ): Promise<ValidationResult> {
     const provider = this.providers.get(providerId);
 
     if (!provider) {
@@ -82,13 +90,18 @@ export class AIQuestionService {
     return provider.validateContent(content);
   }
 
-  async getAvailableProviders(): Promise<Array<{ id: string; name: string; available: boolean }>> {
+  async getAvailableProviders(): Promise<
+    Array<{ id: string; name: string; available: boolean }>
+  > {
     const providers = [];
 
     for (const [id, provider] of this.providers.entries()) {
       let available = true;
-      
-      if ('isAvailable' in provider && typeof provider.isAvailable === 'function') {
+
+      if (
+        'isAvailable' in provider &&
+        typeof provider.isAvailable === 'function'
+      ) {
         try {
           available = await provider.isAvailable();
         } catch (error) {
@@ -106,7 +119,10 @@ export class AIQuestionService {
     return providers;
   }
 
-  estimateGenerationCost(params: GenerationParams, providerId: string = this.defaultProvider): {
+  estimateGenerationCost(
+    params: GenerationParams,
+    providerId: string = this.defaultProvider
+  ): {
     tokensEstimate: number;
     costEstimate: number;
     currency: string;
@@ -117,7 +133,10 @@ export class AIQuestionService {
       throw new Error(`AI provider '${providerId}' not found`);
     }
 
-    if ('estimateCost' in provider && typeof provider.estimateCost === 'function') {
+    if (
+      'estimateCost' in provider &&
+      typeof provider.estimateCost === 'function'
+    ) {
       const estimate = provider.estimateCost(params);
       return {
         ...estimate,
@@ -152,7 +171,10 @@ export class AIQuestionService {
     }
   }
 
-  private estimateTokensUsed(params: GenerationParams, questions: GeneratedQuestion[]): number {
+  private estimateTokensUsed(
+    params: GenerationParams,
+    questions: GeneratedQuestion[]
+  ): number {
     // Rough calculation based on content length
     let totalTokens = 0;
 
@@ -161,7 +183,7 @@ export class AIQuestionService {
       totalTokens += Math.ceil(question.text.length / 4); // Rough token estimate
       totalTokens += Math.ceil((question.explanation || '').length / 4);
       totalTokens += Math.ceil((question.hint || '').length / 4);
-      
+
       if (question.options) {
         question.options.forEach(option => {
           totalTokens += Math.ceil(option.text.length / 4);
@@ -170,7 +192,9 @@ export class AIQuestionService {
     });
 
     // Add prompt tokens (rough estimate)
-    const promptTokens = Math.ceil((params.topic.length + (params.context || '').length) / 4);
+    const promptTokens = Math.ceil(
+      (params.topic.length + (params.context || '').length) / 4
+    );
     totalTokens += promptTokens * params.count; // Prompt repeated for each question
 
     return totalTokens;

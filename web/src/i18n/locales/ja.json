@@ -2425,6 +2425,28 @@
     "selectAll": "すべて選択",
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
-    "createFirst": "最初の問題を作成しましょう"
+    "createFirst": "最初の問題を作成しましょう",
+    "filters": {
+      "all": "すべてのカテゴリ"
+    },
+    "category": {
+      "loadError": "カテゴリの読み込みに失敗しました",
+      "createError": "カテゴリの作成に失敗しました",
+      "createSuccess": "カテゴリを作成しました",
+      "create": "カテゴリを作成",
+      "createTitle": "新しいカテゴリを作成",
+      "name": "カテゴリ名",
+      "namePlaceholder": "カテゴリ名を入力",
+      "description": "説明",
+      "descriptionPlaceholder": "カテゴリの説明を入力",
+      "parent": "親カテゴリ",
+      "selectParent": "親カテゴリを選択",
+      "noParent": "親なし（ルートカテゴリ）",
+      "cancel": "キャンセル",
+      "creating": "作成中...",
+      "validation": {
+        "nameRequired": "カテゴリ名は必須です"
+      }
+    }
   }
 }

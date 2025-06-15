@@ -41,7 +41,10 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
-import { createBankQuestion, generateQuestionsWithAI } from '@/lib/actions/question-bank';
+import {
+  createBankQuestion,
+  generateQuestionsWithAI,
+} from '@/lib/actions/question-bank';
 
 interface GeneratedQuestion {
   type: QuestionType;
@@ -172,18 +175,16 @@ export function AIQuestionGenerator({
         setGeneratedQuestions(questions);
         setSelectedQuestions(new Set(questions.map((_, index) => index)));
         setStep('review');
-        
-        toast.success(
-          `${questions.length}問の問題を生成しました！`
-        );
+
+        toast.success(`${questions.length}問の問題を生成しました！`);
       } else {
         throw new Error(result?.data?.error || 'AI問題生成に失敗しました');
       }
     } catch (error) {
       console.error('AI generation error:', error);
       toast.error(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : 'AI問題生成中にエラーが発生しました'
       );
       setStep('config');
@@ -211,11 +212,9 @@ export function AIQuestionGenerator({
     // Questions are already saved by the AI generation process
     // This function now just confirms the selection and closes the modal
     const selectedCount = selectedQuestions.size;
-    
-    toast.success(
-      `${selectedCount}問の問題が問題バンクに保存されました`
-    );
-    
+
+    toast.success(`${selectedCount}問の問題が問題バンクに保存されました`);
+
     onSuccess();
     handleClose();
   };
