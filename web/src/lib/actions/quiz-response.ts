@@ -11,6 +11,11 @@ import {
   QuestionWithDetails,
   validateAnswerFormat,
 } from '@/types/quiz-answers';
+import {
+  createQuizErrorResponse,
+  validateQuizResponseData,
+  QuizErrorType,
+} from '@/lib/utils/quiz-error-handling';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -49,6 +54,20 @@ export const submitQuizResponse = authAction
   .action(async ({ parsedInput: data, ctx }) => {
     try {
       const { userId } = ctx;
+
+      // 入力データの詳細検証
+      const validation = validateQuizResponseData(data);
+      if (!validation.isValid) {
+        return createQuizErrorResponse(
+          new Error('入力データに問題があります'),
+          {
+            action: 'submit',
+            quizId: data.quizId,
+            userId,
+          }
+        );
+      }
+
       // トランザクションで回答を保存
       const result = await prisma.$transaction(async tx => {
         // 1. クイズの存在確認とアクセス権チェック
@@ -172,11 +191,13 @@ export const submitQuizResponse = authAction
       return { success: true, data: result };
     } catch (error) {
       console.error('Quiz submission error:', error);
-      return {
-        success: false,
-        error:
-          error instanceof Error ? error.message : 'クイズの提出に失敗しました',
-      };
+
+      // 統一エラーハンドリングを使用
+      return createQuizErrorResponse(error, {
+        action: 'submit',
+        quizId: data.quizId,
+        userId,
+      });
     }
   });
 
@@ -329,7 +350,10 @@ export const getQuizResponse = authAction
       });
 
       if (!response) {
-        return { success: false, error: 'Response not found' };
+        return createQuizErrorResponse(new Error('Response not found'), {
+          action: 'load',
+          userId,
+        });
       }
 
       // Check permissions: Only the respondent or team members can view
@@ -343,7 +367,10 @@ export const getQuizResponse = authAction
         });
 
         if (!teamMember) {
-          return { success: false, error: 'Unauthorized' };
+          return createQuizErrorResponse(new Error('認証が必要です'), {
+            action: 'load',
+            userId,
+          });
         }
       }
 
@@ -361,7 +388,10 @@ export const getQuizResponse = authAction
       };
     } catch (error) {
       console.error('Error fetching quiz response:', error);
-      return { success: false, error: 'Failed to fetch response' };
+      return createQuizErrorResponse(error, {
+        action: 'load',
+        userId,
+      });
     }
   });
 
@@ -397,8 +427,12 @@ export const getQuizResponses = authAction
         take: data.limit,
       });
 
-      return { data: responses };
+      return { success: true, data: responses };
     } catch (error) {
-      throw new Error('回答履歴の取得に失敗しました');
+      console.error('Error fetching quiz responses:', error);
+      return createQuizErrorResponse(error, {
+        action: 'load',
+        userId,
+      });
     }
   });

@@ -2403,5 +2403,53 @@
         "weeklyDigestDescription": "Weekly summary of your activity"
       }
     }
+  },
+  "questionBank": {
+    "title": "Question Bank",
+    "description": "Manage questions shared within your team",
+    "create": "Create Question",
+    "import": "Import Questions",
+    "export": "Export Questions",
+    "categories": "Categories",
+    "tags": "Tags",
+    "difficulty": "Difficulty",
+    "type": "Question Type",
+    "search": "Search questions",
+    "filter": "Filter",
+    "sort": "Sort",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "preview": "Preview",
+    "addToQuiz": "Add to Quiz",
+    "bulkActions": "Bulk Actions",
+    "selectAll": "Select All",
+    "selectedCount": "{count} selected",
+    "noQuestions": "No questions found",
+    "createFirst": "Create your first question"
+  },
+  "quiz": {
+    "errors": {
+      "networkOffline": "Offline",
+      "networkOfflineDescription": "Please check your internet connection",
+      "retry": "Retry",
+      "retrySuccess": "Retry successful",
+      "retryFailed": "Retry failed",
+      "retryFailedDescription": "Please try again in a moment",
+      "retryingMessage": "Retrying...",
+      "retrying": "Retrying",
+      "retryAttempts": "Retry: {current}/{max}",
+      "online": "Online",
+      "offline": "Offline",
+      "hideDetails": "Hide Details",
+      "showDetails": "Show Details",
+      "dismiss": "Dismiss",
+      "errorType": "Error Type",
+      "errorCode": "Error Code",
+      "technicalDetails": "Technical Details",
+      "timestamp": "Timestamp",
+      "recommendedAction": "Recommended Action"
+    }
+  }
   }
 }

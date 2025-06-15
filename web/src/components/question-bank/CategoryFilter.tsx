@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Select,
   SelectContent,
@@ -55,11 +55,7 @@ export function CategoryFilter({
   const [newCategoryColor, setNewCategoryColor] = useState('#3B82F6');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -109,7 +105,11 @@ export function CategoryFilter({
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
