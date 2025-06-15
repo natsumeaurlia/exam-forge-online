@@ -141,19 +141,26 @@ export function SideNavigation({ lng }: SideNavigationProps) {
                   'hidden rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:block',
                   !isDesktopSidebarOpen && 'mx-auto'
                 )}
+                aria-label={
+                  isDesktopSidebarOpen
+                    ? t('navigation.collapseSidebar')
+                    : t('navigation.expandSidebar')
+                }
+                aria-expanded={isDesktopSidebarOpen}
               >
                 {isDesktopSidebarOpen ? (
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                 ) : (
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
                 )}
               </button>
               {/* モバイル用閉じるボタン */}
               <button
                 onClick={closeSidebar}
                 className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:hidden"
+                aria-label={t('navigation.closeSidebar')}
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -164,6 +171,7 @@ export function SideNavigation({ lng }: SideNavigationProps) {
               'flex-1 space-y-1 py-6',
               isDesktopSidebarOpen ? 'px-4' : 'px-2'
             )}
+            aria-label={t('navigation.mainNavigation')}
           >
             {navigationItems.map(item => {
               const Icon = item.icon;

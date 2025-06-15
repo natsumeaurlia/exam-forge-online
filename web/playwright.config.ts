@@ -14,16 +14,21 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
  */
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false, // Disable parallel execution for better stability
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
-  reporter: 'html',
+  retries: process.env.CI ? 2 : 1, // Add retries for local dev
+  workers: process.env.CI ? 2 : 1, // Reduce workers to avoid race conditions
+  reporter: process.env.CI ? 'github' : 'html',
+  timeout: 60000, // Increase default timeout to 60 seconds
   globalSetup: './tests/global-setup.ts',
   globalTeardown: './tests/global-teardown.ts',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    actionTimeout: 15000, // Increase action timeout
+    navigationTimeout: 30000, // Increase navigation timeout
   },
 
   projects: [

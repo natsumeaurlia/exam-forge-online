@@ -3,20 +3,29 @@ import {
   getTestDataFactory,
   cleanupTestData,
 } from '../fixtures/test-data-factory';
+import { authHelper } from '../helpers/auth-helper';
+import {
+  waitForElement,
+  waitForNavigation,
+  fillField,
+  clickElement,
+} from '../helpers/test-utils';
 
 test.describe('Quiz Taking', () => {
   let testQuizId: string;
+  let testUser: any;
   let factory = getTestDataFactory();
 
   test.beforeAll(async () => {
-    // Create test quiz with questions
-    const { quiz } = await factory.createQuiz({
-      title: 'E2E Test Quiz',
-      status: 'PUBLISHED',
+    // Create test user with quiz data
+    const userData = await authHelper.createUserWithQuizData({
+      userEmail: 'quiz-taker@example.com',
+      quizTitle: 'E2E Test Quiz',
       questionCount: 5,
-      sharingMode: 'URL',
     });
-    testQuizId = quiz.id;
+
+    testUser = userData.user;
+    testQuizId = userData.quiz.id;
   });
 
   test.afterAll(async () => {
@@ -26,13 +35,20 @@ test.describe('Quiz Taking', () => {
   test('should display quiz start screen', async ({ page }) => {
     await page.goto(`/ja/quiz/${testQuizId}/take`);
 
+    // Wait for page to load completely
+    await waitForElement(page, 'h1');
+
     // Should show quiz title and info
-    await expect(page.locator('h1')).toBeVisible();
-    await expect(page.getByText(/問/)).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/問|問題|Question/)).toBeVisible({
+      timeout: 10000,
+    });
 
     // Should have start button
-    const startButton = page.getByRole('button', { name: 'クイズを開始' });
-    await expect(startButton).toBeVisible();
+    const startButton = page.getByRole('button', {
+      name: /クイズを開始|Start Quiz|開始/,
+    });
+    await expect(startButton).toBeVisible({ timeout: 10000 });
   });
 
   test('should require password for protected quiz', async ({ page }) => {

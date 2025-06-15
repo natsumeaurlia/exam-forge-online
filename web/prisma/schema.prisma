@@ -67,6 +67,7 @@ model User {
   notifications          Notification[] @relation("UserNotifications")
   notificationPreferences NotificationPreference? @relation("UserNotificationPreferences")
   contactSubmissions     ContactSubmission[]
+  lmsUsers               LMSUser[]
 
   @@index([stripeCustomerId])
   @@map("users")
@@ -108,6 +109,7 @@ model Team {
   tags         Tag[]
   notifications Notification[] @relation("TeamNotifications")
   featureUsage FeatureUsage[]
+  lmsSites LMSSite[]
 
   @@index([creatorId])
   @@map("teams")
@@ -219,6 +221,7 @@ model Quiz {
   sections               Section[]
   certificateTemplates   QuizCertificateTemplate[]
   quizBankQuestions      QuizBankQuestion[]
+  lmsCourses             LMSCourse[]
 
   @@index([teamId])
   @@index([createdById])
@@ -722,6 +725,24 @@ enum EnrollmentStatus {
   DROPPED
 }
 
+enum LMSUserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum LessonStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
 // ============================================
 // Question Bank Models
 // ============================================
@@ -740,6 +761,7 @@ model Category {
   parent               Category?              @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children             Category[]             @relation("CategoryHierarchy")
   bankQuestionCategories BankQuestionCategory[]
+  lmsCourses           LMSCourse[]
   
   @@index([teamId])
   @@index([parentId])
@@ -1179,4 +1201,188 @@ enum NotificationType {
   QUIZ_RESPONSE_RECEIVED
   STORAGE_LIMIT_WARNING
   PLAN_LIMIT_WARNING
+}
+
+// ============================================
+// LMS (Learning Management System) Models
+// ============================================
+
+model LMSSite {
+  id            String   @id @default(cuid())
+  teamId        String   @map("team_id")
+  name          String
+  slug          String
+  description   String?
+  customDomain  String?  @unique @map("custom_domain")
+  subdomain     String?  @unique
+  logoUrl       String?  @map("logo_url")
+  themeConfig   Json     @default("{}") @map("theme_config")
+  settings      Json     @default("{}")
+  isPublished   Boolean  @default(false) @map("is_published")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  team     Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  courses  LMSCourse[]
+  users    LMSUser[]
+  pages    LMSPage[]
+
+  @@unique([teamId, slug])
+  @@index([teamId])
+  @@map("lms_sites")
+}
+
+model LMSCourse {
+  id               String   @id @default(cuid())
+  siteId           String   @map("site_id")
+  title            String
+  description      String?
+  slug             String
+  thumbnailUrl     String?  @map("thumbnail_url")
+  content          Json     @default("{}")
+  price            Int      @default(0)
+  currency         String   @default("JPY")
+  status           CourseStatus @default(DRAFT)
+  isFeatured       Boolean  @default(false) @map("is_featured")
+  estimatedDuration Int?    @map("estimated_duration") // in minutes
+  instructorId     String?  @map("instructor_id")
+  categoryId       String?  @map("category_id")
+  tags             String[]
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  site        LMSSite           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  instructor  LMSUser?          @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  category    Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  lessons     LMSLesson[]
+  enrollments CourseEnrollment[]
+  quizzes     Quiz[]
+
+  @@unique([siteId, slug])
+  @@index([siteId])
+  @@index([status])
+  @@index([instructorId])
+  @@map("lms_courses")
+}
+
+model LMSLesson {
+  id          String      @id @default(cuid())
+  courseId    String      @map("course_id")
+  title       String
+  description String?
+  content     Json        @default("{}") // Craft.js content
+  videoUrl    String?     @map("video_url")
+  duration    Int?        // in minutes
+  order       Int         @default(0)
+  isPreview   Boolean     @default(false) @map("is_preview")
+  status      LessonStatus @default(DRAFT)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  course          LMSCourse        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress        LessonProgress[]
+  lastAccessedBy  CourseEnrollment[] @relation("LastAccessedLesson")
+
+  @@index([courseId])
+  @@index([courseId, order])
+  @@map("lms_lessons")
+}
+
+model LMSUser {
+  id        String     @id @default(cuid())
+  siteId    String     @map("site_id")
+  userId    String?    @map("user_id") // Reference to main users table (optional)
+  email     String
+  firstName String?    @map("first_name")
+  lastName  String?    @map("last_name")
+  avatarUrl String?    @map("avatar_url")
+  role      LMSUserRole @default(STUDENT)
+  isActive  Boolean    @default(true) @map("is_active")
+  metadata  Json       @default("{}")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  site              LMSSite            @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  enrollments       CourseEnrollment[]
+  instructedCourses LMSCourse[]
+
+  @@unique([siteId, email])
+  @@index([siteId])
+  @@index([userId])
+  @@map("lms_users")
+}
+
+model CourseEnrollment {
+  id                   String          @id @default(cuid())
+  courseId             String          @map("course_id")
+  lmsUserId            String          @map("lms_user_id")
+  status               EnrollmentStatus @default(ENROLLED)
+  progress             Decimal         @default(0.00) @db.Decimal(5, 2)
+  lastAccessedLessonId String?         @map("last_accessed_lesson_id")
+  enrolledAt           DateTime        @default(now()) @map("enrolled_at")
+  startedAt            DateTime?       @map("started_at")
+  completedAt          DateTime?       @map("completed_at")
+  certificateIssuedAt  DateTime?       @map("certificate_issued_at")
+  metadata             Json            @default("{}")
+
+  // Relations
+  course             LMSCourse        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lmsUser            LMSUser          @relation(fields: [lmsUserId], references: [id], onDelete: Cascade)
+  lastAccessedLesson LMSLesson?       @relation("LastAccessedLesson", fields: [lastAccessedLessonId], references: [id], onDelete: SetNull)
+  lessonProgress     LessonProgress[]
+
+  @@unique([courseId, lmsUserId])
+  @@index([courseId])
+  @@index([lmsUserId])
+  @@map("course_enrollments")
+}
+
+model LessonProgress {
+  id           String         @id @default(cuid())
+  enrollmentId String         @map("enrollment_id")
+  lessonId     String         @map("lesson_id")
+  status       ProgressStatus @default(NOT_STARTED)
+  progress     Decimal        @default(0.00) @db.Decimal(5, 2)
+  timeSpent    Int            @default(0) // in seconds
+  startedAt    DateTime?      @map("started_at")
+  completedAt  DateTime?      @map("completed_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  enrollment CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson     LMSLesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
+  @@map("lesson_progress")
+}
+
+model LMSPage {
+  id              String   @id @default(cuid())
+  siteId          String   @map("site_id")
+  title           String
+  slug            String
+  content         Json     @default("{}") // Craft.js content
+  metaTitle       String?  @map("meta_title")
+  metaDescription String?  @map("meta_description")
+  isHomepage      Boolean  @default(false) @map("is_homepage")
+  isPublished     Boolean  @default(false) @map("is_published")
+  template        String   @default("default")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  site LMSSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, slug])
+  @@index([siteId])
+  @@index([isPublished])
+  @@map("lms_pages")
 }
