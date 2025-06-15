@@ -28,6 +28,7 @@ import { TeamPlanCard } from '@/components/usage/TeamPlanCard';
 import { UsageAlerts } from '@/components/usage/UsageAlerts';
 import { UsageExport } from '@/components/usage/UsageExport';
 import { UsageNotifications } from '@/components/usage/UsageNotifications';
+import { UsageForecast } from '@/components/usage/UsageForecast';
 
 interface TeamPlan {
   name: string;
@@ -249,6 +250,7 @@ export function UsageMonitoringClient({
       <Tabs defaultValue="trends" className="space-y-6">
         <TabsList>
           <TabsTrigger value="trends">{t('tabs.trends')}</TabsTrigger>
+          <TabsTrigger value="forecast">{t('tabs.forecast')}</TabsTrigger>
           <TabsTrigger value="metrics">{t('tabs.detailed')}</TabsTrigger>
         </TabsList>
 
@@ -292,6 +294,20 @@ export function UsageMonitoringClient({
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="forecast" className="space-y-6">
+          <UsageForecast
+            trends={[...usageData.weeklyTrends, ...usageData.monthlyTrends]}
+            currentUsage={{
+              QUIZ: currentQuizzes,
+              RESPONSE: currentResponses,
+              MEMBER: currentMembers,
+              STORAGE: currentStorage,
+            }}
+            plan={plan}
+            lng={lng}
+          />
         </TabsContent>
 
         <TabsContent value="metrics" className="space-y-6">
