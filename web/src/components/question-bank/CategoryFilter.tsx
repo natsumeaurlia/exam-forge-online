@@ -22,11 +22,13 @@ import {
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { getCategories, createCategory } from '@/lib/actions/category';
+import { useAction } from 'next-safe-action/hooks';
 
 interface Category {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   color?: string;
   questionCount?: number;
 }
@@ -37,6 +39,7 @@ interface CategoryFilterProps {
   placeholder?: string;
   allowCreate?: boolean;
   multiple?: boolean;
+  teamId: string;
 }
 
 export function CategoryFilter({
@@ -45,71 +48,52 @@ export function CategoryFilter({
   placeholder = 'Select category...',
   allowCreate = false,
   multiple = false,
+  teamId,
 }: CategoryFilterProps) {
   const t = useTranslations('questionBank');
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch categories from API
+  const { execute: fetchCategories } = useAction(getCategories, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        setCategories(data.categories);
+      }
+      setIsLoading(false);
+    },
+    onError: error => {
+      console.error('Failed to fetch categories:', error);
+      setIsLoading(false);
+    },
+  });
+
+  const { execute: executeCreate } = useAction(createCategory, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success(t('category.createSuccess'));
+        fetchCategories({ teamId });
+        setIsCreateDialogOpen(false);
+        setNewCategoryName('');
+        setNewCategoryDescription('');
+        setNewCategoryColor('#3B82F6');
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError || t('category.createError'));
+    },
+  });
+
+  useEffect(() => {
+    if (teamId) {
+      fetchCategories({ teamId });
+    }
+  }, [teamId, fetchCategories]);
   const [creating, setCreating] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
   const [newCategoryColor, setNewCategoryColor] = useState('#3B82F6');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-
-  const loadCategories = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      // Mock categories - In real implementation, this would fetch from API
-      const mockCategories: Category[] = [
-        {
-          id: '1',
-          name: '数学',
-          description: 'Mathematics questions',
-          color: '#3B82F6',
-          questionCount: 25,
-        },
-        {
-          id: '2',
-          name: '科学',
-          description: 'Science questions',
-          color: '#10B981',
-          questionCount: 18,
-        },
-        {
-          id: '3',
-          name: '歴史',
-          description: 'History questions',
-          color: '#F59E0B',
-          questionCount: 12,
-        },
-        {
-          id: '4',
-          name: '言語',
-          description: 'Language questions',
-          color: '#8B5CF6',
-          questionCount: 30,
-        },
-        {
-          id: '5',
-          name: '技術',
-          description: 'Technology questions',
-          color: '#EF4444',
-          questionCount: 22,
-        },
-      ];
-
-      setCategories(mockCategories);
-    } catch (error) {
-      console.error('Failed to load categories:', error);
-      toast.error(t('category.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -117,36 +101,13 @@ export function CategoryFilter({
       return;
     }
 
-    try {
-      setCreating(true);
-
-      // Mock category creation - In real implementation, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: newCategoryName.trim(),
-        description: newCategoryDescription.trim() || undefined,
-        color: newCategoryColor,
-        questionCount: 0,
-      };
-
-      setCategories(prev => [...prev, newCategory]);
-      onChange(newCategory.id);
-
-      // Reset form
-      setNewCategoryName('');
-      setNewCategoryDescription('');
-      setNewCategoryColor('#3B82F6');
-      setIsCreateDialogOpen(false);
-
-      toast.success(t('category.createSuccess'));
-    } catch (error) {
-      console.error('Failed to create category:', error);
-      toast.error(t('category.createError'));
-    } finally {
-      setCreating(false);
-    }
+    setCreating(true);
+    executeCreate({
+      name: newCategoryName.trim(),
+      description: newCategoryDescription.trim() || undefined,
+      teamId,
+    });
+    setCreating(false);
   };
 
   const selectedCategory = categories.find(cat => cat.id === value);
@@ -163,7 +124,7 @@ export function CategoryFilter({
     '#6B7280', // Gray
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Select disabled>
         <SelectTrigger>
