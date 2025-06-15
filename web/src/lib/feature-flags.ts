@@ -63,13 +63,13 @@ export class FeatureFlagSystem {
     amount: number = 1
   ): Promise<boolean> {
     try {
-      const result = await updateFeatureUsage.execute({
+      const result = await updateFeatureUsage({
         teamId,
         featureType,
         increment: amount,
       });
 
-      if (result.data?.success) {
+      if (result?.data?.success) {
         // Invalidate cache for this feature
         const cacheKey = `${teamId}-${featureType}`;
         this.cache.delete(cacheKey);
@@ -151,7 +151,8 @@ export class FeatureFlagSystem {
     }
 
     // Clear all cache entries for the team
-    for (const key of this.cache.keys()) {
+    const keys = Array.from(this.cache.keys());
+    for (const key of keys) {
       if (key.startsWith(`${teamId}-`)) {
         this.cache.delete(key);
       }
@@ -211,38 +212,44 @@ export const FEATURES = {
 /**
  * Plan-based feature access mapping
  */
-export const PLAN_FEATURES = {
-  FREE: [FEATURES.TRUE_FALSE, FEATURES.SINGLE_CHOICE, FEATURES.MULTIPLE_CHOICE],
+const FREE_FEATURES: FeatureType[] = [
+  FEATURES.TRUE_FALSE,
+  FEATURES.SINGLE_CHOICE,
+  FEATURES.MULTIPLE_CHOICE,
+];
 
-  PRO: [
-    ...(PLAN_FEATURES?.FREE || []),
-    FEATURES.FREE_TEXT,
-    FEATURES.ADVANCED_QUESTIONS,
-    FEATURES.AUTO_GRADING,
-    FEATURES.MANUAL_GRADING,
-    FEATURES.PASSWORD_PROTECTION,
-    FEATURES.SECTIONS,
-    FEATURES.ANALYTICS,
-    FEATURES.EXCEL_EXPORT,
-    FEATURES.CERTIFICATES,
-    FEATURES.AI_GENERATION,
-    FEATURES.QUESTION_BANK,
-    FEATURES.MEDIA_UPLOAD,
-    FEATURES.CUSTOM_SUBDOMAIN,
-    FEATURES.TEAM_MANAGEMENT,
-    FEATURES.PERMISSIONS,
-    FEATURES.AUDIT_LOG,
-  ],
+const PRO_FEATURES: FeatureType[] = [
+  ...FREE_FEATURES,
+  FEATURES.FREE_TEXT,
+  FEATURES.ADVANCED_QUESTIONS,
+  FEATURES.AUTO_GRADING,
+  FEATURES.MANUAL_GRADING,
+  FEATURES.PASSWORD_PROTECTION,
+  FEATURES.SECTIONS,
+  FEATURES.ANALYTICS,
+  FEATURES.EXCEL_EXPORT,
+  FEATURES.CERTIFICATES,
+  FEATURES.AI_GENERATION,
+  FEATURES.QUESTION_BANK,
+  FEATURES.MEDIA_UPLOAD,
+  FEATURES.CUSTOM_SUBDOMAIN,
+  FEATURES.TEAM_MANAGEMENT,
+  FEATURES.PERMISSIONS,
+  FEATURES.AUDIT_LOG,
+];
 
+export const PLAN_FEATURES: Record<string, FeatureType[]> = {
+  FREE: FREE_FEATURES,
+  PRO: PRO_FEATURES,
   PREMIUM: [
-    ...(PLAN_FEATURES?.PRO || []),
+    ...PRO_FEATURES,
     FEATURES.CUSTOM_DESIGN,
     FEATURES.CUSTOM_DEVELOPMENT,
     FEATURES.PRIORITY_SUPPORT,
     FEATURES.SLA_GUARANTEE,
     FEATURES.ON_PREMISE,
   ],
-} as const;
+};
 
 /**
  * Default limits for free plan
