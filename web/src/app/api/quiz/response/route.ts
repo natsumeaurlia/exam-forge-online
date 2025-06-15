@@ -101,12 +101,14 @@ function checkAnswer(
 
 // POST: クイズ回答の提出
 export async function POST(request: NextRequest) {
-  try {
-    // 1. 認証チェック（匿名回答も許可）
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id || null;
+  // 認証チェック（匿名回答も許可）
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id || null;
 
-    // 2. リクエストボディの取得と検証
+  let data: any = null;
+
+  try {
+    // リクエストボディの取得と検証
     const body = await request.json();
     const validationResult = submitQuizResponseSchema.safeParse(body);
 
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorResponse, { status: 400 });
     }
 
-    const data = validationResult.data;
+    data = validationResult.data;
 
     // 詳細データ検証
     const dataValidation = validateQuizResponseData(data);
@@ -302,9 +304,10 @@ export async function POST(request: NextRequest) {
 
 // GET: クイズ回答履歴の取得
 export async function GET(request: NextRequest) {
+  // 認証チェック
+  const session = await getServerSession(authOptions);
+
   try {
-    // 認証チェック
-    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       const errorResponse = createQuizErrorResponse(
         new Error('認証が必要です'),
@@ -348,7 +351,7 @@ export async function GET(request: NextRequest) {
     console.error('Failed to fetch quiz responses:', error);
     const errorResponse = createQuizErrorResponse(error, {
       action: 'load',
-      userId: session?.user?.id,
+      userId: session?.user?.id || undefined,
     });
     return NextResponse.json(errorResponse, { status: 500 });
   }

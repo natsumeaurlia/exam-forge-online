@@ -42,6 +42,10 @@ export function analyzeError(error: any): ErrorInfo {
       canRetry: true,
       retryDelay: 3000,
       action: 'retry',
+      severity: 'medium',
+      code: 'NETWORK_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -54,6 +58,10 @@ export function analyzeError(error: any): ErrorInfo {
       canRetry: true,
       retryDelay: 2000,
       action: 'retry',
+      severity: 'medium',
+      code: 'TIMEOUT_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -65,6 +73,10 @@ export function analyzeError(error: any): ErrorInfo {
       userMessage: 'セッションが期限切れです。ページを再読み込みしてください。',
       canRetry: false,
       action: 'reload',
+      severity: 'high',
+      code: 'AUTH_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -75,6 +87,10 @@ export function analyzeError(error: any): ErrorInfo {
       message: error.message,
       userMessage: 'このクイズにアクセスする権限がありません。',
       canRetry: false,
+      severity: 'high',
+      code: 'PERM_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -85,6 +101,10 @@ export function analyzeError(error: any): ErrorInfo {
       message: error.message,
       userMessage: '入力内容に問題があります。必須項目をご確認ください。',
       canRetry: false,
+      severity: 'medium',
+      code: 'VALID_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -101,6 +121,10 @@ export function analyzeError(error: any): ErrorInfo {
       canRetry: true,
       retryDelay: 5000,
       action: 'retry',
+      severity: 'high',
+      code: 'DB_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -114,6 +138,10 @@ export function analyzeError(error: any): ErrorInfo {
       canRetry: true,
       retryDelay: 1000,
       action: 'auto_save',
+      severity: 'medium',
+      code: 'OFFLINE_001',
+      technicalMessage: 'Navigator offline detected',
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -127,6 +155,10 @@ export function analyzeError(error: any): ErrorInfo {
       canRetry: true,
       retryDelay: 10000,
       action: 'retry',
+      severity: 'critical',
+      code: error?.status || 'SERVER_001',
+      technicalMessage: error.message,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -139,6 +171,10 @@ export function analyzeError(error: any): ErrorInfo {
     canRetry: true,
     retryDelay: 3000,
     action: 'retry',
+    severity: 'medium',
+    code: 'UNKNOWN_001',
+    technicalMessage: error?.message || 'Unknown error occurred',
+    timestamp: new Date().toISOString(),
   };
 }
 

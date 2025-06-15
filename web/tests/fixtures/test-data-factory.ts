@@ -159,19 +159,24 @@ export class TestDataFactory {
   /**
    * Create a test quiz with questions
    */
-  async createQuiz(options: TestQuizOptions = {}) {
+  async createQuiz(
+    options: TestQuizOptions = {}
+  ): Promise<{ quiz: any; questions: any[] }> {
+    const createdById = options.createdById || 'default-user-id';
+
     const quizData = {
       title: options.title || `Test Quiz ${Date.now()}`,
       description: options.description || 'A test quiz for E2E testing',
       teamId: options.teamId || (await this.createTeam()).id,
       createdById: options.createdById || 'default-user-id',
       status: options.status || 'PUBLISHED',
-      passingScore: options.passingScore || null,
-      timeLimit: options.timeLimit || null,
-      maxAttempts: options.maxAttempts || null,
-      password: options.password || null,
-      sharingMode: options.sharingMode || 'URL',
+      passingScore: options.passingScore || undefined,
+      timeLimit: options.timeLimit || undefined,
+      maxAttempts: options.maxAttempts || undefined,
+      password: options.password || undefined,
+      sharingMode: (options.sharingMode as any) || 'URL',
       subdomain: `test-quiz-${Date.now()}`,
+      createdById,
     };
 
     const quiz = await this.prisma.quiz.create({
@@ -185,7 +190,7 @@ export class TestDataFactory {
     const questions = [];
 
     for (let i = 0; i < questionCount; i++) {
-      const question = await this.createQuestion({
+      const question: any = await this.createQuestion({
         quizId: quiz.id,
         type: this.getRandomQuestionType(),
         text: `Test Question ${i + 1}`,
@@ -200,10 +205,10 @@ export class TestDataFactory {
   /**
    * Create a test question with options
    */
-  async createQuestion(options: TestQuestionOptions = {}) {
+  async createQuestion(options: TestQuestionOptions = {}): Promise<any> {
     const questionType = options.type || 'MULTIPLE_CHOICE';
     const quizId = options.quizId || (await this.createQuiz()).quiz.id;
-    const questionData = {
+    const questionData: any = {
       quizId: quizId,
       type: questionType,
       text: options.text || `Test ${questionType} Question ${Date.now()}`,
@@ -212,7 +217,7 @@ export class TestDataFactory {
       correctAnswer: this.getCorrectAnswerForType(questionType),
     };
 
-    const question = await this.prisma.question.create({
+    const question: any = await this.prisma.question.create({
       data: questionData,
     });
 

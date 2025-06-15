@@ -2404,7 +2404,6 @@
       }
     }
   },
-<<<<<<< HEAD
   "questionBank": {
     "title": "Question Bank",
     "description": "Manage questions shared within your team",
@@ -2429,8 +2428,6 @@
     "noQuestions": "No questions found",
     "createFirst": "Create your first question"
   },
-=======
->>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
   "quiz": {
     "errors": {
       "networkOffline": "Offline",
