@@ -63,7 +63,7 @@ export class FeatureFlagSystem {
     amount: number = 1
   ): Promise<boolean> {
     try {
-      const result = await updateFeatureUsage.execute({
+      const result = await updateFeatureUsage({
         teamId,
         featureType,
         increment: amount,
@@ -151,11 +151,13 @@ export class FeatureFlagSystem {
     }
 
     // Clear all cache entries for the team
+    const keysToDelete: string[] = [];
     for (const key of this.cache.keys()) {
       if (key.startsWith(`${teamId}-`)) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
     }
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 }
 
@@ -211,31 +213,37 @@ export const FEATURES = {
 /**
  * Plan-based feature access mapping
  */
+const FREE_FEATURES = [
+  FEATURES.TRUE_FALSE,
+  FEATURES.SINGLE_CHOICE,
+  FEATURES.MULTIPLE_CHOICE,
+];
+
+const PRO_FEATURES = [
+  ...FREE_FEATURES,
+  FEATURES.FREE_TEXT,
+  FEATURES.ADVANCED_QUESTIONS,
+  FEATURES.AUTO_GRADING,
+  FEATURES.MANUAL_GRADING,
+  FEATURES.PASSWORD_PROTECTION,
+  FEATURES.SECTIONS,
+  FEATURES.ANALYTICS,
+  FEATURES.EXCEL_EXPORT,
+  FEATURES.CERTIFICATES,
+  FEATURES.AI_GENERATION,
+  FEATURES.QUESTION_BANK,
+  FEATURES.MEDIA_UPLOAD,
+  FEATURES.CUSTOM_SUBDOMAIN,
+  FEATURES.TEAM_MANAGEMENT,
+  FEATURES.PERMISSIONS,
+  FEATURES.AUDIT_LOG,
+];
+
 export const PLAN_FEATURES = {
-  FREE: [FEATURES.TRUE_FALSE, FEATURES.SINGLE_CHOICE, FEATURES.MULTIPLE_CHOICE],
-
-  PRO: [
-    ...(PLAN_FEATURES?.FREE || []),
-    FEATURES.FREE_TEXT,
-    FEATURES.ADVANCED_QUESTIONS,
-    FEATURES.AUTO_GRADING,
-    FEATURES.MANUAL_GRADING,
-    FEATURES.PASSWORD_PROTECTION,
-    FEATURES.SECTIONS,
-    FEATURES.ANALYTICS,
-    FEATURES.EXCEL_EXPORT,
-    FEATURES.CERTIFICATES,
-    FEATURES.AI_GENERATION,
-    FEATURES.QUESTION_BANK,
-    FEATURES.MEDIA_UPLOAD,
-    FEATURES.CUSTOM_SUBDOMAIN,
-    FEATURES.TEAM_MANAGEMENT,
-    FEATURES.PERMISSIONS,
-    FEATURES.AUDIT_LOG,
-  ],
-
+  FREE: FREE_FEATURES,
+  PRO: PRO_FEATURES,
   PREMIUM: [
-    ...(PLAN_FEATURES?.PRO || []),
+    ...PRO_FEATURES,
     FEATURES.CUSTOM_DESIGN,
     FEATURES.CUSTOM_DEVELOPMENT,
     FEATURES.PRIORITY_SUPPORT,
@@ -261,7 +269,7 @@ export function requiresUpgrade(
   currentPlan: 'FREE' | 'PRO' | 'PREMIUM'
 ): boolean {
   const planFeatures = PLAN_FEATURES[currentPlan] || [];
-  return !planFeatures.includes(featureType);
+  return !planFeatures.includes(featureType as any);
 }
 
 /**
@@ -270,8 +278,8 @@ export function requiresUpgrade(
 export function getRequiredPlan(
   featureType: FeatureType
 ): 'FREE' | 'PRO' | 'PREMIUM' {
-  if (PLAN_FEATURES.FREE?.includes(featureType)) return 'FREE';
-  if (PLAN_FEATURES.PRO?.includes(featureType)) return 'PRO';
+  if (PLAN_FEATURES.FREE?.includes(featureType as any)) return 'FREE';
+  if (PLAN_FEATURES.PRO?.includes(featureType as any)) return 'PRO';
   return 'PREMIUM';
 }
 
