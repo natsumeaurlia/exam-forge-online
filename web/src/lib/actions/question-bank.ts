@@ -173,7 +173,7 @@ export const getBankQuestions = action
 
       if (categoryId) {
         where.categories = {
-          some: { categoryId },
+          some: { categoryId: categoryId },
         };
       }
 

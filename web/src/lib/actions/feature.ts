@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import { createServerAction } from 'next-safe-action';
+import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import {
   FeatureType,
@@ -50,9 +50,11 @@ const getFeatureUsageSchema = z.object({
 /**
  * Check if a team has access to a specific feature
  */
-export const checkFeatureAccess = createServerAction(
-  checkFeatureAccessSchema,
-  async ({ featureType, teamId }) => {
+const action = createSafeActionClient();
+
+export const checkFeatureAccess = action
+  .schema(checkFeatureAccessSchema)
+  .action(async ({ parsedInput: { featureType, teamId } }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -137,15 +139,14 @@ export const checkFeatureAccess = createServerAction(
         : undefined,
       isUnlimited: !planFeature.limit || planFeature.limit === -1,
     } as FeatureCheck;
-  }
-);
+  });
 
 /**
  * Update feature usage count for a team
  */
-export const updateFeatureUsage = createSafeAction(
-  updateFeatureUsageSchema,
-  async ({ featureType, teamId, increment }) => {
+export const updateFeatureUsage = action
+  .schema(updateFeatureUsageSchema)
+  .action(async ({ parsedInput: { featureType, teamId, increment } }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -211,8 +212,7 @@ export const updateFeatureUsage = createSafeAction(
       success: true,
       newUsage: (featureCheck.data.currentUsage || 0) + increment,
     };
-  }
-);
+  });
 
 /**
  * Get current feature usage for a team
@@ -239,9 +239,9 @@ async function getCurrentFeatureUsage(
 /**
  * Get all feature usage for a team
  */
-export const getFeatureUsage = createSafeAction(
-  getFeatureUsageSchema,
-  async ({ teamId, featureType }) => {
+export const getFeatureUsage = action
+  .schema(getFeatureUsageSchema)
+  .action(async ({ parsedInput: { teamId, featureType } }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -293,8 +293,7 @@ export const getFeatureUsage = createSafeAction(
     });
 
     return usageMap;
-  }
-);
+  });
 
 /**
  * Runtime feature flag checker hook-compatible function

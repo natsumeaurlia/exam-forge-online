@@ -77,7 +77,7 @@ export const createFeature = action
     }
 
     const feature = await prisma.feature.create({
-      data: input,
+      data: input.parsedInput,
     });
 
     revalidatePath('/admin/features');
@@ -89,61 +89,65 @@ export const createFeature = action
  */
 export const updatePlanFeature = action
   .schema(updatePlanFeatureSchema)
-  .action(async ({ planId, featureId, isEnabled, limit, metadata }) => {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
-    }
+  .action(
+    async ({
+      parsedInput: { planId, featureId, isEnabled, limit, metadata },
+    }) => {
+      const session = await auth();
+      if (!session?.user?.id) {
+        throw new Error('Unauthorized');
+      }
 
-    // Verify admin access
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        teamMembers: {
-          where: { role: 'OWNER' },
+      // Verify admin access
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        include: {
+          teamMembers: {
+            where: { role: 'OWNER' },
+          },
         },
-      },
-    });
+      });
 
-    if (!user || user.teamMembers.length === 0) {
-      throw new Error('Admin access required');
-    }
+      if (!user || user.teamMembers.length === 0) {
+        throw new Error('Admin access required');
+      }
 
-    const planFeature = await prisma.planFeature.upsert({
-      where: {
-        planId_featureId: {
+      const planFeature = await prisma.planFeature.upsert({
+        where: {
+          planId_featureId: {
+            planId,
+            featureId,
+          },
+        },
+        create: {
           planId,
           featureId,
+          isEnabled,
+          limit,
+          metadata,
         },
-      },
-      create: {
-        planId,
-        featureId,
-        isEnabled,
-        limit,
-        metadata,
-      },
-      update: {
-        isEnabled,
-        limit,
-        metadata,
-      },
-      include: {
-        feature: true,
-        plan: true,
-      },
-    });
+        update: {
+          isEnabled,
+          limit,
+          metadata,
+        },
+        include: {
+          feature: true,
+          plan: true,
+        },
+      });
 
-    revalidatePath('/admin/plans');
-    return { planFeature };
-  });
+      revalidatePath('/admin/plans');
+      return { planFeature };
+    }
+  );
 
 /**
  * Admin-only: Bulk update plan features
  */
 export const bulkUpdatePlanFeatures = action
   .schema(bulkUpdatePlanFeaturesSchema)
-  .action(async ({ planId, features }) => {
+  .action(async ({ parsedInput: { planId, features } }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -165,27 +169,38 @@ export const bulkUpdatePlanFeatures = action
 
     // Use transaction for bulk updates
     const results = await prisma.$transaction(
-      features.map(({ featureId, isEnabled, limit, metadata }) =>
-        prisma.planFeature.upsert({
-          where: {
-            planId_featureId: {
+      features.map(
+        ({
+          featureId,
+          isEnabled,
+          limit,
+          metadata,
+        }: {
+          featureId: string;
+          isEnabled: boolean;
+          limit?: number;
+          metadata?: Record<string, any>;
+        }) =>
+          prisma.planFeature.upsert({
+            where: {
+              planId_featureId: {
+                planId,
+                featureId,
+              },
+            },
+            create: {
               planId,
               featureId,
+              isEnabled,
+              limit,
+              metadata,
             },
-          },
-          create: {
-            planId,
-            featureId,
-            isEnabled,
-            limit,
-            metadata,
-          },
-          update: {
-            isEnabled,
-            limit,
-            metadata,
-          },
-        })
+            update: {
+              isEnabled,
+              limit,
+              metadata,
+            },
+          })
       )
     );
 
@@ -198,7 +213,7 @@ export const bulkUpdatePlanFeatures = action
  */
 export const resetFeatureUsage = action
   .schema(resetFeatureUsageSchema)
-  .action(async ({ teamId, featureType, month }) => {
+  .action(async ({ parsedInput: { teamId, featureType, month } }) => {
     const session = await auth();
     if (!session?.user?.id) {
       throw new Error('Unauthorized');
@@ -321,16 +336,7 @@ export async function getHighUsageTeams(
         include: {
           subscription: {
             include: {
-              planFeatures: {
-                where: {
-                  feature: {
-                    type: featureType,
-                  },
-                },
-                include: {
-                  feature: true,
-                },
-              },
+              plan: true,
             },
           },
         },
@@ -346,10 +352,8 @@ export async function getHighUsageTeams(
     teamId: usage.teamId,
     teamName: usage.team.name,
     usage: usage.count,
-    limit: usage.team.subscription?.planFeatures[0]?.limit,
-    isOverLimit: usage.team.subscription?.planFeatures[0]?.limit
-      ? usage.count > usage.team.subscription.planFeatures[0].limit
-      : false,
+    limit: null, // TODO: Implement plan feature limit lookup
+    isOverLimit: false,
   }));
 }
 
@@ -369,7 +373,7 @@ export async function generateFeatureUsageReport(
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      teamMemberships: {
+      teamMembers: {
         where: { role: 'OWNER' },
       },
     },

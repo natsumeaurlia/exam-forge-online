@@ -58,7 +58,7 @@ export async function checkFeatureAccess(
     ];
 
     return {
-      hasAccess: basicFeatures.includes(featureType),
+      hasAccess: basicFeatures.includes(featureType as any),
       limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
       isUnlimited: false,
     };
