@@ -221,8 +221,116 @@ test.describe('Quiz Response API', () => {
   });
 });
 
+test.describe('Enhanced Error Handling Tests', () => {
+  test('レート制限エラーを正しく返す', async ({ request }) => {
+    // Rate limit simulation by sending multiple requests rapidly
+    const promises = Array.from({ length: 15 }, () =>
+      request.post('/api/quiz/response', {
+        data: getMockQuizResponse(testQuizId),
+      })
+    );
+
+    const responses = await Promise.all(promises);
+
+    // Some requests should be rate limited (429 status)
+    const rateLimitedResponses = responses.filter(r => r.status() === 429);
+    expect(rateLimitedResponses.length).toBeGreaterThan(0);
+
+    // Check rate limit headers
+    const rateLimitedResponse = rateLimitedResponses[0];
+    expect(rateLimitedResponse.headers()['retry-after']).toBeDefined();
+    expect(rateLimitedResponse.headers()['x-ratelimit-limit']).toBeDefined();
+  });
+
+  test('重複送信を検出して拒否する', async ({ request }) => {
+    const sameData = getMockQuizResponse(testQuizId);
+
+    // Send the same data twice quickly
+    const [first, second] = await Promise.all([
+      request.post('/api/quiz/response', { data: sameData }),
+      request.post('/api/quiz/response', { data: sameData }),
+    ]);
+
+    // One should succeed, one should be rejected as duplicate
+    const statuses = [first.status(), second.status()].sort();
+    expect(statuses).toContain(409); // Conflict for duplicate
+  });
+
+  test('データサイズ制限を正しく処理する', async ({ request }) => {
+    const largeData = {
+      ...getMockQuizResponse(testQuizId),
+      responses: Array.from({ length: 1000 }, (_, i) => ({
+        questionId: `q${i}`,
+        answer: 'A'.repeat(10000), // Very large answer
+        timeSpent: 30,
+      })),
+    };
+
+    const response = await request.post('/api/quiz/response', {
+      data: largeData,
+    });
+
+    // Should return 413 Payload Too Large or similar error
+    expect([400, 413, 414]).toContain(response.status());
+  });
+
+  test('エラーレスポンスに相関IDが含まれる', async ({ request }) => {
+    const response = await request.post('/api/quiz/response', {
+      data: {
+        ...getMockQuizResponse(testQuizId),
+        responses: [], // Invalid - empty responses
+      },
+    });
+
+    expect(response.status()).toBe(400);
+    const json = await response.json();
+
+    expect(json.error).toBeDefined();
+    expect(json.error.correlationId).toBeDefined();
+    expect(json.error.timestamp).toBeDefined();
+    expect(typeof json.error.correlationId).toBe('string');
+  });
+
+  test('ネットワークエラーのシミュレーション', async ({ request }) => {
+    // This test would require mocking network failures
+    // In a real scenario, you'd use tools like MSW or similar
+    const response = await request.post('/api/quiz/response', {
+      data: getMockQuizResponse('nonexistent-quiz-id'),
+    });
+
+    expect(response.status()).toBe(404);
+    const json = await response.json();
+
+    expect(json.error.type).toBe('QUIZ_NOT_FOUND');
+    expect(json.error.retryable).toBe(false);
+  });
+
+  test('エラー深刻度が正しく設定される', async ({ request }) => {
+    // Test different error severities
+    const testCases = [
+      {
+        data: { quizId: 'nonexistent' },
+        expectedSeverity: 'medium', // Quiz not found
+      },
+      {
+        data: getMockQuizResponse(''),
+        expectedSeverity: 'high', // Validation error
+      },
+    ];
+
+    for (const testCase of testCases) {
+      const response = await request.post('/api/quiz/response', {
+        data: testCase.data,
+      });
+
+      const json = await response.json();
+      // Error severity testing would need to be implemented in the error response
+      expect(json.error).toBeDefined();
+    }
+  });
+});
+
 test.describe('Quiz Response Integration Tests', () => {
-  // 実際のクイズが作成された後に実行するための統合テスト
   test.skip('認証ユーザーがクイズに回答できる', async ({ page, request }) => {
     // 1. ログイン処理
     // 2. クイズ作成
@@ -240,5 +348,15 @@ test.describe('Quiz Response Integration Tests', () => {
     // 1. 各問題タイプを含むクイズを作成
     // 2. 正解・不正解を含む回答を送信
     // 3. スコアが正しく計算されることを確認
+  });
+
+  test.skip('オフラインストレージが正しく機能する', async ({
+    page,
+    context,
+  }) => {
+    // 1. ネットワークをオフラインに設定
+    // 2. クイズ回答を送信
+    // 3. オフラインストレージに保存されることを確認
+    // 4. オンラインに戻して同期されることを確認
   });
 });

@@ -19,6 +19,11 @@ export enum QuizErrorType {
   CONCURRENT_SUBMISSION = 'CONCURRENT_SUBMISSION',
   INVALID_ANSWER_FORMAT = 'INVALID_ANSWER_FORMAT',
   SESSION_EXPIRED = 'SESSION_EXPIRED',
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+  DUPLICATE_SUBMISSION = 'DUPLICATE_SUBMISSION',
+  DATABASE_ERROR = 'DATABASE_ERROR',
+  QUIZ_ACCESS_DENIED = 'QUIZ_ACCESS_DENIED',
+  SUBMISSION_SIZE_EXCEEDED = 'SUBMISSION_SIZE_EXCEEDED',
 }
 
 export interface QuizErrorInfo extends ErrorInfo {
@@ -33,6 +38,10 @@ export interface QuizErrorInfo extends ErrorInfo {
   code?: string;
   technicalMessage?: string;
   timestamp?: string;
+  correlationId?: string;
+  additionalContext?: Record<string, any>;
+  recoveryStrategies?: Array<'retry' | 'refresh' | 'login' | 'offline'>;
+  notificationLevel?: 'none' | 'toast' | 'modal' | 'alert';
 }
 
 /**
@@ -49,6 +58,9 @@ export function analyzeQuizError(
   const baseError = analyzeError(error);
   const errorMessage = error?.message || error?.toString() || '';
 
+  // Generate correlation ID for error tracking
+  const correlationId = `qe_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
   // Default quiz error info
   let quizErrorInfo: QuizErrorInfo = {
     ...baseError,
@@ -58,6 +70,14 @@ export function analyzeQuizError(
     code: 'UNKNOWN_ERROR',
     technicalMessage: errorMessage,
     timestamp: new Date().toISOString(),
+    correlationId,
+    additionalContext: {
+      action: context?.action,
+      quizId: context?.quizId,
+      userId: context?.userId,
+    },
+    recoveryStrategies: ['retry'],
+    notificationLevel: 'modal',
   };
 
   // Quiz-specific error classification
@@ -184,6 +204,92 @@ export function analyzeQuizError(
       retryable: true,
       requiresAuth: true,
       userActionRequired: '再度ログインしてからお試しください。',
+      recoveryStrategies: ['login', 'refresh'],
+      notificationLevel: 'modal',
+    };
+  } else if (
+    errorMessage.includes('rate limit') ||
+    errorMessage.includes('too many requests') ||
+    errorMessage.includes('レート制限')
+  ) {
+    quizErrorInfo = {
+      ...quizErrorInfo,
+      quizErrorType: QuizErrorType.RATE_LIMIT_EXCEEDED,
+      userMessage: 'リクエストが多すぎます。しばらく待ってからお試しください。',
+      technicalMessage: 'Rate limit exceeded for quiz submission',
+      retryable: true,
+      retryDelay: 30000, // 30 seconds
+      maxRetries: 2,
+      severity: 'medium',
+      userActionRequired: '30秒待ってから再送信してください。',
+      recoveryStrategies: ['retry'],
+      notificationLevel: 'toast',
+    };
+  } else if (
+    errorMessage.includes('duplicate') ||
+    errorMessage.includes('already submitted') ||
+    errorMessage.includes('重複')
+  ) {
+    quizErrorInfo = {
+      ...quizErrorInfo,
+      quizErrorType: QuizErrorType.DUPLICATE_SUBMISSION,
+      userMessage: 'この回答は既に送信されています。',
+      technicalMessage: 'Duplicate submission detected',
+      retryable: false,
+      severity: 'low',
+      userActionRequired: '結果ページで確認してください。',
+      recoveryStrategies: ['refresh'],
+      notificationLevel: 'toast',
+    };
+  } else if (
+    errorMessage.includes('database') ||
+    errorMessage.includes('connection') ||
+    errorMessage.includes('データベース')
+  ) {
+    quizErrorInfo = {
+      ...quizErrorInfo,
+      quizErrorType: QuizErrorType.DATABASE_ERROR,
+      userMessage: 'データベース接続に問題があります。',
+      technicalMessage: 'Database connection or query error',
+      retryable: true,
+      retryDelay: 5000,
+      maxRetries: 3,
+      severity: 'high',
+      userActionRequired: 'しばらく待ってから再送信してください。',
+      recoveryStrategies: ['retry', 'offline'],
+      notificationLevel: 'modal',
+    };
+  } else if (
+    errorMessage.includes('access denied') ||
+    errorMessage.includes('permission') ||
+    errorMessage.includes('アクセス拒否')
+  ) {
+    quizErrorInfo = {
+      ...quizErrorInfo,
+      quizErrorType: QuizErrorType.QUIZ_ACCESS_DENIED,
+      userMessage: 'このクイズへのアクセス権限がありません。',
+      technicalMessage: 'Access denied for quiz resource',
+      retryable: false,
+      severity: 'medium',
+      userActionRequired: 'クイズの管理者に連絡してください。',
+      recoveryStrategies: ['login'],
+      notificationLevel: 'modal',
+    };
+  } else if (
+    errorMessage.includes('payload too large') ||
+    errorMessage.includes('request entity too large') ||
+    errorMessage.includes('サイズ制限')
+  ) {
+    quizErrorInfo = {
+      ...quizErrorInfo,
+      quizErrorType: QuizErrorType.SUBMISSION_SIZE_EXCEEDED,
+      userMessage: '回答データのサイズが大きすぎます。',
+      technicalMessage: 'Submission payload size exceeded limit',
+      retryable: false,
+      severity: 'medium',
+      userActionRequired: '回答内容を短くしてから再送信してください。',
+      recoveryStrategies: [],
+      notificationLevel: 'modal',
     };
   }
 
@@ -290,6 +396,56 @@ export function getQuizErrorMessage(
           : 'There is an issue with your answer data. Please check your answers and try again.',
         actionText: isJapanese ? '再送信' : 'Retry',
         actionType: 'retry',
+      };
+
+    case QuizErrorType.RATE_LIMIT_EXCEEDED:
+      return {
+        title: isJapanese ? 'レート制限エラー' : 'Rate Limit Exceeded',
+        message: isJapanese
+          ? 'リクエストが多すぎます。しばらく待ってからお試しください。'
+          : 'Too many requests. Please wait a moment and try again.',
+        actionText: isJapanese ? '30秒後に再試行' : 'Retry in 30s',
+        actionType: 'retry',
+      };
+
+    case QuizErrorType.DUPLICATE_SUBMISSION:
+      return {
+        title: isJapanese ? '重複送信エラー' : 'Duplicate Submission',
+        message: isJapanese
+          ? 'この回答は既に送信されています。結果ページで確認してください。'
+          : 'This response has already been submitted. Please check the results page.',
+        actionText: isJapanese ? '結果を確認' : 'View Results',
+        actionType: 'navigate',
+      };
+
+    case QuizErrorType.DATABASE_ERROR:
+      return {
+        title: isJapanese ? 'データベースエラー' : 'Database Error',
+        message: isJapanese
+          ? 'データベース接続に問題があります。しばらく待ってからお試しください。'
+          : 'There is a database connection issue. Please try again in a moment.',
+        actionText: isJapanese ? '再送信' : 'Retry',
+        actionType: 'retry',
+      };
+
+    case QuizErrorType.QUIZ_ACCESS_DENIED:
+      return {
+        title: isJapanese ? 'アクセス拒否' : 'Access Denied',
+        message: isJapanese
+          ? 'このクイズへのアクセス権限がありません。'
+          : 'You do not have permission to access this quiz.',
+        actionText: isJapanese ? 'ログイン' : 'Login',
+        actionType: 'login',
+      };
+
+    case QuizErrorType.SUBMISSION_SIZE_EXCEEDED:
+      return {
+        title: isJapanese ? 'データサイズエラー' : 'Data Size Error',
+        message: isJapanese
+          ? '回答データのサイズが大きすぎます。回答内容を短くしてから再送信してください。'
+          : 'The answer data is too large. Please shorten your responses and try again.',
+        actionText: isJapanese ? '回答を編集' : 'Edit Answers',
+        actionType: 'navigate',
       };
 
     default:

@@ -25,6 +25,12 @@ import {
   getQuizErrorMessage,
 } from '@/lib/utils/quiz-error-handling';
 import { retryWithBackoff } from '@/lib/utils/error-handling';
+import {
+  SmartRetryManager,
+  OfflineStorageManager,
+  NetworkStatusManager,
+  createRecoveryStrategy,
+} from '@/lib/utils/quiz-error-recovery';
 
 interface QuizErrorHandlerProps {
   error?: QuizErrorInfo | null;
@@ -38,6 +44,10 @@ interface QuizErrorHandlerProps {
   retryAttempts?: number;
   maxRetries?: number;
   className?: string;
+  // Enhanced props for recovery
+  onOfflineStore?: (data: any) => Promise<boolean>;
+  quizData?: any; // Quiz response data for offline storage
+  enableAdvancedRecovery?: boolean;
 }
 
 export function QuizErrorHandler({
@@ -52,11 +62,22 @@ export function QuizErrorHandler({
   retryAttempts = 0,
   maxRetries = 3,
   className,
+  onOfflineStore,
+  quizData,
+  enableAdvancedRecovery = true,
 }: QuizErrorHandlerProps) {
   const t = useTranslations('quiz.errors');
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryProgress, setRetryProgress] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const [isStoringOffline, setIsStoringOffline] = useState(false);
+  const [offlineStored, setOfflineStored] = useState(false);
+  const [recoveryActions, setRecoveryActions] = useState<any[]>([]);
+
+  // Enhanced recovery managers
+  const [retryManager] = useState(() => new SmartRetryManager());
+  const [offlineManager] = useState(() => new OfflineStorageManager());
+  const [networkManager] = useState(() => new NetworkStatusManager());
 
   useEffect(() => {
     if (error && !isOnline) {
@@ -70,10 +91,53 @@ export function QuizErrorHandler({
     }
   }, [error, isOnline, t]);
 
+  // Set up recovery strategies when error changes
+  useEffect(() => {
+    if (error && enableAdvancedRecovery && onRetry) {
+      const strategy = createRecoveryStrategy(error, {
+        retryManager,
+        offlineManager,
+        networkManager,
+        submitFunction: onRetry,
+      });
+      setRecoveryActions(
+        strategy.actions.sort((a, b) => a.priority - b.priority)
+      );
+    }
+  }, [
+    error,
+    enableAdvancedRecovery,
+    onRetry,
+    retryManager,
+    offlineManager,
+    networkManager,
+  ]);
+
   if (!error) return null;
 
   const errorMessage = getQuizErrorMessage(error, locale);
   const canRetry = error.retryable && retryAttempts < maxRetries && onRetry;
+
+  const handleOfflineStore = async () => {
+    if (!onOfflineStore || !quizData) return;
+
+    setIsStoringOffline(true);
+    try {
+      const success = await onOfflineStore(quizData);
+      if (success) {
+        setOfflineStored(true);
+        toast.success(t('offlineStoreSuccess'), {
+          description: t('offlineStoreDescription'),
+        });
+      } else {
+        throw new Error('Failed to store offline');
+      }
+    } catch (error) {
+      toast.error(t('offlineStoreFailed'));
+    } finally {
+      setIsStoringOffline(false);
+    }
+  };
 
   const handleRetry = async () => {
     if (!onRetry || !canRetry) return;
@@ -82,7 +146,7 @@ export function QuizErrorHandler({
     setRetryProgress(0);
 
     try {
-      // プログレスバーアニメーション
+      // Enhanced retry with smart retry manager
       const progressInterval = setInterval(() => {
         setRetryProgress(prev => {
           if (prev >= 95) {
@@ -93,13 +157,18 @@ export function QuizErrorHandler({
         });
       }, 100);
 
-      // リトライ実行（バックオフ付き）
-      await retryWithBackoff(onRetry, 1);
+      // Use smart retry manager for enhanced error handling
+      const correlationId = error?.correlationId || 'retry_' + Date.now();
+      await retryManager.executeWithRetry(correlationId, onRetry, {
+        maxRetries: error?.maxRetries || maxRetries,
+        baseDelay: error?.retryDelay || 1000,
+        backoffFactor: 2,
+        jitter: true,
+      });
 
       clearInterval(progressInterval);
       setRetryProgress(100);
 
-      // 成功メッセージ
       setTimeout(() => {
         toast.success(t('retrySuccess'));
         setIsRetrying(false);
@@ -110,9 +179,38 @@ export function QuizErrorHandler({
       setIsRetrying(false);
       setRetryProgress(0);
 
-      // リトライ失敗時は新しいエラー情報を表示
+      // Enhanced error reporting with correlation ID
+      console.error('Enhanced retry failed:', {
+        correlationId: error?.correlationId,
+        attempts: retryManager.getAttemptCount(
+          error?.correlationId || 'unknown'
+        ),
+        error: retryError,
+      });
+
       toast.error(t('retryFailed'), {
         description: t('retryFailedDescription'),
+      });
+    }
+  };
+
+  const handleSmartRecovery = async (actionIndex: number) => {
+    const action = recoveryActions[actionIndex];
+    if (!action) return;
+
+    try {
+      const success = await action.execute();
+      if (success) {
+        toast.success(t('recoverySuccess'), {
+          description: action.description,
+        });
+        onDismiss?.();
+      } else {
+        toast.error(t('recoveryFailed'));
+      }
+    } catch (error) {
+      toast.error(t('recoveryFailed'), {
+        description: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   };
@@ -216,7 +314,62 @@ export function QuizErrorHandler({
           )}
         </div>
 
-        {/* アクションボタン */}
+        {/* Enhanced Recovery Actions */}
+        {enableAdvancedRecovery && recoveryActions.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-700">
+              {t('recoveryOptions')}
+            </h4>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {recoveryActions.slice(0, 3).map((action, index) => (
+                <Button
+                  key={index}
+                  onClick={() => handleSmartRecovery(index)}
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                >
+                  {action.type === 'retry' && (
+                    <RefreshCw className="mr-2 h-3 w-3" />
+                  )}
+                  {action.type === 'offline' && (
+                    <WifiOff className="mr-2 h-3 w-3" />
+                  )}
+                  {action.type === 'login' && (
+                    <LogIn className="mr-2 h-3 w-3" />
+                  )}
+                  <span className="truncate">{action.description}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Offline Storage Option */}
+        {!isOnline && onOfflineStore && quizData && !offlineStored && (
+          <Button
+            onClick={handleOfflineStore}
+            disabled={isStoringOffline}
+            variant="secondary"
+            className="w-full"
+          >
+            {isStoringOffline ? (
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <WifiOff className="mr-2 h-4 w-4" />
+            )}
+            {isStoringOffline ? t('storingOffline') : t('storeOffline')}
+          </Button>
+        )}
+
+        {offlineStored && (
+          <div className="flex items-center gap-2 text-sm text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            {t('offlineStored')}
+          </div>
+        )}
+
+        {/* Traditional Action Buttons */}
         <div className="flex flex-col gap-2 sm:flex-row">
           {errorMessage.actionText && (
             <Button
@@ -297,10 +450,32 @@ export function QuizErrorHandler({
               </div>
             )}
 
+            {error.correlationId && (
+              <div>
+                <span className="font-medium">{t('correlationId')}:</span>
+                <code className="ml-2 rounded bg-gray-200 px-1 text-xs">
+                  {error.correlationId}
+                </code>
+              </div>
+            )}
+
             {error.userActionRequired && (
               <div>
                 <span className="font-medium">{t('recommendedAction')}:</span>
                 <p className="mt-1 text-gray-600">{error.userActionRequired}</p>
+              </div>
+            )}
+
+            {enableAdvancedRecovery && (
+              <div>
+                <span className="font-medium">{t('recoveryStrategies')}:</span>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {error.recoveryStrategies?.map((strategy, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {strategy}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             )}
           </div>
