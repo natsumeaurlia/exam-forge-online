@@ -4,7 +4,7 @@ import { signIn } from 'next-auth/react';
 import { useState, use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
+import { useAction } from 'next-safe-action/hooks';
 import { getEnabledProviders } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -93,36 +93,36 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     });
   }, []);
 
-  // ServerActionをReact Hook Formと連携
-  const { action, isPending } = useHookFormAction(
-    signupAction,
-    form,
-    {
-      onSuccess: async (data) => {
-        // Auto sign in after successful signup
-        const formValues = form.getValues();
-        const signInResult = await signIn('credentials', {
-          email: formValues.email,
-          password: formValues.password,
-          callbackUrl: `/${resolvedParams.lng}/dashboard`,
-          redirect: false,
-        });
+  // ServerActionを実行
+  const { execute, isPending } = useAction(signupAction, {
+    onSuccess: async data => {
+      // Auto sign in after successful signup
+      const formValues = form.getValues();
+      const signInResult = await signIn('credentials', {
+        email: formValues.email,
+        password: formValues.password,
+        callbackUrl: `/${resolvedParams.lng}/dashboard`,
+        redirect: false,
+      });
 
-        if (signInResult?.ok) {
-          router.push(`/${resolvedParams.lng}/dashboard`);
-        } else {
-          form.setError('email', { message: '自動ログインに失敗しました' });
-        }
-      },
-      onError: (error) => {
-        if (error.serverError) {
-          form.setError('email', { message: String(error.serverError) });
-        } else {
-          form.setError('email', { message: 'エラーが発生しました' });
-        }
-      },
-    }
-  );
+      if (signInResult?.ok) {
+        router.push(`/${resolvedParams.lng}/dashboard`);
+      } else {
+        form.setError('email', { message: '自動ログインに失敗しました' });
+      }
+    },
+    onError: error => {
+      if (error.error?.serverError) {
+        form.setError('email', { message: String(error.error.serverError) });
+      } else {
+        form.setError('email', { message: 'エラーが発生しました' });
+      }
+    },
+  });
+
+  const onSubmit = async (data: SignupFormData) => {
+    await execute(data);
+  };
 
   const handleSocialSignUp = (provider: 'google' | 'github') => {
     signIn(provider, {
@@ -155,7 +155,6 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </Link>
               </p>
             </div>
-
 
             {(availableProviders.google || availableProviders.github) && (
               <div className="space-y-3">
@@ -229,7 +228,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             )}
 
             {/* Sign Up Form */}
-            <form onSubmit={action} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="name">{t('name')}</Label>
                 <Input
@@ -240,7 +239,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   disabled={isPending}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -254,7 +255,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   disabled={isPending}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -281,7 +284,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
                 )}
                 {password && (
                   <div className="mt-2 space-y-1">
@@ -385,7 +390,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p className="text-sm text-red-500">{errors.agreeToTerms.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.agreeToTerms.message}
+                </p>
               )}
 
               <Button

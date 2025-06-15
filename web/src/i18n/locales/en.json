@@ -2514,6 +2514,28 @@
     "selectAll": "Select All",
     "selectedCount": "{count} selected",
     "noQuestions": "No questions found",
-    "createFirst": "Create your first question"
+    "createFirst": "Create your first question",
+    "filters": {
+      "all": "All Categories"
+    },
+    "category": {
+      "loadError": "Failed to load categories",
+      "createError": "Failed to create category",
+      "createSuccess": "Category created successfully",
+      "create": "Create Category",
+      "createTitle": "Create New Category",
+      "name": "Category Name",
+      "namePlaceholder": "Enter category name",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter category description",
+      "parent": "Parent Category",
+      "selectParent": "Select parent category",
+      "noParent": "No Parent (Root Category)",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "validation": {
+        "nameRequired": "Category name is required"
+      }
+    }
   }
 }

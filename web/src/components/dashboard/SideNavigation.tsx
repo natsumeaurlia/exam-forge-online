@@ -21,6 +21,7 @@ import {
   Image,
   Activity,
   HelpCircle,
+  FolderTree,
 } from 'lucide-react';
 import { CreateQuizModal } from '@/components/quiz/CreateQuizModal';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,11 @@ export function SideNavigation({ lng }: SideNavigationProps) {
       href: `/${lng}/dashboard/templates`,
       icon: FileText,
       label: t('navigation.templates'),
+    },
+    {
+      href: `/${lng}/dashboard/categories`,
+      icon: FolderTree,
+      label: t('navigation.categories'),
     },
     {
       href: `/${lng}/dashboard/media`,
