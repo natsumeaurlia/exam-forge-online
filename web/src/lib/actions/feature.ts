@@ -24,9 +24,11 @@ export interface FeatureCheck {
 
 export interface TeamFeatureAccess extends Team {
   subscription?: {
-    planFeatures: (PlanFeature & {
-      feature: Feature;
-    })[];
+    plan: {
+      features: (PlanFeature & {
+        feature: Feature;
+      })[];
+    };
   } | null;
 }
 
@@ -65,7 +67,6 @@ export const checkFeatureAccess = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -79,12 +80,16 @@ export const checkFeatureAccess = action
       include: {
         subscription: {
           include: {
-            planFeatures: {
+            plan: {
               include: {
-                feature: true,
-              },
-              where: {
-                isEnabled: true,
+                features: {
+                  include: {
+                    feature: true,
+                  },
+                  where: {
+                    isEnabled: true,
+                  },
+                },
               },
             },
           },
@@ -98,21 +103,21 @@ export const checkFeatureAccess = action
 
     // For free teams, check basic feature access
     if (!team.subscription) {
-      const basicFeatures = [
-        FeatureType.TRUE_FALSE_QUESTION,
-        FeatureType.SINGLE_CHOICE_QUESTION,
-        FeatureType.MULTIPLE_CHOICE_QUESTION,
+      const basicFeatures: FeatureType[] = [
+        'TRUE_FALSE_QUESTION' as FeatureType,
+        'SINGLE_CHOICE_QUESTION' as FeatureType,
+        'MULTIPLE_CHOICE_QUESTION' as FeatureType,
       ];
 
       return {
         hasAccess: basicFeatures.includes(featureType),
-        limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
+        limit: featureType === 'QUIZ_CREATION_LIMIT' ? 5 : undefined,
         isUnlimited: false,
       } as FeatureCheck;
     }
 
     // Check plan feature access
-    const planFeature = team.subscription.planFeatures.find(
+    const planFeature = team.subscription.plan.features.find(
       pf => pf.feature.type === featureType
     );
 
@@ -157,7 +162,6 @@ export const updateFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -252,7 +256,6 @@ export const getFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
