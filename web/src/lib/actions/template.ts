@@ -6,6 +6,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleActionError } from '@/lib/utils/error';
+import { TemplateUpdateData, TemplateWhereClause } from '@/types/database';
+import { TemplateQuestionData } from '@/types/template';
 import {
   createTemplateSchema,
   updateTemplateSchema,
@@ -126,7 +128,7 @@ export const updateTemplate = action
       }
 
       // Update template
-      const updateData: any = {};
+      const updateData: TemplateUpdateData = {};
       if (data.title !== undefined) updateData.title = data.title;
       if (data.description !== undefined)
         updateData.description = data.description;
@@ -227,7 +229,7 @@ export const getTemplates = action
       } = filters;
 
       // Build where clause
-      const where: any = {
+      const where: TemplateWhereClause = {
         OR: [
           { teamId }, // Team templates
           { isPublic: true }, // Public templates

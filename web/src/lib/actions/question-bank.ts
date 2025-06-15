@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
+import { BankQuestionWhereClause, BankQuestionOrderBy } from '@/types/database';
 
 const action = createSafeActionClient();
 
@@ -159,7 +160,7 @@ export const getBankQuestions = action
         parsedInput;
       const skip = (page - 1) * limit;
 
-      const where: any = {
+      const where: BankQuestionWhereClause = {
         teamId: teamMember.teamId,
       };
 
@@ -184,7 +185,7 @@ export const getBankQuestions = action
         where.type = type;
       }
 
-      let orderBy: any;
+      let orderBy: BankQuestionOrderBy;
       switch (sortBy) {
         case 'oldest':
           orderBy = { createdAt: 'asc' };
@@ -459,10 +460,10 @@ export const importQuestionToQuiz = action
 // Helper function for external use (without safe action wrapper)
 export const getBankQuestionsForTeam = async (
   teamId: string,
-  filters: any = {}
+  filters: Partial<BankQuestionWhereClause> = {}
 ) => {
   try {
-    const where: any = {
+    const where: BankQuestionWhereClause = {
       teamId,
       ...filters,
     };

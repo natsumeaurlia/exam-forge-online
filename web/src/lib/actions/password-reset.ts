@@ -84,10 +84,9 @@ function generateSecureToken(
   };
 
   // AES暗号化 (Node.js crypto)
-  const algorithm = 'aes-256-cbc';
-  const key = crypto.scryptSync(SAFE_ENCRYPTION_KEY, 'salt', 32);
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  const key = crypto.createHash('sha256').update(SAFE_ENCRYPTION_KEY).digest();
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   let encrypted = cipher.update(JSON.stringify(payload), 'utf8', 'hex');
   encrypted += cipher.final('hex');
   return iv.toString('hex') + ':' + encrypted;
@@ -98,14 +97,17 @@ function verifySecureToken(
   token: string
 ): { email: string; userId: string; timestamp: number } | null {
   try {
-    // AES復号化 (Node.js crypto)
-    const textParts = token.split(':');
-    const iv = Buffer.from(textParts.shift()!, 'hex');
-    const encryptedText = textParts.join(':');
-    const algorithm = 'aes-256-cbc';
-    const key = crypto.scryptSync(SAFE_ENCRYPTION_KEY, 'salt', 32);
-    const decipher = crypto.createDecipheriv(algorithm, key, iv);
-    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    const [ivHex, encryptedData] = token.split(':');
+    if (!ivHex || !encryptedData) {
+      return null;
+    }
+    const iv = Buffer.from(ivHex, 'hex');
+    const key = crypto
+      .createHash('sha256')
+      .update(SAFE_ENCRYPTION_KEY)
+      .digest();
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     const payload = JSON.parse(decrypted);
 
@@ -178,14 +180,14 @@ export const requestPasswordReset = action
           };
         }
 
-        // 既存の未使用トークンを削除 (一時的に無効化)
-        // await tx.passwordResetToken.deleteMany({
-        //   where: {
-        //     userId: user.id,
-        //     usedAt: null,
-        //     expiresAt: { gt: new Date() },
-        //   },
-        // });
+        // 既存の未使用トークンを削除
+        await tx.passwordResetToken.deleteMany({
+          where: {
+            userId: user.id,
+            usedAt: null,
+            expiresAt: { gt: new Date() },
+          },
+        });
 
         const timestamp = Date.now();
         const expiresAt = new Date(
@@ -205,13 +207,12 @@ export const requestPasswordReset = action
           .update(secureToken)
           .digest('hex');
 
-        // Simplified implementation without separate token table
-        // Store token hash in user record temporarily
-        await tx.user.update({
-          where: { id: user.id },
+        await tx.passwordResetToken.create({
           data: {
-            // Use emailVerified field temporarily to store reset token timestamp
-            emailVerified: new Date(),
+            token: hashedToken,
+            email: user.email!,
+            expiresAt,
+            userId: user.id,
           },
         });
 

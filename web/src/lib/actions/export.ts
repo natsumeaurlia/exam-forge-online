@@ -6,6 +6,7 @@ import { authAction } from '@/lib/actions/auth-action';
 import { prisma } from '@/lib/prisma';
 import { format } from 'date-fns';
 import { ja, enUS } from 'date-fns/locale';
+import { ExportWhereClause } from '@/types/database';
 
 const exportAnalyticsToCSVSchema = z.object({
   quizId: z.string().min(1, 'Quiz ID is required'),
@@ -317,7 +318,7 @@ export const exportAnalyticsToCSV = authAction
       // This check will be done on the client side for now
 
       // Set date range
-      let whereClause: any = { quizId };
+      let whereClause: ExportWhereClause = { quizId };
       const now = new Date();
       if (range === '30d') {
         whereClause.completedAt = {
