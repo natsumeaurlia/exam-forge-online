@@ -52,7 +52,7 @@ export interface TestQuizOptions {
   timeLimit?: number;
   maxAttempts?: number;
   password?: string;
-  sharingMode?: 'PRIVATE' | 'URL' | 'PUBLIC';
+  sharingMode?: 'URL';
 }
 
 export interface TestQuestionOptions {
@@ -166,11 +166,12 @@ export class TestDataFactory {
     options: TestQuizOptions = {}
   ): Promise<{ quiz: any; questions: any[] }> {
     const createdById = options.createdById || 'default-user-id';
+    const teamId = options.teamId || (await this.createTeam()).id;
 
     const quizData = {
       title: options.title || `Test Quiz ${Date.now()}`,
       description: options.description || 'A test quiz for E2E testing',
-      teamId: options.teamId || (await this.createTeam()).id,
+      teamId: teamId,
       status: options.status || 'PUBLISHED',
       passingScore: options.passingScore || undefined,
       timeLimit: options.timeLimit || undefined,
@@ -182,7 +183,7 @@ export class TestDataFactory {
     };
 
     const quiz = await this.prisma.quiz.create({
-      data: quizData,
+      data: quizData as any,
     });
 
     this.createdData.quizzes.push(quiz.id);
@@ -209,12 +210,13 @@ export class TestDataFactory {
    */
   async createQuestion(options: TestQuestionOptions = {}): Promise<any> {
     const questionType = options.type || 'MULTIPLE_CHOICE';
+    const quizId = options.quizId || (await this.createQuiz()).quiz.id;
     const questionData: any = {
-      quizId: options.quizId || (await this.createQuiz()).quiz.id,
+      quizId: quizId,
       type: questionType,
       text: options.text || `Test ${questionType} Question ${Date.now()}`,
       points: options.points || 10,
-      order: await this.getNextQuestionOrder(options.quizId!),
+      order: await this.getNextQuestionOrder(quizId),
       correctAnswer: this.getCorrectAnswerForType(questionType),
     };
 

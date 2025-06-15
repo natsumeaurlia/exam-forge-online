@@ -432,7 +432,7 @@ export const getQuizResponses = authAction
       console.error('Error fetching quiz responses:', error);
       return createQuizErrorResponse(error, {
         action: 'load',
-        userId,
+        userId: ctx.userId,
       });
     }
   });
