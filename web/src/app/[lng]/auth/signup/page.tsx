@@ -4,7 +4,7 @@ import { signIn } from 'next-auth/react';
 import { useState, use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
+import { useAction } from 'next-safe-action/hooks';
 import { getEnabledProviders } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -93,36 +93,36 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     });
   }, []);
 
-  // ServerActionをReact Hook Formと連携
-  const { action, isPending } = useHookFormAction(
-    signupAction,
-    form,
-    {
-      onSuccess: async (data) => {
-        // Auto sign in after successful signup
-        const formValues = form.getValues();
-        const signInResult = await signIn('credentials', {
-          email: formValues.email,
-          password: formValues.password,
-          callbackUrl: `/${resolvedParams.lng}/dashboard`,
-          redirect: false,
-        });
+  // ServerAction execution
+  const { execute, isPending } = useAction(signupAction, {
+    onSuccess: async (data: any) => {
+      // Auto sign in after successful signup
+      const formValues = form.getValues();
+      const signInResult = await signIn('credentials', {
+        email: formValues.email,
+        password: formValues.password,
+        callbackUrl: `/${resolvedParams.lng}/dashboard`,
+        redirect: false,
+      });
 
-        if (signInResult?.ok) {
-          router.push(`/${resolvedParams.lng}/dashboard`);
-        } else {
-          form.setError('email', { message: '自動ログインに失敗しました' });
-        }
-      },
-      onError: (error) => {
-        if (error.serverError) {
-          form.setError('email', { message: String(error.serverError) });
-        } else {
-          form.setError('email', { message: 'エラーが発生しました' });
-        }
-      },
-    }
-  );
+      if (signInResult?.ok) {
+        router.push(`/${resolvedParams.lng}/dashboard`);
+      } else {
+        form.setError('email', { message: '自動ログインに失敗しました' });
+      }
+    },
+    onError: (error: any) => {
+      if (error.error?.serverError) {
+        form.setError('email', { message: String(error.error.serverError) });
+      } else {
+        form.setError('email', { message: 'エラーが発生しました' });
+      }
+    },
+  });
+
+  const onSubmit = async (data: SignupFormData) => {
+    await execute(data);
+  };
 
   const handleSocialSignUp = (provider: 'google' | 'github') => {
     signIn(provider, {
@@ -155,7 +155,6 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </Link>
               </p>
             </div>
-
 
             {(availableProviders.google || availableProviders.github) && (
               <div className="space-y-3">
@@ -229,7 +228,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             )}
 
             {/* Sign Up Form */}
-            <form onSubmit={action} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="name">{t('name')}</Label>
                 <Input
@@ -242,7 +241,13 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   aria-describedby={errors.name ? 'name-error' : undefined}
                 />
                 {errors.name && (
-                  <p id="name-error" className="mt-1 text-sm text-red-500" role="alert">{errors.name.message}</p>
+                  <p
+                    id="name-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -258,7 +263,13 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   aria-describedby={errors.email ? 'email-error' : undefined}
                 />
                 {errors.email && (
-                  <p id="email-error" className="mt-1 text-sm text-red-500" role="alert">{errors.email.message}</p>
+                  <p
+                    id="email-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -272,13 +283,21 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     className={errors.password ? 'border-red-500' : ''}
                     disabled={isPending}
                     aria-invalid={errors.password ? 'true' : 'false'}
-                    aria-describedby={errors.password ? 'password-error password-requirements' : 'password-requirements'}
+                    aria-describedby={
+                      errors.password
+                        ? 'password-error password-requirements'
+                        : 'password-requirements'
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    aria-label={showPassword ? t('auth.signup.hidePassword') : t('auth.signup.showPassword')}
+                    aria-label={
+                      showPassword
+                        ? t('auth.signup.hidePassword')
+                        : t('auth.signup.showPassword')
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -288,10 +307,20 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   </button>
                 </div>
                 {errors.password && (
-                  <p id="password-error" className="mt-1 text-sm text-red-500" role="alert">{errors.password.message}</p>
+                  <p
+                    id="password-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
+                    {errors.password.message}
+                  </p>
                 )}
                 {password && (
-                  <div id="password-requirements" className="mt-2 space-y-1" aria-label="Password requirements">
+                  <div
+                    id="password-requirements"
+                    className="mt-2 space-y-1"
+                    aria-label="Password requirements"
+                  >
                     <div className="flex items-center text-xs">
                       <CheckCircle
                         className={`mr-1 h-3 w-3 ${
@@ -346,13 +375,21 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     className={errors.confirmPassword ? 'border-red-500' : ''}
                     disabled={isPending}
                     aria-invalid={errors.confirmPassword ? 'true' : 'false'}
-                    aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
+                    aria-describedby={
+                      errors.confirmPassword
+                        ? 'confirm-password-error'
+                        : undefined
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    aria-label={showConfirmPassword ? t('auth.signup.hideConfirmPassword') : t('auth.signup.showConfirmPassword')}
+                    aria-label={
+                      showConfirmPassword
+                        ? t('auth.signup.hideConfirmPassword')
+                        : t('auth.signup.showConfirmPassword')
+                    }
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -362,7 +399,11 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p id="confirm-password-error" className="mt-1 text-sm text-red-500" role="alert">
+                  <p
+                    id="confirm-password-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
                     {errors.confirmPassword.message}
                   </p>
                 )}
@@ -395,7 +436,13 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p id="terms-error" className="text-sm text-red-500" role="alert">{errors.agreeToTerms.message}</p>
+                <p
+                  id="terms-error"
+                  className="text-sm text-red-500"
+                  role="alert"
+                >
+                  {errors.agreeToTerms.message}
+                </p>
               )}
 
               <Button

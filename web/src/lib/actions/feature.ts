@@ -24,9 +24,11 @@ export interface FeatureCheck {
 
 export interface TeamFeatureAccess extends Team {
   subscription?: {
-    planFeatures: (PlanFeature & {
-      feature: Feature;
-    })[];
+    plan: {
+      features: (PlanFeature & {
+        feature: Feature;
+      })[];
+    };
   } | null;
 }
 
@@ -65,7 +67,6 @@ export const checkFeatureAccess = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -79,12 +80,16 @@ export const checkFeatureAccess = action
       include: {
         subscription: {
           include: {
-            planFeatures: {
+            plan: {
               include: {
-                feature: true,
-              },
-              where: {
-                isEnabled: true,
+                features: {
+                  include: {
+                    feature: true,
+                  },
+                  where: {
+                    isEnabled: true,
+                  },
+                },
               },
             },
           },
@@ -112,7 +117,7 @@ export const checkFeatureAccess = action
     }
 
     // Check plan feature access
-    const planFeature = team.subscription.planFeatures.find(
+    const planFeature = team.subscription.plan.features.find(
       pf => pf.feature.type === featureType
     );
 
@@ -157,7 +162,6 @@ export const updateFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
@@ -252,7 +256,6 @@ export const getFeatureUsage = action
       where: {
         teamId,
         userId: session.user.id,
-        status: 'ACTIVE',
       },
     });
 
