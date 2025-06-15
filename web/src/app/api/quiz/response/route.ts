@@ -5,6 +5,12 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { QuizAnswer, QuestionWithDetails } from '@/types/quiz-answers';
+import {
+  createQuizErrorResponse,
+  validateQuizResponseData,
+  getQuizErrorMessage,
+  analyzeQuizError,
+} from '@/lib/utils/quiz-error-handling';
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -105,16 +111,24 @@ export async function POST(request: NextRequest) {
     const validationResult = submitQuizResponseSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid request data',
-          details: validationResult.error.errors,
-        },
-        { status: 400 }
+      const errorResponse = createQuizErrorResponse(
+        new Error('入力データに問題があります'),
+        { action: 'submit', userId }
       );
+      return NextResponse.json(errorResponse, { status: 400 });
     }
 
     const data = validationResult.data;
+
+    // 詳細データ検証
+    const dataValidation = validateQuizResponseData(data);
+    if (!dataValidation.isValid) {
+      const errorResponse = createQuizErrorResponse(
+        new Error('回答データの形式が正しくありません'),
+        { action: 'submit', quizId: data.quizId, userId }
+      );
+      return NextResponse.json(errorResponse, { status: 400 });
+    }
 
     // 3. トランザクションで回答を保存
     const result = await prisma.$transaction(async tx => {
@@ -134,12 +148,12 @@ export async function POST(request: NextRequest) {
       });
 
       if (!quiz) {
-        throw new Error('Quiz not found or not published');
+        throw new Error('クイズが見つからないか、公開されていません');
       }
 
       // パスワード保護されたクイズの場合は認証が必要
       if (quiz.password && !userId) {
-        throw new Error('Authentication required for password-protected quiz');
+        throw new Error('認証が必要です');
       }
 
       // 回答回数制限チェック（認証ユーザーのみ）
@@ -152,7 +166,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (attemptCount >= quiz.maxAttempts) {
-          throw new Error('Maximum attempts reached');
+          throw new Error('回答回数の上限に達しています');
         }
       }
 
@@ -249,23 +263,40 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Quiz response submission error:', error);
 
-    // エラーメッセージの判定
+    // 統一エラーハンドリングを使用
+    const errorResponse = createQuizErrorResponse(error, {
+      action: 'submit',
+      quizId: data?.quizId,
+      userId,
+    });
+
+    // エラータイプに応じたHTTPステータスコード
+    let statusCode = 500;
     if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
-      }
-      if (error.message.includes('Authentication required')) {
-        return NextResponse.json({ error: error.message }, { status: 401 });
-      }
-      if (error.message.includes('Maximum attempts')) {
-        return NextResponse.json({ error: error.message }, { status: 403 });
+      if (
+        error.message.includes('見つからない') ||
+        error.message.includes('not found')
+      ) {
+        statusCode = 404;
+      } else if (
+        error.message.includes('認証') ||
+        error.message.includes('Authentication')
+      ) {
+        statusCode = 401;
+      } else if (
+        error.message.includes('上限') ||
+        error.message.includes('attempts')
+      ) {
+        statusCode = 403;
+      } else if (
+        error.message.includes('入力') ||
+        error.message.includes('validation')
+      ) {
+        statusCode = 400;
       }
     }
 
-    return NextResponse.json(
-      { error: 'Failed to submit quiz response' },
-      { status: 500 }
-    );
+    return NextResponse.json(errorResponse, { status: statusCode });
   }
 }
 
@@ -275,7 +306,11 @@ export async function GET(request: NextRequest) {
     // 認証チェック
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorResponse = createQuizErrorResponse(
+        new Error('認証が必要です'),
+        { action: 'load' }
+      );
+      return NextResponse.json(errorResponse, { status: 401 });
     }
 
     // クエリパラメータの取得
@@ -311,9 +346,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Failed to fetch quiz responses:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch quiz responses' },
-      { status: 500 }
-    );
+    const errorResponse = createQuizErrorResponse(error, {
+      action: 'load',
+      userId: session?.user?.id,
+    });
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
