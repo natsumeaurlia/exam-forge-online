@@ -22,6 +22,8 @@ export interface SubscriptionWithExpandedData extends Stripe.Subscription {
       quantity: number;
     }>;
   };
+  current_period_start: number;
+  current_period_end: number;
 }
 
 export interface InvoiceWithTaxInfo extends Stripe.Invoice {

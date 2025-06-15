@@ -153,12 +153,8 @@ export async function handleCheckoutSessionCompleted(
       billingCycle: typedBillingCycle,
       memberCount: teamMemberCount,
       pricePerMember: subscription.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date(
-        (subscription as any).current_period_start * 1000
-      ),
-      currentPeriodEnd: new Date(
-        (subscription as any).current_period_end * 1000
-      ),
+      currentPeriodStart: new Date(subscription.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       planId: plan.id,
     },
     update: {
@@ -169,12 +165,8 @@ export async function handleCheckoutSessionCompleted(
       billingCycle: typedBillingCycle,
       memberCount: teamMemberCount,
       pricePerMember: subscription.items.data[0].price.unit_amount || 0,
-      currentPeriodStart: new Date(
-        (subscription as any).current_period_start * 1000
-      ),
-      currentPeriodEnd: new Date(
-        (subscription as any).current_period_end * 1000
-      ),
+      currentPeriodStart: new Date(subscription.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       planId: plan.id,
     },
   });
@@ -213,12 +205,8 @@ export async function handleSubscriptionUpdate(
     data: {
       status: mapStripeStatus(subscription.status),
       memberCount: teamMemberCount,
-      currentPeriodStart: new Date(
-        (subscription as any).current_period_start * 1000
-      ),
-      currentPeriodEnd: new Date(
-        (subscription as any).current_period_end * 1000
-      ),
+      currentPeriodStart: new Date(subscription.current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
       canceledAt: subscription.canceled_at
         ? new Date(subscription.canceled_at * 1000)
         : null,
@@ -233,10 +221,8 @@ export async function handleSubscriptionUpdate(
         teamId: dbSubscription.teamId,
         resourceType: 'MEMBER',
         count: teamMemberCount,
-        periodStart: new Date(
-          (subscription as any).current_period_start * 1000
-        ),
-        periodEnd: new Date((subscription as any).current_period_end * 1000),
+        periodStart: new Date(subscription.current_period_start * 1000),
+        periodEnd: new Date(subscription.current_period_end * 1000),
       },
     });
   }

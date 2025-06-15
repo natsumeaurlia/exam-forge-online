@@ -104,6 +104,7 @@ model Team {
   quizTemplates QuizTemplate[]
   tags         Tag[]
   notifications Notification[] @relation("TeamNotifications")
+  featureUsage FeatureUsage[]
 
   @@index([creatorId])
   @@map("teams")
@@ -525,6 +526,22 @@ model PlanFeature {
   @@map("plan_features")
 }
 
+model FeatureUsage {
+  id          String      @id @default(cuid())
+  teamId      String      @map("team_id")
+  featureType FeatureType @map("feature_type")
+  month       String      // YYYY-MM format for monthly tracking
+  count       Int         @default(0)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  team        Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, featureType, month], name: "teamId_featureType_month")
+  @@index([teamId])
+  @@index([month])
+  @@map("feature_usage")
+}
+
 model QuestionMedia {
   id         String    @id @default(cuid())
   url        String
@@ -647,6 +664,9 @@ enum FeatureType {
   EXCEL_EXPORT
   CERTIFICATES
   AI_QUIZ_GENERATION
+  QUIZ_CREATION_LIMIT
+  RESPONDENT_LIMIT
+  STORAGE_LIMIT
   TEAM_MANAGEMENT
   PRIORITY_SUPPORT
   SLA_GUARANTEE

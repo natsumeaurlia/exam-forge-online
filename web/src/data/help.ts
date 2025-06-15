@@ -21,7 +21,7 @@ export interface HelpGuideItem {
   titleKey: string;
   descriptionKey: string;
   category: string;
-  icon?: any;
+  icon?: React.ComponentType<any>;
   link: string;
 }
 

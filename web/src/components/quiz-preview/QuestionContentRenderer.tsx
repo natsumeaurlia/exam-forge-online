@@ -10,10 +10,12 @@ import type { Question, QuestionOption } from '@prisma/client';
 import { DiagramPreview } from './DiagramPreview';
 import { MatchingPreview } from './MatchingPreview';
 
+import { QuizAnswer } from '@/types/quiz-answers';
+
 interface QuestionContentRendererProps {
   question: Question & { options: QuestionOption[] };
-  currentAnswer: any;
-  onAnswerChange: (value: any) => void;
+  currentAnswer: QuizAnswer | undefined;
+  onAnswerChange: (value: QuizAnswer) => void;
 }
 
 export function QuestionContentRenderer({

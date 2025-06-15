@@ -196,7 +196,7 @@ export const submitQuizResponse = authAction
       return createQuizErrorResponse(error, {
         action: 'submit',
         quizId: data.quizId,
-        userId,
+        userId: ctx.userId,
       });
     }
   });
@@ -352,7 +352,7 @@ export const getQuizResponse = authAction
       if (!response) {
         return createQuizErrorResponse(new Error('Response not found'), {
           action: 'load',
-          userId,
+          userId: ctx.userId,
         });
       }
 
@@ -369,7 +369,7 @@ export const getQuizResponse = authAction
         if (!teamMember) {
           return createQuizErrorResponse(new Error('認証が必要です'), {
             action: 'load',
-            userId,
+            userId: ctx.userId,
           });
         }
       }
@@ -390,7 +390,7 @@ export const getQuizResponse = authAction
       console.error('Error fetching quiz response:', error);
       return createQuizErrorResponse(error, {
         action: 'load',
-        userId,
+        userId: ctx.userId,
       });
     }
   });
@@ -432,7 +432,7 @@ export const getQuizResponses = authAction
       console.error('Error fetching quiz responses:', error);
       return createQuizErrorResponse(error, {
         action: 'load',
-        userId,
+        userId: ctx.userId,
       });
     }
   });

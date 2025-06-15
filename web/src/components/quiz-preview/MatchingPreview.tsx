@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import type { Question, QuestionOption } from '@prisma/client';
 
+import { QuizAnswer } from '@/types/quiz-answers';
+
 interface MatchingPreviewProps {
   question: Question & { options: QuestionOption[] };
-  currentAnswer: any;
-  onAnswerChange: (value: any) => void;
+  currentAnswer: QuizAnswer | undefined;
+  onAnswerChange: (value: QuizAnswer) => void;
 }
 
 export function MatchingPreview({
