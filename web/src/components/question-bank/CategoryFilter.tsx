@@ -23,21 +23,14 @@ import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { getCategories, createCategory } from '@/lib/actions/category';
+import { useAction } from 'next-safe-action/hooks';
 
 interface Category {
   id: string;
   name: string;
   description?: string | null;
-  parentId?: string | null;
-  order: number;
-  teamId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  children?: Category[];
-  parent?: Category | null;
-  _count?: {
-    bankQuestionCategories: number;
-  };
+  color?: string;
+  questionCount?: number;
 }
 
 interface CategoryFilterProps {
@@ -46,6 +39,7 @@ interface CategoryFilterProps {
   placeholder?: string;
   allowCreate?: boolean;
   multiple?: boolean;
+  teamId: string;
 }
 
 export function CategoryFilter({
@@ -54,35 +48,52 @@ export function CategoryFilter({
   placeholder = 'Select category...',
   allowCreate = false,
   multiple = false,
+  teamId,
 }: CategoryFilterProps) {
   const t = useTranslations('questionBank');
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch categories from API
+  const { execute: fetchCategories } = useAction(getCategories, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        setCategories(data.categories);
+      }
+      setIsLoading(false);
+    },
+    onError: error => {
+      console.error('Failed to fetch categories:', error);
+      setIsLoading(false);
+    },
+  });
+
+  const { execute: executeCreate } = useAction(createCategory, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success(t('category.createSuccess'));
+        fetchCategories({ teamId });
+        setIsCreateDialogOpen(false);
+        setNewCategoryName('');
+        setNewCategoryDescription('');
+        setNewCategoryColor('#3B82F6');
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(error.serverError || t('category.createError'));
+    },
+  });
+
+  useEffect(() => {
+    if (teamId) {
+      fetchCategories({ teamId });
+    }
+  }, [teamId, fetchCategories]);
   const [creating, setCreating] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
-  const [parentId, setParentId] = useState<string>('');
+  const [newCategoryColor, setNewCategoryColor] = useState('#3B82F6');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-
-  const loadCategories = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      const result = await getCategories({ includeChildren: true });
-      if (result?.data?.categories) {
-        setCategories(result.data.categories);
-      }
-    } catch (error) {
-      console.error('Failed to load categories:', error);
-      toast.error(t('category.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
@@ -90,39 +101,30 @@ export function CategoryFilter({
       return;
     }
 
-    try {
-      setCreating(true);
-
-      const result = await createCategory({
-        name: newCategoryName.trim(),
-        description: newCategoryDescription.trim() || undefined,
-        parentId: parentId || undefined,
-      });
-
-      if (result?.data?.category) {
-        // Reload categories to get updated list
-        await loadCategories();
-        onChange(result.data.category.id);
-
-        // Reset form
-        setNewCategoryName('');
-        setNewCategoryDescription('');
-        setParentId('');
-        setIsCreateDialogOpen(false);
-
-        toast.success(t('category.createSuccess'));
-      }
-    } catch (error) {
-      console.error('Failed to create category:', error);
-      toast.error(t('category.createError'));
-    } finally {
-      setCreating(false);
-    }
+    setCreating(true);
+    executeCreate({
+      name: newCategoryName.trim(),
+      description: newCategoryDescription.trim() || undefined,
+      teamId,
+    });
+    setCreating(false);
   };
 
   const selectedCategory = categories.find(cat => cat.id === value);
+  const colorOptions = [
+    '#3B82F6', // Blue
+    '#10B981', // Green
+    '#F59E0B', // Amber
+    '#8B5CF6', // Purple
+    '#EF4444', // Red
+    '#F97316', // Orange
+    '#84CC16', // Lime
+    '#06B6D4', // Cyan
+    '#EC4899', // Pink
+    '#6B7280', // Gray
+  ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Select disabled>
         <SelectTrigger>
@@ -142,12 +144,16 @@ export function CategoryFilter({
           <SelectValue placeholder={placeholder}>
             {selectedCategory && (
               <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-gray-500" />
+                <div
+                  className="h-3 w-3 flex-shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: selectedCategory.color || '#3B82F6',
+                  }}
+                />
                 <span>{selectedCategory.name}</span>
-                {selectedCategory._count?.bankQuestionCategories !==
-                  undefined && (
+                {selectedCategory.questionCount !== undefined && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {selectedCategory._count.bankQuestionCategories}
+                    {selectedCategory.questionCount}
                   </Badge>
                 )}
               </div>
@@ -159,11 +165,14 @@ export function CategoryFilter({
           {categories.map(category => (
             <SelectItem key={category.id} value={category.id}>
               <div className="flex w-full items-center gap-2">
-                <Tag className="h-3 w-3 text-gray-500" />
+                <div
+                  className="h-3 w-3 flex-shrink-0 rounded-full"
+                  style={{ backgroundColor: category.color || '#3B82F6' }}
+                />
                 <span className="flex-1">{category.name}</span>
-                {category._count?.bankQuestionCategories !== undefined && (
+                {category.questionCount !== undefined && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {category._count.bankQuestionCategories}
+                    {category.questionCount}
                   </Badge>
                 )}
               </div>
@@ -223,28 +232,26 @@ export function CategoryFilter({
                     </div>
 
                     <div>
-                      <Label htmlFor="parent-category">
-                        {t('category.parent')}
-                      </Label>
-                      <Select value={parentId} onValueChange={setParentId}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue
-                            placeholder={t('category.selectParent')}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">
-                            {t('category.noParent')}
-                          </SelectItem>
-                          {categories
-                            .filter(cat => !cat.parentId) // Only show root categories as potential parents
-                            .map(category => (
-                              <SelectItem key={category.id} value={category.id}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
+                      <Label>{t('category.color')}</Label>
+                      <div className="mt-2 grid grid-cols-5 gap-2">
+                        {colorOptions.map(color => (
+                          <button
+                            key={color}
+                            type="button"
+                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                              newCategoryColor === color
+                                ? 'border-gray-900'
+                                : 'border-gray-300'
+                            }`}
+                            style={{ backgroundColor: color }}
+                            onClick={() => setNewCategoryColor(color)}
+                          >
+                            {newCategoryColor === color && (
+                              <Check className="h-4 w-4 text-white" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="flex justify-end gap-2 pt-4">
@@ -283,8 +290,18 @@ export function CategoryFilter({
       {/* Selected category display for multiple selection */}
       {multiple && selectedCategory && (
         <div className="flex flex-wrap gap-1">
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <Tag className="h-3 w-3" />
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-1"
+            style={{
+              borderColor: selectedCategory.color,
+              color: selectedCategory.color,
+            }}
+          >
+            <div
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: selectedCategory.color }}
+            />
             {selectedCategory.name}
             <button
               type="button"

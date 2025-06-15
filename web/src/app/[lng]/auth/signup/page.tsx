@@ -2,6 +2,9 @@
 
 import { signIn } from 'next-auth/react';
 import { useState, use, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAction } from 'next-safe-action/hooks';
 import { getEnabledProviders } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -20,7 +23,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { signupAction } from '@/lib/actions/auth';
-import { useAction } from 'next-safe-action/hooks';
 
 interface SignUpPageProps {
   params: Promise<{
@@ -56,24 +58,31 @@ export default function SignUpPage({ params }: SignUpPageProps) {
   const t = useTranslations('auth.signup');
   const router = useRouter();
 
-  const [formData, setFormData] = useState<SignupFormData>({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeToTerms: false,
-  });
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof SignupFormData, string>>
-  >({});
   const [availableProviders, setAvailableProviders] = useState({
     google: false,
     github: false,
     credentials: true,
   });
+
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false,
+    },
+  });
+
+  const {
+    formState: { errors },
+    watch,
+  } = form;
+
+  const password = watch('password');
 
   useEffect(() => {
     const providers = getEnabledProviders();
@@ -84,17 +93,14 @@ export default function SignUpPage({ params }: SignUpPageProps) {
     });
   }, []);
 
-  // ServerActionを使用
-  const {
-    execute: signup,
-    isExecuting,
-    result,
-  } = useAction(signupAction, {
-    onSuccess: async () => {
+  // ServerActionを実行
+  const { execute, isPending } = useAction(signupAction, {
+    onSuccess: async data => {
       // Auto sign in after successful signup
+      const formValues = form.getValues();
       const signInResult = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
+        email: formValues.email,
+        password: formValues.password,
         callbackUrl: `/${resolvedParams.lng}/dashboard`,
         redirect: false,
       });
@@ -102,50 +108,20 @@ export default function SignUpPage({ params }: SignUpPageProps) {
       if (signInResult?.ok) {
         router.push(`/${resolvedParams.lng}/dashboard`);
       } else {
-        setErrors({ email: '自動ログインに失敗しました' });
+        form.setError('email', { message: '自動ログインに失敗しました' });
       }
     },
     onError: error => {
       if (error.error?.serverError) {
-        setErrors({ email: String(error.error.serverError) });
+        form.setError('email', { message: String(error.error.serverError) });
       } else {
-        setErrors({ email: 'エラーが発生しました' });
+        form.setError('email', { message: 'エラーが発生しました' });
       }
     },
   });
 
-  const validateForm = (): boolean => {
-    try {
-      signupSchema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const fieldErrors: Partial<Record<keyof SignupFormData, string>> = {};
-        error.errors.forEach(err => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as keyof SignupFormData] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
-      }
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    // ServerActionを実行
-    signup({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    });
+  const onSubmit = async (data: SignupFormData) => {
+    await execute(data);
   };
 
   const handleSocialSignUp = (provider: 'google' | 'github') => {
@@ -180,16 +156,6 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               </p>
             </div>
 
-            {/* Server Error Alert */}
-            {result?.serverError && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {String(result.serverError)}
-                </AlertDescription>
-              </Alert>
-            )}
-
             {(availableProviders.google || availableProviders.github) && (
               <div className="space-y-3">
                 {availableProviders.google && (
@@ -198,7 +164,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     variant="outline"
                     className="w-full"
                     onClick={() => handleSocialSignUp('google')}
-                    disabled={isExecuting}
+                    disabled={isPending}
                   >
                     <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                       <path
@@ -228,7 +194,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     variant="outline"
                     className="w-full"
                     onClick={() => handleSocialSignUp('github')}
-                    disabled={isExecuting}
+                    disabled={isPending}
                   >
                     <svg
                       className="mr-2 h-5 w-5"
@@ -262,21 +228,20 @@ export default function SignUpPage({ params }: SignUpPageProps) {
             )}
 
             {/* Sign Up Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="name">{t('name')}</Label>
                 <Input
                   id="name"
                   type="text"
-                  value={formData.name}
-                  onChange={e =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  {...form.register('name')}
                   className={errors.name ? 'border-red-500' : ''}
-                  disabled={isExecuting}
+                  disabled={isPending}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
 
@@ -285,15 +250,14 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 <Input
                   id="email"
                   type="email"
-                  value={formData.email}
-                  onChange={e =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  {...form.register('email')}
                   className={errors.email ? 'border-red-500' : ''}
-                  disabled={isExecuting}
+                  disabled={isPending}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -303,12 +267,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={e =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    {...form.register('password')}
                     className={errors.password ? 'border-red-500' : ''}
-                    disabled={isExecuting}
+                    disabled={isPending}
                   />
                   <button
                     type="button"
@@ -323,21 +284,23 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
                 )}
-                {formData.password && (
+                {password && (
                   <div className="mt-2 space-y-1">
                     <div className="flex items-center text-xs">
                       <CheckCircle
                         className={`mr-1 h-3 w-3 ${
-                          formData.password.length >= 8
+                          password.length >= 8
                             ? 'text-green-500'
                             : 'text-gray-300'
                         }`}
                       />
                       <span
                         className={
-                          formData.password.length >= 8
+                          password.length >= 8
                             ? 'text-green-600'
                             : 'text-gray-500'
                         }
@@ -348,18 +311,18 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     <div className="flex items-center text-xs">
                       <CheckCircle
                         className={`mr-1 h-3 w-3 ${
-                          /[A-Z]/.test(formData.password) &&
-                          /[a-z]/.test(formData.password) &&
-                          /\d/.test(formData.password)
+                          /[A-Z]/.test(password) &&
+                          /[a-z]/.test(password) &&
+                          /\d/.test(password)
                             ? 'text-green-500'
                             : 'text-gray-300'
                         }`}
                       />
                       <span
                         className={
-                          /[A-Z]/.test(formData.password) &&
-                          /[a-z]/.test(formData.password) &&
-                          /\d/.test(formData.password)
+                          /[A-Z]/.test(password) &&
+                          /[a-z]/.test(password) &&
+                          /\d/.test(password)
                             ? 'text-green-600'
                             : 'text-gray-500'
                         }
@@ -377,15 +340,9 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
-                    value={formData.confirmPassword}
-                    onChange={e =>
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      })
-                    }
+                    {...form.register('confirmPassword')}
                     className={errors.confirmPassword ? 'border-red-500' : ''}
-                    disabled={isExecuting}
+                    disabled={isPending}
                   />
                   <button
                     type="button"
@@ -401,7 +358,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </div>
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-500">
-                    {errors.confirmPassword}
+                    {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
@@ -409,14 +366,8 @@ export default function SignUpPage({ params }: SignUpPageProps) {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={checked =>
-                    setFormData({
-                      ...formData,
-                      agreeToTerms: checked as boolean,
-                    })
-                  }
-                  disabled={isExecuting}
+                  {...form.register('agreeToTerms')}
+                  disabled={isPending}
                 />
                 <label
                   htmlFor="terms"
@@ -439,15 +390,17 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p className="text-sm text-red-500">{errors.agreeToTerms}</p>
+                <p className="text-sm text-red-500">
+                  {errors.agreeToTerms.message}
+                </p>
               )}
 
               <Button
                 type="submit"
                 className="bg-examforge-blue hover:bg-examforge-blue-dark w-full"
-                disabled={isExecuting}
+                disabled={isPending}
               >
-                {isExecuting ? (
+                {isPending ? (
                   <span className="flex items-center">
                     <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     {t('creatingAccount')}

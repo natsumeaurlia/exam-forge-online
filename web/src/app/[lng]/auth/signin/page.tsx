@@ -2,8 +2,11 @@
 
 import { signIn, getProviders, type ClientSafeProvider } from 'next-auth/react';
 import { useState, useEffect, use } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { z } from 'zod';
 import {
   Eye,
   EyeOff,
@@ -25,6 +28,14 @@ interface SignInPageProps {
   }>;
 }
 
+const signinSchema = z.object({
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(1, 'パスワードを入力してください'),
+  rememberMe: z.boolean().optional(),
+});
+
+type SigninFormData = z.infer<typeof signinSchema>;
+
 export default function SignInPage({ params }: SignInPageProps) {
   const resolvedParams = use(params);
   const t = useTranslations('auth.signin');
@@ -32,8 +43,6 @@ export default function SignInPage({ params }: SignInPageProps) {
     string,
     ClientSafeProvider
   > | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -41,6 +50,20 @@ export default function SignInPage({ params }: SignInPageProps) {
   const { toast } = useToast();
   const errorParam = searchParams.get('error');
   const messageParam = searchParams.get('message');
+
+  const form = useForm<SigninFormData>({
+    resolver: zodResolver(signinSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
+
+  const {
+    formState: { errors },
+    handleSubmit,
+  } = form;
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -50,14 +73,13 @@ export default function SignInPage({ params }: SignInPageProps) {
     fetchProviders();
   }, []);
 
-  const handleCredentialsSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: SigninFormData) => {
     setIsLoading(true);
 
     try {
       const result = await signIn('credentials', {
-        email,
-        password,
+        email: data.email,
+        password: data.password,
         callbackUrl: `/${resolvedParams.lng}/dashboard`,
         redirect: false,
       });
@@ -194,18 +216,22 @@ export default function SignInPage({ params }: SignInPageProps) {
             </div>
 
             {/* Credentials Form */}
-            <form onSubmit={handleCredentialsSignIn} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="email">{t('email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  {...form.register('email')}
                   placeholder="test@example.com"
                   disabled={isLoading}
-                  required
+                  className={errors.email ? 'border-red-500' : ''}
                 />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -214,11 +240,10 @@ export default function SignInPage({ params }: SignInPageProps) {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    {...form.register('password')}
                     placeholder="••••••••"
                     disabled={isLoading}
-                    required
+                    className={errors.password ? 'border-red-500' : ''}
                   />
                   <button
                     type="button"
@@ -232,11 +257,16 @@ export default function SignInPage({ params }: SignInPageProps) {
                     )}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" />
+                  <Checkbox id="remember" {...form.register('rememberMe')} />
                   <label
                     htmlFor="remember"
                     className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

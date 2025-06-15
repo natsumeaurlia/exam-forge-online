@@ -1,95 +1,136 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { createSafeActionClient } from 'next-safe-action';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 const action = createSafeActionClient();
 
+// Validation schemas
 const createCategorySchema = z.object({
-  name: z.string().min(1).max(100),
+  name: z.string().min(1, 'Category name is required').max(100),
   description: z.string().optional(),
   parentId: z.string().optional(),
-  order: z.number().default(0),
+  teamId: z.string(),
 });
 
 const updateCategorySchema = z.object({
   id: z.string(),
-  name: z.string().min(1).max(100).optional(),
+  name: z.string().min(1, 'Category name is required').max(100),
   description: z.string().optional(),
   parentId: z.string().optional(),
-  order: z.number().optional(),
 });
 
 const deleteCategorySchema = z.object({
   id: z.string(),
 });
 
-const getCategoriesSchema = z.object({
-  includeChildren: z.boolean().default(true),
+const reorderCategoriesSchema = z.object({
+  categories: z.array(
+    z.object({
+      id: z.string(),
+      order: z.number(),
+    })
+  ),
 });
 
-export const createCategory = action(
-  createCategorySchema,
-  async ({ name, description, parentId, order }) => {
+// Helper function to verify team access
+async function verifyTeamAccess(teamId: string, userId: string) {
+  const teamMember = await prisma.teamMember.findFirst({
+    where: {
+      userId,
+      teamId,
+      role: {
+        in: ['OWNER', 'ADMIN'],
+      },
+    },
+  });
+
+  if (!teamMember) {
+    throw new Error('Insufficient permissions to manage categories');
+  }
+
+  return teamMember;
+}
+
+// Get categories for a team with hierarchical structure
+export const getCategories = action
+  .schema(z.object({ teamId: z.string() }))
+  .action(async ({ parsedInput }) => {
     const session = await auth();
     if (!session?.user?.id) {
-      throw new Error('Unauthorized');
+      redirect('/auth/signin');
     }
 
+    const { teamId } = parsedInput;
+
+    // Verify user has access to the team
     const teamMember = await prisma.teamMember.findFirst({
       where: {
         userId: session.user.id,
-        status: 'ACTIVE',
-      },
-      include: {
-        team: true,
+        teamId,
       },
     });
 
     if (!teamMember) {
-      throw new Error('No active team found');
+      throw new Error('Access denied to team categories');
     }
 
-    // Check if parent exists and belongs to the same team
-    if (parentId) {
-      const parent = await prisma.category.findFirst({
-        where: {
-          id: parentId,
-          teamId: teamMember.teamId,
+    const categories = await prisma.category.findMany({
+      where: { teamId },
+      include: {
+        children: {
+          include: {
+            _count: {
+              select: {
+                bankQuestionCategories: true,
+              },
+            },
+          },
+          orderBy: { order: 'asc' },
         },
-      });
-
-      if (!parent) {
-        throw new Error('Parent category not found');
-      }
-    }
-
-    // Check for duplicate names within the same team and parent
-    const existingCategory = await prisma.category.findFirst({
-      where: {
-        name,
-        teamId: teamMember.teamId,
-        parentId: parentId || null,
+        _count: {
+          select: {
+            bankQuestionCategories: true,
+          },
+        },
       },
+      orderBy: { order: 'asc' },
     });
 
-    if (existingCategory) {
-      throw new Error('Category with this name already exists');
+    // Transform to include question counts
+    const categoriesWithCounts = categories.map(category => ({
+      ...category,
+      questionCount: category._count.bankQuestionCategories,
+      children: category.children.map(child => ({
+        ...child,
+        questionCount: child._count.bankQuestionCategories,
+      })),
+    }));
+
+    return { success: true, categories: categoriesWithCounts };
+  });
+
+// Get a single category by ID
+export const getCategory = action
+  .schema(z.object({ id: z.string() }))
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/auth/signin');
     }
 
-    const category = await prisma.category.create({
-      data: {
-        name,
-        description,
-        teamId: teamMember.teamId,
-        parentId,
-        order,
-      },
+    const { id } = parsedInput;
+
+    const category = await prisma.category.findUnique({
+      where: { id },
       include: {
-        children: true,
+        children: {
+          orderBy: { order: 'asc' },
+        },
         parent: true,
         _count: {
           select: {
@@ -99,120 +140,154 @@ export const createCategory = action(
       },
     });
 
-    revalidatePath('/dashboard/question-bank');
-    return { category };
-  }
-);
-
-export const updateCategory = action(
-  updateCategorySchema,
-  async ({ id, name, description, parentId, order }) => {
-    const session = await auth();
-    if (!session?.user?.id) {
-      throw new Error('Unauthorized');
+    if (!category) {
+      throw new Error('Category not found');
     }
 
+    // Verify user has access to the team
     const teamMember = await prisma.teamMember.findFirst({
       where: {
         userId: session.user.id,
-        status: 'ACTIVE',
+        teamId: category.teamId,
       },
     });
 
     if (!teamMember) {
-      throw new Error('No active team found');
+      throw new Error('Access denied to category');
     }
 
-    // Verify category belongs to user's team
-    const existingCategory = await prisma.category.findFirst({
-      where: {
-        id,
-        teamId: teamMember.teamId,
+    return {
+      success: true,
+      category: {
+        ...category,
+        questionCount: category._count.bankQuestionCategories,
       },
+    };
+  });
+
+// Create a new category
+export const createCategory = action
+  .schema(createCategorySchema)
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/auth/signin');
+    }
+
+    const { name, description, parentId, teamId } = parsedInput;
+
+    // Verify user has admin access to the team
+    await verifyTeamAccess(teamId, session.user.id);
+
+    // If parentId is provided, verify it exists and belongs to the same team
+    if (parentId) {
+      const parentCategory = await prisma.category.findUnique({
+        where: { id: parentId },
+      });
+
+      if (!parentCategory || parentCategory.teamId !== teamId) {
+        throw new Error('Invalid parent category');
+      }
+    }
+
+    // Get the next order value for categories at this level
+    const maxOrder = await prisma.category.aggregate({
+      where: {
+        teamId,
+        parentId: parentId || null,
+      },
+      _max: {
+        order: true,
+      },
+    });
+
+    const nextOrder = (maxOrder._max.order || 0) + 1;
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        description,
+        teamId,
+        parentId,
+        order: nextOrder,
+      },
+      include: {
+        _count: {
+          select: {
+            bankQuestionCategories: true,
+          },
+        },
+      },
+    });
+
+    revalidatePath('/dashboard/categories');
+    revalidatePath('/dashboard/question-bank');
+
+    return {
+      success: true,
+      category: {
+        ...category,
+        questionCount: category._count.bankQuestionCategories,
+      },
+    };
+  });
+
+// Update an existing category
+export const updateCategory = action
+  .schema(updateCategorySchema)
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/auth/signin');
+    }
+
+    const { id, name, description, parentId } = parsedInput;
+
+    // Get the existing category to verify team access
+    const existingCategory = await prisma.category.findUnique({
+      where: { id },
     });
 
     if (!existingCategory) {
       throw new Error('Category not found');
     }
 
-    // Check if parent exists and belongs to the same team (if changing parent)
-    if (parentId && parentId !== existingCategory.parentId) {
-      // Prevent circular references
+    // Verify user has admin access to the team
+    await verifyTeamAccess(existingCategory.teamId, session.user.id);
+
+    // If parentId is provided, verify it exists and belongs to the same team
+    if (parentId) {
+      const parentCategory = await prisma.category.findUnique({
+        where: { id: parentId },
+      });
+
+      if (
+        !parentCategory ||
+        parentCategory.teamId !== existingCategory.teamId
+      ) {
+        throw new Error('Invalid parent category');
+      }
+
+      // Prevent creating circular references
       if (parentId === id) {
-        throw new Error('Category cannot be its own parent');
+        throw new Error('A category cannot be its own parent');
       }
 
-      const parent = await prisma.category.findFirst({
-        where: {
-          id: parentId,
-          teamId: teamMember.teamId,
-        },
-      });
-
-      if (!parent) {
-        throw new Error('Parent category not found');
-      }
-
-      // Check if the new parent is not a descendant of this category
-      const checkCircularReference = async (
-        categoryId: string,
-        targetParentId: string
-      ): Promise<boolean> => {
-        const descendants = await prisma.category.findMany({
-          where: {
-            parentId: categoryId,
-          },
-          select: {
-            id: true,
-          },
-        });
-
-        for (const descendant of descendants) {
-          if (descendant.id === targetParentId) {
-            return true;
-          }
-          if (await checkCircularReference(descendant.id, targetParentId)) {
-            return true;
-          }
-        }
-        return false;
-      };
-
-      if (await checkCircularReference(id, parentId)) {
-        throw new Error('Cannot create circular reference');
-      }
-    }
-
-    // Check for duplicate names if name is being changed
-    if (name && name !== existingCategory.name) {
-      const duplicateCategory = await prisma.category.findFirst({
-        where: {
-          name,
-          teamId: teamMember.teamId,
-          parentId:
-            parentId !== undefined ? parentId : existingCategory.parentId,
-          id: { not: id },
-        },
-      });
-
-      if (duplicateCategory) {
-        throw new Error('Category with this name already exists');
+      // Check if the parentId would create a circular reference
+      const isCircular = await checkCircularReference(id, parentId);
+      if (isCircular) {
+        throw new Error('This parent would create a circular reference');
       }
     }
 
     const category = await prisma.category.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
-        ...(name && { name }),
-        ...(description !== undefined && { description }),
-        ...(parentId !== undefined && { parentId }),
-        ...(order !== undefined && { order }),
+        name,
+        description,
+        parentId,
       },
       include: {
-        children: true,
-        parent: true,
         _count: {
           select: {
             bankQuestionCategories: true,
@@ -221,165 +296,205 @@ export const updateCategory = action(
       },
     });
 
+    revalidatePath('/dashboard/categories');
     revalidatePath('/dashboard/question-bank');
-    return { category };
-  }
-);
 
-export const deleteCategory = action(deleteCategorySchema, async ({ id }) => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error('Unauthorized');
-  }
-
-  const teamMember = await prisma.teamMember.findFirst({
-    where: {
-      userId: session.user.id,
-      status: 'ACTIVE',
-    },
-  });
-
-  if (!teamMember) {
-    throw new Error('No active team found');
-  }
-
-  // Verify category belongs to user's team
-  const category = await prisma.category.findFirst({
-    where: {
-      id,
-      teamId: teamMember.teamId,
-    },
-    include: {
-      children: true,
-      _count: {
-        select: {
-          bankQuestionCategories: true,
-        },
+    return {
+      success: true,
+      category: {
+        ...category,
+        questionCount: category._count.bankQuestionCategories,
       },
-    },
+    };
   });
 
-  if (!category) {
-    throw new Error('Category not found');
-  }
-
-  // Check if category has children
-  if (category.children.length > 0) {
-    throw new Error(
-      'Cannot delete category with subcategories. Delete subcategories first.'
-    );
-  }
-
-  // Check if category is used by questions
-  if (category._count.bankQuestionCategories > 0) {
-    throw new Error(
-      'Cannot delete category that is used by questions. Remove questions from this category first.'
-    );
-  }
-
-  await prisma.category.delete({
-    where: {
-      id,
-    },
-  });
-
-  revalidatePath('/dashboard/question-bank');
-  return { success: true };
-});
-
-export const getCategories = action(
-  getCategoriesSchema,
-  async ({ includeChildren }) => {
+// Delete a category
+export const deleteCategory = action
+  .schema(deleteCategorySchema)
+  .action(async ({ parsedInput }) => {
     const session = await auth();
     if (!session?.user?.id) {
-      throw new Error('Unauthorized');
+      redirect('/auth/signin');
     }
 
+    const { id } = parsedInput;
+
+    // Get the category to verify team access and check for children
+    const category = await prisma.category.findUnique({
+      where: { id },
+      include: {
+        children: true,
+        _count: {
+          select: {
+            bankQuestionCategories: true,
+          },
+        },
+      },
+    });
+
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    // Verify user has admin access to the team
+    await verifyTeamAccess(category.teamId, session.user.id);
+
+    // Check if category has children
+    if (category.children.length > 0) {
+      throw new Error(
+        'Cannot delete category with subcategories. Delete subcategories first.'
+      );
+    }
+
+    // Check if category has associated questions
+    if (category._count.bankQuestionCategories > 0) {
+      throw new Error(
+        'Cannot delete category with associated questions. Remove questions from category first.'
+      );
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    });
+
+    revalidatePath('/dashboard/categories');
+    revalidatePath('/dashboard/question-bank');
+
+    return { success: true };
+  });
+
+// Reorder categories
+export const reorderCategories = action
+  .schema(reorderCategoriesSchema)
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/auth/signin');
+    }
+
+    const { categories } = parsedInput;
+
+    if (categories.length === 0) {
+      return { success: true };
+    }
+
+    // Get the first category to verify team access
+    const firstCategory = await prisma.category.findUnique({
+      where: { id: categories[0].id },
+    });
+
+    if (!firstCategory) {
+      throw new Error('Category not found');
+    }
+
+    // Verify user has admin access to the team
+    await verifyTeamAccess(firstCategory.teamId, session.user.id);
+
+    // Update all categories in a transaction
+    await prisma.$transaction(
+      categories.map(({ id, order }) =>
+        prisma.category.update({
+          where: { id },
+          data: { order },
+        })
+      )
+    );
+
+    revalidatePath('/dashboard/categories');
+    revalidatePath('/dashboard/question-bank');
+
+    return { success: true };
+  });
+
+// Helper function to check for circular references
+async function checkCircularReference(
+  categoryId: string,
+  parentId: string
+): Promise<boolean> {
+  let currentParentId = parentId;
+
+  while (currentParentId) {
+    if (currentParentId === categoryId) {
+      return true; // Circular reference found
+    }
+
+    const parent = await prisma.category.findUnique({
+      where: { id: currentParentId },
+      select: { parentId: true },
+    });
+
+    if (!parent) {
+      break;
+    }
+
+    currentParentId = parent.parentId;
+  }
+
+  return false;
+}
+
+// Get category tree (hierarchical structure)
+export const getCategoryTree = action
+  .schema(z.object({ teamId: z.string() }))
+  .action(async ({ parsedInput }) => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect('/auth/signin');
+    }
+
+    const { teamId } = parsedInput;
+
+    // Verify user has access to the team
     const teamMember = await prisma.teamMember.findFirst({
       where: {
         userId: session.user.id,
-        status: 'ACTIVE',
+        teamId,
       },
     });
 
     if (!teamMember) {
-      throw new Error('No active team found');
+      throw new Error('Access denied to team categories');
     }
 
-    const categories = await prisma.category.findMany({
-      where: {
-        teamId: teamMember.teamId,
-      },
+    // Get all categories for the team
+    const allCategories = await prisma.category.findMany({
+      where: { teamId },
       include: {
-        ...(includeChildren && {
-          children: {
-            orderBy: {
-              order: 'asc',
-            },
-            include: {
-              _count: {
-                select: {
-                  bankQuestionCategories: true,
-                },
-              },
-            },
-          },
-        }),
-        parent: true,
         _count: {
           select: {
             bankQuestionCategories: true,
           },
         },
       },
-      orderBy: [
-        {
-          order: 'asc',
-        },
-        {
-          name: 'asc',
-        },
-      ],
+      orderBy: { order: 'asc' },
     });
 
-    return { categories };
-  }
-);
+    // Build hierarchical tree structure
+    const categoryMap = new Map();
+    const rootCategories: any[] = [];
 
-export const getCategoriesForTeam = async (teamId: string) => {
-  const categories = await prisma.category.findMany({
-    where: {
-      teamId,
-    },
-    include: {
-      children: {
-        orderBy: {
-          order: 'asc',
-        },
-        include: {
-          _count: {
-            select: {
-              bankQuestionCategories: true,
-            },
-          },
-        },
-      },
-      parent: true,
-      _count: {
-        select: {
-          bankQuestionCategories: true,
-        },
-      },
-    },
-    orderBy: [
-      {
-        order: 'asc',
-      },
-      {
-        name: 'asc',
-      },
-    ],
+    // First pass: create map and add question counts
+    allCategories.forEach(category => {
+      categoryMap.set(category.id, {
+        ...category,
+        questionCount: category._count.bankQuestionCategories,
+        children: [],
+      });
+    });
+
+    // Second pass: build hierarchy
+    allCategories.forEach(category => {
+      const categoryWithChildren = categoryMap.get(category.id);
+
+      if (category.parentId) {
+        const parent = categoryMap.get(category.parentId);
+        if (parent) {
+          parent.children.push(categoryWithChildren);
+        }
+      } else {
+        rootCategories.push(categoryWithChildren);
+      }
+    });
+
+    return { success: true, tree: rootCategories };
   });
-
-  return categories;
-};

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -41,13 +41,23 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
-import { createBankQuestion } from '@/lib/actions/question-bank';
 import {
+  createBankQuestion,
   generateQuestionsWithAI,
-  GeneratedQuestion,
-} from '@/lib/ai/question-generator';
+} from '@/lib/actions/question-bank';
 
-// Use the GeneratedQuestion interface from the AI module
+interface GeneratedQuestion {
+  type: QuestionType;
+  text: string;
+  points: number;
+  difficulty: QuestionDifficulty;
+  hint?: string;
+  explanation?: string;
+  options?: Array<{
+    text: string;
+    isCorrect: boolean;
+  }>;
+}
 
 interface AIQuestionGeneratorProps {
   isOpen: boolean;
@@ -61,7 +71,6 @@ export function AIQuestionGenerator({
   onSuccess,
 }: AIQuestionGeneratorProps) {
   const t = useTranslations('questionBank');
-  const locale = useLocale();
   const [step, setStep] = useState<'config' | 'generating' | 'review'>(
     'config'
   );
@@ -138,22 +147,46 @@ export function AIQuestionGenerator({
     setStep('generating');
 
     try {
-      // Use AI to generate questions
-      const aiQuestions = await generateQuestionsWithAI({
-        topic,
+      // Real AI generation using our server action
+      const result = await generateQuestionsWithAI({
+        topic: topic.trim(),
+        context: context.trim() || undefined,
         questionType,
         difficulty,
         count,
-        additionalContext,
-        language: locale as 'ja' | 'en',
+        language: language === 'japanese' ? 'ja' : 'en',
+        customInstructions: undefined,
       });
 
-      setGeneratedQuestions(aiQuestions);
-      setSelectedQuestions(new Set(aiQuestions.map((_, i) => i)));
-      setStep('review');
+      if (result?.data?.success && result.data.questions) {
+        const questions: GeneratedQuestion[] = result.data.questions.map(q => ({
+          type: q.type,
+          text: q.text,
+          points: q.points,
+          difficulty: q.difficulty,
+          hint: q.hint || undefined,
+          explanation: q.explanation || '',
+          options: q.options?.map(opt => ({
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+          })),
+        }));
+
+        setGeneratedQuestions(questions);
+        setSelectedQuestions(new Set(questions.map((_, index) => index)));
+        setStep('review');
+
+        toast.success(`${questions.length}問の問題を生成しました！`);
+      } else {
+        throw new Error(result?.data?.error || 'AI問題生成に失敗しました');
+      }
     } catch (error) {
-      console.error('Failed to generate questions:', error);
-      toast.error(t('ai.error.generationFailed'));
+      console.error('AI generation error:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'AI問題生成中にエラーが発生しました'
+      );
       setStep('config');
     } finally {
       setLoading(false);
@@ -176,46 +209,14 @@ export function AIQuestionGenerator({
       return;
     }
 
-    setSaving(true);
-    const selectedQuestionsArray = Array.from(selectedQuestions).map(
-      i => generatedQuestions[i]
-    );
+    // Questions are already saved by the AI generation process
+    // This function now just confirms the selection and closes the modal
+    const selectedCount = selectedQuestions.size;
 
-    try {
-      let successeessCount = 0;
+    toast.success(`${selectedCount}問の問題が問題バンクに保存されました`);
 
-      for (const question of selectedQuestionsArray) {
-        const result = await createBankQuestion({
-          ...question,
-          aiGenerated: true,
-          aiMetadata: {
-            topic,
-            context,
-            generatedAt: new Date().toISOString(),
-            language,
-          },
-        });
-
-        if (result.data?.success) {
-          successeessCount++;
-        }
-      }
-
-      if (successeessCount > 0) {
-        toast.success(
-          t('ai.success.questionsSaved', { count: successeessCount })
-        );
-        onSuccess();
-        handleClose();
-      } else {
-        toast.error(t('ai.error.saveFailed'));
-      }
-    } catch (error) {
-      console.error('Failed to save questions:', error);
-      toast.error(t('ai.error.saveFailed'));
-    } finally {
-      setSaving(false);
-    }
+    onSuccess();
+    handleClose();
   };
 
   const regenerateQuestions = () => {

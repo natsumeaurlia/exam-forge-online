@@ -68,124 +68,175 @@ export const submitQuizResponse = authAction
         );
       }
 
-      // トランザクションで回答を保存
-      const result = await prisma.$transaction(async tx => {
-        // 1. クイズの存在確認とアクセス権チェック
-        const quiz = await tx.quiz.findFirst({
-          where: {
-            id: data.quizId,
-            status: 'PUBLISHED',
-          },
-          include: {
-            questions: {
-              include: {
-                options: true,
+      // トランザクションで回答を保存（デッドロック防止、タイムアウト設定）
+      const result = await prisma.$transaction(
+        async tx => {
+          // 1. クイズの存在確認とアクセス権チェック
+          const quiz = await tx.quiz.findFirst({
+            where: {
+              id: data.quizId,
+              status: 'PUBLISHED',
+            },
+            include: {
+              questions: {
+                include: {
+                  options: true,
+                },
               },
             },
-          },
-        });
-
-        if (!quiz) {
-          throw new Error('クイズが見つからないか、公開されていません');
-        }
-
-        // For non-public quizzes, require authentication
-        if (!quiz.sharingMode || quiz.sharingMode !== 'URL') {
-          if (!userId) {
-            throw new Error('認証が必要です');
-          }
-        }
-
-        // 2. 回答回数制限チェック
-        if (quiz.maxAttempts && userId) {
-          const attemptCount = await tx.quizResponse.count({
-            where: {
-              quizId: data.quizId,
-              userId,
-            },
           });
 
-          if (attemptCount >= quiz.maxAttempts) {
-            throw new Error('回答回数の上限に達しています');
-          }
-        }
-
-        // 3. QuizResponseを作成
-        const quizResponse = await tx.quizResponse.create({
-          data: {
-            quizId: data.quizId,
-            userId: userId || null,
-            participantName: data.participantName,
-            participantEmail: data.participantEmail,
-            startedAt: new Date(data.startedAt),
-            completedAt: new Date(data.completedAt),
-            score: 0, // 後で計算
-            totalPoints: 0, // 後で計算
-          },
-        });
-
-        // 4. 各質問への回答を保存し、スコアを計算
-        let totalScore = 0;
-        let totalPoints = 0;
-        let correctAnswers = 0;
-
-        for (const response of data.responses) {
-          const question = quiz.questions.find(
-            q => q.id === response.questionId
-          );
-          if (!question) continue;
-
-          totalPoints += question.points;
-
-          // 正解判定
-          const isCorrect = checkAnswer(
-            question as QuestionWithDetails,
-            response.answer
-          );
-          if (isCorrect) {
-            totalScore += question.points;
-            correctAnswers++;
+          if (!quiz) {
+            throw new Error('クイズが見つからないか、公開されていません');
           }
 
-          // QuestionResponseを作成
-          await tx.questionResponse.create({
+          // 1.5. 重複送信チェック（最近5分以内の同じ内容をチェック）
+          if (userId) {
+            const recentSubmission = await tx.quizResponse.findFirst({
+              where: {
+                quizId: data.quizId,
+                userId,
+                completedAt: {
+                  gte: new Date(Date.now() - 5 * 60 * 1000), // 過去5分
+                },
+              },
+              include: {
+                questionResponses: true,
+              },
+            });
+
+            if (recentSubmission) {
+              // 回答内容のハッシュを比較して重複検出
+              const currentAnswersHash = Buffer.from(
+                JSON.stringify(
+                  data.responses.map(r => ({
+                    questionId: r.questionId,
+                    answer: r.answer,
+                  }))
+                )
+              ).toString('base64');
+
+              const previousAnswersHash = Buffer.from(
+                JSON.stringify(
+                  recentSubmission.questionResponses.map(r => ({
+                    questionId: r.questionId,
+                    answer: JSON.parse(r.answer),
+                  }))
+                )
+              ).toString('base64');
+
+              if (currentAnswersHash === previousAnswersHash) {
+                throw new Error('重複した回答が検出されました');
+              }
+            }
+          }
+
+          // For non-public quizzes, require authentication
+          if (!quiz.sharingMode || quiz.sharingMode !== 'URL') {
+            if (!userId) {
+              throw new Error('認証が必要です');
+            }
+          }
+
+          // 2. 回答回数制限チェック（ロック付きで同時処理防止）
+          if (quiz.maxAttempts && userId) {
+            const attemptCount = await tx.quizResponse.count({
+              where: {
+                quizId: data.quizId,
+                userId,
+              },
+            });
+
+            if (attemptCount >= quiz.maxAttempts) {
+              throw new Error('回答回数の上限に達しています');
+            }
+          }
+
+          // 3. QuizResponseを作成
+          const quizResponse = await tx.quizResponse.create({
             data: {
-              quizResponseId: quizResponse.id,
-              questionId: response.questionId,
-              answer: JSON.stringify(response.answer),
-              isCorrect,
-              score: isCorrect ? question.points : 0,
+              quizId: data.quizId,
+              userId: userId || null,
+              participantName: data.participantName,
+              participantEmail: data.participantEmail,
+              startedAt: new Date(data.startedAt),
+              completedAt: new Date(data.completedAt),
+              score: 0, // 後で計算
+              totalPoints: 0, // 後で計算
             },
           });
+
+          // 4. 各質問への回答を保存し、スコアを計算
+          let totalScore = 0;
+          let totalPoints = 0;
+          let correctAnswers = 0;
+
+          for (const response of data.responses) {
+            const question = quiz.questions.find(
+              q => q.id === response.questionId
+            );
+            if (!question) continue;
+
+            totalPoints += question.points;
+
+            // 正解判定
+            const isCorrect = checkAnswer(
+              question as QuestionWithDetails,
+              response.answer
+            );
+            if (isCorrect) {
+              totalScore += question.points;
+              correctAnswers++;
+            }
+
+            // QuestionResponseを作成
+            await tx.questionResponse.create({
+              data: {
+                quizResponseId: quizResponse.id,
+                questionId: response.questionId,
+                answer: JSON.stringify(response.answer),
+                isCorrect,
+                score: isCorrect ? question.points : 0,
+              },
+            });
+          }
+
+          // 5. QuizResponseのスコアを更新
+          const scorePercentage =
+            totalPoints > 0 ? Math.round((totalScore / totalPoints) * 100) : 0;
+          const updatedResponse = await tx.quizResponse.update({
+            where: { id: quizResponse.id },
+            data: {
+              score: scorePercentage,
+              totalPoints,
+              isPassed: quiz.passingScore
+                ? scorePercentage >= quiz.passingScore
+                : true,
+              timeTaken: Math.floor(
+                (new Date(data.completedAt).getTime() -
+                  new Date(data.startedAt).getTime()) /
+                  1000
+              ),
+            },
+          });
+
+          return {
+            id: updatedResponse.id,
+            score: updatedResponse.score || 0,
+            totalQuestions: quiz.questions.length,
+            correctAnswers,
+            passed: updatedResponse.isPassed || false,
+            timeTaken: updatedResponse.timeTaken || 0,
+            submissionTimestamp: updatedResponse.completedAt,
+            correlationId: `qr_${updatedResponse.id}_${Date.now()}`,
+          };
+        },
+        {
+          maxWait: 10000, // 10秒間の最大待機時間
+          timeout: 30000, // 30秒のタイムアウト
+          isolationLevel: 'ReadCommitted', // デッドロック防止
         }
-
-        // 5. QuizResponseのスコアを更新
-        const scorePercentage =
-          totalPoints > 0 ? Math.round((totalScore / totalPoints) * 100) : 0;
-        const updatedResponse = await tx.quizResponse.update({
-          where: { id: quizResponse.id },
-          data: {
-            score: scorePercentage,
-            totalPoints,
-            isPassed: quiz.passingScore
-              ? scorePercentage >= quiz.passingScore
-              : true,
-            timeTaken: Math.floor(
-              (new Date(data.completedAt).getTime() -
-                new Date(data.startedAt).getTime()) /
-                1000
-            ),
-          },
-        });
-
-        return {
-          id: updatedResponse.id,
-          score: updatedResponse.score || 0,
-          totalQuestions: quiz.questions.length,
-          correctAnswers,
-          passed: updatedResponse.isPassed || false,
-        };
-      });
+      );
 
       revalidatePath(`/quiz/${data.quizId}/results`);
       return { success: true, data: result };
