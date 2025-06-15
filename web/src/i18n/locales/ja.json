@@ -2425,5 +2425,179 @@
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
     "createFirst": "最初の問題を作成しましょう"
+  },
+  "lms": {
+    "title": "LMSサイト管理",
+    "description": "学習管理システム（LMS）サイトを作成・管理できます。",
+    "createSite": "新しいサイトを作成",
+    "empty": {
+      "title": "LMSサイトがありません",
+      "description": "最初のLMSサイトを作成して、コースの配信を開始しましょう。",
+      "action": "サイトを作成"
+    },
+    "site": {
+      "status": {
+        "published": "公開中",
+        "draft": "下書き"
+      },
+      "customDomain": "独自ドメイン",
+      "noDescription": "説明がありません",
+      "stats": {
+        "courses": "コース",
+        "users": "ユーザー",
+        "pages": "ページ"
+      },
+      "actions": {
+        "menu": "サイトメニューを開く",
+        "manage": "管理",
+        "visit": "サイトを表示",
+        "delete": "削除"
+      },
+      "delete": {
+        "title": "サイトを削除",
+        "description": "「{siteName}」を削除してもよろしいですか？この操作は取り消せません。",
+        "cancel": "キャンセル",
+        "confirm": "削除"
+      }
+    },
+    "createSite": {
+      "title": "新しいLMSサイトを作成",
+      "description": "学習管理システム（LMS）サイトを作成して、コースの配信を開始しましょう。",
+      "tabs": {
+        "basic": "基本情報",
+        "advanced": "詳細設定"
+      },
+      "fields": {
+        "name": {
+          "label": "サイト名",
+          "placeholder": "例: 営業研修プラットフォーム"
+        },
+        "slug": {
+          "label": "スラッグ",
+          "placeholder": "例: sales-training"
+        },
+        "description": {
+          "label": "説明",
+          "placeholder": "サイトの概要を入力してください"
+        },
+        "subdomain": {
+          "label": "サブドメイン",
+          "description": "独自のサブドメインでサイトにアクセスできます",
+          "placeholder": "例: sales-training"
+        }
+      },
+      "premiumNotice": {
+        "description": "プレミアムプランでは以下の機能が利用できます：",
+        "features": {
+          "customDomain": "独自ドメイン",
+          "pageBuilder": "ページビルダー",
+          "whiteLabel": "ホワイトラベル"
+        }
+      },
+      "actions": {
+        "cancel": "キャンセル",
+        "create": "作成",
+        "creating": "作成中..."
+      },
+      "success": "LMSサイトが作成されました",
+      "error": "サイトの作成に失敗しました"
+    },
+    "course": {
+      "title": "コース管理",
+      "description": "学習コースを作成・管理できます。",
+      "create": "新しいコースを作成",
+      "empty": {
+        "title": "コースがありません",
+        "description": "最初のコースを作成して、学習コンテンツの配信を開始しましょう。",
+        "action": "コースを作成"
+      },
+      "status": {
+        "draft": "下書き",
+        "published": "公開中",
+        "archived": "アーカイブ"
+      },
+      "stats": {
+        "lessons": "レッスン",
+        "students": "受講者",
+        "duration": "推定時間"
+      }
+    },
+    "lesson": {
+      "title": "レッスン管理",
+      "description": "コースのレッスンを作成・編集できます。",
+      "create": "新しいレッスンを作成",
+      "empty": {
+        "title": "レッスンがありません",
+        "description": "最初のレッスンを作成して、学習コンテンツを追加しましょう。",
+        "action": "レッスンを作成"
+      },
+      "status": {
+        "draft": "下書き",
+        "published": "公開中",
+        "archived": "アーカイブ"
+      },
+      "content": {
+        "video": "動画",
+        "text": "テキスト",
+        "quiz": "クイズ",
+        "file": "ファイル"
+      }
+    },
+    "enrollment": {
+      "title": "受講者管理",
+      "description": "コースの受講者を管理できます。",
+      "enroll": "受講者を追加",
+      "status": {
+        "enrolled": "受講中",
+        "inProgress": "学習中",
+        "completed": "完了",
+        "dropped": "中断"
+      },
+      "progress": {
+        "notStarted": "未開始",
+        "inProgress": "学習中",
+        "completed": "完了"
+      }
+    },
+    "analytics": {
+      "title": "学習分析",
+      "description": "受講者の学習状況と進捗を分析できます。",
+      "metrics": {
+        "totalStudents": "総受講者数",
+        "activeStudents": "アクティブ受講者",
+        "completionRate": "完了率",
+        "avgProgress": "平均進捗率"
+      }
+    },
+    "settings": {
+      "title": "サイト設定",
+      "description": "LMSサイトの設定を管理できます。",
+      "general": {
+        "title": "一般設定",
+        "siteName": "サイト名",
+        "siteDescription": "サイト説明",
+        "logo": "ロゴ",
+        "timezone": "タイムゾーン"
+      },
+      "domain": {
+        "title": "ドメイン設定",
+        "subdomain": "サブドメイン",
+        "customDomain": "独自ドメイン",
+        "sslCertificate": "SSL証明書"
+      },
+      "appearance": {
+        "title": "外観設定",
+        "theme": "テーマ",
+        "primaryColor": "メインカラー",
+        "secondaryColor": "サブカラー",
+        "customCss": "カスタムCSS"
+      },
+      "access": {
+        "title": "アクセス設定",
+        "allowRegistration": "新規登録を許可",
+        "requireApproval": "承認必須",
+        "passwordProtection": "パスワード保護"
+      }
+    }
   }
 }
