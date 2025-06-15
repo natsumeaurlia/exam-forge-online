@@ -103,15 +103,15 @@ export const checkFeatureAccess = action
 
     // For free teams, check basic feature access
     if (!team.subscription) {
-      const basicFeatures = [
-        FeatureType.TRUE_FALSE_QUESTION,
-        FeatureType.SINGLE_CHOICE_QUESTION,
-        FeatureType.MULTIPLE_CHOICE_QUESTION,
+      const basicFeatures: FeatureType[] = [
+        'TRUE_FALSE_QUESTION' as FeatureType,
+        'SINGLE_CHOICE_QUESTION' as FeatureType,
+        'MULTIPLE_CHOICE_QUESTION' as FeatureType,
       ];
 
       return {
         hasAccess: basicFeatures.includes(featureType),
-        limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
+        limit: featureType === 'QUIZ_CREATION_LIMIT' ? 5 : undefined,
         isUnlimited: false,
       } as FeatureCheck;
     }

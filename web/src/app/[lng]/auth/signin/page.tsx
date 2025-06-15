@@ -230,7 +230,13 @@ export default function SignInPage({ params }: SignInPageProps) {
                   aria-describedby={errors.email ? 'email-error' : undefined}
                 />
                 {errors.email && (
-                  <p id="email-error" className="mt-1 text-sm text-red-500" role="alert">{errors.email.message}</p>
+                  <p
+                    id="email-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
@@ -245,13 +251,19 @@ export default function SignInPage({ params }: SignInPageProps) {
                     disabled={isLoading}
                     className={errors.password ? 'border-red-500' : ''}
                     aria-invalid={errors.password ? 'true' : 'false'}
-                    aria-describedby={errors.password ? 'password-error' : undefined}
+                    aria-describedby={
+                      errors.password ? 'password-error' : undefined
+                    }
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    aria-label={showPassword ? t('auth.signin.hidePassword') : t('auth.signin.showPassword')}
+                    aria-label={
+                      showPassword
+                        ? t('auth.signin.hidePassword')
+                        : t('auth.signin.showPassword')
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -261,16 +273,19 @@ export default function SignInPage({ params }: SignInPageProps) {
                   </button>
                 </div>
                 {errors.password && (
-                  <p id="password-error" className="mt-1 text-sm text-red-500" role="alert">{errors.password.message}</p>
+                  <p
+                    id="password-error"
+                    className="mt-1 text-sm text-red-500"
+                    role="alert"
+                  >
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    {...form.register('rememberMe')}
-                  />
+                  <Checkbox id="remember" {...form.register('rememberMe')} />
                   <label
                     htmlFor="remember"
                     className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

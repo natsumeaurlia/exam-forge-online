@@ -1143,6 +1143,7 @@
       "createQuiz": "クイズ作成",
       "questionBank": "問題バンク",
       "templates": "テンプレート",
+      "categories": "カテゴリー管理",
       "analytics": "レポート & 分析",
       "usage": "使用量監視",
       "members": "メンバー管理",
@@ -2430,10 +2431,36 @@
     "selectAll": "すべて選択",
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
+<<<<<<< HEAD
     "createFirst": "最初の問題を作成しましょう"
   },
   "accessibility": {
     "skipToMain": "メインコンテンツにスキップ",
     "skipToNavigation": "ナビゲーションにスキップ"
+=======
+    "createFirst": "最初の問題を作成しましょう",
+    "filters": {
+      "all": "すべてのカテゴリ"
+    },
+    "category": {
+      "loadError": "カテゴリの読み込みに失敗しました",
+      "createError": "カテゴリの作成に失敗しました",
+      "createSuccess": "カテゴリを作成しました",
+      "create": "カテゴリを作成",
+      "createTitle": "新しいカテゴリを作成",
+      "name": "カテゴリ名",
+      "namePlaceholder": "カテゴリ名を入力",
+      "description": "説明",
+      "descriptionPlaceholder": "カテゴリの説明を入力",
+      "parent": "親カテゴリ",
+      "selectParent": "親カテゴリを選択",
+      "noParent": "親なし（ルートカテゴリ）",
+      "cancel": "キャンセル",
+      "creating": "作成中...",
+      "validation": {
+        "nameRequired": "カテゴリ名は必須です"
+      }
+    }
+>>>>>>> origin/main
   }
 }
