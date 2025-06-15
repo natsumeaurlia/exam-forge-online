@@ -107,11 +107,15 @@ export const checkFeatureAccess = action
         FeatureType.TRUE_FALSE_QUESTION,
         FeatureType.SINGLE_CHOICE_QUESTION,
         FeatureType.MULTIPLE_CHOICE_QUESTION,
+        FeatureType.FREE_TEXT_QUESTION,
+        FeatureType.AUTO_GRADING,
+        FeatureType.MANUAL_GRADING,
+        FeatureType.PASSWORD_PROTECTION,
       ];
 
       return {
         hasAccess: basicFeatures.includes(featureType),
-        limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
+        limit: featureType === FeatureType.AI_QUIZ_GENERATION ? 3 : undefined,
         isUnlimited: false,
       } as FeatureCheck;
     }
@@ -170,7 +174,10 @@ export const updateFeatureUsage = action
     }
 
     // Check if user has access to this feature first
-    const featureCheck = await checkTeamFeatureAccess(teamId, featureType);
+    const featureCheck = await checkFeatureAccess({
+      featureType,
+      teamId,
+    });
 
     if (!featureCheck.hasAccess) {
       throw new Error('Feature access denied');
@@ -302,30 +309,9 @@ export async function checkTeamFeatureAccess(
   teamId: string,
   featureType: FeatureType
 ): Promise<FeatureCheck> {
-  // Get team with subscription and plan features
-  const team = await prisma.team.findUnique({
-    where: { id: teamId },
-    include: {
-      subscription: {
-        include: {
-          plan: {
-            include: {
-              features: {
-                include: {
-                  feature: true,
-                },
-                where: {
-                  isEnabled: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
+  const result = await checkFeatureAccess({ featureType, teamId });
 
-  if (!team) {
+  if (!result.data) {
     return {
       hasAccess: false,
       limit: 0,
@@ -333,49 +319,7 @@ export async function checkTeamFeatureAccess(
     };
   }
 
-  // For free teams, check basic feature access
-  if (!team.subscription) {
-    const basicFeatures: FeatureType[] = [
-      FeatureType.TRUE_FALSE_QUESTION,
-      FeatureType.SINGLE_CHOICE_QUESTION,
-      FeatureType.MULTIPLE_CHOICE_QUESTION,
-    ];
-
-    return {
-      hasAccess: basicFeatures.includes(featureType),
-      limit: featureType === FeatureType.QUIZ_CREATION_LIMIT ? 5 : undefined,
-      isUnlimited: false,
-    };
-  }
-
-  // Check plan feature access
-  const planFeature = team.subscription.plan.features.find(
-    pf => pf.feature.type === featureType
-  );
-
-  if (!planFeature) {
-    return {
-      hasAccess: false,
-      limit: 0,
-      isUnlimited: false,
-    };
-  }
-
-  // Get current usage if there's a limit
-  let currentUsage = 0;
-  if (planFeature.limit && planFeature.limit > 0) {
-    currentUsage = await getCurrentFeatureUsage(teamId, featureType);
-  }
-
-  return {
-    hasAccess: true,
-    limit: planFeature.limit || undefined,
-    currentUsage,
-    remainingUsage: planFeature.limit
-      ? Math.max(0, planFeature.limit - currentUsage)
-      : undefined,
-    isUnlimited: !planFeature.limit || planFeature.limit === -1,
-  };
+  return result.data;
 }
 
 /**

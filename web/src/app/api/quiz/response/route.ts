@@ -10,7 +10,78 @@ import {
   validateQuizResponseData,
   getQuizErrorMessage,
   analyzeQuizError,
+  QuizErrorType,
 } from '@/lib/utils/quiz-error-handling';
+import { headers } from 'next/headers';
+
+// Rate limiting storage (in production, use Redis or similar)
+const rateLimitStorage = new Map<
+  string,
+  { count: number; resetTime: number }
+>();
+const submissionTracker = new Map<
+  string,
+  { timestamp: number; hash: string }
+>();
+
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // Maximum 10 submissions per minute
+const DUPLICATE_WINDOW = 5 * 1000; // 5 seconds to detect duplicates
+
+// Helper function to get client identifier
+function getClientId(request: NextRequest, userId?: string): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
+  const ip = forwarded?.split(',')[0] || realIp || 'unknown';
+  return userId ? `user_${userId}` : `ip_${ip}`;
+}
+
+// Helper function to generate content hash
+function generateContentHash(data: any): string {
+  return Buffer.from(JSON.stringify(data)).toString('base64').slice(0, 16);
+}
+
+// Helper function to check rate limit
+function checkRateLimit(clientId: string): {
+  allowed: boolean;
+  retryAfter?: number;
+} {
+  const now = Date.now();
+  const clientData = rateLimitStorage.get(clientId);
+
+  if (!clientData || now > clientData.resetTime) {
+    rateLimitStorage.set(clientId, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW,
+    });
+    return { allowed: true };
+  }
+
+  if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return {
+      allowed: false,
+      retryAfter: Math.ceil((clientData.resetTime - now) / 1000),
+    };
+  }
+
+  clientData.count++;
+  return { allowed: true };
+}
+
+// Helper function to check for duplicate submissions
+function checkDuplicateSubmission(clientId: string, dataHash: string): boolean {
+  const now = Date.now();
+  const key = `${clientId}_submission`;
+  const existing = submissionTracker.get(key);
+
+  if (!existing || now - existing.timestamp > DUPLICATE_WINDOW) {
+    submissionTracker.set(key, { timestamp: now, hash: dataHash });
+    return false;
+  }
+
+  return existing.hash === dataHash;
+}
 
 // 回答スキーマ（各問題タイプに応じた検証）
 const answerSchema = z.union([
@@ -104,6 +175,7 @@ export async function POST(request: NextRequest) {
   // 認証チェック（匿名回答も許可）
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id || null;
+  const clientId = getClientId(request, userId || undefined);
 
   let data: any = null;
 
@@ -121,6 +193,41 @@ export async function POST(request: NextRequest) {
     }
 
     data = validationResult.data;
+
+    // Rate limiting check
+    const rateLimitCheck = checkRateLimit(clientId);
+    if (!rateLimitCheck.allowed) {
+      const errorResponse = createQuizErrorResponse(
+        new Error('レート制限に達しました'),
+        { action: 'submit', quizId: data.quizId, userId: userId || undefined }
+      );
+      return NextResponse.json(errorResponse, {
+        status: 429,
+        headers: {
+          'Retry-After': rateLimitCheck.retryAfter?.toString() || '60',
+          'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': Math.ceil(
+            Date.now() / 1000 + (rateLimitCheck.retryAfter || 60)
+          ).toString(),
+        },
+      });
+    }
+
+    // Duplicate submission check
+    const contentHash = generateContentHash({
+      quizId: data.quizId,
+      responses: data.responses,
+      userId: userId,
+    });
+
+    if (checkDuplicateSubmission(clientId, contentHash)) {
+      const errorResponse = createQuizErrorResponse(
+        new Error('重複した送信が検出されました'),
+        { action: 'submit', quizId: data.quizId, userId: userId || undefined }
+      );
+      return NextResponse.json(errorResponse, { status: 409 });
+    }
 
     // 詳細データ検証
     const dataValidation = validateQuizResponseData(data);
@@ -274,6 +381,14 @@ export async function POST(request: NextRequest) {
 
     // エラータイプに応じたHTTPステータスコード
     let statusCode = 500;
+    const responseHeaders: Record<string, string> = {};
+
+    // Safely access correlation ID from error response
+    if ('error' in errorResponse && errorResponse.error?.correlationId) {
+      responseHeaders['X-Error-Correlation-ID'] =
+        errorResponse.error.correlationId;
+    }
+
     if (error instanceof Error) {
       if (
         error.message.includes('見つからない') ||
@@ -295,10 +410,40 @@ export async function POST(request: NextRequest) {
         error.message.includes('validation')
       ) {
         statusCode = 400;
+      } else if (
+        error.message.includes('レート制限') ||
+        error.message.includes('rate limit')
+      ) {
+        statusCode = 429;
+        responseHeaders['Retry-After'] = '60';
+      } else if (
+        error.message.includes('重複') ||
+        error.message.includes('duplicate')
+      ) {
+        statusCode = 409;
+      } else if (
+        error.message.includes('データベース') ||
+        error.message.includes('database')
+      ) {
+        statusCode = 503; // Service Unavailable
+        responseHeaders['Retry-After'] = '30';
+      } else if (
+        error.message.includes('アクセス拒否') ||
+        error.message.includes('access denied')
+      ) {
+        statusCode = 403;
+      } else if (
+        error.message.includes('サイズ制限') ||
+        error.message.includes('too large')
+      ) {
+        statusCode = 413; // Payload Too Large
       }
     }
 
-    return NextResponse.json(errorResponse, { status: statusCode });
+    return NextResponse.json(errorResponse, {
+      status: statusCode,
+      headers: responseHeaders,
+    });
   }
 }
 

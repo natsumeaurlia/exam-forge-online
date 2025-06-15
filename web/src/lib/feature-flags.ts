@@ -151,12 +151,13 @@ export class FeatureFlagSystem {
     }
 
     // Clear all cache entries for the team
-    const keys = Array.from(this.cache.keys());
-    for (const key of keys) {
+    const keysToDelete: string[] = [];
+    for (const key of this.cache.keys()) {
       if (key.startsWith(`${teamId}-`)) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
     }
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 }
 
@@ -212,13 +213,13 @@ export const FEATURES = {
 /**
  * Plan-based feature access mapping
  */
-const FREE_FEATURES: FeatureType[] = [
+const FREE_FEATURES = [
   FEATURES.TRUE_FALSE,
   FEATURES.SINGLE_CHOICE,
   FEATURES.MULTIPLE_CHOICE,
 ];
 
-const PRO_FEATURES: FeatureType[] = [
+const PRO_FEATURES = [
   ...FREE_FEATURES,
   FEATURES.FREE_TEXT,
   FEATURES.ADVANCED_QUESTIONS,
@@ -238,7 +239,7 @@ const PRO_FEATURES: FeatureType[] = [
   FEATURES.AUDIT_LOG,
 ];
 
-export const PLAN_FEATURES: Record<string, FeatureType[]> = {
+export const PLAN_FEATURES = {
   FREE: FREE_FEATURES,
   PRO: PRO_FEATURES,
   PREMIUM: [
@@ -268,7 +269,7 @@ export function requiresUpgrade(
   currentPlan: 'FREE' | 'PRO' | 'PREMIUM'
 ): boolean {
   const planFeatures = PLAN_FEATURES[currentPlan] || [];
-  return !planFeatures.includes(featureType);
+  return !planFeatures.includes(featureType as any);
 }
 
 /**
@@ -277,8 +278,8 @@ export function requiresUpgrade(
 export function getRequiredPlan(
   featureType: FeatureType
 ): 'FREE' | 'PRO' | 'PREMIUM' {
-  if (PLAN_FEATURES.FREE?.includes(featureType)) return 'FREE';
-  if (PLAN_FEATURES.PRO?.includes(featureType)) return 'PRO';
+  if (PLAN_FEATURES.FREE?.includes(featureType as any)) return 'FREE';
+  if (PLAN_FEATURES.PRO?.includes(featureType as any)) return 'PRO';
   return 'PREMIUM';
 }
 

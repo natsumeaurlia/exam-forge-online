@@ -746,6 +746,8 @@
       "forgotPassword": "パスワードをお忘れですか？",
       "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
       "errorGeneric": "認証エラーが発生しました。再度お試しください。",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを非表示",
       "welcome": {
         "title": "おかえりなさい！",
         "subtitle": "ExamForgeで効率的なクイズ・試験管理を再開しましょう。",
@@ -785,6 +787,10 @@
       "agreeToTerms": "に同意します",
       "createAccount": "アカウントを作成",
       "creatingAccount": "作成中...",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを非表示",
+      "showConfirmPassword": "確認用パスワードを表示",
+      "hideConfirmPassword": "確認用パスワードを非表示",
       "benefits": {
         "title": "ExamForgeで始めよう",
         "item1": {
@@ -1137,6 +1143,7 @@
       "createQuiz": "クイズ作成",
       "questionBank": "問題バンク",
       "templates": "テンプレート",
+      "categories": "カテゴリー管理",
       "analytics": "レポート & 分析",
       "usage": "使用量監視",
       "members": "メンバー管理",
@@ -1334,6 +1341,7 @@
       "unlimited": "無制限",
       "tabs": {
         "trends": "使用量トレンド",
+        "forecast": "使用量予測",
         "detailed": "詳細メトリクス"
       },
       "charts": {
@@ -1394,7 +1402,71 @@
         "description": "過去の使用量アクティビティ",
         "noData": "最近のアクティビティはありません"
       },
-      "date": "日付"
+      "date": "日付",
+      "forecast": {
+        "responses": {
+          "title": "回答数予測",
+          "perMonth": "件/月"
+        },
+        "quizzes": {
+          "title": "クイズ数予測",
+          "perMonth": "件/月"
+        },
+        "nextMonth": "来月予測",
+        "limitReached": "{days}日後に上限到達予定",
+        "confidence": {
+          "title": "予測精度"
+        },
+        "chart": {
+          "title": "使用量予測チャート",
+          "description": "履歴データに基づく将来の使用量予測",
+          "actual": "実績値",
+          "predicted": "予測値",
+          "limit": "上限"
+        }
+      },
+      "export": {
+        "quickExport": "クイックエクスポート",
+        "advancedExport": "詳細エクスポート",
+        "quickFormats": "クイック形式",
+        "formats": {
+          "csv": "CSV形式",
+          "excel": "Excel形式",
+          "json": "JSON形式",
+          "pdf": "PDF形式"
+        },
+        "advanced": {
+          "title": "詳細エクスポートオプション",
+          "description": "カスタマイズされたレポートを生成します",
+          "format": "エクスポート形式",
+          "dateRange": "期間選択",
+          "includeResources": "含めるリソース",
+          "additionalOptions": "追加オプション",
+          "includeForecasts": "予測データを含める",
+          "includeComparisons": "比較データを含める",
+          "granularity": "データ粒度"
+        },
+        "dateRanges": {
+          "lastWeek": "過去1週間",
+          "lastMonth": "過去1か月",
+          "last3Months": "過去3か月",
+          "last6Months": "過去6か月"
+        },
+        "resourceTypes": {
+          "quiz": "クイズ",
+          "response": "回答",
+          "member": "メンバー",
+          "storage": "ストレージ"
+        },
+        "granularity": {
+          "daily": "日次",
+          "weekly": "週次",
+          "monthly": "月次"
+        },
+        "cancel": "キャンセル",
+        "generate": "生成",
+        "generating": "生成中..."
+      }
     }
   },
   "plans": {
@@ -2359,6 +2431,36 @@
     "selectAll": "すべて選択",
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
+<<<<<<< HEAD
     "createFirst": "最初の問題を作成しましょう"
+  },
+  "accessibility": {
+    "skipToMain": "メインコンテンツにスキップ",
+    "skipToNavigation": "ナビゲーションにスキップ"
+=======
+    "createFirst": "最初の問題を作成しましょう",
+    "filters": {
+      "all": "すべてのカテゴリ"
+    },
+    "category": {
+      "loadError": "カテゴリの読み込みに失敗しました",
+      "createError": "カテゴリの作成に失敗しました",
+      "createSuccess": "カテゴリを作成しました",
+      "create": "カテゴリを作成",
+      "createTitle": "新しいカテゴリを作成",
+      "name": "カテゴリ名",
+      "namePlaceholder": "カテゴリ名を入力",
+      "description": "説明",
+      "descriptionPlaceholder": "カテゴリの説明を入力",
+      "parent": "親カテゴリ",
+      "selectParent": "親カテゴリを選択",
+      "noParent": "親なし（ルートカテゴリ）",
+      "cancel": "キャンセル",
+      "creating": "作成中...",
+      "validation": {
+        "nameRequired": "カテゴリ名は必須です"
+      }
+    }
+>>>>>>> origin/main
   }
 }
