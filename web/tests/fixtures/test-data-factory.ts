@@ -52,7 +52,7 @@ export interface TestQuizOptions {
   timeLimit?: number;
   maxAttempts?: number;
   password?: string;
-  sharingMode?: 'URL' | 'PUBLIC';
+  sharingMode?: 'URL';
 }
 
 export interface TestQuestionOptions {
@@ -179,7 +179,7 @@ export class TestDataFactory {
     };
 
     const quiz = await this.prisma.quiz.create({
-      data: quizData,
+      data: quizData as any,
     });
 
     this.createdData.quizzes.push(quiz.id);
