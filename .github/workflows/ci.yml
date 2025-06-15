@@ -51,7 +51,7 @@ jobs:
             node_modules
             /tmp/.pnpm-store
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('../pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-v2-
 
@@ -60,7 +60,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm db:generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
@@ -105,7 +105,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm db:generate
 
       - name: TypeScript type checking
         run: pnpm exec tsc --noEmit
@@ -168,7 +168,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm db:generate
 
       - name: Setup environment variables
         run: |
@@ -219,7 +219,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm db:generate
 
       - name: Setup environment variables
         run: |
@@ -292,7 +292,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: pnpm --filter web exec prisma generate
+        run: pnpm db:generate
 
       - name: Setup environment variables
         run: |
