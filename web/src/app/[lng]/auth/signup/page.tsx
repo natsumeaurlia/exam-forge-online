@@ -238,9 +238,11 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   {...form.register('name')}
                   className={errors.name ? 'border-red-500' : ''}
                   disabled={isPending}
+                  aria-invalid={errors.name ? 'true' : 'false'}
+                  aria-describedby={errors.name ? 'name-error' : undefined}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+                  <p id="name-error" className="mt-1 text-sm text-red-500" role="alert">{errors.name.message}</p>
                 )}
               </div>
 
@@ -252,9 +254,11 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                   {...form.register('email')}
                   className={errors.email ? 'border-red-500' : ''}
                   disabled={isPending}
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                  <p id="email-error" className="mt-1 text-sm text-red-500" role="alert">{errors.email.message}</p>
                 )}
               </div>
 
@@ -267,24 +271,27 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     {...form.register('password')}
                     className={errors.password ? 'border-red-500' : ''}
                     disabled={isPending}
+                    aria-invalid={errors.password ? 'true' : 'false'}
+                    aria-describedby={errors.password ? 'password-error password-requirements' : 'password-requirements'}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={showPassword ? t('auth.signup.hidePassword') : t('auth.signup.showPassword')}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" aria-hidden="true" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+                  <p id="password-error" className="mt-1 text-sm text-red-500" role="alert">{errors.password.message}</p>
                 )}
                 {password && (
-                  <div className="mt-2 space-y-1">
+                  <div id="password-requirements" className="mt-2 space-y-1" aria-label="Password requirements">
                     <div className="flex items-center text-xs">
                       <CheckCircle
                         className={`mr-1 h-3 w-3 ${
@@ -338,21 +345,24 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                     {...form.register('confirmPassword')}
                     className={errors.confirmPassword ? 'border-red-500' : ''}
                     disabled={isPending}
+                    aria-invalid={errors.confirmPassword ? 'true' : 'false'}
+                    aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label={showConfirmPassword ? t('auth.signup.hideConfirmPassword') : t('auth.signup.showConfirmPassword')}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" aria-hidden="true" />
                     )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-500">
+                  <p id="confirm-password-error" className="mt-1 text-sm text-red-500" role="alert">
                     {errors.confirmPassword.message}
                   </p>
                 )}
@@ -385,7 +395,7 @@ export default function SignUpPage({ params }: SignUpPageProps) {
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p className="text-sm text-red-500">{errors.agreeToTerms.message}</p>
+                <p id="terms-error" className="text-sm text-red-500" role="alert">{errors.agreeToTerms.message}</p>
               )}
 
               <Button

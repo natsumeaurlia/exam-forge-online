@@ -17,6 +17,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { usePathname } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile'; // useIsMobileフックをインポート
 import { useTranslations } from 'next-intl';
+import { SkipLinks } from '@/components/accessibility/SkipLink';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -48,6 +49,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
   return (
     <SidebarProvider open={isOpen} onOpenChange={handleOpenChange}>
       <div className="flex min-h-screen flex-col">
+        <SkipLinks />
         <DashboardHeader lng={lng} /> {/* onMenuClickは不要なので削除 */}
         <div className="flex flex-1">
           <Sidebar>
@@ -92,7 +94,7 @@ export function DashboardLayout({ children, lng }: DashboardLayoutProps) {
           <SidebarInset>
             {' '}
             {/* メインコンテンツエリア */}
-            <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+            <main id="main-content" className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
           </SidebarInset>
         </div>
       </div>

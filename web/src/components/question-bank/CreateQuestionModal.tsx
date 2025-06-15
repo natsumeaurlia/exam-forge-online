@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
 import { createBankQuestion } from '@/lib/actions/question-bank';
+import { FocusTrap } from '@/components/accessibility/FocusManager';
 
 interface Option {
   text: string;
@@ -214,6 +215,7 @@ export function CreateQuestionModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <FocusTrap active={isOpen}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
@@ -448,6 +450,7 @@ export function CreateQuestionModal({
             </form>
           </div>
         </div>
+        </FocusTrap>
       </DialogContent>
     </Dialog>
   );

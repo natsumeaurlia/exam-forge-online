@@ -746,6 +746,8 @@
       "forgotPassword": "パスワードをお忘れですか？",
       "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
       "errorGeneric": "認証エラーが発生しました。再度お試しください。",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを非表示",
       "welcome": {
         "title": "おかえりなさい！",
         "subtitle": "ExamForgeで効率的なクイズ・試験管理を再開しましょう。",
@@ -785,6 +787,10 @@
       "agreeToTerms": "に同意します",
       "createAccount": "アカウントを作成",
       "creatingAccount": "作成中...",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを非表示",
+      "showConfirmPassword": "確認用パスワードを表示",
+      "hideConfirmPassword": "確認用パスワードを非表示",
       "benefits": {
         "title": "ExamForgeで始めよう",
         "item1": {
@@ -2425,5 +2431,9 @@
     "selectedCount": "{count}件選択中",
     "noQuestions": "問題が見つかりません",
     "createFirst": "最初の問題を作成しましょう"
+  },
+  "accessibility": {
+    "skipToMain": "メインコンテンツにスキップ",
+    "skipToNavigation": "ナビゲーションにスキップ"
   }
 }

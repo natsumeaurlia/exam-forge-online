@@ -843,6 +843,8 @@
       "forgotPassword": "Forgot password?",
       "sessionExpired": "Your session has expired. Please sign in again.",
       "errorGeneric": "An authentication error occurred. Please try again.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "welcome": {
         "title": "Welcome back!",
         "subtitle": "Resume efficient quiz and exam management with ExamForge.",
@@ -882,6 +884,10 @@
       "agreeToTerms": "I agree to the",
       "createAccount": "Create account",
       "creatingAccount": "Creating...",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "showConfirmPassword": "Show confirm password",
+      "hideConfirmPassword": "Hide confirm password",
       "benefits": {
         "title": "Get started with ExamForge",
         "item1": {
@@ -2515,5 +2521,9 @@
     "selectedCount": "{count} selected",
     "noQuestions": "No questions found",
     "createFirst": "Create your first question"
+  },
+  "accessibility": {
+    "skipToMain": "Skip to main content",
+    "skipToNavigation": "Skip to navigation"
   }
 }
