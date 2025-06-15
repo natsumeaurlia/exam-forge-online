@@ -139,15 +139,9 @@ export function QuizErrorHandler({
     if (!isOnline) return <WifiOff className="h-6 w-6 text-red-500" />;
 
     switch (error.severity) {
-<<<<<<< HEAD
-      case 'error':
+      case 'critical':
         return <XCircle className="h-6 w-6 text-red-500" />;
-      case 'warning':
-=======
       case 'high':
-        return <XCircle className="h-6 w-6 text-red-500" />;
-      case 'medium':
->>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
         return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
       default:
         return <AlertTriangle className="h-6 w-6 text-blue-500" />;
@@ -156,25 +150,15 @@ export function QuizErrorHandler({
 
   const getAlertVariant = () => {
     if (!isOnline) return 'destructive';
-<<<<<<< HEAD
-    return error.severity === 'error' ? 'destructive' : 'default';
-=======
-    return error.severity === 'high' ? 'destructive' : 'default';
->>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
+    return error.severity === 'critical' ? 'destructive' : 'default';
   };
 
   return (
     <Card
       className={`border-l-4 ${
-<<<<<<< HEAD
-        error.severity === 'error'
+        error.severity === 'critical'
           ? 'border-l-red-500'
-          : error.severity === 'warning'
-=======
-        error.severity === 'high'
-          ? 'border-l-red-500'
-          : error.severity === 'medium'
->>>>>>> 37dd1a1 (feat: クイズ回答エラーハンドリング強化 - Issue #223)
+          : error.severity === 'high'
             ? 'border-l-yellow-500'
             : 'border-l-blue-500'
       } ${className}`}
