@@ -42,15 +42,18 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Cache node modules
         id: cache-deps
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
+            ${{ env.STORE_PATH }}
             node_modules
-            /tmp/.pnpm-store
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-v2-
@@ -86,13 +89,17 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
+            ${{ env.STORE_PATH }}
             node_modules
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
@@ -149,13 +156,17 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
+            ${{ env.STORE_PATH }}
             node_modules
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
@@ -200,13 +211,17 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
+            ${{ env.STORE_PATH }}
             node_modules
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
@@ -273,13 +288,17 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
+            ${{ env.STORE_PATH }}
             node_modules
-            /tmp/.pnpm-store
           key: ${{ runner.os }}-pnpm-v2-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
