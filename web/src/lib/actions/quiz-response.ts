@@ -352,7 +352,7 @@ export const getQuizResponse = authAction
       if (!response) {
         return createQuizErrorResponse(new Error('Response not found'), {
           action: 'load',
-          userId,
+          userId: ctx.userId,
         });
       }
 
@@ -369,7 +369,7 @@ export const getQuizResponse = authAction
         if (!teamMember) {
           return createQuizErrorResponse(new Error('認証が必要です'), {
             action: 'load',
-            userId,
+            userId: ctx.userId,
           });
         }
       }

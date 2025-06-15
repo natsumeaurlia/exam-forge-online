@@ -91,7 +91,13 @@ export function useEnhancedQuizTaking(
     submitQuizResponse,
     {
       onSuccess: ({ data }) => {
-        if (data && data.success && data.data) {
+        if (
+          data &&
+          'success' in data &&
+          data.success &&
+          'data' in data &&
+          data.data
+        ) {
           clearSavedAnswers(quizId);
           setError(null);
           setRetryCount(0);

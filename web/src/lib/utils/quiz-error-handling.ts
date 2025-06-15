@@ -29,7 +29,7 @@ export interface QuizErrorInfo extends ErrorInfo {
   maxRetries?: number;
   requiresAuth?: boolean;
   userActionRequired?: string;
-  severity?: 'error' | 'warning' | 'info';
+  severity?: 'low' | 'medium' | 'high' | 'critical';
   code?: string;
   technicalMessage?: string;
   timestamp?: string;
@@ -54,7 +54,7 @@ export function analyzeQuizError(
     ...baseError,
     quizErrorType: QuizErrorType.SERVER_ERROR,
     retryable: false,
-    severity: 'error',
+    severity: 'critical',
     code: 'UNKNOWN_ERROR',
     technicalMessage: errorMessage,
     timestamp: new Date().toISOString(),
