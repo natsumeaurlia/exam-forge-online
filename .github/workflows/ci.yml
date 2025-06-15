@@ -15,7 +15,7 @@ on:
 
 defaults:
   run:
-    working-directory: .
+    working-directory: ./web
 
 env:
   NODE_VERSION: '20'
@@ -37,24 +37,29 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
 
       - name: Cache node modules
         id: cache-deps
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             node_modules
             /tmp/.pnpm-store
-          key: ${{ runner.os }}-npm-v2-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-v3-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-npm-v2-
+            ${{ runner.os }}-pnpm-v3-
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm exec prisma generate
 
       - name: Cache Prisma client
         uses: actions/cache@v4
@@ -75,17 +80,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-npm-v2-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-v3-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -94,16 +104,16 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm exec prisma generate
 
       - name: TypeScript type checking
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Format check
-        run: npx prettier --check .
+        run: pnpm exec prettier --check .
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
   # データベースとPrismaのテスト
   database:
@@ -133,17 +143,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-npm-v2-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-v3-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -152,7 +167,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -161,10 +176,10 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: npx prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: npx prisma db seed
+        run: pnpm exec prisma db seed
 
   # ビルドテスト
   build:
@@ -179,17 +194,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-npm-v2-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-v3-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -198,7 +218,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -207,7 +227,7 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Build application
-        run: npm run build
+        run: pnpm run build
 
       - name: Cache build output
         uses: actions/cache@v4
@@ -247,17 +267,22 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
 
       - name: Restore pnpm store cache
         uses: actions/cache@v4
         with:
           path: |
-            ~/.npm
+            ~/.pnpm-store
             node_modules
-          key: ${{ runner.os }}-npm-v2-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-pnpm-v3-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Restore Prisma client cache
         uses: actions/cache@v4
@@ -266,7 +291,7 @@ jobs:
           key: ${{ runner.os }}-prisma-v2-${{ hashFiles('web/prisma/schema.prisma') }}
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm exec prisma generate
 
       - name: Setup environment variables
         run: |
@@ -275,16 +300,16 @@ jobs:
           echo "NEXTAUTH_URL=http://localhost:3000" >> $GITHUB_ENV
 
       - name: Run Prisma migrations
-        run: npx prisma db push --force-reset
+        run: pnpm exec prisma db push --force-reset
 
       - name: Run Prisma seed
-        run: npx prisma db seed
+        run: pnpm exec prisma db seed
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run Playwright tests
-        run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/10
+        run: pnpm exec playwright test --project=chromium --shard=${{ matrix.shard }}/10
         continue-on-error: true
         env:
           CI: true

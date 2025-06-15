@@ -1334,6 +1334,7 @@
       "unlimited": "無制限",
       "tabs": {
         "trends": "使用量トレンド",
+        "forecast": "使用量予測",
         "detailed": "詳細メトリクス"
       },
       "charts": {
@@ -1394,7 +1395,71 @@
         "description": "過去の使用量アクティビティ",
         "noData": "最近のアクティビティはありません"
       },
-      "date": "日付"
+      "date": "日付",
+      "forecast": {
+        "responses": {
+          "title": "回答数予測",
+          "perMonth": "件/月"
+        },
+        "quizzes": {
+          "title": "クイズ数予測",
+          "perMonth": "件/月"
+        },
+        "nextMonth": "来月予測",
+        "limitReached": "{days}日後に上限到達予定",
+        "confidence": {
+          "title": "予測精度"
+        },
+        "chart": {
+          "title": "使用量予測チャート",
+          "description": "履歴データに基づく将来の使用量予測",
+          "actual": "実績値",
+          "predicted": "予測値",
+          "limit": "上限"
+        }
+      },
+      "export": {
+        "quickExport": "クイックエクスポート",
+        "advancedExport": "詳細エクスポート",
+        "quickFormats": "クイック形式",
+        "formats": {
+          "csv": "CSV形式",
+          "excel": "Excel形式",
+          "json": "JSON形式",
+          "pdf": "PDF形式"
+        },
+        "advanced": {
+          "title": "詳細エクスポートオプション",
+          "description": "カスタマイズされたレポートを生成します",
+          "format": "エクスポート形式",
+          "dateRange": "期間選択",
+          "includeResources": "含めるリソース",
+          "additionalOptions": "追加オプション",
+          "includeForecasts": "予測データを含める",
+          "includeComparisons": "比較データを含める",
+          "granularity": "データ粒度"
+        },
+        "dateRanges": {
+          "lastWeek": "過去1週間",
+          "lastMonth": "過去1か月",
+          "last3Months": "過去3か月",
+          "last6Months": "過去6か月"
+        },
+        "resourceTypes": {
+          "quiz": "クイズ",
+          "response": "回答",
+          "member": "メンバー",
+          "storage": "ストレージ"
+        },
+        "granularity": {
+          "daily": "日次",
+          "weekly": "週次",
+          "monthly": "月次"
+        },
+        "cancel": "キャンセル",
+        "generate": "生成",
+        "generating": "生成中..."
+      }
     }
   },
   "plans": {
