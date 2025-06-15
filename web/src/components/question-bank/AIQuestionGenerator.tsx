@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -42,19 +42,12 @@ import {
 } from 'lucide-react';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
 import { createBankQuestion } from '@/lib/actions/question-bank';
+import {
+  generateQuestionsWithAI,
+  GeneratedQuestion,
+} from '@/lib/ai/question-generator';
 
-interface GeneratedQuestion {
-  type: QuestionType;
-  text: string;
-  points: number;
-  difficulty: QuestionDifficulty;
-  hint?: string;
-  explanation?: string;
-  options?: Array<{
-    text: string;
-    isCorrect: boolean;
-  }>;
-}
+// Use the GeneratedQuestion interface from the AI module
 
 interface AIQuestionGeneratorProps {
   isOpen: boolean;
@@ -68,6 +61,7 @@ export function AIQuestionGenerator({
   onSuccess,
 }: AIQuestionGeneratorProps) {
   const t = useTranslations('questionBank');
+  const locale = useLocale();
   const [step, setStep] = useState<'config' | 'generating' | 'review'>(
     'config'
   );
@@ -144,33 +138,18 @@ export function AIQuestionGenerator({
     setStep('generating');
 
     try {
-      // Simulate AI generation - In real implementation, this would call an AI API
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Use AI to generate questions
+      const aiQuestions = await generateQuestionsWithAI({
+        topic,
+        questionType,
+        difficulty,
+        count,
+        additionalContext,
+        language: locale as 'ja' | 'en',
+      });
 
-      // Mock generated questions
-      const mockQuestions: GeneratedQuestion[] = Array.from(
-        { length: count },
-        (_, i) => ({
-          type: questionType,
-          text: `${topic}に関する問題 ${i + 1}: サンプル問題文です。`,
-          points: 1,
-          difficulty,
-          hint: `${topic}について考えてみてください。`,
-          explanation: `この問題の解説: ${topic}に関する重要なポイントです。`,
-          options:
-            questionType !== 'SHORT_ANSWER'
-              ? [
-                  { text: '選択肢A', isCorrect: i % 3 === 0 },
-                  { text: '選択肢B', isCorrect: i % 3 === 1 },
-                  { text: '選択肢C', isCorrect: i % 3 === 2 },
-                  { text: '選択肢D', isCorrect: false },
-                ]
-              : undefined,
-        })
-      );
-
-      setGeneratedQuestions(mockQuestions);
-      setSelectedQuestions(new Set(mockQuestions.map((_, i) => i)));
+      setGeneratedQuestions(aiQuestions);
+      setSelectedQuestions(new Set(aiQuestions.map((_, i) => i)));
       setStep('review');
     } catch (error) {
       console.error('Failed to generate questions:', error);

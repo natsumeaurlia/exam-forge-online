@@ -22,13 +22,22 @@ import {
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { getCategories, createCategory } from '@/lib/actions/category';
 
 interface Category {
   id: string;
   name: string;
-  description?: string;
-  color?: string;
-  questionCount?: number;
+  description?: string | null;
+  parentId?: string | null;
+  order: number;
+  teamId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  children?: Category[];
+  parent?: Category | null;
+  _count?: {
+    bankQuestionCategories: number;
+  };
 }
 
 interface CategoryFilterProps {
@@ -52,53 +61,17 @@ export function CategoryFilter({
   const [creating, setCreating] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryDescription, setNewCategoryDescription] = useState('');
-  const [newCategoryColor, setNewCategoryColor] = useState('#3B82F6');
+  const [parentId, setParentId] = useState<string>('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Mock categories - In real implementation, this would fetch from API
-      const mockCategories: Category[] = [
-        {
-          id: '1',
-          name: '数学',
-          description: 'Mathematics questions',
-          color: '#3B82F6',
-          questionCount: 25,
-        },
-        {
-          id: '2',
-          name: '科学',
-          description: 'Science questions',
-          color: '#10B981',
-          questionCount: 18,
-        },
-        {
-          id: '3',
-          name: '歴史',
-          description: 'History questions',
-          color: '#F59E0B',
-          questionCount: 12,
-        },
-        {
-          id: '4',
-          name: '言語',
-          description: 'Language questions',
-          color: '#8B5CF6',
-          questionCount: 30,
-        },
-        {
-          id: '5',
-          name: '技術',
-          description: 'Technology questions',
-          color: '#EF4444',
-          questionCount: 22,
-        },
-      ];
-
-      setCategories(mockCategories);
+      const result = await getCategories({ includeChildren: true });
+      if (result?.data?.categories) {
+        setCategories(result.data.categories);
+      }
     } catch (error) {
       console.error('Failed to load categories:', error);
       toast.error(t('category.loadError'));
@@ -120,27 +93,25 @@ export function CategoryFilter({
     try {
       setCreating(true);
 
-      // Mock category creation - In real implementation, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newCategory: Category = {
-        id: Date.now().toString(),
+      const result = await createCategory({
         name: newCategoryName.trim(),
         description: newCategoryDescription.trim() || undefined,
-        color: newCategoryColor,
-        questionCount: 0,
-      };
+        parentId: parentId || undefined,
+      });
 
-      setCategories(prev => [...prev, newCategory]);
-      onChange(newCategory.id);
+      if (result?.data?.category) {
+        // Reload categories to get updated list
+        await loadCategories();
+        onChange(result.data.category.id);
 
-      // Reset form
-      setNewCategoryName('');
-      setNewCategoryDescription('');
-      setNewCategoryColor('#3B82F6');
-      setIsCreateDialogOpen(false);
+        // Reset form
+        setNewCategoryName('');
+        setNewCategoryDescription('');
+        setParentId('');
+        setIsCreateDialogOpen(false);
 
-      toast.success(t('category.createSuccess'));
+        toast.success(t('category.createSuccess'));
+      }
     } catch (error) {
       console.error('Failed to create category:', error);
       toast.error(t('category.createError'));
@@ -150,18 +121,6 @@ export function CategoryFilter({
   };
 
   const selectedCategory = categories.find(cat => cat.id === value);
-  const colorOptions = [
-    '#3B82F6', // Blue
-    '#10B981', // Green
-    '#F59E0B', // Amber
-    '#8B5CF6', // Purple
-    '#EF4444', // Red
-    '#F97316', // Orange
-    '#84CC16', // Lime
-    '#06B6D4', // Cyan
-    '#EC4899', // Pink
-    '#6B7280', // Gray
-  ];
 
   if (loading) {
     return (
@@ -183,16 +142,12 @@ export function CategoryFilter({
           <SelectValue placeholder={placeholder}>
             {selectedCategory && (
               <div className="flex items-center gap-2">
-                <div
-                  className="h-3 w-3 flex-shrink-0 rounded-full"
-                  style={{
-                    backgroundColor: selectedCategory.color || '#3B82F6',
-                  }}
-                />
+                <Tag className="h-4 w-4 text-gray-500" />
                 <span>{selectedCategory.name}</span>
-                {selectedCategory.questionCount !== undefined && (
+                {selectedCategory._count?.bankQuestionCategories !==
+                  undefined && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {selectedCategory.questionCount}
+                    {selectedCategory._count.bankQuestionCategories}
                   </Badge>
                 )}
               </div>
@@ -204,14 +159,11 @@ export function CategoryFilter({
           {categories.map(category => (
             <SelectItem key={category.id} value={category.id}>
               <div className="flex w-full items-center gap-2">
-                <div
-                  className="h-3 w-3 flex-shrink-0 rounded-full"
-                  style={{ backgroundColor: category.color || '#3B82F6' }}
-                />
+                <Tag className="h-3 w-3 text-gray-500" />
                 <span className="flex-1">{category.name}</span>
-                {category.questionCount !== undefined && (
+                {category._count?.bankQuestionCategories !== undefined && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {category.questionCount}
+                    {category._count.bankQuestionCategories}
                   </Badge>
                 )}
               </div>
@@ -271,26 +223,28 @@ export function CategoryFilter({
                     </div>
 
                     <div>
-                      <Label>{t('category.color')}</Label>
-                      <div className="mt-2 grid grid-cols-5 gap-2">
-                        {colorOptions.map(color => (
-                          <button
-                            key={color}
-                            type="button"
-                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                              newCategoryColor === color
-                                ? 'border-gray-900'
-                                : 'border-gray-300'
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() => setNewCategoryColor(color)}
-                          >
-                            {newCategoryColor === color && (
-                              <Check className="h-4 w-4 text-white" />
-                            )}
-                          </button>
-                        ))}
-                      </div>
+                      <Label htmlFor="parent-category">
+                        {t('category.parent')}
+                      </Label>
+                      <Select value={parentId} onValueChange={setParentId}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue
+                            placeholder={t('category.selectParent')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">
+                            {t('category.noParent')}
+                          </SelectItem>
+                          {categories
+                            .filter(cat => !cat.parentId) // Only show root categories as potential parents
+                            .map(category => (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="flex justify-end gap-2 pt-4">
@@ -329,18 +283,8 @@ export function CategoryFilter({
       {/* Selected category display for multiple selection */}
       {multiple && selectedCategory && (
         <div className="flex flex-wrap gap-1">
-          <Badge
-            variant="secondary"
-            className="flex items-center gap-1"
-            style={{
-              borderColor: selectedCategory.color,
-              color: selectedCategory.color,
-            }}
-          >
-            <div
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: selectedCategory.color }}
-            />
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Tag className="h-3 w-3" />
             {selectedCategory.name}
             <button
               type="button"
