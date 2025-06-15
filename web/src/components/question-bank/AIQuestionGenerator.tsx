@@ -41,7 +41,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { QuestionType, QuestionDifficulty } from '@prisma/client';
-import { createBankQuestion } from '@/lib/actions/question-bank';
+import { createBankQuestion, generateQuestionsWithAI } from '@/lib/actions/question-bank';
 
 interface GeneratedQuestion {
   type: QuestionType;
@@ -144,37 +144,48 @@ export function AIQuestionGenerator({
     setStep('generating');
 
     try {
-      // Simulate AI generation - In real implementation, this would call an AI API
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Real AI generation using our server action
+      const result = await generateQuestionsWithAI({
+        topic: topic.trim(),
+        context: context.trim() || undefined,
+        questionType,
+        difficulty,
+        count,
+        language: language === 'japanese' ? 'ja' : 'en',
+        customInstructions: undefined,
+      });
 
-      // Mock generated questions
-      const mockQuestions: GeneratedQuestion[] = Array.from(
-        { length: count },
-        (_, i) => ({
-          type: questionType,
-          text: `${topic}に関する問題 ${i + 1}: サンプル問題文です。`,
-          points: 1,
-          difficulty,
-          hint: `${topic}について考えてみてください。`,
-          explanation: `この問題の解説: ${topic}に関する重要なポイントです。`,
-          options:
-            questionType !== 'SHORT_ANSWER'
-              ? [
-                  { text: '選択肢A', isCorrect: i % 3 === 0 },
-                  { text: '選択肢B', isCorrect: i % 3 === 1 },
-                  { text: '選択肢C', isCorrect: i % 3 === 2 },
-                  { text: '選択肢D', isCorrect: false },
-                ]
-              : undefined,
-        })
-      );
+      if (result?.data?.success && result.data.questions) {
+        const questions: GeneratedQuestion[] = result.data.questions.map(q => ({
+          type: q.type,
+          text: q.text,
+          points: q.points,
+          difficulty: q.difficulty,
+          hint: q.hint || undefined,
+          explanation: q.explanation || '',
+          options: q.options?.map(opt => ({
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+          })),
+        }));
 
-      setGeneratedQuestions(mockQuestions);
-      setSelectedQuestions(new Set(mockQuestions.map((_, i) => i)));
-      setStep('review');
+        setGeneratedQuestions(questions);
+        setSelectedQuestions(new Set(questions.map((_, index) => index)));
+        setStep('review');
+        
+        toast.success(
+          `${questions.length}問の問題を生成しました！`
+        );
+      } else {
+        throw new Error(result?.data?.error || 'AI問題生成に失敗しました');
+      }
     } catch (error) {
-      console.error('Failed to generate questions:', error);
-      toast.error(t('ai.error.generationFailed'));
+      console.error('AI generation error:', error);
+      toast.error(
+        error instanceof Error 
+          ? error.message 
+          : 'AI問題生成中にエラーが発生しました'
+      );
       setStep('config');
     } finally {
       setLoading(false);
@@ -197,46 +208,16 @@ export function AIQuestionGenerator({
       return;
     }
 
-    setSaving(true);
-    const selectedQuestionsArray = Array.from(selectedQuestions).map(
-      i => generatedQuestions[i]
+    // Questions are already saved by the AI generation process
+    // This function now just confirms the selection and closes the modal
+    const selectedCount = selectedQuestions.size;
+    
+    toast.success(
+      `${selectedCount}問の問題が問題バンクに保存されました`
     );
-
-    try {
-      let successeessCount = 0;
-
-      for (const question of selectedQuestionsArray) {
-        const result = await createBankQuestion({
-          ...question,
-          aiGenerated: true,
-          aiMetadata: {
-            topic,
-            context,
-            generatedAt: new Date().toISOString(),
-            language,
-          },
-        });
-
-        if (result.data?.success) {
-          successeessCount++;
-        }
-      }
-
-      if (successeessCount > 0) {
-        toast.success(
-          t('ai.success.questionsSaved', { count: successeessCount })
-        );
-        onSuccess();
-        handleClose();
-      } else {
-        toast.error(t('ai.error.saveFailed'));
-      }
-    } catch (error) {
-      console.error('Failed to save questions:', error);
-      toast.error(t('ai.error.saveFailed'));
-    } finally {
-      setSaving(false);
-    }
+    
+    onSuccess();
+    handleClose();
   };
 
   const regenerateQuestions = () => {
