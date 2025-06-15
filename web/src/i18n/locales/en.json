@@ -1544,6 +1544,131 @@
         "generate": "Generate",
         "generating": "Generating..."
       }
+    },
+    "help": {
+      "title": "Help",
+      "description": "Access support information and frequently asked questions",
+      "search": {
+        "placeholder": "Search help...",
+        "noResults": "No search results found",
+        "noResultsDescription": "Try adjusting your search criteria"
+      },
+      "categories": {
+        "all": "All"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "guides": "Guides",
+        "faq": "FAQ",
+        "contact": "Contact"
+      },
+      "popular": {
+        "articles": "Popular Articles",
+        "articlesDescription": "Most viewed help articles",
+        "faqs": "Popular FAQs",
+        "faqsDescription": "Frequently asked questions"
+      },
+      "article": {
+        "views": "{count} views"
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "description": "Common questions and answers",
+        "views": "{count} views"
+      },
+      "quickStart": {
+        "title": "Quick Start Guide",
+        "description": "Essential steps to get started with ExamForge"
+      },
+      "feedback": {
+        "helpful": "Helpful",
+        "notHelpful": "Not helpful"
+      },
+      "video": {
+        "title": "Video Guides",
+        "description": "Learn how to use ExamForge with video tutorials",
+        "guides": {
+          "gettingStarted": {
+            "title": "Getting Started with ExamForge",
+            "description": "From account creation to your first quiz"
+          },
+          "createQuiz": {
+            "title": "How to Create Quizzes",
+            "description": "Steps to create effective quizzes"
+          },
+          "teamManagement": {
+            "title": "Team Management",
+            "description": "Inviting members and managing permissions"
+          },
+          "advancedFeatures": {
+            "title": "Advanced Features",
+            "description": "Leveraging analytics and reporting features"
+          }
+        },
+        "difficulty": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "playVideo": "Play Video",
+        "watchNow": "Watch Now",
+        "videoPlaceholder": "Video Preview",
+        "more": {
+          "title": "More Resources",
+          "description": "Additional information and support",
+          "playlist": "View All Videos",
+          "suggest": "Suggest Video",
+          "feedback": "Feedback"
+        }
+      },
+      "contact": {
+        "title": "Contact Us",
+        "description": "Get in touch with our support team",
+        "form": {
+          "title": "Contact Form",
+          "name": "Name",
+          "namePlaceholder": "Enter your name",
+          "email": "Email Address",
+          "emailPlaceholder": "example@company.com",
+          "category": "Category",
+          "categoryPlaceholder": "Select inquiry type",
+          "subject": "Subject",
+          "subjectPlaceholder": "Subject of your inquiry",
+          "message": "Message",
+          "messagePlaceholder": "Please provide detailed information",
+          "submit": "Submit",
+          "submitting": "Submitting...",
+          "successMessage": "Your inquiry has been received. We will contact you within 24 hours.",
+          "errorMessage": "Submission failed. Please try again later."
+        },
+        "categories": {
+          "general": "General Questions",
+          "technical": "Technical Issues",
+          "billing": "Billing & Payment",
+          "featureRequest": "Feature Request",
+          "bugReport": "Bug Report",
+          "account": "Account Related"
+        },
+        "info": {
+          "title": "Support Information",
+          "description": "Other support methods",
+          "email": "Email Address",
+          "hours": "Business Hours",
+          "hoursValue": "Weekdays 9:00-18:00 (JST)",
+          "response": "Average Response Time",
+          "responseValue": "Within 24 hours"
+        }
+      },
+      "quickActions": {
+        "chat": "Chat Support",
+        "downloadGuide": "Download Guide",
+        "moreActions": "More Actions",
+        "userManual": "User Manual",
+        "apiDocs": "API Documentation",
+        "knowledgeBase": "Knowledge Base",
+        "videoTutorials": "Video Tutorials",
+        "troubleshooting": "Troubleshooting"
+      }
     }
   },
   "plans": {

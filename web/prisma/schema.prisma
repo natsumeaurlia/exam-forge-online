@@ -66,6 +66,7 @@ model User {
   passwordResetTokens    PasswordResetToken[]
   notifications          Notification[] @relation("UserNotifications")
   notificationPreferences NotificationPreference? @relation("UserNotificationPreferences")
+  contactSubmissions     ContactSubmission[]
 
   @@index([stripeCustomerId])
   @@map("users")
@@ -98,6 +99,8 @@ model Team {
   members      TeamMember[]
   teamSettings TeamSettings?
   usageRecords UsageRecord[]
+  contactSubmissions ContactSubmission[]
+  notifications  Notification[] @relation("TeamNotifications")
   categories   Category[]
   bankQuestions BankQuestion[]
   certificateTemplates CertificateTemplate[]
@@ -1037,6 +1040,130 @@ model NotificationPreference {
   @@unique([userId])
   @@index([userId])
   @@map("notification_preferences")
+}
+
+// ============================================
+// Help System Models
+// ============================================
+
+model HelpCategory {
+  id            String   @id @default(cuid())
+  name          String
+  nameEn        String   @map("name_en")
+  description   String?
+  descriptionEn String?  @map("description_en")
+  icon          String?
+  order         Int      @default(0)
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  helpArticles  HelpArticle[]
+  faqs          FAQ[]
+
+  @@index([isActive])
+  @@index([order])
+  @@map("help_categories")
+}
+
+model HelpArticle {
+  id            String       @id @default(cuid())
+  title         String
+  titleEn       String       @map("title_en")
+  content       String       @db.Text
+  contentEn     String       @db.Text @map("content_en")
+  categoryId    String       @map("category_id")
+  tags          String[]     @default([])
+  isPublished   Boolean      @default(false) @map("is_published")
+  order         Int          @default(0)
+  viewCount     Int          @default(0) @map("view_count")
+  helpfulCount  Int          @default(0) @map("helpful_count")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  category      HelpCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([order])
+  @@index([viewCount])
+  @@map("help_articles")
+}
+
+model FAQ {
+  id            String       @id @default(cuid())
+  question      String
+  questionEn    String       @map("question_en")
+  answer        String       @db.Text
+  answerEn      String       @db.Text @map("answer_en")
+  categoryId    String       @map("category_id")
+  tags          String[]     @default([])
+  isPublished   Boolean      @default(false) @map("is_published")
+  order         Int          @default(0)
+  viewCount     Int          @default(0) @map("view_count")
+  helpfulCount  Int          @default(0) @map("helpful_count")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  category      HelpCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([order])
+  @@index([viewCount])
+  @@map("faqs")
+}
+
+model ContactSubmission {
+  id            String           @id @default(cuid())
+  name          String
+  email         String
+  subject       String
+  message       String           @db.Text
+  category      ContactCategory  @default(GENERAL)
+  status        ContactStatus    @default(PENDING)
+  priority      ContactPriority  @default(NORMAL)
+  userId        String?          @map("user_id")
+  teamId        String?          @map("team_id")
+  assignedTo    String?          @map("assigned_to")
+  responseMessage String?        @db.Text @map("response_message")
+  respondedAt   DateTime?        @map("responded_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  user          User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  team          Team?            @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@index([userId])
+  @@index([teamId])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}
+
+enum ContactCategory {
+  GENERAL
+  TECHNICAL
+  BILLING
+  FEATURE_REQUEST
+  BUG_REPORT
+  ACCOUNT
+}
+
+enum ContactStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum ContactPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
 }
 
 enum NotificationType {

@@ -1461,6 +1461,131 @@
         "generate": "生成",
         "generating": "生成中..."
       }
+    },
+    "help": {
+      "title": "ヘルプ",
+      "description": "サポート情報とよくある質問をご覧ください",
+      "search": {
+        "placeholder": "ヘルプを検索...",
+        "noResults": "検索結果が見つかりません",
+        "noResultsDescription": "検索条件を変更してお試しください"
+      },
+      "categories": {
+        "all": "すべて"
+      },
+      "tabs": {
+        "overview": "概要",
+        "guides": "ガイド",
+        "faq": "よくある質問",
+        "contact": "お問い合わせ"
+      },
+      "popular": {
+        "articles": "人気の記事",
+        "articlesDescription": "よく閲覧されるヘルプ記事",
+        "faqs": "よくある質問",
+        "faqsDescription": "頻繁に寄せられる質問"
+      },
+      "article": {
+        "views": "{count}回閲覧"
+      },
+      "faq": {
+        "title": "よくある質問",
+        "description": "頻繁に寄せられる質問と回答",
+        "views": "{count}回閲覧"
+      },
+      "quickStart": {
+        "title": "クイックスタートガイド",
+        "description": "ExamForgeを始めるための基本的な手順"
+      },
+      "feedback": {
+        "helpful": "役に立った",
+        "notHelpful": "役に立たなかった"
+      },
+      "video": {
+        "title": "ビデオガイド",
+        "description": "ExamForgeの使い方を動画で学びましょう",
+        "guides": {
+          "gettingStarted": {
+            "title": "ExamForgeを始める",
+            "description": "アカウント作成から最初のクイズ作成まで"
+          },
+          "createQuiz": {
+            "title": "クイズの作成方法",
+            "description": "効果的なクイズを作成するためのステップ"
+          },
+          "teamManagement": {
+            "title": "チーム管理",
+            "description": "メンバーの招待と権限管理"
+          },
+          "advancedFeatures": {
+            "title": "高度な機能",
+            "description": "分析とレポート機能の活用"
+          }
+        },
+        "difficulty": {
+          "beginner": "初級",
+          "intermediate": "中級",
+          "advanced": "上級"
+        },
+        "playVideo": "動画を再生",
+        "watchNow": "今すぐ見る",
+        "videoPlaceholder": "動画プレビュー",
+        "more": {
+          "title": "その他のリソース",
+          "description": "さらに詳しい情報やサポート",
+          "playlist": "全動画を見る",
+          "suggest": "動画をリクエスト",
+          "feedback": "フィードバック"
+        }
+      },
+      "contact": {
+        "title": "お問い合わせ",
+        "description": "サポートチームにご連絡ください",
+        "form": {
+          "title": "お問い合わせフォーム",
+          "name": "お名前",
+          "namePlaceholder": "お名前を入力",
+          "email": "メールアドレス",
+          "emailPlaceholder": "example@company.com",
+          "category": "カテゴリ",
+          "categoryPlaceholder": "お問い合わせの種類を選択",
+          "subject": "件名",
+          "subjectPlaceholder": "お問い合わせの件名",
+          "message": "メッセージ",
+          "messagePlaceholder": "詳細な内容をお書きください",
+          "submit": "送信",
+          "submitting": "送信中...",
+          "successMessage": "お問い合わせを受け付けました。24時間以内にご連絡いたします。",
+          "errorMessage": "送信に失敗しました。しばらくしてから再度お試しください。"
+        },
+        "categories": {
+          "general": "一般的な質問",
+          "technical": "技術的な問題",
+          "billing": "請求・支払い",
+          "featureRequest": "機能要望",
+          "bugReport": "不具合報告",
+          "account": "アカウント関連"
+        },
+        "info": {
+          "title": "サポート情報",
+          "description": "その他のサポート方法",
+          "email": "メールアドレス",
+          "hours": "営業時間",
+          "hoursValue": "平日 9:00-18:00 (JST)",
+          "response": "平均応答時間",
+          "responseValue": "24時間以内"
+        }
+      },
+      "quickActions": {
+        "chat": "チャットサポート",
+        "downloadGuide": "ガイドをダウンロード",
+        "moreActions": "その他のアクション",
+        "userManual": "ユーザーマニュアル",
+        "apiDocs": "API ドキュメント",
+        "knowledgeBase": "ナレッジベース",
+        "videoTutorials": "動画チュートリアル",
+        "troubleshooting": "トラブルシューティング"
+      }
     }
   },
   "plans": {
